@@ -2,6 +2,7 @@
 // Import React and ReactDOM
 import React from 'react';
 import ReactDOM from 'react-dom';
+import _ from 'lodash';
 
 // Base Components
 
@@ -48,42 +49,127 @@ import ReactDOM from 'react-dom';
 
 class ComponentBaseClass {
     constructor(name, baseAttrs) {
-        if (baseAttrs.displayType) {
-            this.children = [];
-        }
-
         this.attrs = baseAttrs;
         this.name = name;
     }
 }
 
-class Container {
-    constructor() {
-        super("container", {
+class Container extends ComponentBaseClass {
+    constructor(attrs, children) {
+        super("container", Object.assign({}, attrs, {
             display: "container"
+        }));
+
+        this.children = children || [];
+    }
+
+    render() {
+        var sx = {
+            
+        }
+
+        var children = _.map(this.children, function (child) {
+            return child.render();
         });
+        
+        
+        return (
+            <div style={sx}>
+                {children}
+            </div>
+        )
+    }
+}
+
+
+class Text extends ComponentBaseClass {
+    constructor(attrs) {
+        super("text", Object.assign({}, attrs, {
+            display: "content"
+        }));
+    }
+
+    render() {
+        var sx = {
+            
+        }
+        
+        return (
+            <p style={sx}>
+                {this.attrs.text}
+            </p>
+        )
     }
 }
 
 
 
+class Header extends ComponentBaseClass {
+    constructor(attrs) {
+        super("header", Object.assign({}, attrs, {
+            display: "content"
+        }));
+    }
+
+    render() {
+        var sx = {
+            
+        }
+
+        return (
+            <h1 style={sx}>
+                {this.attrs.text}
+            </h1>
+        )
+    }
+}
+
+
+class Image extends ComponentBaseClass {
+    constructor(attrs) {
+        super("image", Object.assign({}, attrs, {
+            display: "content"
+        }));
+    }
+
+    render() {
+        var sx = {
+            
+        }
+
+        return (
+            <img style={sx} src=""/>
+        )
+    }
+}
 
 // Search component created as a class
-class Search extends React.Component {
+class StaticRenderer extends React.Component {
 
-    // render method is most important
-    // render method returns JSX template
+    constructor() {
+        super();
+        this.state = {
+            elements: new Container(
+                {},
+                [
+                    new Header({text: "I am a header"})
+                ]
+            )
+        }
+
+        console.log(this.state.elements)
+    }
+    
     render() {
         return (
-            <form>
-                <input type = "text" />
-                <input type = "submit" />
-            </form>
+            <div>
+              {this.state.elements.render()}
+            </div>
         );
     }
 }
 
 // Render to ID content in the DOM
-ReactDOM.render( < Search / > ,
+ReactDOM.render( < StaticRenderer / > ,
                  document.getElementById('content')
 );
