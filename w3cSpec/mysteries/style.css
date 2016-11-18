@@ -12,9 +12,13 @@
   margin: 0px;
 }
 
+.fifty {
+  width: 50%;
+}
+
 .flex-item {
   background-color: #9cd2ff;  
-  
+  width: 150px;
   height: 150px;
   nmargin: 0px;
   padding: 0px;
@@ -28,8 +32,6 @@
 }
 
 .flex-item-other-2 {
-  width: 100px;
-  height: 100px;
   background-color: green;
 }
 
@@ -66,5 +68,11 @@
 .basis-0 {
   flex-basis: 0;
 }
+
+.center {
+  justify-content: space-around;  
+}
+
+
 
 

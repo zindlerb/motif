@@ -48,33 +48,38 @@ import _ from 'lodash';
  */
 
 class ComponentBaseClass {
-    constructor(name, baseAttrs) {
-        this.attrs = baseAttrs;
+    constructor(name, baseStyle, attrs) {        
         this.name = name;
+        this.attrs = attrs;
+        this.sx = Object.assign({}, baseStyle, attrs.style);
+    }
+
+    render() {
+        
     }
 }
 
 class Container extends ComponentBaseClass {
     constructor(attrs, children) {
-        super("container", Object.assign({}, attrs, {
-            display: "container"
-        }));
+        super("container", {
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center"
+        }, attrs || {});
+
+        this.displayType = "container";
 
         this.children = children || [];
     }
 
     render() {
-        var sx = {
-            
-        }
-
         var children = _.map(this.children, function (child) {
             return child.render();
         });
         
         
         return (
-            <div style={sx}>
+            <div style={this.sx}>
                 {children}
             </div>
         )
@@ -84,18 +89,16 @@ class Container extends ComponentBaseClass {
 
 class Text extends ComponentBaseClass {
     constructor(attrs) {
-        super("text", Object.assign({}, attrs, {
-            display: "content"
-        }));
+        super("text", {
+            
+        }, attrs);
+        
+        this.displayType = "content";
     }
 
     render() {
-        var sx = {
-            
-        }
-        
         return (
-            <p style={sx}>
+            <p style={this.sx}>
                 {this.attrs.text}
             </p>
         )
@@ -106,16 +109,12 @@ class Text extends ComponentBaseClass {
 
 class Header extends ComponentBaseClass {
     constructor(attrs) {
-        super("header", Object.assign({}, attrs, {
-            display: "content"
-        }));
+        super("header", {},  attrs);
+
+        this.dispayType = "content";
     }
 
     render() {
-        var sx = {
-            
-        }
-
         return (
             <h1 style={sx}>
                 {this.attrs.text}
@@ -127,49 +126,172 @@ class Header extends ComponentBaseClass {
 
 class Image extends ComponentBaseClass {
     constructor(attrs) {
-        super("image", Object.assign({}, attrs, {
-            display: "content"
-        }));
+        super("image", {}, attrs);
+
+        this.displayType = "content";
     }
 
     render() {
-        var sx = {
-            
-        }
-
         return (
-            <img style={sx} src=""/>
+            <img style={this.sx} src={this.attrs.src} />
         )
     }
 }
 
-// Search component created as a class
-class StaticRenderer extends React.Component {
+/*
 
-    constructor() {
-        super();
-        this.state = {
-            elements: new Container(
-                {},
-                [
-                    new Header({text: "I am a header"})
-                ]
-            )
-        }
+  - Add the dragging on
+  - Add tree view
+  - Allow building of components and adding straight attrs
 
-        console.log(this.state.elements)
+ */
+
+function StateManager() {
+    // Later can convert into more of a redux like store
+    var changeCallbacks = [];
+    var state = {
+        components: [
+            Container,
+            Header,
+            Text,
+            Image
+        ],
+        currentPage: new Container()
+    };
+
+    function triggerReRender() {
+        changeCallbacks.forEach(function(cb) {
+            cb(state);
+        });
     }
     
+    return {
+        registerChangeCallback: function(cb) {
+            changeCallbacks.push(cb);
+        },
+        setState: function(newState) {
+            Object.assign(state, newState);
+            triggerReRender();
+        },
+        updateState: function(cb) {
+            cb(state);
+            triggerReRender();
+        },
+        getState: function () {
+            return state;
+        }
+    }
+}
+
+var stateManager = StateManager();
+
+var ComponentSidebar = React.createClass({
+    render: function() {
+        var items = _.map(this.props.components, function (component) {
+            return <li className="">{component.name}</li>
+        })
+        return (
+            <ul className="list">
+                {items}
+            </ul>
+        )
+    }
+});
+
+
+
+var TreeView = React.createClass({    
+    render: function() {
+        function walkNode(node) {
+            var children = [];
+            if (node.children) {
+               children = _.map(node.children, walkNode);
+            }
+            return (
+                <div>
+                    <span>{node.name}</span>
+                    <div className="ml3">{children}</div>
+                </div>
+            )
+        }
+       
+        return (                       
+            <div>
+                {walkNode(this.props.page)}
+            </div>
+        )
+    }
+});
+
+// Search component created as a class
+class StaticRenderer extends React.Component {
     render() {
         return (
             <div>
-              {this.state.elements.render()}
+              {this.props.currentPage ? this.props.currentPage.render() : ""}
             </div>
         );
     }
 }
 
+var App = React.createClass({
+    getInitialState: function() {
+        return stateManager.getState();
+    },
+
+    componentDidMount: function() {
+        stateManager.registerChangeCallback(function(newState) {
+            this.setState(newState);
+        });
+    },
+    
+    render: function() {
+        return (
+            <div className="flex debug">
+                <div className="w4">
+                    <ComponentSidebar components={this.state.components} />
+                </div>
+                <div className="flex-auto">
+                    <StaticRenderer page={this.state.currentPage}/>
+                </div>
+                <div className="w5">
+                    <TreeView page={this.state.currentPage}/>
+                </div>                
+            </div>
+        );
+    }
+})
+
 // Render to ID content in the DOM
-ReactDOM.render( < StaticRenderer / > ,
+ReactDOM.render( < App / > ,
                  document.getElementById('content')
 );
+
+/*
+
+   Make tree view for adding
+   Make attr editing box
+   Allow creation of components
+   Allow saving of state
+
+   Try to create slack
+
+   Proposed superdiv spec
+     - Horizontal or Vertical
+     - Fills 100% of the width
+     - When horizontal
+       - Non fixed sizes fill the rest of the width
+       - Can set the distribution along both axis like in flex.
+
+
+    - if it hits the side evenly distribute the elements?
+
+
+    - What if it is justified left and you don't hit the side of the containing element?
+        
+
+*/
+
+
+
+
