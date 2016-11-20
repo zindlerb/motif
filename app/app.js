@@ -65,6 +65,22 @@ class ComponentBaseClass {
     render() {
         
     }
+
+    _notImplementedOnRoot() {
+        if (this.attrs.root) {
+            throw "Not Implemented On Root";
+        }
+    }
+
+    isLastChild() {
+        this._notImplementedOnRoot();
+        return _.last(this.parent.children).id === this.id;
+    }
+
+    isFirstChild() {
+        this._notImplementedOnRoot();
+        return _.first(this.parent.children).id === this.id;
+    }
 }
 
 function guid() {
@@ -196,7 +212,7 @@ function StateManager() {
             Text,
             Image
         ],
-        currentPage: new Container()
+        currentPage: new Container({root: true})
     };
 
     function triggerReRender() {
@@ -245,46 +261,98 @@ function distanceBetweenPoints(p1, p2) {
     return Math.abs(Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2)));
 }
 
+class Rect {
+    constructor(attrs) {
+        if (attrs) {
+            this.x = attrs.x;
+            this.y = attrs.y;
+            this.w = attrs.w;
+            this.h = attrs.h;
+        }
+    }
+
+    getHandles() {
+        throw "not implemented";
+        return {
+            topLeft: "" ,
+            topCenter: "",
+            topRight: "",
+            middleLeft: "",
+            middleCenter: "",
+            middleRight: "",
+            bottomrLeft: "",
+            bottomCenter: "",
+            bottomRight: ""
+        };
+    }
+
+    fromElement(el) {
+        var height = el.height();
+        var width = el.width();
+        var offset = el.offset();
+
+        this.x = offset.left;
+        this.y = offset.top;
+        this.w = width;
+        this.h = height;
+
+        this._el = el;
+
+        return this;
+    }
+}
+
 function findDropSpot(mousePos, nodeTree) {
     var closestNodeDist = 50;
-    var closestNode;
-    var closestNodeEl;
-    var overUnder;
-    var closestNodeIndex;
+    var foundANode = false;
+    /* {dist:, el: , ind:, node:} */
+    var closestNodes = {
+        above: {dist: closestNodeDist},
+        below: {dist: closestNodeDist}
+    }
 
     walkNodeTree(nodeTree, function (node, ind) {
         var el = $(".outline_" + node.id)
         var nodePos = el.offset();
+        var nodeMidPoint = nodePos.top + el.height()/2;
         var dist = distanceBetweenPoints(mousePos, {x: nodePos.left, y: nodePos.top + el.height()/2});
 
-        if (dist < closestNodeDist) {
-            closestNodeDist = dist;
-            closestNode = node;
-            closestNodeEl = el;
-            closestNodeIndex = ind;
+        var closestNode = closestNodes["below"];
+        if (mousePos.y > nodeMidPoint) {
+            closestNode = closestNodes["above"];
+        }
+        
+        if (dist < closestNode.dist) {
+            foundANode = true;
+            closestNode.dist = dist;
+            closestNode.node = node;
+            closestNode.el = el;
+            closestNode.ind = ind;
         }
     });
 
-    if (closestNode) {
-        /* Cant go above the initial node */
-        var height = closestNodeEl.height();
-        var yPos = closestNodeEl.offset().top;
-        var yMidPoint = yPos + height/2;
-        var yBottom = yPos + height;
+    if (foundANode) {
+        var {above, below} = closestNodes;
 
-        var insertionIndex;
-        var insertionParent;
-        var highlightType = "sibling";
-                
-        if (closestNodeIndex === undefined /* if root */ || (closestNode.dispayType === "container" && mousePos.y > yMidPoint && mousePos.y < yBottom)) {
-            insertionParent = closestNode;
-            insertionIndex = 0;
-            highlightType = "child";
-        } else {
-            insertionParent = closestNode.parent;
-            insertionIndex = closestNodeIndex + 1;
+        if (above.node) {
+            var aboveRect = new Rect().fromElement(above.el);            
         }
-        return {insertionParent: closestNode, insertionIndex: insertionIndex, highlightType: highlightType};
+
+        console.log("above.children", above.node.children.length, above.node.children);
+        
+        var dropType;
+        if (above.node.attrs.root) {
+            dropType = "child";
+        } else if (below.node && above.node.isLastChild()) {
+            dropType = "sibling";
+            
+        } else if (above.node.displayType === "container" && (above.node.children.length || (mousePos.y > aboveRect.y +  aboveRect.h/2 && mousePos.y < aboveRect.y + aboveRect.h))) {
+            dropType = "child";
+        } else {
+            dropType = "sibling";
+        }
+        
+        return {node: above.node, ind: above.ind, dropType: dropType};
     } else {
         return;
     }
@@ -307,15 +375,8 @@ var ComponentSidebar = React.createClass({
 
                     stateManager.updateState((state) => {
                         if (this.dropSpot) {
-                            var insertionIndex = this.dropSpot.insertionIndex;
-                            
-                            if (insertionIndex === 0) {
-                                state.dropHighlightId = this.dropSpot.insertionParent.id;
-                            } else {
-                                state.dropHighlightId = this.dropSpot.insertionParent.children[insertionIndex - 1].id;
-                            }
-
-                            state.highlightType = this.dropSpot.highlightType;
+                            state.dropHighlightId = this.dropSpot.node.id;
+                            state.highlightType = this.dropSpot.dropType;
                         }
                     })
                     
@@ -325,7 +386,12 @@ var ComponentSidebar = React.createClass({
                 onUp: function () {
                     stateManager.updateState((state) => {
                         if (this.dropSpot) {
-                            this.dropSpot.insertionParent.addChild(new Component(), this.dropSpot.insertionIndex);                            
+                            var {dropType, node, ind} = this.dropSpot;
+                            if (dropType === "child") {
+                                node.addChild(new Component());                            
+                            } else if (dropType === "sibling") {
+                                node.parent.addChild(new Component(), ind + 1);
+                            }
                         }
 
                         state.dropHighlightId = undefined;
