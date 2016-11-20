@@ -20,7 +20,7 @@ body * {
 
 .highlightBottom {
   border-bottom-width: 1px;
-  border-bottom-style: solid;
+  border-style: solid;
 }
 
 .sibling {
@@ -31,7 +31,8 @@ body * {
   border-color: pink !important;
 }
 
-
-
-
-
+.highlightBottom.before {
+  border-bottom-width: 0px;
+  border-top-width: 1px;
+  border-color: #42f4a4 !important;
+}

@@ -306,6 +306,7 @@ function findDropSpot(mousePos, nodeTree) {
     var closestNodeDist = 50;
     var foundANode = false;
     /* {dist:, el: , ind:, node:} */
+    /* Still doesn't allow child to be added if there is no node at the bottom... */
     var closestNodes = {
         above: {dist: closestNodeDist},
         below: {dist: closestNodeDist}
@@ -338,21 +339,25 @@ function findDropSpot(mousePos, nodeTree) {
             var aboveRect = new Rect().fromElement(above.el);            
         }
 
-        console.log("above.children", above.node.children.length, above.node.children);
-        
         var dropType;
+        var dropObj;
+        
         if (above.node.attrs.root) {
             dropType = "child";
+            dropObj = above;
         } else if (below.node && above.node.isLastChild()) {
-            dropType = "sibling";
+            dropType = "before";
+            dropObj = below;
             
         } else if (above.node.displayType === "container" && (above.node.children.length || (mousePos.y > aboveRect.y +  aboveRect.h/2 && mousePos.y < aboveRect.y + aboveRect.h))) {
             dropType = "child";
+            dropObj = above;
         } else {
             dropType = "sibling";
+            dropObj = above;
         }
         
-        return {node: above.node, ind: above.ind, dropType: dropType};
+        return {node: dropObj.node, ind: dropObj.ind, dropType: dropType};
     } else {
         return;
     }
@@ -391,6 +396,8 @@ var ComponentSidebar = React.createClass({
                                 node.addChild(new Component());                            
                             } else if (dropType === "sibling") {
                                 node.parent.addChild(new Component(), ind + 1);
+                            } else if (dropType === "before") {
+                                node.parent.addChild(new Component(), ind);
                             }
                         }
 
