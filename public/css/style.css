@@ -19,8 +19,19 @@ body * {
 }
 
 .highlightBottom {
-  border-bottom: 1px solid #42f4a4 !important;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
 }
+
+.sibling {
+  border-color: #42f4a4 !important;
+}
+
+.child {
+  border-color: pink !important;
+}
+
+
 
 
 

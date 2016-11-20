@@ -51,7 +51,8 @@ import $ from 'jquery';
  */
 
 class ComponentBaseClass {
-    constructor(name, baseStyle, attrs, parent) {        
+    constructor(name, baseStyle, attrs, parent) {
+        attrs = attrs || {};
         this.name = name;
         this.attrs = attrs;
         this.sx = Object.assign({}, baseStyle, attrs.style);
@@ -77,12 +78,12 @@ function guid() {
 }
 
 class Container extends ComponentBaseClass {
-    constructor(attrs, parent, children) {
+    constructor(attrs, children) {
         super("container", {
             display: "flex",
             flexDirection: "column",
             alignItems: "center"
-        }, attrs || {}, parent);
+        }, attrs);
 
         this.displayType = "container";        
         this.children = children || [];
@@ -109,7 +110,6 @@ class Container extends ComponentBaseClass {
             return child.render();
         });
         
-        
         return (
             <div style={this.sx}>
                 {children}
@@ -118,22 +118,20 @@ class Container extends ComponentBaseClass {
     }
 
     addChild(node, index) {
-        node.parent = this;
-        if (index) {
-            this.children.splice(index, 0, node);
-        } else {            
-            this.children.push(node);
-        }
+        node.parent = this;        
+        this.children.splice(index, 0, node);
     }
 }
 
 
 class Text extends ComponentBaseClass {
-    constructor(attrs, parent) {
-        super("text", {
-            
-        }, attrs, parent);
+    constructor(attrs) {
+        attrs = Object.assign({
+            text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In quis libero at libero dictum tempor. Cras ut odio erat. Fusce semper odio ac dignissim sollicitudin. Vivamus in tortor lobortis, bibendum lacus feugiat, vestibulum magna. Vivamus pellentesque mollis turpis, at consequat nisl tincidunt at. Nullam finibus cursus varius. Nam id consequat nunc, vitae accumsan metus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse fringilla sed lorem eleifend porta. Vivamus euismod, sapien at pretium convallis, elit libero auctor felis, id porttitor dui leo id ipsum. Etiam urna velit, ornare condimentum tincidunt quis, tincidunt a dolor. Morbi at ex hendrerit, vestibulum tellus eu, rhoncus est. In rutrum, diam dignissim condimentum tristique, ante odio rhoncus justo, quis maximus elit orci id orci.",
+            attrs
+        });
         
+        super("text", {}, attrs);
         this.displayType = "content";
     }
 
@@ -149,15 +147,16 @@ class Text extends ComponentBaseClass {
 
 
 class Header extends ComponentBaseClass {
-    constructor(attrs, parent) {
-        super("header", {},  attrs, parent);
-
+    constructor(attrs) {
+        attrs = Object.assign({text: "I am a header", attrs});
+        
+        super("header", {},  attrs);
         this.dispayType = "content";
     }
 
     render() {
         return (
-            <h1 style={sx}>
+            <h1 style={this.sx}>
                 {this.attrs.text}
             </h1>
         )
@@ -166,8 +165,8 @@ class Header extends ComponentBaseClass {
 
 
 class Image extends ComponentBaseClass {
-    constructor(attrs, parent) {
-        super("image", {}, attrs, parent);
+    constructor(attrs) {
+        super("image", {src: './public/img/slack/everywhere.png'}, attrs);
 
         this.displayType = "content";
     }
@@ -221,7 +220,8 @@ function StateManager() {
         getState: function () {
             return state;
         },
-        triggerUpdate: triggerReRender
+        triggerUpdate: triggerReRender,
+        state: state
     }
 }
 
@@ -232,7 +232,7 @@ function getGlobalPosFromSyntheticEvent(e) {
 }
 
 function walkNodeTree(node, cb, ind) {
-    cb(node);
+    cb(node, ind);
 
     if (node.children) {
         node.children.forEach(function(child, ind) {
@@ -274,17 +274,17 @@ function findDropSpot(mousePos, nodeTree) {
 
         var insertionIndex;
         var insertionParent;
-        if (mousePos.y < yMidPoint && closestNodeIndex) {
-            insertionParent = closestNode.parent;
-            insertionIndex = closestNodeIndex -  1;
-        } else if (!closestNodeIndex /* if root */ || (closestNode.dispayType === "container" && mousePos.y > yMidPoint && mousePos.y < yBottom)) {
+        var highlightType = "sibling";
+                
+        if (closestNodeIndex === undefined /* if root */ || (closestNode.dispayType === "container" && mousePos.y > yMidPoint && mousePos.y < yBottom)) {
             insertionParent = closestNode;
             insertionIndex = 0;
+            highlightType = "child";
         } else {
             insertionParent = closestNode.parent;
-            insertionIndex = closestNodeIndex;
+            insertionIndex = closestNodeIndex + 1;
         }
-        return {insertionParent: closestNode, insertionIndex: insertionIndex};
+        return {insertionParent: closestNode, insertionIndex: insertionIndex, highlightType: highlightType};
     } else {
         return;
     }
@@ -303,34 +303,35 @@ var ComponentSidebar = React.createClass({
                 dragType: "addComponent",
                 onMove: function (e) {
                     var pos = getGlobalPosFromSyntheticEvent(e);
-                    if (this.dropSpot) {
-                        this.dropSpot.insertionParent.hideDropHighlight(this.dropSpot.insertionIndex);
-                    }
-                    this.dropSpot = findDropSpot(pos, stateManager.getState().currentPage);
+                    this.dropSpot = findDropSpot(pos, stateManager.state.currentPage);
 
-                    stateManager.updateState(function(state) {
-                        
+                    stateManager.updateState((state) => {
                         if (this.dropSpot) {
                             var insertionIndex = this.dropSpot.insertionIndex;
+                            
                             if (insertionIndex === 0) {
                                 state.dropHighlightId = this.dropSpot.insertionParent.id;
                             } else {
-                                state.dropHighlightId = this.dropSpot.children[insertionIndex].id;
-                            }                                                        
-                        } else {
-                            state.dropHighlightId = undefined;
+                                state.dropHighlightId = this.dropSpot.insertionParent.children[insertionIndex - 1].id;
+                            }
+
+                            state.highlightType = this.dropSpot.highlightType;
                         }
                     })
-                    
                     
                     that.setState(pos);
                     stateManager.triggerUpdate();
                 },
                 onUp: function () {
-                    if (this.dropSpot) {
-                        this.dropSpot.insertionParent.addChild(new Component(), this.dropSpot.insertionIndex);
-                        stateManager.triggerUpdate();
-                    }
+                    stateManager.updateState((state) => {
+                        if (this.dropSpot) {
+                            this.dropSpot.insertionParent.addChild(new Component(), this.dropSpot.insertionIndex);                            
+                        }
+
+                        state.dropHighlightId = undefined;
+                        state.highlightType = undefined;
+                    });
+                    
                     that.setState({draggedComponent: ""});
                 }
             });
@@ -369,8 +370,8 @@ var ComponentSidebar = React.createClass({
 var ComponentTree = React.createClass({
     render: function() {
         var children;
-
-        if (this.props.node.children.length) {
+        
+        if (this.props.node.children && this.props.node.children.length) {
             children = <TreeChildren children={this.props.node.children}/>;
         }
         
@@ -385,7 +386,14 @@ var ComponentTree = React.createClass({
 
 var TreeItem = React.createClass({
     render: function() {
-        return <span className={classnames("mb2 outline_" + this.props.node.id, this.props.node.outlineViewClassNames)}>{this.props.node.name}</span>
+        return <span className={classnames(
+                "mb2 outline_" + this.props.node.id,
+                {
+                    highlightBottom: stateManager.state.dropHighlightId === this.props.node.id
+                },
+                stateManager.state.highlightType,
+                "db"
+            )}>{this.props.node.name}</span>
     }
 });
 
@@ -404,15 +412,15 @@ var TreeChildren = React.createClass({
 });
 
 // Search component created as a class
-class StaticRenderer extends React.Component {
-    render() {
+var StaticRenderer = React.createClass({
+    render: function() {
         return (
             <div>
-              {this.props.currentPage ? this.props.currentPage.render() : ""}
+              {this.props.page ? this.props.page.render() : ""}
             </div>
         );
     }
-}
+});
 
 var App = React.createClass({
     getInitialState: function() {
@@ -427,7 +435,7 @@ var App = React.createClass({
     
     render: function() {
         return (
-            <div className="flex debug">
+            <div className="flex">
                 <div className="w4">
                     <ComponentSidebar components={this.state.components} />
                 </div>
@@ -449,12 +457,6 @@ ReactDOM.render( < App / > ,
 
 /*
 
-   Make tree view for adding
-   Make attr editing box
-   Allow creation of components
-   Allow saving of state
-
-   Create Slack.
 
 
    Need to revise the flex grow flex shrink ideas.... Growing is natural in many cases. Should closer map to how it is set up like I want this constant and I want this not...
