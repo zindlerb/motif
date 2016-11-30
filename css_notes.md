@@ -1,3 +1,13 @@
+# Flexbox quirks:
+- 3 items 2 with declared width 1 without will treat all 3 as if their widths are not declared.
+- additionally because there is a flex shrink set the width will shrink if the width is declared.... v confusing
+
+How to control who shrinks?
+
+
+https://kyusuf.com/post/almost-complete-guide-to-flexbox-without-flexbox
+would be good for transpiling to older browsers or for better perf.
+
 What are the defaults of width under flexbox conditions?
 
 How to visualize:

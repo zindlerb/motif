@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="h-100">
   <head>
     <meta charset="UTF-8">
     <title>Static</title>
@@ -25,7 +25,7 @@
       margin: 0;
       padding: 0;
       border: 0;
-      font-size: 100%;
+      /*font-size: 100%; should have default font size for rem */
       font: inherit;
       vertical-align: baseline;
       }
@@ -226,12 +226,20 @@
       }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/tachyons@4.5.5/css/tachyons.min.css"/>
-    <link rel="stylesheet" href="public/css/style.css"/>
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
+    <script src="https://use.fontawesome.com/78dbe3324b.js"></script>
+    <link rel="stylesheet" href="public/css/main.css"/>
   </head>
-  <body>
-    <div id="content"></div>
+  <body class="h-100">
+    <div id="content" class="h-100" ></div>
     <script src="public/js/bundle.js"></script>
   </body>
 </html>
+
+
+
+
+
+
 
 

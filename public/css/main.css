@@ -1,0 +1,66 @@
+/* Colors */
+/* Utils */
+.c-pointer {
+  cursor: pointer; }
+
+.c-default {
+  cursor: default; }
+
+body * {
+  font-family: 'Fira Sans', sans-serif;
+  /* Make things not selectable */
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Chrome/Safari/Opera */
+  -khtml-user-select: none;
+  /* Konqueror */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently
+                                  not supported by any browser */ }
+
+.highlightBottom {
+  border-bottom-width: 1px;
+  border-style: solid; }
+
+.sibling {
+  border-color: #42f4a4 !important; }
+
+.child {
+  border-color: pink !important; }
+
+.highlightBottom.before {
+  border-bottom-width: 0px;
+  border-top-width: 1px;
+  border-color: #42f4a4 !important; }
+
+.bg-lightGray {
+  background-color: lightGray; }
+
+.sidebar {
+  width: 200px;
+  background-color: white;
+  border-right: 1px solid #BDBDBD; }
+
+/* COMPONENTS */
+.header {
+  border-bottom: 1px solid #BDBDBD; }
+  .header .icon {
+    font-size: 25px;
+    /* looks right */ }
+  .header .highlighted {
+    background-color: #FFB09F; }
+
+.componentBlock {
+  /* looks right */ }
+
+.draggableShadow {
+  box-shadow: 1px 1px 3px grey; }
+
+.m-auto {
+  margin-left: auto;
+  margin-right: auto; }
