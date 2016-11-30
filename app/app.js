@@ -47,7 +47,6 @@ var App = React.createClass({
     }
 })
 
-// Render to ID content in the DOM
 ReactDOM.render( < App / > ,
                  document.getElementById('content')
 );

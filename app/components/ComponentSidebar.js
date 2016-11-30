@@ -49,7 +49,6 @@ var ComponentSidebar = React.createClass({
 
         if (this.state.activeSitePanelTab === "COMPONENTS") {
             var defaultItems = _.map(this.props.components, (component, ind) => {
-                console.log(component);
                 return (
                     <DraggableComponent component={component}>
                         <li className="m-auto componentBlock pv2 w4 draggableShadow mv2 tc">

@@ -55,25 +55,19 @@ var DraggableComponent = React.createClass({
                     stateManager.updateState((state) => {
                         if (this.dropSpot) {
                             state.potentialDropPositions = this.dropSpot.nodesInMin;
-
-                            state.dropHighlightId = this.dropSpot.node.id;
-                            state.highlightType = this.dropSpot.dropType;
+                            state.activeDropPosition = this.dropSpot.closestNode;
                         }
-                    })
+                    });
                     
                     that.setState(Object.assign({isDragging: true}, pos));
                 },
                 onUp: function () {
                     stateManager.updateState((state) => {
                         if (this.dropSpot) {
-                            var {dropType, node, ind} = this.dropSpot;
-                            if (dropType === "child") {
-                                node.addChild(new Component());                            
-                            } else if (dropType === "sibling") {
-                                node.parent.addChild(new Component(), ind + 1);
-                            } else if (dropType === "before") {
-                                node.parent.addChild(new Component(), ind);
-                            }
+                            var {parent, insertionIndex} = this.dropSpot.closestNode;
+                            console.log("dropped");
+                            
+                            /*node.parent.addChild(new Component(), ind);*/
                         }
 
                         state.dropHighlightId = undefined;
@@ -90,7 +84,7 @@ var DraggableComponent = React.createClass({
         var draggingComponent;
         if (this.state.isDragging) {
             draggingComponent = <div className="absolute" style={{
-                left: this.state.x,
+                left: this.state.x - ,
                 top: this.state.y
             }}>{this.props.children}</div>
         }
