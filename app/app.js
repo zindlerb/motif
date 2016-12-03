@@ -6,25 +6,22 @@ import _ from 'lodash';
 import dragManager from './dragManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
-
-import stateManager from './stateManager.js';
+import store from './stateManager.js';
 
 /* Components */
 import ComponentSidebar from './components/ComponentSidebar.js';
 import StaticRenderer from './components/StaticRenderer.js';
 import ComponentTree from './components/ComponentTree.js';
 
-
-
-
 var App = React.createClass({
     getInitialState: function() {
-        return stateManager.getState();
+        return store.getState();
     },
 
     componentDidMount: function() {
-        stateManager.registerChangeCallback((newState) => {
-            this.setState(newState);
+        var that = this;
+        store.subscribe(function() {
+            that.setState(store.getState());
         });
     },
     

@@ -1,1 +1,1 @@
-console.error("SyntaxError: /Users/brianzindler/Code/static/app/components/DraggableComponent.js: Unexpected token (87:37) while parsing file: /Users/brianzindler/Code/static/app/components/DraggableComponent.js");
+console.error("TypeError: /Users/brianzindler/Code/static/app/base_components.js: Duplicate declaration \"Container\" while parsing file: /Users/brianzindler/Code/static/app/base_components.js");

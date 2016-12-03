@@ -64,3 +64,9 @@ body * {
 .m-auto {
   margin-left: auto;
   margin-right: auto; }
+
+.c-grab {
+  cursor: -webkit-grab; }
+
+.c-grabbing {
+  cursor: -webkit-grabbing; }

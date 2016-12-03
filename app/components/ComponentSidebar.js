@@ -4,12 +4,11 @@ import dragManager from '../dragManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
 
-import stateManager from '../stateManager.js';
+import store from '../stateManager.js';
 import {getGlobalPosFromSyntheticEvent} from '../utils.js';
+import {componentTreeActions} from '../reducersActions/componentTree.js';
 
 import DraggableComponent from './DraggableComponent.js';
-
-
 
 function Header(props) {
     var icons = _.map(props.icons, function (icon, ind) {
@@ -40,6 +39,54 @@ var iconList = [
     {name: "ASSETS", faClass: "fa-file-image-o"}
 ];
 
+/* 
+ *    dragtype: "addComponent"
+ * 
+ *    stateManager.updateState((state) => {
+ *    if (this.dropSpot) {
+ *    var {parent, insertionIndex} = this.dropSpot.closestNode;
+ *    console.log("dropped");
+ *    
+ *    node.parent.addChild(new Component(), ind);
+ * }
+ * 
+ * state.dropHighlightId = undefined;
+ * state.highlightType = undefined;
+ * });
+ * 
+ * move:
+ *    this.dropSpot = findDropSpot(pos, stateManager.state.currentPage.componentTree);
+ * 
+ *    stateManager.updateState((state) => {
+ *    if (this.dropSpot) {
+ *    state.potentialDropPositions = this.dropSpot.nodesInMin;
+ *    state.activeDropPosition = this.dropSpot.closestNode;
+ *    }
+ *    });
+ * 
+ * */
+
+var ComponentBlock = function(props) {
+    var dragData = {
+        dragType: "addComponent",
+        onMove: function(pos, ctx) {            
+            store.dispatch(componentTreeActions.setComponentMoveHighlight(pos));
+        },
+        onUp: function(pos, ctx) {
+            store.dispatch(componentTreeActions.addComponent(props.component));
+        }
+    };
+
+    
+    return (
+        <DraggableComponent {...dragData}>
+            <li className="m-auto componentBlock pv2 w4 draggableShadow mv2 tc">
+                {props.component.name}
+            </li>
+        </DraggableComponent>
+    );
+}
+
 var ComponentSidebar = React.createClass({
     getInitialState: function() {
         return {activeSitePanelTab: "COMPONENTS"};
@@ -49,13 +96,7 @@ var ComponentSidebar = React.createClass({
 
         if (this.state.activeSitePanelTab === "COMPONENTS") {
             var defaultItems = _.map(this.props.components, (component, ind) => {
-                return (
-                    <DraggableComponent component={component}>
-                        <li className="m-auto componentBlock pv2 w4 draggableShadow mv2 tc">
-                            {component.name}
-                        </li>
-                    </DraggableComponent>
-                )
+                return <ComponentBlock component={component}/>
             });
 
             var userComponents;
@@ -87,8 +128,3 @@ var ComponentSidebar = React.createClass({
 });
 
 export default ComponentSidebar;
-
-
-
-
-

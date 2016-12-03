@@ -3,6 +3,50 @@ import React from "react";
 import {Rect} from "./utils.js";
 import $ from 'jquery';
 
+/* Data for component tree */
+/* 
+   Write the data for components in normalized and un-normalized way.
+ */
+
+
+/* Un-Normalized */
+
+class Component {
+    constructor(master, head, parent, children) {
+        this.id = genId();
+        
+        this.isRoot = isRoot || false;
+        this.canHaveChildren = false;
+        
+        this.master = master;
+        this.children = children || [];
+        this.parent = parent;
+        this.head = head;
+        this.attributes = attrs;
+    }
+
+    getCss() {
+        /* returns css from attrs */
+    }
+
+    createVariant() {
+        
+    }
+
+    addChild() {
+        
+    }
+}
+
+class Container extends Component {
+    
+}
+
+class Paragraph extends Component {
+    
+}
+
+
 
 /* 
 
@@ -110,7 +154,7 @@ class ComponentBaseClass {
         var beforePoint, afterPoint, highlightType;
 
         if (this.attrs.root) {
-            return [];
+            return List();
         }
         
         var rect = this.getRect();
@@ -124,7 +168,7 @@ class ComponentBaseClass {
             highlightType = "left";
         }
 
-        return [
+        return fromJS([
             {
                 insertionIndex: ind,
                 parent: this.parent,
@@ -137,7 +181,7 @@ class ComponentBaseClass {
                 point: afterPoint,
                 highlightType: highlightType
             }
-        ];
+        ]);
     }
 
     _notImplementedOnRoot() {
@@ -186,14 +230,12 @@ export class Container extends ComponentBaseClass {
     }
 
     getDropPoints(ind) {
-        var points = super.getDropPoints(ind);
-        points.push({
+        return super.getDropPoints(ind).push(Map({
             point: {x: this.middleX, y: this.middleY},
             parent: this,
             insertionIndex: 0,
             highlightType: "center"
-        });
-        return points;
+        }));        
     }
 
     render() {

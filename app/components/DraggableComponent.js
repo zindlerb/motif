@@ -5,38 +5,8 @@ import classnames from 'classnames';
 import $ from 'jquery';
 
 import {Rect, getGlobalPosFromSyntheticEvent, distanceBetweenPoints} from '../utils.js';
-import {walkComponentTree} from '../base_components.js';
 import stateManager from '../stateManager.js';
 
-function findDropSpot(mousePos, nodeTree) {
-    var DIST_RANGE = 50;
-
-    var minDist = DIST_RANGE;
-    var closestNode;
-    var nodesInMin = [];
-
-    walkComponentTree(nodeTree, function (node, ind) {
-        node.getDropPoints().forEach(function(dropPoint) {
-            var nodeRect = node.getRect();
-            var dist = distanceBetweenPoints(mousePos, dropPoint.point);
-
-            if (dist < DIST_RANGE) {
-                nodesInMin.push(dropPoint);
-                if (dist < minDist) {
-                    minDist = dist;
-                    closestNode = dropPoint;
-                }
-            }
-        });
-    });
-
-    
-    if (closestNode) {
-        return {closestNode, nodesInMin};
-    } else {
-        return;
-    }
-}
 
 //Takes a component and makes it draggable
 var DraggableComponent = React.createClass({
@@ -45,56 +15,56 @@ var DraggableComponent = React.createClass({
     },
     makeOnMouseDown: function (Component) {
         var that = this;
-        return (e) => {           
+        
+        return (e) => {
+            console.log(that.props)
+            that.setState(Object.assign({isDragging: true}, getGlobalPosFromSyntheticEvent(e)));
             dragManager.start(e, {
-                dragType: "addComponent",
+                dragType: that.props.dragType,
+                dragCtx: that.props.dragCtx || {},
                 onMove: function (e) {
                     var pos = getGlobalPosFromSyntheticEvent(e);
-                    this.dropSpot = findDropSpot(pos, stateManager.state.currentPage.componentTree);
 
-                    stateManager.updateState((state) => {
-                        if (this.dropSpot) {
-                            state.potentialDropPositions = this.dropSpot.nodesInMin;
-                            state.activeDropPosition = this.dropSpot.closestNode;
-                        }
-                    });
+                    if (that.props.onMove) {
+                        that.props.onMove(pos, this.dragCtx);
+                    }
                     
-                    that.setState(Object.assign({isDragging: true}, pos));
+                    that.setState(pos);
                 },
-                onUp: function () {
-                    stateManager.updateState((state) => {
-                        if (this.dropSpot) {
-                            var {parent, insertionIndex} = this.dropSpot.closestNode;
-                            console.log("dropped");
-                            
-                            /*node.parent.addChild(new Component(), ind);*/
-                        }
+                onUp: function (e) {
+                    var pos = getGlobalPosFromSyntheticEvent(e);
 
-                        state.dropHighlightId = undefined;
-                        state.highlightType = undefined;
-                    });
+                    if (that.props.onUp) {
+                        that.props.onUp(pos, this.dragCtx);
+                    }
                     
                     that.setState({isDragging: false});
                 }
             });
         }
-        
     },
     render: function() {
         var draggingComponent;
+        var draggingClassNames = classnames("c-default noselect", {
+            "c-grab": !this.state.isDragging,
+            "c-grabbing": this.state.isDragging,
+        });
+        
         if (this.state.isDragging) {
-            draggingComponent = <div className="absolute" style={{
-                left: this.state.x - ,
-                top: this.state.y
+            var rootEl = $(this._el).children();
+            draggingComponent = <div className={classnames("absolute", draggingClassNames)} style={{
+                left: this.state.x - rootEl.outerWidth()/2,
+                top: this.state.y - rootEl.outerHeight()/2
             }}>{this.props.children}</div>
         }
         
         return (
             <div>
                 <div
-                    className={classnames("c-default noselect", {dragged: this.state.dragged})}
+                    ref={(ref) => { this._el = ref }}
+                    className={draggingClassNames}
                     onMouseDown={this.makeOnMouseDown(this.props.component)}>
-                    {this.props.children}
+                        {this.props.children}
                 </div>
                 {draggingComponent}
             </div>
