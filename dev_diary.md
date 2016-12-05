@@ -149,6 +149,16 @@ Left Panels:
   - Delete Component from sidebar
   - Delete all instances of a component optional message after selecting delete (V2)
   - Rearrange Components (V2)
+  - Default Components:
+    - Container
+    - Paragraph
+    - Header
+    - Image
+    - Video
+    - Embed
+    - Lists?
+    - Table (V2)
+    - Forms (V2)
 - Assets
   - Show all assets for project
   - Drag in asset to page
@@ -161,7 +171,6 @@ Main Views:
 - Component View
   - Scroll through diff component states
   - Edit individual component states (components are variants of default state diff of attrs)
-  
   
 - Page View
   - Re arrange components
@@ -189,7 +198,39 @@ Right Panels:
   - Set js snippet
   - Set global site snippet
 - Attributes
-  - Change component attributes 
+  - Attribute Values:
+    - All
+      - Z-index
+      - Opacity
+      - Background color
+      - Border/Border Radius
+      - Box Shadow
+      - Positioning
+      - Hidden (T/F)
+      - Height
+      - Width
+      - Margin/Padding
+      - Overflow
+      - Filter?? (might only be useful on images V2)
+    - Text
+      - Text color
+      - Font 
+      - Font-Size 
+      - Line Height
+      - Text align vertical or horizontal
+      - Other text stuff... 
+      
+    - Block
+      - Child flex layout (spacing)
+      - Child flex direction (vertical horizontal)
+      - 
+      
+    - Video
+    - Image
+    
+        
+  - Expose unique id of element so it can be selected by js.
+  - Change component attributes (These attributes are not css BUT they must be able to statically compile to css)
   - Set attributes for specific states
   - Set specific breakpoints
   - Set transitions (V2)
@@ -200,6 +241,10 @@ Right Panels:
   - Fold and unfold leaves
   - Rearrange nodes.
   
+- Top bar
+  - Open site
+  - New site
+  - Export html/css (export should be as backwards compatible as possible)
 
 Component Inheritance:
 - Components inherit traits and children from their component block.
@@ -208,19 +253,39 @@ Component Inheritance:
 - If a new component block is created the children still inherit from their old component block.
 - Copy and paste just creates a new component with the same values as the one copied in a different location.
 - Component blocks can have no name clashes
+- Components as a child can have a abstract child containter. This means other elements can be dragged and dropped inside it. If no are there no new children? If children are also inherited that does not work...
 
 Transitions:
 - Set:
   - delay
   - transition time
-  - how the transition is eased
+  - how the transition is eased 
   - What property
   - What state
 - UI:
   - Have little transition option next to properties that allow it - on states does when transitioned to on default does when created? default will need to provide a base case...
-  
-
 
 CSS Notes:
 - In css it is not pure bottom up or bottom down.
   - blocks grow to fit their parent inline grow to fit 
+
+
+Next:
+- Settle open design Questions:
+  - Exactly how do abstracted children of a component work? (Prototype both worlds)
+  - How will text editing work? How will inline things like links or images work? We have no float here.... (could kinda punt on this)
+  - How do I do the flexbox sizing?
+- Read through aparatus data model. List out pros and cons of archetecture
+- Do normalized and un normalized data model of data 
+- Decide on redux vs. vanilla flux
+- Begin writing full app going through all features
+
+
+Questions for later:
+- How to make sure the site is semantic?
+- How to make sure the site is accessible?
+- How to group components? Should allow folders of some kind?
+- How to make modals
+  - I think a simple boolean state for components will be sufficient...
+- How to do forms?
+- Site templates?
