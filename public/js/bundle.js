@@ -1,1 +1,1 @@
-console.error("SyntaxError: /Users/brianzindler/Code/static/app/base_components.js: Unexpected token (108:12) while parsing file: /Users/brianzindler/Code/static/app/base_components.js");
+console.error("SyntaxError: /Users/brianzindler/Code/static/app/stateManager.js: Unexpected token, expected , (25:8) while parsing file: /Users/brianzindler/Code/static/app/stateManager.js");

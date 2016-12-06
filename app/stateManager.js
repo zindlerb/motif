@@ -4,60 +4,34 @@ import createStore from 'redux/lib/createStore';
 import {Map, List, fromJS} from 'immutable';
 import {componentTreeReducerObj} from './reducersActions/componentTree.js';
 
-var sampleComponentTree = new Container({
-    root: true,
-    style: {
-        height: "100%"                
-    }
-}, [
-    new Header(),
-    new Container({style: {flexDirection: "row"}}, [
-        new Container({style: {width: "33%"}}, [new Text()]),
-        new Container({style: {width: "33%"}}, [new Text()]),
-        new Container({style: {width: "33%"}}, [new Text()])
-    ])
-]);
+/* 
+   page:
+     name
+     rootId
 
-class Page {
-    constructor(name) {
-        this.name = name;
-        this.componentTree = new Container({
-            root: true,
-            style: {
-                height: "100%"                
-            }
-        });
+   on creation need to init the component tree
+     
 
-        /*
+   Add in redux.
+ */
 
-           
-           possible attrs:
-              last edited
-              
-         */
+var state = {
+    mutable: {
+    },
+    immutable: {
+        // Persistant state 
+        siteName: "Something",
+        componentBoxes: [] // Add component ids via action,
+        pages: [],
+        pageMap: {
+            
+        },
+
+        // Temp State
+        currentPage: undefined, // Page id.
     }
 }
 
-class Site {
-    constructor(name) {
-        this.name = name;
-        this.pages = [new Page("Starter Page")];
-        this.components = [
-            Container,
-            Header,
-            Text,
-            Image
-        ];
-    }
-
-    toJSON() {
-        
-    }
-
-    fromJSON() {
-        
-    }
-}
 
 function reducer(state, action) {
     var actionResponses = Object.assign({}, componentTreeReducerObj);
