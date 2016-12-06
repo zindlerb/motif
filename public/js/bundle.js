@@ -1,1 +1,1 @@
-console.error("SyntaxError: /Users/brianzindler/Code/static/app/stateManager.js: Unexpected token, expected , (25:8) while parsing file: /Users/brianzindler/Code/static/app/stateManager.js");
+console.error("SyntaxError: /Users/brianzindler/Code/static/app/app.js: JSX attributes must only be assigned a non-empty expression (35:49) while parsing file: /Users/brianzindler/Code/static/app/app.js");

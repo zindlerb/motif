@@ -26,12 +26,13 @@ var App = React.createClass({
     },
     
     render: function() {
-        var components = this.state.activeSite.components;
-        /* <ComponentTree node={this.state.currentPage} components={components}/> */
+        var {mutableState, immutableState} = this.state;
+        var components = this.state.immutableState.components;
+
         return (
             <div className="flex h-100">
                 <div className="sidebar flex-none h-100">
-                    <ComponentSidebar components={this.state.components} components={components}/>
+                    <ComponentSidebar components={}/>
                 </div>
                 <div className="flex-auto w-100 h-100">
                     <StaticRenderer page={this.state.currentPage}/>
@@ -49,6 +50,14 @@ ReactDOM.render( < App / > ,
 );
 
 /*
+
+Don't do any performance optimizations unless unbearably slow or the app is working for building a website.
+
+
+For performance I can do a has mutated flag and use connectors to sync up...
+Isn't this essentially like having components subscribe to specific state?
+
+
    Need to revise the flex grow flex shrink ideas.... Growing is natural in many cases. Should closer map to how it is set up like I want this constant and I want this not...
 
    Proposed superdiv spec

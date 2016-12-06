@@ -301,4 +301,20 @@ Example Workflows:
 - Take button and alter it - turn that into new button component
 
 
-is it actually true you can't mutate state in
+Archetecture:
+Basically redux lite.
+Adheres to 2 principles of redux:
+- Single source of truth
+- State is read-only
+and breaks one:
+- Changes are made with pure functions
+
+Because the data model best suited to this application is deeply nested and tree like. Keeping the reducers pure in redux requires immutable models. Structuring the data for immutability means it should be normalized. 
+
+The complexity of normalizing and updating the state in an immutable way is too great a cost for the benefits of immutability. The first 2 principles of redux get me far enough. 
+
+For the most part I will try to keep the state immutable and normalized but the main component tree of the app will most likely stay mutable.
+
+If I do that how will I deal with async actions? Use promise middleware with store?
+
+
