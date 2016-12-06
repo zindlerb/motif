@@ -12,31 +12,135 @@ import $ from 'jquery';
 /* Un-Normalized */
 
 class Component {
-    constructor(master, head, parent, children) {
+    /* Due to the complex nature of component cannot mutate in any other way besides the methods */
+    constructor(master, parent, children) {
         this.id = genId();
         
         this.isRoot = isRoot || false;
-        this.canHaveChildren = false;
-        
-        this.master = master;
-        this.children = children || [];
-        this.parent = parent;
-        this.head = head;
-        this.attributes = attrs;
-    }
 
-    getCss() {
-        /* returns css from attrs */
+        // Component it is a variant of. Components pinned as blocks have no master.
+        this.master = master;
+        
+        this.children = children || [];
+        
+        this.parent = parent;
+        this.attributes = attrs;
+
+        this.variables = {};
+
+        // Only blocks have variants
+        this._variants = [];
     }
 
     createVariant() {
-        
+        if (this.isBlock) {
+            // Currently returns with no parent.
+            var variant = new Component(this);
+
+            _.forEach(variant.children, function(vChild) {
+                variant.addChild(vChild.createVariant(variant))
+            });
+            
+            this._variants.push(variant);
+
+            return variant;
+        } else {
+            throw "Only blocks can create variants";
+        }
     }
 
-    addChild() {
+    makeBlock(name, blocks) {
+        // Not a good method on obj. Needs to do something else with other state.
+        this.name = name;
+        delete this.master;
+        this.isBlock = true;
+        
+        blocks[this.id] = this;        
+    }
+
+    addChild(child, ind) {
+        this.variants.forEach(function(variant) {
+           variant.addChild(child, ind);
+        });
+        
+        child.parent = this;
+        if (ind === undefined) {
+            this.children.push(child);
+        } else {
+            this.children.splice(ind, 0, child);
+        }
+    }
+
+    removeChild(child) {
+        /* 
+           May have an issue with things not getting gc'd might be refs still from something that considers this a variant. 
+         */
+        
+        _.remove(this.children, function(parentsChild) {
+            return parentsChild.id === child.id;
+        });
+        
+        delete child.parent;
+
+        return child;
+    }
+
+    deleteSelf() {
+        this.parent.removeChild(this);
+        _.remove(this.master._variants, (variant) => {
+           return variant === this.id; 
+        });
+    }
+
+    getAllAttrs() {
+        return Object.assign({}, this.master.attributes, this.attributes);
+    }
+
+    getCss() {
+        /* attrName: func => css obj */
+        var attrToCssLookup = {
+            
+        }
+        
+        /* Compile attrs into css */
+    }
+
+    render: function () {
         
     }
 }
+
+var nonNormalizedState = {
+    defaultBlocks: [
+    ],
+    blocks: [
+    ],
+    activePage: <Component>,
+    leftPanelTab: <Const>,
+    rightPanelTab: <Const>,
+    components: {
+    }
+};
+
+
+/*
+   set up all state.
+   bring in redux and hack for mutable component tree 
+   add tab switching
+   get dragging component on to work 
+   get attr editing to work.
+
+   system design:
+   - flux with single store
+   - section of the state is immutable but does not use immutable js.
+
+   - actions are tied to the part of the state they hit.
+
+   over time work in more redux convenience functions.
+
+   or maybe just set up redux and hack in the mutable...
+*/
+
 
 class Container extends Component {
     

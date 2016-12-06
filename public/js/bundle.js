@@ -1,1 +1,1 @@
-console.error("TypeError: /Users/brianzindler/Code/static/app/base_components.js: Duplicate declaration \"Container\" while parsing file: /Users/brianzindler/Code/static/app/base_components.js");
+console.error("SyntaxError: /Users/brianzindler/Code/static/app/base_components.js: Unexpected token (108:12) while parsing file: /Users/brianzindler/Code/static/app/base_components.js");

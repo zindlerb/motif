@@ -198,6 +198,8 @@ Right Panels:
   - Set js snippet
   - Set global site snippet
 - Attributes
+  - Component tree
+  - Variables
   - Attribute Values:
     - All
       - Z-index
@@ -223,8 +225,6 @@ Right Panels:
     - Block
       - Child flex layout (spacing)
       - Child flex direction (vertical horizontal)
-      - 
-      
     - Video
     - Image
     
@@ -236,7 +236,7 @@ Right Panels:
   - Set transitions (V2)
   - Dropdowns of style guide choices
   - See where component is used (v2)
-- Tree
+- Tree (V2)
   - See the page structure as a tree
   - Fold and unfold leaves
   - Rearrange nodes.
@@ -254,6 +254,7 @@ Component Inheritance:
 - Copy and paste just creates a new component with the same values as the one copied in a different location.
 - Component blocks can have no name clashes
 - Components as a child can have a abstract child containter. This means other elements can be dragged and dropped inside it. If no are there no new children? If children are also inherited that does not work...
+- Works like aparatus with single inheritance
 
 Transitions:
 - Set:
@@ -272,9 +273,10 @@ CSS Notes:
 
 Next:
 - Settle open design Questions:
-  - Exactly how do abstracted children of a component work? (Prototype both worlds)
-  - How will text editing work? How will inline things like links or images work? We have no float here.... (could kinda punt on this)
-  - How do I do the flexbox sizing?
+  - Q: How will text editing work? How will inline things like links or images work? We have no float here.... 
+    - A: For now jst do content editable and not float. When trying to build layouts that merge the text and images then take notes. Will need link and bold
+  - Q: How do I do the flexbox sizing?
+    - A: Do vanilla flex and iterate
 - Read through aparatus data model. List out pros and cons of archetecture
 - Do normalized and un normalized data model of data 
 - Decide on redux vs. vanilla flux
@@ -282,6 +284,8 @@ Next:
 
 
 Questions for later:
+- How to constrain the editing interface - communicate to component user that this component is meant to be used a certain way.
+  - Can only be this color, is these 3 sizes, this is constant text this is changeable text 
 - How to make sure the site is semantic?
 - How to make sure the site is accessible?
 - How to group components? Should allow folders of some kind?
@@ -289,3 +293,11 @@ Questions for later:
   - I think a simple boolean state for components will be sufficient...
 - How to do forms?
 - Site templates?
+- Boolean components? Set custom states for diff views but that would require multi states? 
+
+Example Workflows:
+- Build button from primatives
+- Make header component using button
+- Take button and alter it - turn that into new button component
+
+
