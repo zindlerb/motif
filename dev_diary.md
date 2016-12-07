@@ -310,3 +310,6 @@ I need to keep it dead simple and slow. And then when one pass of the app is don
 Tomorrow I need to crank on some features.
 
 ## Dec 6th:
+Did the dragging of components and many other minor features. I got a little distracted reading internet articles mid-day. My emacs is also crashing at annoying times. Maybe I should consider switching editors... or just fixing a bunch of the minor emacs annoyances I currently have...
+
+## Dec 7th: 

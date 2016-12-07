@@ -6,7 +6,7 @@ var StaticRenderer = React.createClass({
     render: function() {
         return (
             <div className="ma2 h-100 ba debug">
-                {this.props.page ? this.props.page.componentTree.render() : ""}
+                {this.props.page ? this.props.page.componentTree.render({activeComponent: this.props.activeComponent}) : ""}
             </div>
         );
     }

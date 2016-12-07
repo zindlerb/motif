@@ -9,7 +9,8 @@ import $ from 'jquery';
 import {store} from './stateManager.js';
 
 /* Components */
-import ComponentSidebar from './components/ComponentSidebar.js';
+import LeftPanel from './components/LeftPanel.js';
+import RightPanel from './components/RightPanel.js';
 import StaticRenderer from './components/StaticRenderer.js';
 import ComponentTree from './components/ComponentTree.js';
 import DropPointRenderer from './components/DropPointRenderer.js';
@@ -27,18 +28,20 @@ var App = React.createClass({
     },
     
     render: function() {
+        var {componentBoxes, activeLeftPanel, activeRightPanel, pages, currentPage, activeComponent, dropPoints} = this.state;
+        
         return (
             <div className="flex h-100">
                 <div className="sidebar flex-none h-100">
-                    <ComponentSidebar components={this.state.componentBoxes} pages={this.state.pages} activePanel={this.state.activeLeftPanel} currentPage={this.state.currentPage}/>
+                    <LeftPanel components={componentBoxes} pages={pages} activePanel={activeLeftPanel} currentPage={currentPage}/>
                 </div>
                 <div className="flex-auto w-100 h-100">
-                    <StaticRenderer page={this.state.currentPage}/>
+                    <StaticRenderer page={currentPage} activeComponent={activeComponent}/>
                 </div>
                 <div className="sidebar h-100 flex-none">
-                    
+                    <RightPanel activeComponent={activeComponent} activePanel={activeRightPanel} />
                 </div>
-                <DropPointRenderer dropPoints={this.state.dropPoints}/>
+                <DropPointRenderer dropPoints={dropPoints}/>
             </div>
         );
     }
@@ -49,14 +52,6 @@ ReactDOM.render( < App / > ,
 );
 
 /*
-
-Tonight:
-- Get component list showing.
-- Allow click to see page view.
-
-Tomorrow:
-- Dragging working 
-- Editing attributes working
 
 finish full app with low performance and insanely simple structure so there is more room for tuneups.
 

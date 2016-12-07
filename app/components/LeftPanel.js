@@ -7,30 +7,9 @@ import $ from 'jquery';
 import {store, actionDispatch} from '../stateManager.js';
 import {getGlobalPosFromSyntheticEvent} from '../utils.js';
 import DraggableComponent from './DraggableComponent.js';
+import Header from './Header.js';
 
-function Header(props) {
-    var icons = _.map(props.icons, function (icon, ind) {
-        var headerClick = function() {
-            actionDispatch.changePanel(icon.name);            
-        }
-        
-        return (
-            <div className={classnames("flex-auto tc pa1 h-100", {
-                    highlighted: icon.name === props.activePanel,
-                })}
-                 onClick={headerClick}
-                 key={ind}
-            >
-                <i className={classnames("icon", "fa", icon.faClass)} aria-hidden="true"></i> 
-            </div>
-        );
-    });
-    return (
-        <div className="header justify-around flex w-100">
-            {icons}
-        </div>
-    );
-}
+
 
 var iconList = [
     {name: "PAGES", faClass: "fa-files-o"},
@@ -64,7 +43,7 @@ function PlusButton(props) {
     return <i onClick={props.action} className="fa fa-plus-circle" aria-hidden="true"></i>;
 }
 
-var ComponentSidebar = React.createClass({
+var LeftPanel = React.createClass({
     getInitialState: function() {
         return {activeSitePanelTab: "COMPONENTS"};
     },
@@ -121,11 +100,11 @@ var ComponentSidebar = React.createClass({
 
         return (
             <div>
-                <Header icons={iconList} activePanel={this.props.activePanel} />
+                <Header onClick={(name) => { actionDispatch.changePanel(name, "left") }} icons={iconList} activePanel={this.props.activePanel} />
                 {body}
             </div>
         );
     }
 });
 
-export default ComponentSidebar;
+export default LeftPanel;

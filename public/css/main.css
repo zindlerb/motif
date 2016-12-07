@@ -74,3 +74,6 @@ body * {
 
 .c-grabbing {
   cursor: -webkit-grabbing; }
+
+.isActive {
+  border: 3px solid #FFB09F !important; }

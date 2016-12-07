@@ -3,6 +3,9 @@ import React from "react";
 import {Rect} from "./utils.js";
 import $ from 'jquery';
 import {guid} from './utils.js'
+import classnames from 'classnames';
+/* TD: fix circular deps */
+import {actionDispatch} from './stateManager.js';
 
 
 /* 
@@ -13,10 +16,10 @@ import {guid} from './utils.js'
  */
 
 /* Field Types */
-const TEXT_FIELD = "TEXT_FIELD"; /* fieldSettings:  */
-const NUMBER = "NUMBER"; /* fieldSettings: eventually allow for multi-value */
-const COLOR = "COLOR"; /* fieldSettings:  */
-const DROPDOWN = "DROPDOWN"; /* fieldSettings: choices - {name: , value: } */
+export const TEXT_FIELD = "TEXT_FIELD"; /* fieldSettings:  */
+export const NUMBER = "NUMBER"; /* fieldSettings: eventually allow for multi-value */
+export const COLOR = "COLOR"; /* fieldSettings:  */
+export const DROPDOWN = "DROPDOWN"; /* fieldSettings: choices - {name: , value: } */
 
 /* Attribute Fieldset */
 export var attributeFieldset = {
@@ -70,14 +73,11 @@ class ComponentBaseClass {
         this.defaultCSS = {
             
         };
-        this.variables = {
-            position: {value: "flow", }
-        };
+        this.variables = {};
         this._variants = [];
         this.childrenAllowed = false;
 
-        Object.assign(this, spec)
-        
+        _.merge(this, spec);
         this.id = guid();
     }
 
@@ -242,9 +242,24 @@ class ComponentBaseClass {
         });
     }
 
-    render () {
-        /* Implement on child */
-        /* Must set this._el */
+    makeOnClick(that) {
+        return function (e) {
+            e.stopPropagation();
+            actionDispatch.selectComponent(that);
+        }        
+    }
+
+    render (props, element) {        
+        return (
+            <div className={
+                classnames({
+                    isActive: props.activeComponent && (props.activeComponent.id === this.id)
+                })}
+                 onClick={this.makeOnClick(this)}
+            >
+                {element}
+            </div>
+        )
     }
 }
 
@@ -304,16 +319,18 @@ export class Container extends ComponentBaseClass {
         return dropPoints;
     }
 
-    render() {
+    render(props) {
         var children = _.map(this.children, function (child) {
-            return child.render();
+            return child.render(props);
         });
-        
-        return (
+
+        var element = (
             <div key={this.id} ref={(r) => this._el = r} style={this.sx} className={"node_" + this.id}>
                 {children}
             </div>
-        )
+        );
+        
+        return super.render(props, element);
     }
 }
 
@@ -330,12 +347,14 @@ export class Text extends ComponentBaseClass {
         super(Object.assign(defaultSpec, spec));
     }
 
-    render() {
-        return (
+    render(props) {
+        var element = (
             <p key={this.id} ref={(r) => this._el = r} style={this.sx} className={"node_" + this.id}>
                 {this.attributes.text}
             </p>
-        )
+        );
+        
+        return super.render(props, element);
     }
 }
 
@@ -351,12 +370,13 @@ export class Header extends ComponentBaseClass {
         super(Object.assign(defaultSpec, spec));
     }
 
-    render() {
-        return (
+    render(props) {
+        var element = (
             <h1 key={this.id} ref={(r) => this._el = r} style={this.sx} className={"node_" + this.id}>
-                {this.attributes.text}
+              {this.attributes.text}
             </h1>
-        )
+        );
+        return super.render(props, element);
     }
 }
 
@@ -373,10 +393,9 @@ export class Image extends ComponentBaseClass {
         super(Object.assign(defaultSpec, spec));
     }
 
-    render() {
-        return (
-            <img key={this.id} ref={(r) => this._el = r} style={this.sx} className={"node_" + this.id} src={this.attributes.src} />
-        )
+    render(props) {
+        var element = <img key={this.id} ref={(r) => this._el = r} style={this.sx} className={"node_" + this.id} src={this.attributes.src} />;
+        return super.render(props, element);
     }
 }
 

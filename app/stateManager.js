@@ -30,6 +30,7 @@ var state = {
     },
     pages: [],
     currentPage: undefined,
+    activeComponent: undefined,
     activeLeftPanel: "COMPONENTS",
     activeRightPanel: "ATTRIBUTES"
 }
@@ -45,6 +46,7 @@ const CHANGE_PANEL = "CHANGE_PANEL";
 const CHANGE_PAGE = "CHANGE_PAGE";
 
 const SELECT_COMPONENT = "SELECT_COMPONENT";
+const SET_COMPONENT_ATTRIBUTE = "SET_COMPONENT_ATTRIBUTE";
 
 function findDropSpot(mousePos, nodeTree) {
     var DIST_RANGE = 100;
@@ -94,10 +96,10 @@ export var actions = {
         }
     },
 
-    selectComponent: function(Component) {
+    selectComponent: function(component) {
         return {
             type: SELECT_COMPONENT,
-            Component
+            component
         }
     },
 
@@ -121,6 +123,15 @@ export var actions = {
             type: CHANGE_PAGE,
             page
         }
+    },
+
+    setComponentAttribute: function (component, attrKey, newAttrValue) {
+        return {
+            type: SET_COMPONENT_ATTRIBUTE,
+            component,
+            attrKey,
+            newAttrValue
+        }
     }
 };
 
@@ -134,6 +145,9 @@ var reducerObj = {
     },
     [RESET_COMPONENT_TREE_HIGHLIGHT]: function (state) {
         delete state.dropPoints;
+    },
+    [SET_COMPONENT_ATTRIBUTE]: function (state, action) {
+        action.component.attributes[action.attrKey] = action.newAttrValue;
     },
     [ADD_NEW_COMPONENT]: function (state, action) {
         if (state.selectedDropPoint) {
@@ -151,6 +165,9 @@ var reducerObj = {
         state.dropPoints = undefined;
         state.selectedDropPoint = undefined;
         
+    },
+    [SELECT_COMPONENT]: function(state, action) {
+        state.activeComponent = action.component;        
     },
     [ADD_NEW_PAGE]: function (state, action) {
         var newPage = {
