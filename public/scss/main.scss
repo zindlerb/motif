@@ -10,6 +10,10 @@ $border: #BDBDBD;
   cursor: default;
 }
 
+.click-through {
+  pointer-events: none;
+}
+
 body * {
   font-family: 'Fira Sans', sans-serif;
   /* Make things not selectable */
@@ -59,10 +63,10 @@ body * {
   .icon {
     font-size: 25px; /* looks right */
   }
+}
 
-  .highlighted {
-    background-color: $highlight;
-  }
+.highlighted {
+  background-color: $highlight;
 }
 
 .componentBlock {

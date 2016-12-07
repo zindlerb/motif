@@ -4,6 +4,17 @@ export function distanceBetweenPoints(p1, p2) {
     return Math.abs(Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2)));
 }
 
+export function guid() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+                   .toString(16)
+                   .substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+           s4() + '-' + s4() + s4() + s4();
+}
+
+
 export class Rect {
     constructor(attrs) {
         if (attrs) {

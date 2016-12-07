@@ -1,31 +1,78 @@
-nimport _ from "lodash";
+import _ from "lodash";
 import React from "react";
 import {Rect} from "./utils.js";
 import $ from 'jquery';
+import {guid} from './utils.js'
 
-function guid() {
-    function s4() {
-        return Math.floor((1 + Math.random()) * 0x10000)
-                   .toString(16)
-                   .substring(1);
-    }
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-           s4() + '-' + s4() + s4() + s4();
+
+/* 
+   Attribute Format: 
+   {
+     name: {fieldType: , value: , fieldSettings: {}}
+   }
+ */
+
+/* Field Types */
+const TEXT_FIELD = "TEXT_FIELD"; /* fieldSettings:  */
+const NUMBER = "NUMBER"; /* fieldSettings: eventually allow for multi-value */
+const COLOR = "COLOR"; /* fieldSettings:  */
+const DROPDOWN = "DROPDOWN"; /* fieldSettings: choices - {name: , value: } */
+
+/* Attribute Fieldset */
+export var attributeFieldset = {
+    position: {
+        fieldType: DROPDOWN,
+        fieldSettings: {
+            choices: [
+                "flow",
+                "anchored"
+            ]
+        }
+    },
+    flexDirection: {
+        fieldType: DROPDOWN,
+        fieldSettings: {
+            choices: [
+                "column",
+                "row"
+            ]
+        }
+    },
+    justifyContent: {
+        fieldType: DROPDOWN,
+        fieldSettings: {
+            choices: [
+                "flex-start",
+                "flex-end",
+                "center",
+                "space-between",
+                "space-around"
+            ]
+        }
+    } 
+    
 }
-
-/* Un-Normalized */
 
 class ComponentBaseClass {
     /* Due to the complex nature of component cannot mutate in any other way besides the methods */
-    constructor() {
+    constructor(spec) {
         /* Defaults */
         this.isRoot = false;
         this.isBlock = false;
         this.master = undefined;
         this.parent = undefined;
         this.children = [];
-        this.attributes = {};
-        this.variables = {};
+        this.attributes = {
+            position: "flow",
+        };
+        /* some choices get dynamically upated with style guide later */
+        
+        this.defaultCSS = {
+            
+        };
+        this.variables = {
+            position: {value: "flow", }
+        };
         this._variants = [];
         this.childrenAllowed = false;
 
@@ -34,10 +81,16 @@ class ComponentBaseClass {
         this.id = guid();
     }
 
-    createVariant() {
+    createVariant(spec) {
         if (this.isBlock) {
+            /* TD: review */
             // Currently returns with no parent.
-            var variant = new Component(this);
+            var variant = Object.create(this);
+            variant.constructor({
+                master: this
+            });
+
+
 
             _.forEach(variant.children, function(vChild) {
                 variant.addChild(vChild.createVariant(variant))
@@ -65,7 +118,7 @@ class ComponentBaseClass {
     }
 
     addChild(child, ind) {
-        this.variants.forEach(function(variant) {
+        this._variants.forEach(function(variant) {
            variant.addChild(child, ind);
         });
         
@@ -103,65 +156,93 @@ class ComponentBaseClass {
     }
 
     getCss() {
-        /* attrName: func => css obj */
         var attrToCssLookup = {
-            
+            position: function(value) {
+                /* 
+                   flow: layout is based on the parents flex flow
+                   anchored: layout is based on a fixed position from the parent.
+
+                   CSS Equivalent:
+                     display 
+                     position
+                 */
+                if (value === "flow") {
+                    /* Relative in case child is absolutely positioned */
+                    return {
+                        position: "relative",
+                        left: 0,
+                        top: 0
+                    }
+                } else if (value === "anchored") {
+                    /* TD: in order to position child in parent parent has to be positioned with relative. */
+                    return {};
+                }
+            },
         }
-        
-        /* Compile attrs into css */
+
+        /* 
+           - All
+           - Z-index
+           - Opacity
+           - Background color
+           - Border/Border Radius
+           - Box Shadow
+           - Positioning
+           - Hidden (T/F)
+           - Height
+           - Width
+           - Margin/Padding
+           - Overflow
+           - Filter?? (might only be useful on images V2)
+           - Text
+           - Text color
+           - Font 
+           - Font-Size 
+           - Line Height
+           - Text align vertical or horizontal
+           - Other text stuff... 
+           
+           - Block
+           - Child flex layout (spacing)
+           - Child flex direction (vertical horizontal)
+
+         */
+
+        var cssStyles = _.reduce(this.attributes, function(css, attrVal, attrKey) {
+            if (attrToCssLookup[attrKey]) {
+                Object.assign(css, attrToCssLookup[attrKey](attrVal));
+            } else {
+                css[attrKey] = attrVal;
+            }
+            return css;
+        }, {});
+
+        return Object.assign({}, this.defaultCSS, cssStyles);
     }
 
     getRect() {
         return new Rect().fromElement($(this._el));
     }
 
-    getDropPoints(ind) {
-        var beforePoint, afterPoint, highlightType;
-
-        if (this.attrs.root) {
-            return [];
-        }
-        
-        var rect = this.getRect();
-        if (this.parent.attrs.style.flexDirection === "column") {
-            beforePoint = {x: rect.middleX, y: rect.y};
-            afterPoint = {x: rect.middleX, y: rect.y + rect.h};
-            highlightType = "top";
-        } else if (rect.parent.attrs.style.flexDirection === "row") {
-            beforePoint = {x: rect.x, y: rect.middleY};
-            afterPoint = {x: rect.x + rect.w, y: rect.middleY};
-            highlightType = "left";
-        }
-
-        return [
-            {
-                insertionIndex: ind,
-                parent: this.parent,
-                point: beforePoint,
-                highlightType: highlightType
-            },
-            {
-                parent: this.parent,
-                insertionIndex: ind + 1,
-                point: afterPoint,
-                highlightType: highlightType
-            }
-        ];
-    }
     
     isLastChild() {
         return _.last(this.parent.children).id === this.id;
     }
 
+
     isFirstChild() {     
         return _.first(this.parent.children).id === this.id;
     }
 
-    walkChildren() {
+    walkChildren(func, ind) {
+        func(this, ind);
         
+        this.children.forEach(function (child, ind) {
+            child.walkChildren(func, ind);
+        });
     }
 
-    render: function () {
+    render () {
         /* Implement on child */
         /* Must set this._el */
     }
@@ -170,24 +251,57 @@ class ComponentBaseClass {
 export class Container extends ComponentBaseClass {
     constructor(spec) {
         var initialSpec = {
+            name: "Container",
             attributes: {
-                display: "flex",
                 flexDirection: "column",
-                alignItems: "center"
+                justifyContent: "flex-start"
             },
+            defaultCSS: {
+                display: "flex"
+            },
+            isBlock: true,
             childrenAllowed: true
         }
         
         super(Object.assign(initialSpec, spec));
     }
 
-    getDropPoints(ind) {
-        return super.getDropPoints(ind).push({
-            point: {x: this.middleX, y: this.middleY},
-            parent: this,
-            insertionIndex: 0,
-            highlightType: "center"
-        });        
+    getDropPoints() {
+        var rect = this.getRect();
+        var flexDirection = this.attributes.flexDirection;
+        var initialPoint;
+        if (flexDirection === "column") {
+            initialPoint = {x: rect.middleX, y: rect.y};
+        } else if (flexDirection === "row") {
+            initialPoint = {x: rect.x, y: rect.middleY};
+        }
+        
+        var dropPoints = [
+            {
+                insertionIndex: 0,
+                parent: this,
+                point: initialPoint
+            }
+        ];
+
+        this.children.forEach((child, ind) => {
+            var rect = child.getRect();
+            var point;
+
+            if (flexDirection === "column") {
+                point = {x: rect.middleX, y: rect.y + rect.h};
+            } else if (flexDirection === "row") {
+                point = {x: rect.x + rect.w, y: rect.middleY};
+            }
+            
+            dropPoints.push({
+                insertionIndex: ind + 1,
+                parent: this,
+                point: point
+            })
+        });
+
+        return dropPoints;
     }
 
     render() {
@@ -196,7 +310,7 @@ export class Container extends ComponentBaseClass {
         });
         
         return (
-            <div ref={(r) => this._el = r} style={this.sx} className={"node_" + this.id}>
+            <div key={this.id} ref={(r) => this._el = r} style={this.sx} className={"node_" + this.id}>
                 {children}
             </div>
         )
@@ -206,9 +320,11 @@ export class Container extends ComponentBaseClass {
 export class Text extends ComponentBaseClass {
     constructor(spec) {
         var defaultSpec = {
+            name: "Text",
             attributes: {
                 text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In quis libero at libero dictum tempor. Cras ut odio erat. Fusce semper odio ac dignissim sollicitudin. Vivamus in tortor lobortis, bibendum lacus feugiat, vestibulum magna. Vivamus pellentesque mollis turpis, at consequat nisl tincidunt at. Nullam finibus cursus varius. Nam id consequat nunc, vitae accumsan metus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse fringilla sed lorem eleifend porta. Vivamus euismod, sapien at pretium convallis, elit libero auctor felis, id porttitor dui leo id ipsum. Etiam urna velit, ornare condimentum tincidunt quis, tincidunt a dolor. Morbi at ex hendrerit, vestibulum tellus eu, rhoncus est. In rutrum, diam dignissim condimentum tristique, ante odio rhoncus justo, quis maximus elit orci id orci."
             },
+            isBlock: true,
         };
         
         super(Object.assign(defaultSpec, spec));
@@ -216,8 +332,8 @@ export class Text extends ComponentBaseClass {
 
     render() {
         return (
-            <p ref={(r) => this._el = r} style={this.sx} className={"node_" + this.id}>
-                {this.attrs.text}
+            <p key={this.id} ref={(r) => this._el = r} style={this.sx} className={"node_" + this.id}>
+                {this.attributes.text}
             </p>
         )
     }
@@ -226,17 +342,19 @@ export class Text extends ComponentBaseClass {
 export class Header extends ComponentBaseClass {
     constructor(spec) {
         var defaultSpec = {
+            name: "Header",
             attributes: {
                 text: "I am a header"
-            }
+            },
+            isBlock: true,
         }
         super(Object.assign(defaultSpec, spec));
     }
 
     render() {
         return (
-            <h1 ref={(r) => this._el = r} style={this.sx} className={"node_" + this.id}>
-                {this.attrs.text}
+            <h1 key={this.id} ref={(r) => this._el = r} style={this.sx} className={"node_" + this.id}>
+                {this.attributes.text}
             </h1>
         )
     }
@@ -246,18 +364,18 @@ export class Header extends ComponentBaseClass {
 export class Image extends ComponentBaseClass {
     constructor(spec) {
         var defaultSpec = {
-            name: "Image"
+            name: "Image",
             attributes: {
                 src: './public/img/slack/everywhere.png'
             },
+            isBlock: true,
         }
-
-        this.displayType = "content";
+        super(Object.assign(defaultSpec, spec));
     }
 
     render() {
         return (
-            <img ref={(r) => this._el = r} style={this.sx} className={"node_" + this.id} src=this.src.attrs />
+            <img key={this.id} ref={(r) => this._el = r} style={this.sx} className={"node_" + this.id} src={this.attributes.src} />
         )
     }
 }

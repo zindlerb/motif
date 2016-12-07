@@ -36,8 +36,8 @@ var TreeItem = React.createClass({
 
 var TreeChildren = React.createClass({
     render: function() {
-        var children = _.map(this.props.children, function(child) {
-            return <ComponentTree node={child} />
+        var children = _.map(this.props.children, function(child, ind) {
+            return <ComponentTree node={child} key={ind}/>
         });
         
         return (

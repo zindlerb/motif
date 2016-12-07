@@ -6,6 +6,9 @@
 .c-default {
   cursor: default; }
 
+.click-through {
+  pointer-events: none; }
+
 body * {
   font-family: 'Fira Sans', sans-serif;
   /* Make things not selectable */
@@ -52,8 +55,9 @@ body * {
   .header .icon {
     font-size: 25px;
     /* looks right */ }
-  .header .highlighted {
-    background-color: #FFB09F; }
+
+.highlighted {
+  background-color: #FFB09F; }
 
 .componentBlock {
   /* looks right */ }

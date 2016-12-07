@@ -4,23 +4,23 @@ import dragManager from '../dragManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
 
-import store from '../stateManager.js';
+import {store, actionDispatch} from '../stateManager.js';
 import {getGlobalPosFromSyntheticEvent} from '../utils.js';
-import {componentTreeActions} from '../reducersActions/componentTree.js';
-
 import DraggableComponent from './DraggableComponent.js';
 
 function Header(props) {
     var icons = _.map(props.icons, function (icon, ind) {
         var headerClick = function() {
-            props.parentCtx.setState({activeSitePanelTab: icon.name});
+            actionDispatch.changePanel(icon.name);            
         }
         
         return (
             <div className={classnames("flex-auto tc pa1 h-100", {
-                    highlighted: icon.name === props.activeSitePanelTab,
+                    highlighted: icon.name === props.activePanel,
                 })}
-                 onClick={headerClick}>
+                 onClick={headerClick}
+                 key={ind}
+            >
                 <i className={classnames("icon", "fa", icon.faClass)} aria-hidden="true"></i> 
             </div>
         );
@@ -39,41 +39,14 @@ var iconList = [
     {name: "ASSETS", faClass: "fa-file-image-o"}
 ];
 
-/* 
- *    dragtype: "addComponent"
- * 
- *    stateManager.updateState((state) => {
- *    if (this.dropSpot) {
- *    var {parent, insertionIndex} = this.dropSpot.closestNode;
- *    console.log("dropped");
- *    
- *    node.parent.addChild(new Component(), ind);
- * }
- * 
- * state.dropHighlightId = undefined;
- * state.highlightType = undefined;
- * });
- * 
- * move:
- *    this.dropSpot = findDropSpot(pos, stateManager.state.currentPage.componentTree);
- * 
- *    stateManager.updateState((state) => {
- *    if (this.dropSpot) {
- *    state.potentialDropPositions = this.dropSpot.nodesInMin;
- *    state.activeDropPosition = this.dropSpot.closestNode;
- *    }
- *    });
- * 
- * */
-
 var ComponentBlock = function(props) {
     var dragData = {
         dragType: "addComponent",
-        onMove: function(pos, ctx) {            
-            store.dispatch(componentTreeActions.setComponentMoveHighlight(pos));
+        onMove: function(pos, ctx) {
+            actionDispatch.setComponentMoveHighlight(pos);
         },
         onUp: function(pos, ctx) {
-            store.dispatch(componentTreeActions.addComponent(props.component));
+            actionDispatch.addComponent(props.component);
         }
     };
 
@@ -87,16 +60,21 @@ var ComponentBlock = function(props) {
     );
 }
 
+function PlusButton(props) {
+    return <i onClick={props.action} className="fa fa-plus-circle" aria-hidden="true"></i>;
+}
+
 var ComponentSidebar = React.createClass({
     getInitialState: function() {
         return {activeSitePanelTab: "COMPONENTS"};
     },
     render: function() {
         var body;
+        var {activePanel, pages, components, currentPage} = this.props;
 
-        if (this.state.activeSitePanelTab === "COMPONENTS") {
-            var defaultItems = _.map(this.props.components, (component, ind) => {
-                return <ComponentBlock component={component}/>
+        if (activePanel === "COMPONENTS") {
+            var defaultItems = _.map(components.ours, (component, ind) => {
+                return <ComponentBlock component={component} key={ind}/>
             });
 
             var userComponents;
@@ -116,11 +94,34 @@ var ComponentSidebar = React.createClass({
                     </ul>
                 </div>
             );
+        } else if (activePanel === "PAGES") {
+            var pageList = _.map(pages, function(page, ind) {
+                return (
+                    <li
+                        className={classnames({highlighted: page.id === currentPage.id})}
+                        onClick={() => actionDispatch.changePage(page)}
+                        key={ind}
+                        >
+                    {page.name}
+                </li>);
+            });
+            body = (
+                <div>
+                    <div className="cf">
+                            <h2 className="f4 pt2 pb3 tc w-40 fl">Pages</h2>
+                            <PlusButton className="ph2 fl" action={actionDispatch.addPage}/>
+                    </div>
+                    <ul>
+                        {pageList}
+                    </ul>
+                </div>
+            )
         }
+        
 
         return (
             <div>
-                <Header icons={iconList} parentCtx={this} activeSitePanelTab={this.state.activeSitePanelTab} activeIconInd={2}/>
+                <Header icons={iconList} activePanel={this.props.activePanel} />
                 {body}
             </div>
         );

@@ -6,12 +6,13 @@ import _ from 'lodash';
 import dragManager from './dragManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
-import store from './stateManager.js';
+import {store} from './stateManager.js';
 
 /* Components */
 import ComponentSidebar from './components/ComponentSidebar.js';
 import StaticRenderer from './components/StaticRenderer.js';
 import ComponentTree from './components/ComponentTree.js';
+import DropPointRenderer from './components/DropPointRenderer.js';
 
 var App = React.createClass({
     getInitialState: function() {
@@ -26,20 +27,18 @@ var App = React.createClass({
     },
     
     render: function() {
-        var {mutableState, immutableState} = this.state;
-        var components = this.state.immutableState.components;
-
         return (
             <div className="flex h-100">
                 <div className="sidebar flex-none h-100">
-                    <ComponentSidebar components={}/>
+                    <ComponentSidebar components={this.state.componentBoxes} pages={this.state.pages} activePanel={this.state.activeLeftPanel} currentPage={this.state.currentPage}/>
                 </div>
                 <div className="flex-auto w-100 h-100">
                     <StaticRenderer page={this.state.currentPage}/>
                 </div>
                 <div className="sidebar h-100 flex-none">
                     
-                </div>                
+                </div>
+                <DropPointRenderer dropPoints={this.state.dropPoints}/>
             </div>
         );
     }
@@ -51,7 +50,15 @@ ReactDOM.render( < App / > ,
 
 /*
 
-Don't do any performance optimizations unless unbearably slow or the app is working for building a website.
+Tonight:
+- Get component list showing.
+- Allow click to see page view.
+
+Tomorrow:
+- Dragging working 
+- Editing attributes working
+
+finish full app with low performance and insanely simple structure so there is more room for tuneups.
 
 
 For performance I can do a has mutated flag and use connectors to sync up...

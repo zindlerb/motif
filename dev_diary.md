@@ -300,21 +300,13 @@ Example Workflows:
 - Make header component using button
 - Take button and alter it - turn that into new button component
 
+## Dec 5th:
+Did architecture analysis and go too bogged down thinking about performance and how to set things up. In the future I need to work towards finishing a basic prototype and then worrying about performance. It is too hard to know how to structure things for performance before anything is implemented.
 
-Archetecture:
-Basically redux lite.
-Adheres to 2 principles of redux:
-- Single source of truth
-- State is read-only
-and breaks one:
-- Changes are made with pure functions
+I suspect perf hits will come from building the element tree for the page views. I might need to make a react like thing with a eventing api not a declarative one. But honestly that is a waste of time now. I need to clear the fog of war first.
 
-Because the data model best suited to this application is deeply nested and tree like. Keeping the reducers pure in redux requires immutable models. Structuring the data for immutability means it should be normalized. 
+I need to keep it dead simple and slow. And then when one pass of the app is done optimize it for performance.
 
-The complexity of normalizing and updating the state in an immutable way is too great a cost for the benefits of immutability. The first 2 principles of redux get me far enough. 
+Tomorrow I need to crank on some features.
 
-For the most part I will try to keep the state immutable and normalized but the main component tree of the app will most likely stay mutable.
-
-If I do that how will I deal with async actions? Use promise middleware with store?
-
-
+## Dec 6th:
