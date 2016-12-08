@@ -1,203 +1,206 @@
-import _ from 'lodash';
-import {Container, Header, Text, Image} from './base_components.js';
 import createStore from 'redux/lib/createStore';
 import bindActionCreators from 'redux/lib/bindActionCreators';
-import {distanceBetweenPoints, guid} from './utils.js';
 
-var container = new Container();
-var header = new Header();
-var text = new Text();
-var image = new Image();
+import { Container, Header, Text, Image } from './base_components';
+import { distanceBetweenPoints, guid } from './utils';
 
-var state = {
-    componentMap: {
-        [container.id]: container,
-        [header.id]: header,
-        [text.id]: text,
-        [image.id]: image
-    },
-    siteName: "Something",
-    componentBoxes: {
-        ours: [
-            container,
-            header,
-            text,
-            image
-        ],
-        yours: [
-            
-        ]
-    },
-    pages: [],
-    currentPage: undefined,
-    activeComponent: undefined,
-    activeLeftPanel: "COMPONENTS",
-    activeRightPanel: "ATTRIBUTES"
-}
+const container = new Container();
+const header = new Header();
+const text = new Text();
+const image = new Image();
+
+const initialState = {
+  componentMap: {
+    [container.id]: container,
+    [header.id]: header,
+    [text.id]: text,
+    [image.id]: image,
+  },
+  siteName: 'Something',
+  componentBoxes: {
+    ours: [
+      container,
+      header,
+      text,
+      image,
+    ],
+    yours: [],
+  },
+  pages: [],
+  currentPage: undefined,
+  activeComponent: undefined,
+  activeLeftPanel: 'COMPONENTS',
+  activeRightPanel: 'ATTRIBUTES',
+};
 
 /* Constants */
-const SET_COMPONENT_TREE_HIGHLIGHT = "SET_COMPONENT_TREE_HIGHLIGHT";
-const RESET_COMPONENT_TREE_HIGHLIGHT = "RESET_COMPONENT_TREE_HIGHLIGHT";
+const SET_COMPONENT_TREE_HIGHLIGHT = 'SET_COMPONENT_TREE_HIGHLIGHT';
+const RESET_COMPONENT_TREE_HIGHLIGHT = 'RESET_COMPONENT_TREE_HIGHLIGHT';
 
-const ADD_NEW_COMPONENT = "ADD_NEW_COMPONENT";
-const ADD_NEW_PAGE = "ADD_NEW_PAGE";
+const ADD_NEW_COMPONENT = 'ADD_NEW_COMPONENT';
+const ADD_NEW_PAGE = 'ADD_NEW_PAGE';
 
-const CHANGE_PANEL = "CHANGE_PANEL";
-const CHANGE_PAGE = "CHANGE_PAGE";
+const CHANGE_PANEL = 'CHANGE_PANEL';
+const CHANGE_PAGE = 'CHANGE_PAGE';
 
-const SELECT_COMPONENT = "SELECT_COMPONENT";
-const SET_COMPONENT_ATTRIBUTE = "SET_COMPONENT_ATTRIBUTE";
+const SELECT_COMPONENT = 'SELECT_COMPONENT';
+const SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
 
 function findDropSpot(mousePos, nodeTree) {
-    var DIST_RANGE = 100;
+  const DIST_RANGE = 100;
 
-    var minDist = DIST_RANGE;
-    var closestNode;
-    var nodesInMin = [];
+  let minDist = DIST_RANGE;
+  let closestNode;
+  const nodesInMin = [];
 
-    nodeTree.walkChildren(function (node, ind) {
-        if (node.getDropPoints) {
-            node.getDropPoints().forEach(function(dropPoint) {                
-                var nodeRect = node.getRect();
-                var dist = distanceBetweenPoints(mousePos, dropPoint.point);
-                
+  nodeTree.walkChildren(function (node) {
+    if (node.getDropPoints) {
+      node.getDropPoints().forEach(function (dropPoint) {
+        const dist = distanceBetweenPoints(mousePos, dropPoint.point);
 
-                if (dist < DIST_RANGE) {
-                    nodesInMin.push(dropPoint);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        closestNode = dropPoint;
-                    }
-                }
-            });
+        if (dist < DIST_RANGE) {
+          nodesInMin.push(dropPoint);
+          if (dist < minDist) {
+            minDist = dist;
+            closestNode = dropPoint;
+          }
         }
-    });
-
-    
-    if (closestNode) {
-        closestNode.isActive = true;
-        return {closestNode, nodesInMin};
-    } else {
-        return {};
+      });
     }
+  });
+
+
+  if (closestNode) {
+    closestNode.isActive = true;
+    return { closestNode, nodesInMin };
+  } else {
+    return {};
+  }
 }
 
-export var actions = {
-    setComponentMoveHighlight: function (pos) {
-        return {
-            type: SET_COMPONENT_TREE_HIGHLIGHT,
-            pos
-        }
-    },
-    addComponent: function (Component) {
-        return {
-            type: ADD_NEW_COMPONENT,
-            Component
-        }
-    },
+export const actions = {
+  setComponentMoveHighlight(pos) {
+    return {
+      type: SET_COMPONENT_TREE_HIGHLIGHT,
+      pos,
+    };
+  },
+  addComponent(Component) {
+    return {
+      type: ADD_NEW_COMPONENT,
+      Component,
+    };
+  },
 
-    selectComponent: function(component) {
-        return {
-            type: SELECT_COMPONENT,
-            component
-        }
-    },
+  selectComponent(component) {
+    return {
+      type: SELECT_COMPONENT,
+      component,
+    };
+  },
 
-    changePanel: function (panelConst) {
-        return {
-            type: CHANGE_PANEL,
-            panelConst
-        }
-    },
-    
+  changePanel(panelConst) {
+    return {
+      type: CHANGE_PANEL,
+      panelConst,
+    };
+  },
 
-    /* Pages */
-    addPage: function () {
-        return {
-            type: ADD_NEW_PAGE,
-        }
-    },
+  /* Pages */
+  addPage() {
+    return {
+      type: ADD_NEW_PAGE,
+    };
+  },
 
-    changePage: function (page) {
-        return {
-            type: CHANGE_PAGE,
-            page
-        }
-    },
+  changePage(page) {
+    return {
+      type: CHANGE_PAGE,
+      page,
+    };
+  },
 
-    setComponentAttribute: function (component, attrKey, newAttrValue) {
-        return {
-            type: SET_COMPONENT_ATTRIBUTE,
-            component,
-            attrKey,
-            newAttrValue
-        }
-    }
+  setComponentAttribute(component, attrKey, newAttrValue) {
+    return {
+      type: SET_COMPONENT_ATTRIBUTE,
+      component,
+      attrKey,
+      newAttrValue,
+    };
+  },
 };
 
 
-var reducerObj = {
-    [SET_COMPONENT_TREE_HIGHLIGHT]: function (state, action) {
-        var dropSpots = findDropSpot(action.pos, state.currentPage.componentTree);
+const reducerObj = {
 
-        state.dropPoints = dropSpots.nodesInMin;
-        state.selectedDropPoint = dropSpots.closestNode;
-    },
-    [RESET_COMPONENT_TREE_HIGHLIGHT]: function (state) {
-        delete state.dropPoints;
-    },
-    [SET_COMPONENT_ATTRIBUTE]: function (state, action) {
-        action.component.attributes[action.attrKey] = action.newAttrValue;
-    },
-    [ADD_NEW_COMPONENT]: function (state, action) {
-        if (state.selectedDropPoint) {
-            var {parent, insertionIndex} = state.selectedDropPoint;
-            parent.addChild(
-                action.Component.createVariant(),
-                insertionIndex
-            );
-        }
-        
-        /* state.dropPoints = undefined;
-         * state.selectedDropPoint = undefined;*/
+  [SET_COMPONENT_TREE_HIGHLIGHT](state, action) {
+    const dropSpots = findDropSpot(action.pos, state.currentPage.componentTree);
 
-        /* Can't use delete because setState will keep the old state when merged */
-        state.dropPoints = undefined;
-        state.selectedDropPoint = undefined;
-        
-    },
-    [SELECT_COMPONENT]: function(state, action) {
-        state.activeComponent = action.component;        
-    },
-    [ADD_NEW_PAGE]: function (state, action) {
-        var newPage = {
-            name: "New Page",
-            id: guid(),
-            componentTree: container.createVariant({
-                isRoot: true,
-            })
-        };
+    state.dropPoints = dropSpots.nodesInMin;
+    state.selectedDropPoint = dropSpots.closestNode;
+  },
 
-        state.pages.push(newPage);
-        state.currentPage = newPage;
-    },
-    [CHANGE_PANEL]: function (state, action) {
-        state.activeLeftPanel = action.panelConst;
-    },
-    [CHANGE_PAGE]: function (state, action) {        
-        state.currentPage = action.page;
+  [RESET_COMPONENT_TREE_HIGHLIGHT](state) {
+    delete state.dropPoints;
+  },
+
+  [SET_COMPONENT_ATTRIBUTE](state, action) {
+    action.component.attributes[action.attrKey] = action.newAttrValue;
+  },
+
+  [ADD_NEW_COMPONENT](state, action) {
+    if (state.selectedDropPoint) {
+      const { parent, insertionIndex } = state.selectedDropPoint;
+      parent.addChild(
+        action.Component.createVariant(),
+        insertionIndex,
+      );
     }
+
+    /* state.dropPoints = undefined;
+     * state.selectedDropPoint = undefined;*/
+
+    /* Can't use delete because setState will keep the old state when merged */
+    state.dropPoints = undefined;
+    state.selectedDropPoint = undefined;
+  },
+
+  [SELECT_COMPONENT](state, action) {
+    state.activeComponent = action.component;
+  },
+
+  [ADD_NEW_PAGE](state) {
+    const newPage = {
+      name: 'New Page',
+      id: guid(),
+      componentTree: container.createVariant({
+        isRoot: true,
+      }),
+    };
+
+    state.pages.push(newPage);
+    state.currentPage = newPage;
+  },
+
+  [CHANGE_PANEL](state, action) {
+    state.activeLeftPanel = action.panelConst;
+  },
+
+  [CHANGE_PAGE](state, action) {
+    state.currentPage = action.page;
+  },
+
 };
 
-function reducer(state, action) {    
-    if (reducerObj[action.type]) {
-        reducerObj[action.type](state, action);
-    }
+function reducer(state, action) {
+  if (reducerObj[action.type]) {
+    reducerObj[action.type](state, action);
+  }
 
-    return state;
+  return state;
 }
 
-export var store = createStore(reducer, state);
-export var actionDispatch = bindActionCreators(actions, store.dispatch);
+export const store = createStore(reducer, initialState);
+export const actionDispatch = bindActionCreators(actions, store.dispatch);
 
 actionDispatch.addPage();

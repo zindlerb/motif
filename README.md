@@ -4,6 +4,7 @@
 
 npm install 
 npm install -g watchify
+npm install -g eslint
 
 ## Refactor Notes
 
