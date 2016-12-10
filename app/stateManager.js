@@ -9,6 +9,9 @@ const header = new Header();
 const text = new Text();
 const image = new Image();
 
+
+
+
 const initialState = {
   componentMap: {
     [container.id]: container,
@@ -29,6 +32,7 @@ const initialState = {
   pages: [],
   currentPage: undefined,
   activeComponent: undefined,
+  activeView: "BORDER",
   activeLeftPanel: 'COMPONENTS',
   activeRightPanel: 'ATTRIBUTES',
 };
@@ -45,6 +49,8 @@ const CHANGE_PAGE = 'CHANGE_PAGE';
 
 const SELECT_COMPONENT = 'SELECT_COMPONENT';
 const SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
+
+const SELECT_VIEW = "SELECT_VIEW";
 
 function findDropSpot(mousePos, nodeTree) {
   const DIST_RANGE = 100;
@@ -120,6 +126,13 @@ export const actions = {
     };
   },
 
+  selectView(viewName) {
+    return {
+      type: SELECT_VIEW,
+      viewName
+    }
+  },
+
   setComponentAttribute(component, attrKey, newAttrValue) {
     return {
       type: SET_COMPONENT_ATTRIBUTE,
@@ -132,6 +145,9 @@ export const actions = {
 
 
 const reducerObj = {
+  [SELECT_VIEW](state, action) {
+    state.activeView = action.viewName;
+  },
 
   [SET_COMPONENT_TREE_HIGHLIGHT](state, action) {
     const dropSpots = findDropSpot(action.pos, state.currentPage.componentTree);
@@ -170,12 +186,38 @@ const reducerObj = {
   },
 
   [ADD_NEW_PAGE](state) {
+    var fakePage = container.createVariant(
+      {
+        height: "100%"
+      },
+      {},
+      [
+        container.createVariant({ height: "200px" }, {}, [header.createVariant()]),
+        container.createVariant(
+          {},
+          {},
+          [
+            container.createVariant(),
+            container.createVariant()
+          ]
+        ),
+        container.createVariant({ height: "200px" })
+      ]
+    );
+
+    /*
+       container.createVariant({
+       attributes: {
+       height: "100%"
+       },
+       isRoot: true,
+       })
+     */
+
     const newPage = {
       name: 'New Page',
       id: guid(),
-      componentTree: container.createVariant({
-        isRoot: true,
-      }),
+      componentTree: fakePage,
     };
 
     state.pages.push(newPage);

@@ -57,8 +57,13 @@ body * {
 
 
 /* COMPONENTS */
-.header {    
+.horizontal-select {
   border-bottom: 1px solid $border;
+
+  &.border {
+    border: 2px solid $border;
+    border-radius: 3px;
+  }
 
   .icon {
     font-size: 25px; /* looks right */
@@ -92,4 +97,26 @@ body * {
 
 .isActive {
   border: 3px solid $highlight !important;
+}
+
+.expand {
+  height: 30px !important;
+}
+
+
+/* View Modes */
+.static-view-border * {
+  outline: 1px solid gold;
+}
+
+.static-view-detail * {
+
+}
+
+.detail {
+
+}
+
+.c-pointer {
+  cursor: pointer !important;
 }

@@ -7,9 +7,7 @@ import $ from 'jquery';
 import {store, actionDispatch} from '../stateManager.js';
 import {getGlobalPosFromSyntheticEvent} from '../utils.js';
 import DraggableComponent from './DraggableComponent.js';
-import Header from './Header.js';
-
-
+import HorizontalSelect from './HorizontalSelect.js';
 
 var iconList = [
     {name: "PAGES", faClass: "fa-files-o"},
@@ -29,7 +27,7 @@ var ComponentBlock = function(props) {
         }
     };
 
-    
+
     return (
         <DraggableComponent {...dragData}>
             <li className="m-auto componentBlock pv2 w4 draggableShadow mv2 tc">
@@ -57,11 +55,11 @@ var LeftPanel = React.createClass({
             });
 
             var userComponents;
-            
+
             body = (
                 <div>
                     <h2 className="f4 pt2 pb3 tc">Components</h2>
-                    
+
                     <h3 className="f5 pl3 pv2">Ours</h3>
                     <ul className="list">
                         {defaultItems}
@@ -96,11 +94,11 @@ var LeftPanel = React.createClass({
                 </div>
             )
         }
-        
+
 
         return (
             <div>
-                <Header onClick={(name) => { actionDispatch.changePanel(name, "left") }} icons={iconList} activePanel={this.props.activePanel} />
+                <HorizontalSelect onClick={(name) => { actionDispatch.changePanel(name, "left") }} options={iconList} activePanel={this.props.activePanel} />
                 {body}
             </div>
         );

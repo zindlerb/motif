@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import $ from 'jquery';
 import {actionDispatch} from '../stateManager.js';
 
-import Header from './Header.js';
+import HorizontalSelect from './HorizontalSelect.js';
 import AttributeField from './AttributeField.js';
 
 var iconList = [
@@ -23,17 +23,16 @@ var RightPanel = React.createClass({
                 body.push(
                     <AttributeField component={activeComponent} attrKey={attrKey} attrVal={attrVal}/>
                 );
-            });            
+            });
         }
-        
+
         return (
             <div>
-                <Header icons={iconList} activePanel={this.props.activePanel} onClick={(name) => {actionDispatch.changePanel(name, "right")}} />
-                {body}    
+                <HorizontalSelect options={iconList} activePanel={this.props.activePanel} onClick={(name) => {actionDispatch.changePanel(name, "right")}} />
+                {body}
             </div>
         );
     }
 });
 
 export default RightPanel;
-

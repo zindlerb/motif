@@ -50,9 +50,12 @@ body * {
   border-right: 1px solid #BDBDBD; }
 
 /* COMPONENTS */
-.header {
+.horizontal-select {
   border-bottom: 1px solid #BDBDBD; }
-  .header .icon {
+  .horizontal-select.border {
+    border: 2px solid #BDBDBD;
+    border-radius: 3px; }
+  .horizontal-select .icon {
     font-size: 25px;
     /* looks right */ }
 
@@ -77,3 +80,13 @@ body * {
 
 .isActive {
   border: 3px solid #FFB09F !important; }
+
+.expand {
+  height: 30px !important; }
+
+/* View Modes */
+.static-view-border * {
+  outline: 1px solid gold; }
+
+.c-pointer {
+  cursor: pointer !important; }

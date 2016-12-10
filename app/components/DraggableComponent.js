@@ -15,29 +15,28 @@ var DraggableComponent = React.createClass({
     },
     makeOnMouseDown: function (Component) {
         var that = this;
-        
+
         return (e) => {
-            console.log(that.props)
             that.setState(Object.assign({isDragging: true}, getGlobalPosFromSyntheticEvent(e)));
             dragManager.start(e, {
                 dragType: that.props.dragType,
                 dragCtx: that.props.dragCtx || {},
-                onMove: function (e) {
+                onDrag: function (e) {
                     var pos = getGlobalPosFromSyntheticEvent(e);
 
                     if (that.props.onMove) {
                         that.props.onMove(pos, this.dragCtx);
                     }
-                    
+
                     that.setState(pos);
                 },
-                onUp: function (e) {
+                onEnd: function (e) {
                     var pos = getGlobalPosFromSyntheticEvent(e);
 
                     if (that.props.onUp) {
                         that.props.onUp(pos, this.dragCtx);
                     }
-                    
+
                     that.setState({isDragging: false});
                 }
             });
@@ -49,7 +48,7 @@ var DraggableComponent = React.createClass({
             "c-grab": !this.state.isDragging,
             "c-grabbing": this.state.isDragging,
         });
-        
+
         if (this.state.isDragging) {
             var rootEl = $(this._el).children();
             draggingComponent = <div className={classnames("absolute", draggingClassNames)} style={{
@@ -57,7 +56,7 @@ var DraggableComponent = React.createClass({
                 top: this.state.y - rootEl.outerHeight()/2
             }}>{this.props.children}</div>
         }
-        
+
         return (
             <div>
                 <div

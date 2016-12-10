@@ -2,7 +2,7 @@
 
 ## Dec 1
 
-Today I need to step back and look at the design decisions of the client state. I need to look at how to structure the client state. 
+Today I need to step back and look at the design decisions of the client state. I need to look at how to structure the client state.
 
 - how to structure client state
 - how to change client state
@@ -19,7 +19,7 @@ Cons:
 - In order to follow the 'links' in normalized data you need to have the whole data map at your disposal to look up the ids.
 - Presentation of the data can often involve denormalizing it and this has performance and complexity costs. ex. I need 2 pieces of data instead of 1 render something now.
 
-Normalization is linked with immutability - if you are dealing with immutable values you basically need to normalize 
+Normalization is linked with immutability - if you are dealing with immutable values you basically need to normalize
 
 https://github.com/paularmstrong/normalizr
 https://groups.google.com/forum/#!topic/reactjs/jbh50-GJxpg
@@ -28,7 +28,7 @@ https://groups.google.com/forum/#!topic/reactjs/jbh50-GJxpg
 Redux Notes:
 Redux seems cool but the amount of hype makes me paranoid
 
-Containers vs. Components - 
+Containers vs. Components -
 
 "I call components encapsulated React components that are driven solely by props and don't talk to Redux. Same as “dumb components”. They should stay the same regardless of your router, data fetching library, etc.
 
@@ -110,7 +110,7 @@ Make decision on:
 
 I think the only remaining question is:
 - redux or no redux
-   - if no redux do I still normalize 
+   - if no redux do I still normalize
 
 Things the answer depends on:
 - how will I do collaboration? does that depend on state snapshotting?
@@ -171,7 +171,7 @@ Main Views:
 - Component View
   - Scroll through diff component states
   - Edit individual component states (components are variants of default state diff of attrs)
-  
+
 - Page View
   - Re arrange components
   - Transform component into component generator (could possibly drag into sidebar (V2))
@@ -179,8 +179,8 @@ Main Views:
   - Delete component
   - Different levels of views (V2)
     - No view
-    - Show width (fluid or fixed), padding, margin, inline or block 
-  - Change width 
+    - Show width (fluid or fixed), padding, margin, inline or block
+  - Change width
   - Change device
     - Choose breakpoint, or device grouping)
   - Edit Component (This editing does not propagate to the parent unless the user chooses to!! What is Term Toby uses? Could also have a arguments model...)
@@ -216,19 +216,19 @@ Right Panels:
       - Filter?? (might only be useful on images V2)
     - Text
       - Text color
-      - Font 
-      - Font-Size 
+      - Font
+      - Font-Size
       - Line Height
       - Text align vertical or horizontal
-      - Other text stuff... 
-      
+      - Other text stuff...
+
     - Block
       - Child flex layout (spacing)
       - Child flex direction (vertical horizontal)
     - Video
     - Image
-    
-        
+
+
   - Expose unique id of element so it can be selected by js.
   - Change component attributes (These attributes are not css BUT they must be able to statically compile to css)
   - Set attributes for specific states
@@ -240,7 +240,7 @@ Right Panels:
   - See the page structure as a tree
   - Fold and unfold leaves
   - Rearrange nodes.
-  
+
 - Top bar
   - Open site
   - New site
@@ -260,7 +260,7 @@ Transitions:
 - Set:
   - delay
   - transition time
-  - how the transition is eased 
+  - how the transition is eased
   - What property
   - What state
 - UI:
@@ -268,24 +268,24 @@ Transitions:
 
 CSS Notes:
 - In css it is not pure bottom up or bottom down.
-  - blocks grow to fit their parent inline grow to fit 
+  - blocks grow to fit their parent inline grow to fit
 
 
 Next:
 - Settle open design Questions:
-  - Q: How will text editing work? How will inline things like links or images work? We have no float here.... 
+  - Q: How will text editing work? How will inline things like links or images work? We have no float here....
     - A: For now jst do content editable and not float. When trying to build layouts that merge the text and images then take notes. Will need link and bold
   - Q: How do I do the flexbox sizing?
     - A: Do vanilla flex and iterate
 - Read through aparatus data model. List out pros and cons of archetecture
-- Do normalized and un normalized data model of data 
+- Do normalized and un normalized data model of data
 - Decide on redux vs. vanilla flux
 - Begin writing full app going through all features
 
 
 Questions for later:
 - How to constrain the editing interface - communicate to component user that this component is meant to be used a certain way.
-  - Can only be this color, is these 3 sizes, this is constant text this is changeable text 
+  - Can only be this color, is these 3 sizes, this is constant text this is changeable text
 - How to make sure the site is semantic?
 - How to make sure the site is accessible?
 - How to group components? Should allow folders of some kind?
@@ -293,7 +293,7 @@ Questions for later:
   - I think a simple boolean state for components will be sufficient...
 - How to do forms?
 - Site templates?
-- Boolean components? Set custom states for diff views but that would require multi states? 
+- Boolean components? Set custom states for diff views but that would require multi states?
 
 Example Workflows:
 - Build button from primatives
@@ -312,4 +312,70 @@ Tomorrow I need to crank on some features.
 ## Dec 6th:
 Did the dragging of components and many other minor features. I got a little distracted reading internet articles mid-day. My emacs is also crashing at annoying times. Maybe I should consider switching editors... or just fixing a bunch of the minor emacs annoyances I currently have...
 
-## Dec 7th: 
+## Dec 7th:
+Added attr editing and linting.
+
+## Dec 8th:
+I need to re-architect the component code to support sophisticated dragging.
+https://facebook.github.io/react/blog/2015/12/18/react-components-elements-and-instances.html
+
+Notes on react terminology:
+Component:
+from React.createClass()
+Must take props as input and give elements as output.
+
+Element:
+from React.createElement(type, prop, children) - https://facebook.github.io/react/docs/react-api.html#createelement
+Describes component instance or dom element.
+Immutable object describing what you want to see.
+Type of element can be string or react component.
+Create element is just syntactic sugar over obj representation. Elements are just objects
+
+Instance:
+The instance here is tied to a dom node. Only components with classes have instances. React creates the instances. You cannot create them. Access the instance through a ref.
+
+Reconciliation:
+Process of resolving components and props to base elements.
+Finds min number of ops to trasform one tree into another
+
+"React implements a heuristic O(n) algorithm based on two assumptions:
+
+Two elements of different types will produce different trees.
+The developer can hint at which child elements may be stable across different renders with a key prop."
+
+
+
+Rendering:
+
+- Build new element tree.
+- Diff element tree with old one to find out mutations to make.
+- Make min mutations to dom.
+
+How are elements matched to instances?
+- iterates through both new and old children at the same time. Does same element comparison. Since it goes top to buttom if top element is changed it needs to mutate all. By providing keys elements don't have to be compared from top to bottom
+
+Related why are keys needed?
+"As a last resort, you can pass item's index in the array as a key. This can work well if the items are never reordered, but reorders will be slow."
+https://facebook.github.io/react/docs/reconciliation.html
+
+In the current implementation, you can express the fact that a subtree has been moved amongst its siblings, but you cannot tell that it has moved somewhere else. The algorithm will rerender that full subtree." - Bad for my app
+
+"The algorithm will not try to match subtrees of different component types. If you see yourself alternating between two component types with very similar output, you may want to make it the same type. In practice, we haven't found this to be an issue.
+
+Keys should be stable, predictable, and unique. Unstable keys (like those produced by Math.random()) will cause many component instances and DOM nodes to be unnecessarily recreated, which can cause performance degradation and lost state in child components."
+
+When does mounting and unmounting happen?
+- If a component subtree is rebuilt is it remounted?
+
+## Dec 9th:
+Problems with direct manipulation of html:
+- Layers - elements covering other elements
+  - In scenegraph view need to be able to reorder tree
+- Deeply nested trees
+  - Why bad? - not actually so bad
+- Small elements
+  - Need to expand
+
+- write algo for expanding on drag
+- write algo for expanding on near
+- add tree view
