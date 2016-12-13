@@ -58,32 +58,31 @@ export var attributeFieldset = {
 }
 
 var ComponentBaseClass = {
-  /* Due to the complex nature of component cannot mutate in any other way besides the methods */
-  constructor(master) {
-    this.master = master;
-    this.childrenAllowed = false;
-
-    this.children = [];
-    this._variants = [];
-
-    this.id = guid();
-  },
-
   createVariant(spec) {
     /*
        Attributes and Variables have the prototype of the master's attributes and variables
        Adding and removing children is synced in api
      */
-
     var variant = Object.create(this);
-    variant.constructor(this);
-    object.assign(variant, spec);
+
+    /* Setup new component */
+    variant.master = this;
+    variant.variables = {};
+    variant.attributes = {};
+    variant.children = [];
+    variant._variants = [];
+    variant.id = guid();
+
+    Object.assign(variant, spec);
 
     _.forEach(this.children, function(child) {
       variant.addChild(child.createVariant());
     });
 
-    this._variants.push(variant);
+    if (this._variants /* Don't keep track of variants on base */) {
+      this._variants.push(variant);
+    }
+
 
     return variant;
   },
@@ -123,10 +122,15 @@ var ComponentBaseClass = {
   },
 
   getAllAttrs() {
-    return Object.assign({}, this.master.attributes, this.attributes);
+    var masterAttrs = {};
+    if (this.master) {
+      masterAttrs = this.master.getAllAttrs();
+    }
+
+    return Object.assign({}, masterAttrs, this.attributes);
   },
 
-  getCss() {
+  getRenderableProperties() {
     var attrToCssLookup = {
       position: function(value) {
         /*
@@ -149,12 +153,21 @@ var ComponentBaseClass = {
           return {};
         }
       },
+      height: true,
+      width: true,
+      zIndex: true,
+      opacity: true,
+      display: true,
+      flexDirection: true,
+      justifyContent: true
+    }
+
+    var attrToHtmlPropertyLookup = {
+      text: true,
     }
 
     /*
        - All
-       - Z-index
-       - Opacity
        - Background color
        - Border/Border Radius
        - Box Shadow
@@ -172,23 +185,31 @@ var ComponentBaseClass = {
        - Line Height
        - Text align vertical or horizontal
        - Other text stuff...
-
        - Block
        - Child flex layout (spacing)
        - Child flex direction (vertical horizontal)
-
      */
 
-    var cssStyles = _.reduce(this.attributes, function(css, attrVal, attrKey) {
-      if (attrToCssLookup[attrKey]) {
-        Object.assign(css, attrToCssLookup[attrKey](attrVal));
-      } else {
-        css[attrKey] = attrVal;
-      }
-      return css;
-    }, {});
 
-    return Object.assign({}, this.defaultCSS, cssStyles);
+
+    return _.reduce(this.getAllAttrs(), function(renderableAttributes, attrVal, attrKey) {
+      if (attrToCssLookup[attrKey]) {
+        if (_.isFunction(attrToCssLookup[attrKey])) {
+          Object.assign(renderableAttributes.sx, attrToCssLookup[attrKey](attrVal));
+        } else {
+          renderableAttributes.sx[attrKey] = attrVal;
+        }
+      } else if (attrToHtmlPropertyLookup[attrKey]) {
+        renderableAttributes.htmlProperties[attrKey] = attrVal;
+      } else {
+        throw "Unsorted property: " + attrKey;
+      }
+
+      return renderableAttributes;
+    }, {
+      htmlProperties: {},
+      sx: {}
+    });
   },
 
   getRect() {

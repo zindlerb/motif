@@ -81,8 +81,14 @@ body * {
 .isActive {
   border: 3px solid #FFB09F !important; }
 
-.expand {
-  height: 30px !important; }
+.expandable-element {
+  /* height: 0px; */
+  /* -webkit-transition: 500ms; */
+  /* transition: height 500ms; */ }
+
+.expandable-element.expanded {
+  height: 30px !important;
+  padding: 5px !important; }
 
 /* View Modes */
 .static-view-border * {

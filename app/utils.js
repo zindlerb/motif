@@ -1,4 +1,4 @@
-export function distanceBetweenPoints(p1, p2) {
+ export function distanceBetweenPoints(p1, p2) {
   return Math.abs(Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2)));
 }
 
@@ -27,6 +27,14 @@ export class Rect {
   computeDerivedProperties() {
     this.middleX = this.x + (this.w / 2);
     this.middleY = this.y + (this.h / 2);
+  }
+
+  isPointInRectangle() {
+
+  }
+
+  isCircleInRectangle() {
+
   }
 
   fromElement(el) {

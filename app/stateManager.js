@@ -4,13 +4,10 @@ import bindActionCreators from 'redux/lib/bindActionCreators';
 import { Container, Header, Text, Image } from './base_components';
 import { distanceBetweenPoints, guid } from './utils';
 
-const container = new Container();
-const header = new Header();
-const text = new Text();
-const image = new Image();
-
-
-
+const container = Container;
+const header = Header;
+const text = Text;
+const image = Image;
 
 const initialState = {
   componentMap: {
@@ -35,9 +32,11 @@ const initialState = {
   activeView: "BORDER",
   activeLeftPanel: 'COMPONENTS',
   activeRightPanel: 'ATTRIBUTES',
+  nodeIdsInHoverRadius: {}
 };
 
 /* Constants */
+const SET_HOVERED_NODES = 'SET_HOVERED_NODES';
 const SET_COMPONENT_TREE_HIGHLIGHT = 'SET_COMPONENT_TREE_HIGHLIGHT';
 const RESET_COMPONENT_TREE_HIGHLIGHT = 'RESET_COMPONENT_TREE_HIGHLIGHT';
 
@@ -85,6 +84,12 @@ function findDropSpot(mousePos, nodeTree) {
 }
 
 export const actions = {
+  setHoveredNodes(x, y) {
+    return {
+      type: SET_HOVERED_NODES,
+      mousePosition: {x, y}
+    }
+  },
   setComponentMoveHighlight(pos) {
     return {
       type: SET_COMPONENT_TREE_HIGHLIGHT,
@@ -188,21 +193,32 @@ const reducerObj = {
   [ADD_NEW_PAGE](state) {
     var fakePage = container.createVariant(
       {
-        height: "100%"
-      },
-      {},
-      [
-        container.createVariant({ height: "200px" }, {}, [header.createVariant()]),
-        container.createVariant(
-          {},
-          {},
-          [
-            container.createVariant(),
-            container.createVariant()
-          ]
-        ),
-        container.createVariant({ height: "200px" })
-      ]
+        attributes: {
+          height: "100%"
+        },
+        isRoot: true,
+        children: [
+          container.createVariant(
+            {
+              attributes: { height: "100px" },
+              children: [header.createVariant()]
+            }
+          ),
+          container.createVariant(
+            {
+              children: [
+                container.createVariant(),
+                container.createVariant()
+              ]
+            }
+          ),
+          container.createVariant(
+            {
+              attributes: {height: "100px"}
+            }
+          )
+        ]
+      }
     );
 
     /*
@@ -232,6 +248,19 @@ const reducerObj = {
     state.currentPage = action.page;
   },
 
+  [SET_HOVERED_NODES](state, action) {
+    const HOVER_RADIUS = 100;
+    const nodesInRadius = {};
+    state.currentPage.componentTree.walkChildren(function(node) {
+      var {middleX, middleY} = node.getRect();
+
+      if (distanceBetweenPoints({x: middleX, y: middleY}, action.mousePosition) < HOVER_RADIUS) {
+        nodesInRadius[node.id] = true;
+      }
+    });
+
+    state.nodeIdsInHoverRadius = nodesInRadius;
+  }
 };
 
 function reducer(state, action) {

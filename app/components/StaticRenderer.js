@@ -7,48 +7,21 @@ import { actionDispatch } from '../stateManager.js';
 
 import HorizontalSelect from './HorizontalSelect.js';
 
-/*
-   Transforms the component tree data into a dom representation.
-
-   Minor design tradeoff:
-   Could put have the react component referenced by the classes.
-
-
-
-   if (this._el && dragManager.drag && dragManager.drag.dragType === "addComponent") {
-   var r = this.getRect();
-   if((r.h < 10) && !this.isExpanded) {
-   this.isExpanded = true;
-   }
-   } else {
-   this.isExpanded = false;
-   }
-
-   return (
-   <div
-   ref={(r) => this._el = r}
-   className={
-   classnames({
-   expand: this.isExpanded,
-   isActive: props.activeComponent && (props.activeComponent.id === this.id)
-   })}
-   onClick={this.makeOnClick(this)}>
-   {element}
-   </div>
-   )
- */
-
 var ContainerClassReact = React.createClass({
   getInitialState() {
     return {
       isExpanded: false
     };
   },
+
+  shouldExpand() {
+    return this.props.mComponentData.getRect().h < 10;
+  },
+
   componentDidMount() {
     this.dragListenId = dragManager.subscribe("addComponent", {
       onStart: () => {
-        var rect = this.props.mComponentData.getRect();
-        if (rect.h < 10) {
+        if (this.shouldExpand()) {
           this.setState({
             isExpanded: true
           });
@@ -64,26 +37,36 @@ var ContainerClassReact = React.createClass({
     })
   },
 
+  componentWillReceiveProps(nextProps) {
+    if (this.shouldExpand() && nextProps.isMouseInRenderer && !this.state.isExpanded) {
+      this.setState({isExpanded: true});
+    }
+
+    if(this.state.isExpanded && !nextProps.isMouseInRenderer) {
+      this.setState({isExpanded: false});
+    }
+  },
+
   componentDidDismount() {
     dragManager.unsubscribe(this.dragListenId);
   },
 
   render: function() {
-    let {mComponentData, componentProps} = this.props;
-    var sx = {};
+    let {mComponentData, componentProps, isMouseInRenderer} = this.props;
+    let sx = {};
+
     var children = _.map(mComponentData.children, function (child) {
-      return <MComponentDataRenderer key={child.id} mComponentData={child} componentProps={componentProps} />
+      return <MComponentDataRenderer key={child.id} mComponentData={child} componentProps={componentProps} isMouseInRenderer={isMouseInRenderer} />
     });
 
-    if (this.state.isExpanded) {
-      sx.height = 30;
-      sx.padding = 5;
-    }
-
     return (
-      <div ref={(ref) => {
-          mComponentData._el = ref
-        }}  style={Object.assign(mComponentData.getCss(), sx)} className={"node_" + mComponentData.id}>
+      <div
+          ref={(ref) => {
+              mComponentData._el = ref
+            }}
+          style={Object.assign(this.props.sx, sx)}
+          onClick={this.onClick}
+          className={classnames("node_" + mComponentData.id, "expandable-element", {expanded: this.state.isExpanded})}>
         {children}
       </div>
     );
@@ -94,8 +77,11 @@ var HeaderClassReact = React.createClass({
   render: function() {
     let {mComponentData} = this.props;
     return (
-      <h1 ref={(ref) => {mComponentData._el = ref}} style={mComponentData.getCss()} className={"node_" + mComponentData.id}>
-        {mComponentData.attributes.text}
+      <h1
+          ref={(ref) => {mComponentData._el = ref}}
+          style={this.props.sx} className={"node_" + mComponentData.id}
+          onClick={this.onClick}>
+        {this.props.htmlProperties.text}
       </h1>
     )
   }
@@ -105,8 +91,11 @@ var ParagraphClassReact = React.createClass({
   render: function() {
     let {mComponentData} = this.props;
     return (
-      <p ref={(ref) => {mComponentData._el = ref}} style={mComponentData.getCss()} className={"node_" + mComponentData.id}>
-        {mComponentData.attributes.text}
+      <p
+          ref={(ref) => {mComponentData._el = ref}}
+          style={this.props.sx} className={"node_" + mComponentData.id}
+          onClick={this.onClick}>
+        {this.props.htmlProperties.text}
       </p>
     );
   }
@@ -116,7 +105,11 @@ var ImageClassReact = React.createClass({
   render: function() {
     let {mComponentData} = this.props;
     return (
-      <img ref={(ref) => {mComponentData._el = ref}} style={mComponentData.getCss()} className={"node_" + mComponentData.id} src={mComponent.attributes.src} />
+      <img
+          ref={(ref) => {mComponentData._el = ref}}
+          style={this.props.sx}
+          className={"node_" + mComponentData.id} src={mComponent.attributes.src}
+          onClick={this.onClick}/>
     );
   }
 });
@@ -132,24 +125,48 @@ var ImageClassReact = React.createClass({
    Need to seperate the data and the rendering...
  */
 
+function makeClick(component) {
+  return function () {
+    actionDispatch.selectComponent(component);
+  }
+}
+
 var MComponentDataRenderer = function(props) {
   /* TD: expand for custom components */
-  console.log("props", props);
   var componentType = props.mComponentData.componentType;
+  var {htmlProperties, sx} = props.mComponentData.getRenderableProperties();
 
   if (componentType === CONTAINER) {
-    return <ContainerClassReact {...props}/>;
+    return <ContainerClassReact {...props} htmlProperties={htmlProperties} sx={sx} />;
   } else if (componentType === HEADER) {
-    return <HeaderClassReact {...props} />;
+    return <HeaderClassReact {...props} htmlProperties={htmlProperties} sx={sx} />;
   } else if (componentType === PARAGRAPH) {
-    return <ParagraphClassReact {...props} />;
+    return <ParagraphClassReact {...props} htmlProperties={htmlProperties} sx={sx} />;
   } else if (componentType === IMAGE) {
-    return <ImageClassReact {...props} />;
+    return <ImageClassReact {...props} htmlProperties={htmlProperties} sx={sx} />;
   }
 }
 
 
 var StaticRenderer = React.createClass({
+  getInitialState() {
+    return {
+      isMouseInRenderer: false
+    };
+  },
+
+  mouseMove: function(e) {
+    /*     actionDispatch.setHoveredNodes(e.clientX, e.clientY);*/
+  },
+
+  mouseEnter() {
+    this.setState({isMouseInRenderer: true});
+  },
+
+  mouseLeave() {
+    this.setState({isMouseInRenderer: false});
+  },
+
   render: function() {
     let {
       mComponentData,
@@ -159,10 +176,9 @@ var StaticRenderer = React.createClass({
     } = this.props;
     let renderer;
 
-    console.log("renderer props", this.props)
-
     if (page) {
-      renderer = <MComponentDataRenderer mComponentData={page.componentTree} componentProps={componentProps} />;
+      console.log("state", this.state.isMouseInRenderer);
+      renderer = <MComponentDataRenderer mComponentData={page.componentTree} componentProps={componentProps} isMouseInRenderer={this.state.isMouseInRenderer} />;
     }
 
     return (
@@ -177,7 +193,7 @@ var StaticRenderer = React.createClass({
               {text: "Border", name: "BORDER"},
               {text: "Detail", name: "DETAIL"}
             ]}/>
-        <div className={classnames("ma2 h-100 ba", {
+        <div onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}  onMouseMove={this.mouseove} className={classnames("ma2 h-100 ba", {
             "static-view-border": activeView === "BORDER",
             "static-view-detail": activeView === "DETAIL",
           })}>

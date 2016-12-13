@@ -15,6 +15,8 @@ import StaticRenderer from './components/StaticRenderer.js';
 import ComponentTree from './components/ComponentTree.js';
 import DropPointRenderer from './components/DropPointRenderer.js';
 
+import Something from './tests/component_model.js';
+
 var App = React.createClass({
   getInitialState: function() {
     return store.getState();
@@ -36,7 +38,8 @@ var App = React.createClass({
       currentPage,
       activeComponent,
       dropPoints,
-      activeView
+      activeView,
+      nodeIdsInHoverRadius
     } = this.state;
 
     return (
@@ -49,7 +52,8 @@ var App = React.createClass({
               page={currentPage}
               activeView={activeView}
               componentProps={{
-                activeComponent: activeComponent
+                activeComponent: activeComponent,
+                nodeIdsInHoverRadius
               }}/>
         </div>
         <div className="sidebar h-100 flex-none">
