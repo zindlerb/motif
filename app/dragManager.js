@@ -2,9 +2,13 @@
 import _ from 'lodash';
 import {guid} from './utils.js';
 
+const LISTEN_ALL = "$$$LISTEN_TO_ALL";
+
 var DragManager = function () {
   this.drag = null;
-  this.listeners = {};
+  this.listeners = {
+    [LISTEN_ALL]: []
+  };
   window.addEventListener("mousemove", this._onMouseMove.bind(this));
   window.addEventListener("mouseup", this._onMouseUp.bind(this));
 }
@@ -20,14 +24,14 @@ DragManager.prototype.start = function(mouseDownEvent, spec) {
 }
 
 DragManager.prototype.fireListeners = function (eventName, mouseEvent) {
-  var dTypeListeners = this.listeners[this.drag.dragType];
-  if (dTypeListeners) {
-    dTypeListeners.forEach(function(listener) {
-      if (listener[eventName]) {
-        listener[eventName](mouseEvent);
-      }
-    });
-  }
+  var dTypeListeners = this.listeners[this.drag.dragType] || [];
+  var allListeners = this.listeners[LISTEN_ALL];
+
+  dTypeListeners.concat(alllisteners).forEach(function(listener) {
+    if (listener[eventName]) {
+      listener[eventName](mouseEvent);
+    }
+  });
 }
 
 DragManager.prototype._onMouseMove = function(mouseMoveEvent) {
@@ -69,21 +73,25 @@ DragManager.prototype._consummate = function(mouseMoveEvent) {
   }
 }
 
-DragManager.prototype.subscribe = function (dragType, eventListeners) {
+DragManager.prototype.subscribe = function (listenerSpec) {
   /*
+     dragType
      onStart
      onDrag
      onEnd
    */
-  eventListeners._id = guid();
+  var dragType = listenerSpec.dragType;
+  listenerSpec._id = guid();
 
-  if (!this.listeners[dragType]) {
+  if (dragType) {
+    dragType = LISTEN_ALL;
+  } else if (!this.listeners[dragType]) {
     this.listeners[dragType] = [];
   }
 
-  this.listeners[dragType].push(eventListeners);
+  this.listeners[dragType].push(listenerSpec);
 
-  return eventListeners._id;
+  return listenerSpec._id;
 }
 
 DragManager.prototype.unsubscribe = function (id) {

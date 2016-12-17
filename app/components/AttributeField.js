@@ -1,5 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
+import { ChromePicker } from 'react-color';
 import {
   TEXT_FIELD,
   NUMBER,
@@ -41,7 +42,7 @@ var TextInput = React.createClass({
 
 var Dropdown = React.createClass({
   onChange: function (e) {
-    actionDispatch.setComponentAttribute(this.props.component, this.props.attrKey, e.target.value)
+    actionDispatch.setComponentAttribute(this.props.component, this.props.attrKey, e.target.value);
 
   },
   render: function() {
@@ -65,7 +66,45 @@ var Dropdown = React.createClass({
       </select>
     )
   }
-})
+});
+
+var ColorPicker = React.createClass({
+  getInitialState() {
+    return {
+      isOpen: false
+    }
+  },
+
+  onChange: function(color) {
+    console.log(color);
+    actionDispatch.setComponentAttribute(this.props.component, this.props.attrKey, color.hex);
+  },
+
+  render: function () {
+    var {value} = this.props;
+    var picker;
+    var color = value;
+
+    if (value === "transparent") {
+      color = "white";
+    }
+
+    var sx = {
+      backgroundColor: color
+    }
+
+    if (this.state.isOpen) {
+      picker = <ChromePicker color={color} onChange={this.onChange} />;
+    }
+
+    return (
+      <div>
+        <div onClick={() => { this.setState({isOpen: !this.state.isOpen}) }} className={classnames("colorDisplay")} style={sx}></div>
+        {picker}
+      </div>
+    );
+  }
+});
 
 var AttributeField = React.createClass({
   render: function() {
@@ -83,7 +122,9 @@ var AttributeField = React.createClass({
     if (fieldSet.fieldType === TEXT_FIELD) {
       field = <TextInput value={attrVal} attrKey={attrKey} component={component}/>;
     } else if (fieldSet.fieldType === DROPDOWN) {
-      field =  <Dropdown value={attrVal} attrKey={attrKey} choices={fieldSet.fieldSettings.choices} component={component}/>;
+      field = <Dropdown value={attrVal} attrKey={attrKey} choices={fieldSet.fieldSettings.choices} component={component}/>;
+    } else if (fieldSet.fieldType === COLOR) {
+      field = <ColorPicker  value={attrVal} attrKey={attrKey} component={component}/>;
     }
 
     return (

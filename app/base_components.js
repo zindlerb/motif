@@ -10,9 +10,11 @@ import dragManager from './dragManager.js';
 
 /* Field Types */
 export const TEXT_FIELD = "TEXT_FIELD"; /* fieldSettings:  */
+export const LARGE_TEXT_FIELD = "LARGE_TEXT_FIELD"; /* fieldSettings:  */
 export const NUMBER = "NUMBER"; /* fieldSettings: eventually allow for multi-value */
 export const COLOR = "COLOR"; /* fieldSettings:  */
 export const DROPDOWN = "DROPDOWN"; /* fieldSettings: choices - {name: , value: } */
+export const TOGGLE = "TOGGLE" /*  */
 
 /* Component Types */
 export const CONTAINER = "CONTAINER";
@@ -53,8 +55,27 @@ export var attributeFieldset = {
         "space-around"
       ]
     }
+  },
+  width: {
+    fieldType: TEXT_FIELD,
+    fieldSetting: {}
+  },
+  minWidth: {
+    fieldType: TEXT_FIELD,
+    fieldSetting: {}
+  },
+  maxWidth: {
+    fieldType: TEXT_FIELD,
+    fieldSettings: {}
+  },
+  height: {
+    fieldType: TEXT_FIELD,
+    fieldSettings: {}
+  },
+  backgroundColor: {
+    fieldType: COLOR,
+    fieldSettings: {}
   }
-
 }
 
 var ComponentBaseClass = {
@@ -75,7 +96,7 @@ var ComponentBaseClass = {
       padding: "0px",
       height: "auto",
       width: "auto",
-
+      backgroundColor: "transparent"
     };
     variant.children = [];
     variant._variants = [];

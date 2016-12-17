@@ -67,7 +67,7 @@ var ContainerClassReact = React.createClass({
             }}
           style={Object.assign(this.props.sx, sx)}
           onClick={this.props.onClick}
-          className={classnames("node_" + mComponentData.id, "expandable-element", {expanded: this.state.isExpanded}, className)}>
+          className={classnames("node_" + mComponentData.id, "expandable-element", {expanded: true}, className)}>
         {children}
       </div>
     );
