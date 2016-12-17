@@ -96,10 +96,11 @@ export const actions = {
       pos,
     };
   },
-  addComponent(Component) {
+  addComponent(Component, isExistingComponent) {
     return {
       type: ADD_NEW_COMPONENT,
       Component,
+      isExistingComponent
     };
   },
 
@@ -172,14 +173,20 @@ const reducerObj = {
   [ADD_NEW_COMPONENT](state, action) {
     if (state.selectedDropPoint) {
       const { parent, insertionIndex } = state.selectedDropPoint;
+      let addedComponent;
+
+      if(action.isExistingComponent) {
+        action.Component.deleteSelf();
+        addedComponent = action.Component;
+      } else {
+        addedComponent = action.Component.createVariant();
+      }
+
       parent.addChild(
-        action.Component.createVariant(),
+        addedComponent,
         insertionIndex,
       );
     }
-
-    /* state.dropPoints = undefined;
-     * state.selectedDropPoint = undefined;*/
 
     /* Can't use delete because setState will keep the old state when merged */
     state.dropPoints = undefined;
@@ -191,6 +198,22 @@ const reducerObj = {
   },
 
   [ADD_NEW_PAGE](state) {
+    /*
+       container.createVariant(
+       {
+       attributes: { height: "100px" },
+       children: [header.createVariant()]
+       }
+       ),
+       container.createVariant(
+       {
+       children: [
+       container.createVariant(),
+       container.createVariant()
+       ]
+       }
+       ),
+     */
     var fakePage = container.createVariant(
       {
         attributes: {
@@ -200,21 +223,7 @@ const reducerObj = {
         children: [
           container.createVariant(
             {
-              attributes: { height: "100px" },
-              children: [header.createVariant()]
-            }
-          ),
-          container.createVariant(
-            {
-              children: [
-                container.createVariant(),
-                container.createVariant()
-              ]
-            }
-          ),
-          container.createVariant(
-            {
-              attributes: {height: "100px"}
+              /*               attributes: {height: "100px"}*/
             }
           )
         ]

@@ -19,14 +19,13 @@ var iconList = [
 var ComponentBlock = function(props) {
     var dragData = {
         dragType: "addComponent",
-        onMove: function(pos, ctx) {
+        onDrag: function(pos, ctx) {
             actionDispatch.setComponentMoveHighlight(pos);
         },
-        onUp: function(pos, ctx) {
+        onEnd: function(pos, ctx) {
             actionDispatch.addComponent(props.component);
         }
     };
-
 
     return (
         <DraggableComponent {...dragData}>

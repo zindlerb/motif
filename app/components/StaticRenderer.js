@@ -6,6 +6,7 @@ import dragManager from '../dragManager.js';
 import { actionDispatch } from '../stateManager.js';
 
 import HorizontalSelect from './HorizontalSelect.js';
+import DraggableComponent from './DraggableComponent.js';
 
 var ContainerClassReact = React.createClass({
   getInitialState() {
@@ -19,22 +20,26 @@ var ContainerClassReact = React.createClass({
   },
 
   componentDidMount() {
-    this.dragListenId = dragManager.subscribe("addComponent", {
-      onStart: () => {
-        if (this.shouldExpand()) {
-          this.setState({
-            isExpanded: true
-          });
-        }
-      },
-      onEnd: () => {
-        if (this.state.isExpanded) {
-          this.setState({
-            isExpanded: false
-          });
-        }
-      }
-    })
+    /* this.dragListenId = dragManager.subscribe("addComponent", {
+     *   onStart: () => {
+     *     if (this.shouldExpand()) {
+     *       this.setState({
+     *         isExpanded: true
+     *       });
+     *     }
+     *   },
+     *   onEnd: () => {
+     *     if (this.state.isExpanded) {
+     *       this.setState({
+     *         isExpanded: false
+     *       });
+     *     }
+     *   }
+     * })*/
+  },
+
+  componentDidDismount() {
+    /*dragManager.unsubscribe(this.dragListenId);*/
   },
 
   componentWillReceiveProps(nextProps) {
@@ -47,12 +52,8 @@ var ContainerClassReact = React.createClass({
     }
   },
 
-  componentDidDismount() {
-    dragManager.unsubscribe(this.dragListenId);
-  },
-
   render: function() {
-    let {mComponentData, componentProps, isMouseInRenderer} = this.props;
+    let {mComponentData, componentProps, isMouseInRenderer, className} = this.props;
     let sx = {};
 
     var children = _.map(mComponentData.children, function (child) {
@@ -65,8 +66,8 @@ var ContainerClassReact = React.createClass({
               mComponentData._el = ref
             }}
           style={Object.assign(this.props.sx, sx)}
-          onClick={this.onClick}
-          className={classnames("node_" + mComponentData.id, "expandable-element", {expanded: this.state.isExpanded})}>
+          onClick={this.props.onClick}
+          className={classnames("node_" + mComponentData.id, "expandable-element", {expanded: this.state.isExpanded}, className)}>
         {children}
       </div>
     );
@@ -75,12 +76,12 @@ var ContainerClassReact = React.createClass({
 
 var HeaderClassReact = React.createClass({
   render: function() {
-    let {mComponentData} = this.props;
+    let {mComponentData, className} = this.props;
     return (
       <h1
           ref={(ref) => {mComponentData._el = ref}}
-          style={this.props.sx} className={"node_" + mComponentData.id}
-          onClick={this.onClick}>
+          style={this.props.sx} className={classnames("node_" + mComponentData.id, className)}
+          onClick={this.props.onClick}>
         {this.props.htmlProperties.text}
       </h1>
     )
@@ -89,12 +90,12 @@ var HeaderClassReact = React.createClass({
 
 var ParagraphClassReact = React.createClass({
   render: function() {
-    let {mComponentData} = this.props;
+    let {mComponentData, className} = this.props;
     return (
       <p
           ref={(ref) => {mComponentData._el = ref}}
-          style={this.props.sx} className={"node_" + mComponentData.id}
-          onClick={this.onClick}>
+          style={this.props.sx} className={classnames("node_" + mComponentData.id, className)}
+          onClick={this.props.onClick}>
         {this.props.htmlProperties.text}
       </p>
     );
@@ -103,13 +104,13 @@ var ParagraphClassReact = React.createClass({
 
 var ImageClassReact = React.createClass({
   render: function() {
-    let {mComponentData} = this.props;
+    let {mComponentData, className} = this.props;
     return (
       <img
           ref={(ref) => {mComponentData._el = ref}}
           style={this.props.sx}
-          className={"node_" + mComponentData.id} src={mComponent.attributes.src}
-          onClick={this.onClick}/>
+          className={classnames("node_" + mComponentData.id, className)} src={mComponent.attributes.src}
+          onClick={this.props.onClick}/>
     );
   }
 });
@@ -126,8 +127,9 @@ var ImageClassReact = React.createClass({
  */
 
 function makeClick(component) {
-  return function () {
+  return function (e) {
     actionDispatch.selectComponent(component);
+    e.stopPropagation();
   }
 }
 
@@ -135,16 +137,38 @@ var MComponentDataRenderer = function(props) {
   /* TD: expand for custom components */
   var componentType = props.mComponentData.componentType;
   var {htmlProperties, sx} = props.mComponentData.getRenderableProperties();
+  var className;
+  var component;
+
+  if (props.componentProps.activeComponent) {
+    className = {isActive: props.componentProps.activeComponent.id === props.mComponentData.id};
+  }
 
   if (componentType === CONTAINER) {
-    return <ContainerClassReact {...props} htmlProperties={htmlProperties} sx={sx} />;
+    component = <ContainerClassReact className={className}  onClick={makeClick(props.mComponentData)} {...props} htmlProperties={htmlProperties} sx={sx} />;
   } else if (componentType === HEADER) {
-    return <HeaderClassReact {...props} htmlProperties={htmlProperties} sx={sx} />;
+    component = <HeaderClassReact className={className}  onClick={makeClick(props.mComponentData)} {...props} htmlProperties={htmlProperties} sx={sx} />;
   } else if (componentType === PARAGRAPH) {
-    return <ParagraphClassReact {...props} htmlProperties={htmlProperties} sx={sx} />;
+    component = <ParagraphClassReact className={className}  onClick={makeClick(props.mComponentData)} {...props} htmlProperties={htmlProperties} sx={sx} />;
   } else if (componentType === IMAGE) {
-    return <ImageClassReact {...props} htmlProperties={htmlProperties} sx={sx} />;
+    component = <ImageClassReact className={className}  onClick={makeClick(props.mComponentData)} {...props} htmlProperties={htmlProperties} sx={sx} />;
   }
+
+  var dragData = {
+    dragType: "addComponent",
+    onDrag(pos) {
+      actionDispatch.setComponentMoveHighlight(pos);
+    },
+    onEnd() {
+      actionDispatch.addComponent(props.mComponentData, true);
+    }
+  };
+
+  return (
+    <DraggableComponent {...dragData}>
+      {component}
+    </DraggableComponent>
+  );
 }
 
 
@@ -177,7 +201,6 @@ var StaticRenderer = React.createClass({
     let renderer;
 
     if (page) {
-      console.log("state", this.state.isMouseInRenderer);
       renderer = <MComponentDataRenderer mComponentData={page.componentTree} componentProps={componentProps} isMouseInRenderer={this.state.isMouseInRenderer} />;
     }
 
@@ -193,7 +216,7 @@ var StaticRenderer = React.createClass({
               {text: "Border", name: "BORDER"},
               {text: "Detail", name: "DETAIL"}
             ]}/>
-        <div onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}  onMouseMove={this.mouseove} className={classnames("ma2 h-100 ba", {
+        <div onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}  onMouseMove={this.mouseove} className={classnames("ma2 h-100 ba c-grab", {
             "static-view-border": activeView === "BORDER",
             "static-view-detail": activeView === "DETAIL",
           })}>

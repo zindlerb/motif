@@ -6,6 +6,12 @@
 .c-default {
   cursor: default; }
 
+.c-grab {
+  cursor: -webkit-grab; }
+
+.c-grabbing {
+  cursor: -webkit-grabbing; }
+
 .click-through {
   pointer-events: none; }
 
@@ -71,12 +77,6 @@ body * {
 .m-auto {
   margin-left: auto;
   margin-right: auto; }
-
-.c-grab {
-  cursor: -webkit-grab; }
-
-.c-grabbing {
-  cursor: -webkit-grabbing; }
 
 .isActive {
   border: 3px solid #FFB09F !important; }

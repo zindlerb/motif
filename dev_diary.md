@@ -124,127 +124,7 @@ For data should it just be classes with methods attached? Or pure objects?
 MVP Spec:
 Need mocks for all of these
 
-Left Panels:
-- Show hide left panel.
 
-- Pages
-  - View Pages
-  - Create New Page
-  - Select Page
-  - Rename Pages
-- Style Guide:
-  - Set choices for:
-    - Colors
-    - Fonts
-    - Typescale
-    - Widths
-    - Heights
-    - Spacing
-    - Breakpoints
-  - Toggle style guide on and off for individual values
-- Components
-  - Drag components on to page
-  - Go to Component View from component
-  - Add new component -> go to component menu
-  - Delete Component from sidebar
-  - Delete all instances of a component optional message after selecting delete (V2)
-  - Rearrange Components (V2)
-  - Default Components:
-    - Container
-    - Paragraph
-    - Header
-    - Image
-    - Video
-    - Embed
-    - Lists?
-    - Table (V2)
-    - Forms (V2)
-- Assets
-  - Show all assets for project
-  - Drag in asset to page
-  - Add new asset
-  - Open in finder
-  - Search
-  - Rename
-
-Main Views:
-- Component View
-  - Scroll through diff component states
-  - Edit individual component states (components are variants of default state diff of attrs)
-
-- Page View
-  - Re arrange components
-  - Transform component into component generator (could possibly drag into sidebar (V2))
-  - Select components
-  - Delete component
-  - Different levels of views (V2)
-    - No view
-    - Show width (fluid or fixed), padding, margin, inline or block
-  - Change width
-  - Change device
-    - Choose breakpoint, or device grouping)
-  - Edit Component (This editing does not propagate to the parent unless the user chooses to!! What is Term Toby uses? Could also have a arguments model...)
-    - Edit text
-    - Edit internal structure
-  - Change component size attrs (v2)
-  - View 2 different sizes at once (v2)
-
-Right Panels:
-- Show hide right panel
-
-- Page Details
-  - Set title, metadesc, fb social media shit.
-  - Set favicon
-  - Set js snippet
-  - Set global site snippet
-- Attributes
-  - Component tree
-  - Variables
-  - Attribute Values:
-    - All
-      - Z-index
-      - Opacity
-      - Background color
-      - Border/Border Radius
-      - Box Shadow
-      - Positioning
-      - Hidden (T/F)
-      - Height
-      - Width
-      - Margin/Padding
-      - Overflow
-      - Filter?? (might only be useful on images V2)
-    - Text
-      - Text color
-      - Font
-      - Font-Size
-      - Line Height
-      - Text align vertical or horizontal
-      - Other text stuff...
-
-    - Block
-      - Child flex layout (spacing)
-      - Child flex direction (vertical horizontal)
-    - Video
-    - Image
-
-
-  - Expose unique id of element so it can be selected by js.
-  - Change component attributes (These attributes are not css BUT they must be able to statically compile to css)
-  - Set attributes for specific states
-  - Set specific breakpoints
-  - Set transitions (V2)
-  - Dropdowns of style guide choices
-  - See where component is used (v2)
-- Tree (V2)
-  - See the page structure as a tree
-  - Fold and unfold leaves
-  - Rearrange nodes.
-
-- Top bar
-  - Open site
-  - New site
-  - Export html/css (export should be as backwards compatible as possible)
 
 Component Inheritance:
 - Components inherit traits and children from their component block.
@@ -379,3 +259,197 @@ Problems with direct manipulation of html:
 - write algo for expanding on drag
 - write algo for expanding on near
 - add tree view
+
+## Dec 13th:
+What makes css hard to learn?
+- Cannot inspect or debug behaviour - esp. with layouts
+- Tons of properties with silent conflicts
+  - height: 100%
+    - creates a height but is still 0 because the parent is 0.
+- Indirection - poor feedback loop with changes
+- Html and Css are tied together but there is no good abstraction for this
+
+When people build websites what kinds of things are they trying to specify?
+
+Principles:
+- enforce correctess - and explain why
+- simplify primatives
+- show the behaviour of the system
+- direct manipulation
+
+
+
+Min/Max Width:
+- Describes the bounds of growing and shrinking for a element
+
+Flex Grow/Shrink:
+- When I exceed or go below my width or height describes how the element should behave. In relation to the other elements
+
+## Dec 14th:
+
+Design day.
+
+TD:
+- Read Shape of design ch.1 again
+- Lay out why of app. What are principles app should adhere to.
+- Do full mocks of building slack website focus only on behaviour and usability
+  - Figure out how to design for size - what does resolution have to do with it? how can I mimic what user will really see?
+- Keep looping through slack mocks until they look good and all behaviour is clearly specified
+- Features that are non essential should be removed.
+
+Why:
+Making web pages is either too complicated or disempowering.
+Often the designer of the page cannote actually make and deploy their page.
+Web pages don't leverage the power of computers (later)
+
+How:
+Creator must have a direct connection to the work. Directly see the behaviour of the system.
+
+There must be less primatives and the primatives must compose better
+
+The system must engourage learning. Cleary communicate mistakes and why. Guide the user to become more powerful.
+
+The system must encourage scaling
+
+Overall:
+The web as a material that can be worked with and 'felt'
+
+
+Width and Height Spec:
+
+default: content, or 100% depending on the direction
+
+fill: grows to fill the remaining space in the main axis.
+
+What if only main size and cross size where manipulated?
+- would make more conceptual sense for the filling but switching column to row or reverse would be strange
+
+
+Cross Axis Default:
+- fill 100%;
+
+Main Axis Default:
+- fill content.
+
+
+specified both width and height makes it simpler with w and h
+unspecified main makes it easer to understand with cross main
+unspecified cross makes it easier to understand with cross and main..
+
+either the behaviour switches or the numbers specified switch their meaning...
+
+
+Specify by height and width?
+
+Why is there a diff in treatment of main and cross?
+
+what if they both 'filled'?
+
+
+For now:
+Specify:
+- Height - min/max - default
+- Width - min/max - default
+- Fill Main Axis (off by default)
+
+
+Punting on:
+- Coming up with better names than the css ones
+- Perfecting the 'look'
+- Better panel mapping (this will require looking at the actual size)
+- Background imagesn
+
+
+How to proceed?
+All concerns seem tangled. Hard to know the right way..
+
+
+Need to figure out:
+- Visualizing selected elements / Diff levels of attributes on elements
+- Editing panel
+
+- Dragging
+- Direct editing of text
+- Multiple views
+
+
+
+What is needed to test these things out?
+
+- All attrs in very basic form. No mapping.
+  - Color pickers for color
+  - Text fields for nums and text
+  - Dropdowns
+
+- Saving and loading of projects
+
+- Atribute Panel:
+  - Handle auto complete from style guide
+  - Provide good mapping
+  - Allow sketch and constrain
+  - As uniform as possible... Minimize specialized ui
+  - Everything must be labeled
+  - As information dense as possible
+
+- Selected Elements Visualization:
+  - Show margin and padding - and values
+  - Show width and height and what key it specifies to
+  - show baseline somehow
+
+- Dragging/Selecting:
+  - handle overlapping drop spots
+  - easy to see where to drop
+  - easy to specify drop spot
+
+
+First Nail selecting and dragging.
+
+In order to test need to implement:
+- Basic attribute panel - all atttributes just text field - add color picker for color
+- Ability to make components - ability to delete components
+- Ability to save and open projects
+- Ability to add images
+
+
+design of dragging.
+selected element visualization.
+look of all panels except attribute.
+attribute panel
+
+
+
+
+
+
+
+with real size
+
+Design attribute panel for:
+- small/big
+- component with children
+
+don't go through workflow just go through operations of selecting and changing
+
+Good examples:
+- empty div sandwiched somewhere
+- tree in existing page
+- component with children base components
+- component with children components (go through changing)
+
+
+
+
+
+
+selection
+dragging
+attribute panel
+selected visualization
+
+
+How can motif delight?
+
+
+Before:
+- Review why.
+- Look up means of abstraction in sketch

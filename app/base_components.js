@@ -28,8 +28,8 @@ export var attributeFieldset = {
     fieldType: DROPDOWN,
     fieldSettings: {
       choices: [
-        "flow",
-        "anchored"
+        "static",
+        "absolute"
       ]
     }
   },
@@ -64,16 +64,30 @@ var ComponentBaseClass = {
        Adding and removing children is synced in api
      */
     var variant = Object.create(this);
+    spec = spec || {};
 
     /* Setup new component */
     variant.master = this;
     variant.variables = {};
-    variant.attributes = {};
+    variant.attributes = {
+      position: "static",
+      margin: "0px",
+      padding: "0px",
+      height: "auto",
+      width: "auto",
+
+    };
     variant.children = [];
     variant._variants = [];
     variant.id = guid();
 
-    Object.assign(variant, spec);
+    if (spec.children) {
+      spec.children.forEach(function(child) {
+        child.parent = variant;
+      });
+    }
+
+    _.merge(variant, spec);
 
     _.forEach(this.children, function(child) {
       variant.addChild(child.createVariant());
@@ -115,6 +129,7 @@ var ComponentBaseClass = {
   },
 
   deleteSelf() {
+    console.log("this", this);
     this.parent.removeChild(this);
     _.remove(this.master._variants, (variant) => {
       return variant === this.id;
@@ -131,78 +146,21 @@ var ComponentBaseClass = {
   },
 
   getRenderableProperties() {
+    /* Func transform goes here */
     var attrToCssLookup = {
-      position: function(value) {
-        /*
-           flow: layout is based on the parents flex flow
-           anchored: layout is based on a fixed position from the parent.
-
-           CSS Equivalent:
-           display
-           position
-         */
-        if (value === "flow") {
-          /* Relative in case child is absolutely positioned */
-          return {
-            position: "relative",
-            left: 0,
-            top: 0
-          }
-        } else if (value === "anchored") {
-          /* TD: in order to position child in parent parent has to be positioned with relative. */
-          return {};
-        }
-      },
-      height: true,
-      width: true,
-      zIndex: true,
-      opacity: true,
-      display: true,
-      flexDirection: true,
-      justifyContent: true
     }
 
     var attrToHtmlPropertyLookup = {
       text: true,
     }
 
-    /*
-       - All
-       - Background color
-       - Border/Border Radius
-       - Box Shadow
-       - Positioning
-       - Hidden (T/F)
-       - Height
-       - Width
-       - Margin/Padding
-       - Overflow
-       - Filter?? (might only be useful on images V2)
-       - Text
-       - Text color
-       - Font
-       - Font-Size
-       - Line Height
-       - Text align vertical or horizontal
-       - Other text stuff...
-       - Block
-       - Child flex layout (spacing)
-       - Child flex direction (vertical horizontal)
-     */
-
-
-
     return _.reduce(this.getAllAttrs(), function(renderableAttributes, attrVal, attrKey) {
-      if (attrToCssLookup[attrKey]) {
-        if (_.isFunction(attrToCssLookup[attrKey])) {
-          Object.assign(renderableAttributes.sx, attrToCssLookup[attrKey](attrVal));
-        } else {
-          renderableAttributes.sx[attrKey] = attrVal;
-        }
-      } else if (attrToHtmlPropertyLookup[attrKey]) {
+      if (attrToHtmlPropertyLookup[attrKey]) {
         renderableAttributes.htmlProperties[attrKey] = attrVal;
+      } else if (attrToCssLookup[attrKey]) {
+        Object.assign(renderableAttributes.sx, attrToCssLookup[attrKey](attrVal));
       } else {
-        throw "Unsorted property: " + attrKey;
+        renderableAttributes.sx[attrKey] = attrVal;
       }
 
       return renderableAttributes;
@@ -246,10 +204,12 @@ export var Container = ComponentBaseClass.createVariant({
 
 Container.getDropPoints = function() {
   var rect = this.getRect();
-  var flexDirection = this.attributes.flexDirection;
+  var attrs = this.getAllAttrs();
+  var flexDirection = attrs.flexDirection;
   var initialPoint;
   var hasNoChildren = this.children.length === 0;
   var padding = 10;
+
   if (flexDirection === "column") {
     if (hasNoChildren) {
       initialPoint = {x: rect.middleX, y: rect.y + padding};
@@ -317,43 +277,3 @@ export var Image = ComponentBaseClass.createVariant({
   },
   isBlock: true,
 });
-
-/*
-   Attrs:
-   displayType:
-   container | content | inline (goes inside content)
-
-
-   What must the super div satisfy:
-   - must be able to build up bootstrap and other up component library primatives
-   - must be as simple as possible without losing the power of all the other div props
-   - must be built with responsiveness in mind from the beginning
-   - simple means of aligning in both directions...
-
-   What properties are used for layout?
-   - float, clearfix
-   - width: 100%; max, min
-   - height % min max
-   - flex
-   - upcoming grid
-   - relative + absolute + fixed
-   - margin: auto;
-   - media queries
-
-   - important concepts:
-   - parent child relationship
-   - how big is my parent?
-   - how is my parent positioned?
-   - what is my parents layout style
-   - the nature of the content inside the element
-
-   need to simplify overflow..
-
-   possible idea:
-   - layered doms - just put a dom on top of another one...
-   - how would the scrolling work?
-   - how is a paralax done?
-   -
-
-
- */

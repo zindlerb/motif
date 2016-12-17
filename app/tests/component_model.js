@@ -2,7 +2,7 @@
 
 import {Container, Header, Paragraph, Image} from '../base_components.js';
 
-var runTests = true;
+var runTests = false;
 if (runTests) {
   var A = Container.createVariant({
     children: [
