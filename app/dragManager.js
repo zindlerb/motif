@@ -1,6 +1,10 @@
 // Taken from https://github.com/zindlerb/apparatus/blob/master/src/View/Manager/DragManager.coffee
+import React from 'react';
+import classnames from 'classnames';
+import $ from 'jquery';
+
 import _ from 'lodash';
-import {guid} from './utils.js';
+import {guid, getGlobalPosFromSyntheticEvent} from './utils.js';
 
 const LISTEN_ALL = "$$$LISTEN_TO_ALL";
 
@@ -24,12 +28,13 @@ DragManager.prototype.start = function(mouseDownEvent, spec) {
 }
 
 DragManager.prototype.fireListeners = function (eventName, mouseEvent) {
+  var that = this;
   var dTypeListeners = this.listeners[this.drag.dragType] || [];
   var allListeners = this.listeners[LISTEN_ALL];
 
-  dTypeListeners.concat(alllisteners).forEach(function(listener) {
+  dTypeListeners.concat(allListeners).forEach(function(listener) {
     if (listener[eventName]) {
-      listener[eventName](mouseEvent);
+      listener[eventName](mouseEvent, that);
     }
   });
 }
@@ -73,22 +78,29 @@ DragManager.prototype._consummate = function(mouseMoveEvent) {
   }
 }
 
-DragManager.prototype.subscribe = function (listenerSpec) {
+DragManager.prototype.subscribe = function (dragType, listenerSpec) {
+  var dragType, listenerSpec;
+
   /*
      dragType
      onStart
      onDrag
      onEnd
    */
-  var dragType = listenerSpec.dragType;
-  listenerSpec._id = guid();
 
-  if (dragType) {
+  if (arguments.length === 1) {
     dragType = LISTEN_ALL;
-  } else if (!this.listeners[dragType]) {
+    listenerSpec = arguments[0];
+  } else if (arguments.length === 1) {
+    dragType = arguments[0];
+    listenerSpec = arguments[1];
+  }
+
+  if (!this.listeners[dragType]) {
     this.listeners[dragType] = [];
   }
 
+  listenerSpec._id = guid();
   this.listeners[dragType].push(listenerSpec);
 
   return listenerSpec._id;
@@ -108,8 +120,6 @@ DragManager.prototype.unsubscribe = function (id) {
   return didFind;
 }
 
-
-
 var Drag = function(mouseDownEvent, spec) {
   _.extend(this, spec);
   this.originalX = mouseDownEvent.clientX;
@@ -120,4 +130,134 @@ var Drag = function(mouseDownEvent, spec) {
   }
 }
 
-export default new DragManager();
+export var dragManager = new DragManager();
+
+export function createDraggableComponent(spec, Component) {
+  /*
+     Draggable Must implement:
+     this._el = ref
+     className
+     onMouseDown
+   */
+
+  return React.createClass({
+    onMouseDown: function (e) {
+      var that = this;
+
+      var dragSpec = {
+        dragType: spec.dragType,
+        dragCtx: spec.dragCtx || {},
+
+        onDrag: function (e) {
+          var pos = getGlobalPosFromSyntheticEvent(e);
+
+          if (spec.onDrag) {
+            spec.onDrag(that.props, pos, this.dragCtx);
+          }
+
+          that.setState(pos);
+        },
+        onEnd: function (e) {
+          var pos = getGlobalPosFromSyntheticEvent(e);
+
+          if (spec.onEnd) {
+            spec.onEnd(that.props, pos, this.dragCtx);
+          }
+        },
+        dragImage: {
+          /* This kinda sketchy */
+          element: <Component {...that.props}/>
+        }
+      };
+
+      if (spec.onStart) {
+        spec.onStart(that.props, getGlobalPosFromSyntheticEvent(e), dragSpec);
+      }
+
+      dragManager.start(e, dragSpec);
+      e.stopPropagation();
+    },
+
+    onMouseUp() {
+      this.setState({isDragging: false});
+    },
+
+    render: function () {
+      return (
+        <Component
+            {...this.props}
+            onMouseDown={this.onMouseDown}
+            className={classnames("c-default noselect c-grab", this.props.className)}
+        />
+      );
+    }
+  });
+};
+
+export var DragImage = React.createClass({
+  getInitialState() {
+    return {
+      isDragging: false,
+      isConsumated: false
+    }
+  },
+
+  getPosition(e) {
+    var rootEl = $(this._el).children();
+    return {
+      x: e.clientX - rootEl.outerWidth()/2,
+      y: e.clientY - rootEl.outerHeight()/2,
+    };
+  },
+
+  componentDidMount() {
+    var that = this;
+
+    dragManager.subscribe({
+      onStart: function (e, ctx) {
+        that.setState({
+          element: ctx.drag.dragImage.element,
+          isDragging: true
+        });
+      },
+
+      onDrag: function (e) {
+        var newState = that.getPosition(e);
+        if (!that.state.isConsumated) {
+          newState.isConsumated = true;
+        }
+
+        that.setState(newState);
+      },
+
+      onEnd: function () {
+        debugger;
+        that.setState({
+          isConsumated: false,
+          isDragging: false
+        });
+      }
+    });
+  },
+
+  render: function () {
+    if (this.state.isDragging) {
+      return (
+          <div
+              ref={(ref) => { this._el = ref }}
+              className={classnames({hidden: !this.state.isConsumated}, "absolute c-grabbing")}
+              style={{
+                left: this.state.x,
+                top: this.state.y
+              }}>
+        <div className="click-through">
+          {this.state.element}
+        </div>
+          </div>
+
+        );
+    } else {
+      return <div></div>;
+    }
+  }
+});

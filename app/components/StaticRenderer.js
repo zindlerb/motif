@@ -2,13 +2,22 @@ import React from 'react';
 import _ from 'lodash';
 import classnames from 'classnames';
 import { CONTAINER, HEADER, PARAGRAPH, IMAGE } from '../base_components.js';
-import dragManager from '../dragManager.js';
+import { dragManager, createDraggableComponent } from '../dragManager.js';
 import { actionDispatch } from '../stateManager.js';
 
 import HorizontalSelect from './HorizontalSelect.js';
-import DraggableComponent from './DraggableComponent.js';
 
-var ContainerClassReact = React.createClass({
+var dragData = {
+  dragType: "addComponent",
+  onDrag(props, pos) {
+    actionDispatch.setComponentMoveHighlight(pos);
+  },
+  onEnd(props, pos) {
+    actionDispatch.addComponent(props.mComponentData, true);
+  }
+};
+
+var ContainerClassReact = createDraggableComponent(dragData, React.createClass({
   getInitialState() {
     return {
       isExpanded: false
@@ -16,30 +25,7 @@ var ContainerClassReact = React.createClass({
   },
 
   shouldExpand() {
-    return this.props.mComponentData.getRect().h < 10;
-  },
-
-  componentDidMount() {
-    /* this.dragListenId = dragManager.subscribe("addComponent", {
-     *   onStart: () => {
-     *     if (this.shouldExpand()) {
-     *       this.setState({
-     *         isExpanded: true
-     *       });
-     *     }
-     *   },
-     *   onEnd: () => {
-     *     if (this.state.isExpanded) {
-     *       this.setState({
-     *         isExpanded: false
-     *       });
-     *     }
-     *   }
-     * })*/
-  },
-
-  componentDidDismount() {
-    /*dragManager.unsubscribe(this.dragListenId);*/
+    return this.state.isExpanded || (this.props.isMouseInRenderer && this.props.mComponentData.getRect().h < 10);
   },
 
   componentWillReceiveProps(nextProps) {
@@ -67,14 +53,14 @@ var ContainerClassReact = React.createClass({
             }}
           style={Object.assign(this.props.sx, sx)}
           onClick={this.props.onClick}
-          className={classnames("node_" + mComponentData.id, "expandable-element", {expanded: true}, className)}>
+          className={classnames("node_" + mComponentData.id, "expandable-element", {expanded: this.shouldExpand()}, className)}>
         {children}
       </div>
     );
   }
-});
+}));
 
-var HeaderClassReact = React.createClass({
+var HeaderClassReact = createDraggableComponent(dragData, React.createClass({
   render: function() {
     let {mComponentData, className} = this.props;
     return (
@@ -86,9 +72,9 @@ var HeaderClassReact = React.createClass({
       </h1>
     )
   }
-});
+}));
 
-var ParagraphClassReact = React.createClass({
+var ParagraphClassReact = createDraggableComponent(dragData, React.createClass({
   render: function() {
     let {mComponentData, className} = this.props;
     return (
@@ -100,9 +86,9 @@ var ParagraphClassReact = React.createClass({
       </p>
     );
   }
-});
+}));
 
-var ImageClassReact = React.createClass({
+var ImageClassReact = createDraggableComponent(dragData, React.createClass({
   render: function() {
     let {mComponentData, className} = this.props;
     return (
@@ -113,7 +99,7 @@ var ImageClassReact = React.createClass({
           onClick={this.props.onClick}/>
     );
   }
-});
+}));
 
 /*
    I have a tree of components as data.
@@ -154,21 +140,7 @@ var MComponentDataRenderer = function(props) {
     component = <ImageClassReact className={className}  onClick={makeClick(props.mComponentData)} {...props} htmlProperties={htmlProperties} sx={sx} />;
   }
 
-  var dragData = {
-    dragType: "addComponent",
-    onDrag(pos) {
-      actionDispatch.setComponentMoveHighlight(pos);
-    },
-    onEnd() {
-      actionDispatch.addComponent(props.mComponentData, true);
-    }
-  };
-
-  return (
-    <DraggableComponent {...dragData}>
-      {component}
-    </DraggableComponent>
-  );
+  return component;
 }
 
 

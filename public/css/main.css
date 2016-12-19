@@ -12,8 +12,14 @@
 .c-grabbing {
   cursor: -webkit-grabbing; }
 
+.hidden {
+  visibility: hidden !important; }
+
 .click-through {
   pointer-events: none; }
+
+.pointer-auto {
+  pointer-events: auto; }
 
 body * {
   font-family: 'Fira Sans', sans-serif;

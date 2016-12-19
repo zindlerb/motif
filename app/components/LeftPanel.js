@@ -1,12 +1,12 @@
 import React from 'react';
 import _ from 'lodash';
-import dragManager from '../dragManager.js';
+import {dragManager} from '../dragManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
 
 import {store, actionDispatch} from '../stateManager.js';
+import {createDraggableComponent} from '../dragManager.js';
 import {getGlobalPosFromSyntheticEvent} from '../utils.js';
-import DraggableComponent from './DraggableComponent.js';
 import HorizontalSelect from './HorizontalSelect.js';
 
 var iconList = [
@@ -16,25 +16,21 @@ var iconList = [
     {name: "ASSETS", faClass: "fa-file-image-o"}
 ];
 
-var ComponentBlock = function(props) {
-    var dragData = {
-        dragType: "addComponent",
-        onDrag: function(pos, ctx) {
-            actionDispatch.setComponentMoveHighlight(pos);
-        },
-        onEnd: function(pos, ctx) {
-            actionDispatch.addComponent(props.component);
-        }
-    };
-
-    return (
-        <DraggableComponent {...dragData}>
-            <li className="m-auto componentBlock pv2 w4 draggableShadow mv2 tc">
-                {props.component.name}
-            </li>
-        </DraggableComponent>
-    );
-}
+var ComponentBlock = createDraggableComponent({
+  dragType: "addComponent",
+  onDrag: function(props, pos, ctx) {
+    actionDispatch.setComponentMoveHighlight(pos);
+  },
+  onEnd: function(props, pos, ctx) {
+    actionDispatch.addComponent(props.component);
+  }
+}, function (props) {
+  return (
+    <li ref={props.ref}  onMouseDown={props.onMouseDown} className={classnames("m-auto componentBlock pv2 w4 draggableShadow mv2 tc list", props.className)}>
+      {props.component.name}
+    </li>
+  );
+});
 
 function PlusButton(props) {
     return <i onClick={props.action} className="fa fa-plus-circle" aria-hidden="true"></i>;
@@ -65,7 +61,7 @@ var LeftPanel = React.createClass({
                     </ul>
 
                     <h3 className="f5 pl3 pv2">Yours</h3>
-                    <ul className="list">
+                    <ul>
                         {userComponents}
                     </ul>
                 </div>

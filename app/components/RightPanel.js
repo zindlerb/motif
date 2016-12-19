@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import dragManager from '../dragManager.js';
+import {dragManager} from '../dragManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
 import {actionDispatch} from '../stateManager.js';

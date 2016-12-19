@@ -18,8 +18,16 @@ $border: #BDBDBD;
   cursor: -webkit-grabbing;
 }
 
+.hidden {
+  visibility: hidden !important;
+}
+
 .click-through {
   pointer-events: none;
+}
+
+.pointer-auto {
+  pointer-events: auto;
 }
 
 body * {

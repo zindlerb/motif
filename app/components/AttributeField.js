@@ -1,4 +1,5 @@
 import React from 'react';
+import classnames from 'classnames';
 import _ from 'lodash';
 import { ChromePicker } from 'react-color';
 import {
@@ -90,7 +91,9 @@ var ColorPicker = React.createClass({
     }
 
     var sx = {
-      backgroundColor: color
+      backgroundColor: color,
+      width: 60,
+      height: 20
     }
 
     if (this.state.isOpen) {
@@ -99,7 +102,7 @@ var ColorPicker = React.createClass({
 
     return (
       <div>
-        <div onClick={() => { this.setState({isOpen: !this.state.isOpen}) }} className={classnames("colorDisplay")} style={sx}></div>
+        <div onClick={() => { this.setState({isOpen: !this.state.isOpen}) }} className={classnames("colorDisplay", "ba")} style={sx}></div>
         {picker}
       </div>
     );

@@ -6,7 +6,7 @@ import {guid} from './utils.js'
 import classnames from 'classnames';
 /* TD: fix circular deps */
 import {actionDispatch} from './stateManager.js';
-import dragManager from './dragManager.js';
+import {dragManager} from './dragManager.js';
 
 /* Field Types */
 export const TEXT_FIELD = "TEXT_FIELD"; /* fieldSettings:  */

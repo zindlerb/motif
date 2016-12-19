@@ -3,7 +3,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
-import dragManager from './dragManager.js';
+import {dragManager, DragImage} from './dragManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
 import {store} from './stateManager.js';
@@ -60,6 +60,7 @@ var App = React.createClass({
           <RightPanel activeComponent={activeComponent} activePanel={activeRightPanel} />
         </div>
         <DropPointRenderer dropPoints={dropPoints}/>
+        <DragImage/>
       </div>
     );
   }

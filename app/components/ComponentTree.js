@@ -1,17 +1,17 @@
 import React from 'react';
 import _ from 'lodash';
-import dragManager from '../dragManager.js';
+import {dragManager} from '../dragManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
 
 var ComponentTree = React.createClass({
   render: function() {
     var children;
-    
+
     if (this.props.node.children && this.props.node.children.length) {
       children = <TreeChildren children={this.props.node.children}/>;
     }
-    
+
     return (
       <div>
         <TreeItem node={this.props.node} />
@@ -39,7 +39,7 @@ var TreeChildren = React.createClass({
     var children = _.map(this.props.children, function(child, ind) {
       return <ComponentTree node={child} key={ind}/>
     });
-    
+
     return (
       <div className="ml3">
         {children}

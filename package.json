@@ -46,6 +46,7 @@
     "lodash": "^4.17.2",
     "react": "^0.14.8",
     "react-color": "^2.10.0",
+    "react-dnd": "^2.1.4",
     "react-dom": "^0.14.7",
     "redux": "^3.6.0",
     "updeep": "^1.0.0"
