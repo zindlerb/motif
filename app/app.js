@@ -39,11 +39,12 @@ var App = React.createClass({
       activeComponent,
       dropPoints,
       activeView,
-      nodeIdsInHoverRadius
+      nodeIdsInHoverRadius,
+      globalCursor
     } = this.state;
 
     return (
-      <div className="flex h-100">
+      <div className={classnames("flex h-100", globalCursor)}>
         <div className="sidebar flex-none h-100">
           <LeftPanel components={componentBoxes} pages={pages} activePanel={activeLeftPanel} currentPage={currentPage}/>
         </div>
@@ -57,7 +58,7 @@ var App = React.createClass({
               }}/>
         </div>
         <div className="sidebar h-100 flex-none">
-          <RightPanel activeComponent={activeComponent} activePanel={activeRightPanel} />
+          <RightPanel activeComponent={activeComponent} activePanel={activeRightPanel} tree={currentPage.componentTree} />
         </div>
         <DropPointRenderer dropPoints={dropPoints}/>
         <DragImage/>

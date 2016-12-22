@@ -9,8 +9,8 @@
 .c-grab {
   cursor: -webkit-grab; }
 
-.c-grabbing {
-  cursor: -webkit-grabbing; }
+.c-grabbing * {
+  cursor: -webkit-grabbing !important; }
 
 .hidden {
   visibility: hidden !important; }

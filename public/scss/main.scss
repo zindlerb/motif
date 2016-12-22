@@ -14,8 +14,8 @@ $border: #BDBDBD;
   cursor: -webkit-grab;
 }
 
-.c-grabbing {
-  cursor: -webkit-grabbing;
+.c-grabbing  * {
+  cursor: -webkit-grabbing !important;
 }
 
 .hidden {

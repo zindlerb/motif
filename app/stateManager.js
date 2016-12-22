@@ -36,9 +36,11 @@ const initialState = {
 };
 
 /* Constants */
+const SET_GLOBAL_CURSOR = "SET_GLOBAL_CURSOR";
 const SET_HOVERED_NODES = 'SET_HOVERED_NODES';
 const SET_COMPONENT_TREE_HIGHLIGHT = 'SET_COMPONENT_TREE_HIGHLIGHT';
 const RESET_COMPONENT_TREE_HIGHLIGHT = 'RESET_COMPONENT_TREE_HIGHLIGHT';
+const SET_TREE_MOVE_HIGHLIGHT = 'SET_TREE_MOVE_HIGHLIGHT';
 
 const ADD_NEW_COMPONENT = 'ADD_NEW_COMPONENT';
 const ADD_NEW_PAGE = 'ADD_NEW_PAGE';
@@ -96,6 +98,14 @@ export const actions = {
       pos,
     };
   },
+
+  setTreeMoveHighlight(pos) {
+    return {
+      type: SET_TREE_MOVE_HIGHLIGHT,
+      pos,
+    };
+  },
+
   addComponent(Component, isExistingComponent) {
     return {
       type: ADD_NEW_COMPONENT,
@@ -111,10 +121,18 @@ export const actions = {
     };
   },
 
-  changePanel(panelConst) {
+  setGlobalCursor(cl) {
+    return {
+      type: SET_GLOBAL_CURSOR,
+      cl
+    }
+  },
+
+  changePanel(panelConst, panelSide) {
     return {
       type: CHANGE_PANEL,
       panelConst,
+      panelSide
     };
   },
 
@@ -153,6 +171,10 @@ export const actions = {
 const reducerObj = {
   [SELECT_VIEW](state, action) {
     state.activeView = action.viewName;
+  },
+
+  [SET_GLOBAL_CURSOR](state, action) {
+    state.globalCursor = action.cl;
   },
 
   [SET_COMPONENT_TREE_HIGHLIGHT](state, action) {
@@ -250,7 +272,11 @@ const reducerObj = {
   },
 
   [CHANGE_PANEL](state, action) {
-    state.activeLeftPanel = action.panelConst;
+    if (action.panelSide) {
+      state.activeRightPanel = action.panelConst;
+    } else {
+      state.activeLeftPanel = action.panelConst;
+    }
   },
 
   [CHANGE_PAGE](state, action) {
@@ -261,7 +287,7 @@ const reducerObj = {
     const HOVER_RADIUS = 100;
     const nodesInRadius = {};
     state.currentPage.componentTree.walkChildren(function(node) {
-      var {middleX, middleY} = node.getRect();
+      var {middleX, middleY} = node.getRect("pageView");
 
       if (distanceBetweenPoints({x: middleX, y: middleY}, action.mousePosition) < HOVER_RADIUS) {
         nodesInRadius[node.id] = true;
@@ -269,8 +295,29 @@ const reducerObj = {
     });
 
     state.nodeIdsInHoverRadius = nodesInRadius;
+  },
+  [SET_TREE_MOVE_HIGHLIGHT](state, action) {
+    /* Get Tree In Between Points */
+    var {pos} = action;
+    var componentTree = state.currentPage.componentTree;
+    var insertionPoints = [];
+
+    componentTree.walkChildren(function(node, ind) {
+      if (node.isLastChild()) {
+        /* get next node */
+
+      } else {
+        var {x, y} = node.getRect("treeView");
+        insertionPoints.push({
+          insertionIndex: ind - 1,
+          parent: node.parent,
+          point: {x, y}
+        });
+      }
+    });
   }
 };
+
 
 function reducer(state, action) {
   if (reducerObj[action.type]) {

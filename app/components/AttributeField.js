@@ -77,7 +77,6 @@ var ColorPicker = React.createClass({
   },
 
   onChange: function(color) {
-    console.log(color);
     actionDispatch.setComponentAttribute(this.props.component, this.props.attrKey, color.hex);
   },
 
@@ -128,6 +127,8 @@ var AttributeField = React.createClass({
       field = <Dropdown value={attrVal} attrKey={attrKey} choices={fieldSet.fieldSettings.choices} component={component}/>;
     } else if (fieldSet.fieldType === COLOR) {
       field = <ColorPicker  value={attrVal} attrKey={attrKey} component={component}/>;
+    } else {
+      field = <TextInput value={attrVal} attrKey={attrKey} component={component}/>;
     }
 
     return (

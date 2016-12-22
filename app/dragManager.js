@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import $ from 'jquery';
 
 import _ from 'lodash';
+import {actionDispatch} from './stateManager';
 import {guid, getGlobalPosFromSyntheticEvent} from './utils.js';
 
 const LISTEN_ALL = "$$$LISTEN_TO_ALL";
@@ -135,7 +136,6 @@ export var dragManager = new DragManager();
 export function createDraggableComponent(spec, Component) {
   /*
      Draggable Must implement:
-     this._el = ref
      className
      onMouseDown
    */
@@ -215,6 +215,7 @@ export var DragImage = React.createClass({
 
     dragManager.subscribe({
       onStart: function (e, ctx) {
+        actionDispatch.setGlobalCursor("c-grabbing");
         that.setState({
           element: ctx.drag.dragImage.element,
           isDragging: true
@@ -231,7 +232,7 @@ export var DragImage = React.createClass({
       },
 
       onEnd: function () {
-        debugger;
+        actionDispatch.setGlobalCursor(undefined);
         that.setState({
           isConsumated: false,
           isDragging: false
@@ -245,14 +246,12 @@ export var DragImage = React.createClass({
       return (
           <div
               ref={(ref) => { this._el = ref }}
-              className={classnames({hidden: !this.state.isConsumated}, "absolute c-grabbing")}
+              className={classnames({hidden: !this.state.isConsumated}, "absolute click-through")}
               style={{
                 left: this.state.x,
                 top: this.state.y
               }}>
-        <div className="click-through">
-          {this.state.element}
-        </div>
+            {this.state.element}
           </div>
 
         );

@@ -101,6 +101,7 @@ var ComponentBaseClass = {
     variant.children = [];
     variant._variants = [];
     variant.id = guid();
+    variant._domElements = {};
 
     if (spec.children) {
       spec.children.forEach(function(child) {
@@ -150,7 +151,6 @@ var ComponentBaseClass = {
   },
 
   deleteSelf() {
-    console.log("this", this);
     this.parent.removeChild(this);
     _.remove(this.master._variants, (variant) => {
       return variant === this.id;
@@ -191,8 +191,14 @@ var ComponentBaseClass = {
     });
   },
 
-  getRect() {
-    return new Rect().fromElement($(this._el));
+  getRect(elementType) {
+    var el = this._domElements[elementType];
+
+    if (!el) {
+      throw "Element Missing!"
+    }
+
+    return new Rect().fromElement($(el));
   },
 
   isLastChild() {
@@ -224,7 +230,7 @@ export var Container = ComponentBaseClass.createVariant({
 });
 
 Container.getDropPoints = function() {
-  var rect = this.getRect();
+  var rect = this.getRect("pageView");
   var attrs = this.getAllAttrs();
   var flexDirection = attrs.flexDirection;
   var initialPoint;
@@ -254,7 +260,7 @@ Container.getDropPoints = function() {
   ];
 
   this.children.forEach((child, ind) => {
-    var rect = child.getRect();
+    var rect = child.getRect("pageView");
     var point;
 
     if (flexDirection === "column") {

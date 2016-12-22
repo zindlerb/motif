@@ -17,16 +17,31 @@ Next:
 
 
 ## Technical:
-- Add all attributes
-  - expand on hover
-  - Top container working right
-  - Add highlight on selected
+
+- Add spacer mapping for components - map it to the component? - need to map it with extra info like insertion index....
+- Algo for finding n nearest spacers
+- Spacers highlight when active - and expand slightly
+
+
+- Spacing problem was a result of getting the drop spot from the node not in between the nodes.
+
+- Add tree view for debugging
+  - Add reorder
+  - Add add
 - Add make component
 - Add assets (non-visual)
 - Add hovering signal
+- Add all attributes
 - Add save and load
-- Fix dragging to point where it works reasonably well
 - Add style guide and use style guide variables via text.
+- Add linting watch and fix all linting errors
+
+- Fix dragging to point where it works reasonably well
 - Add all components and all attributes for them
 - Add Undo Redo
-- Add linting watch and fix all linting errors
+
+Bugz:
+- On drop expanded components are not re-evaled
+
+Refactor todos:
+- Fix hacky global drag

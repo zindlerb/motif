@@ -1,12 +1,12 @@
 import React from 'react';
 import _ from 'lodash';
-import {dragManager} from '../dragManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
 
-import {store, actionDispatch} from '../stateManager.js';
-import {createDraggableComponent} from '../dragManager.js';
-import {getGlobalPosFromSyntheticEvent} from '../utils.js';
+import { DragSource } from 'react-dnd';
+import { store, actionDispatch } from '../stateManager.js';
+import { createDraggableComponent, dragManager } from '../dragManager.js';
+import { getGlobalPosFromSyntheticEvent } from '../utils.js';
 import HorizontalSelect from './HorizontalSelect.js';
 
 var iconList = [

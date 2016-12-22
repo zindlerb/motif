@@ -17,6 +17,12 @@ var dragData = {
   }
 };
 
+function makeComponentRefCallback (mComponentData) {
+  return function (ref) {
+    mComponentData._domElements["pageView"] = ref;
+  }
+}
+
 var ContainerClassReact = createDraggableComponent(dragData, React.createClass({
   getInitialState() {
     return {
@@ -25,7 +31,8 @@ var ContainerClassReact = createDraggableComponent(dragData, React.createClass({
   },
 
   shouldExpand() {
-    return this.state.isExpanded || (this.props.isMouseInRenderer && this.props.mComponentData.getRect().h < 10);
+
+return this.props.mComponentData.getRect("pageView").h < 10;
   },
 
   componentWillReceiveProps(nextProps) {
@@ -48,12 +55,10 @@ var ContainerClassReact = createDraggableComponent(dragData, React.createClass({
 
     return (
       <div
-          ref={(ref) => {
-              mComponentData._el = ref
-            }}
+          ref={makeComponentRefCallback(mComponentData)}
           style={Object.assign(this.props.sx, sx)}
           onClick={this.props.onClick}
-          className={classnames("node_" + mComponentData.id, "expandable-element", {expanded: this.shouldExpand()}, className)}>
+          className={classnames("node_" + mComponentData.id, "expandable-element", {expanded: this.state.isExpanded}, className)}>
         {children}
       </div>
     );
@@ -65,7 +70,7 @@ var HeaderClassReact = createDraggableComponent(dragData, React.createClass({
     let {mComponentData, className} = this.props;
     return (
       <h1
-          ref={(ref) => {mComponentData._el = ref}}
+          ref={makeComponentRefCallback(mComponentData)}
           style={this.props.sx} className={classnames("node_" + mComponentData.id, className)}
           onClick={this.props.onClick}>
         {this.props.htmlProperties.text}
@@ -79,7 +84,7 @@ var ParagraphClassReact = createDraggableComponent(dragData, React.createClass({
     let {mComponentData, className} = this.props;
     return (
       <p
-          ref={(ref) => {mComponentData._el = ref}}
+          ref={makeComponentRefCallback(mComponentData)}
           style={this.props.sx} className={classnames("node_" + mComponentData.id, className)}
           onClick={this.props.onClick}>
         {this.props.htmlProperties.text}
@@ -93,7 +98,7 @@ var ImageClassReact = createDraggableComponent(dragData, React.createClass({
     let {mComponentData, className} = this.props;
     return (
       <img
-          ref={(ref) => {mComponentData._el = ref}}
+          ref={makeComponentRefCallback(mComponentData)}
           style={this.props.sx}
           className={classnames("node_" + mComponentData.id, className)} src={mComponent.attributes.src}
           onClick={this.props.onClick}/>
