@@ -2,7 +2,7 @@ import createStore from 'redux/lib/createStore';
 import bindActionCreators from 'redux/lib/bindActionCreators';
 
 import { Container, Header, Text, Image } from './base_components';
-import { distanceBetweenPoints, guid } from './utils';
+import { minDistanceBetweenPointAndLine, guid } from './utils';
 
 const container = Container;
 const header = Header;
@@ -29,14 +29,14 @@ const initialState = {
   pages: [],
   currentPage: undefined,
   activeComponent: undefined,
-  activeView: "BORDER",
+  activeView: 'BORDER',
   activeLeftPanel: 'COMPONENTS',
   activeRightPanel: 'ATTRIBUTES',
-  nodeIdsInHoverRadius: {}
+  nodeIdsInHoverRadius: {},
 };
 
 /* Constants */
-const SET_GLOBAL_CURSOR = "SET_GLOBAL_CURSOR";
+const SET_GLOBAL_CURSOR = 'SET_GLOBAL_CURSOR';
 const SET_HOVERED_NODES = 'SET_HOVERED_NODES';
 const SET_COMPONENT_TREE_HIGHLIGHT = 'SET_COMPONENT_TREE_HIGHLIGHT';
 const RESET_COMPONENT_TREE_HIGHLIGHT = 'RESET_COMPONENT_TREE_HIGHLIGHT';
@@ -51,46 +51,14 @@ const CHANGE_PAGE = 'CHANGE_PAGE';
 const SELECT_COMPONENT = 'SELECT_COMPONENT';
 const SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
 
-const SELECT_VIEW = "SELECT_VIEW";
-
-function findDropSpot(mousePos, nodeTree) {
-  const DIST_RANGE = 100;
-
-  let minDist = DIST_RANGE;
-  let closestNode;
-  const nodesInMin = [];
-
-  nodeTree.walkChildren(function (node) {
-    if (node.getDropPoints) {
-      node.getDropPoints().forEach(function (dropPoint) {
-        const dist = distanceBetweenPoints(mousePos, dropPoint.point);
-
-        if (dist < DIST_RANGE) {
-          nodesInMin.push(dropPoint);
-          if (dist < minDist) {
-            minDist = dist;
-            closestNode = dropPoint;
-          }
-        }
-      });
-    }
-  });
-
-
-  if (closestNode) {
-    closestNode.isActive = true;
-    return { closestNode, nodesInMin };
-  } else {
-    return {};
-  }
-}
+const SELECT_VIEW = 'SELECT_VIEW';
 
 export const actions = {
   setHoveredNodes(x, y) {
     return {
       type: SET_HOVERED_NODES,
-      mousePosition: {x, y}
-    }
+      mousePosition: { x, y },
+    };
   },
   setComponentMoveHighlight(pos) {
     return {
@@ -110,7 +78,7 @@ export const actions = {
     return {
       type: ADD_NEW_COMPONENT,
       Component,
-      isExistingComponent
+      isExistingComponent,
     };
   },
 
@@ -124,15 +92,15 @@ export const actions = {
   setGlobalCursor(cl) {
     return {
       type: SET_GLOBAL_CURSOR,
-      cl
-    }
+      cl,
+    };
   },
 
   changePanel(panelConst, panelSide) {
     return {
       type: CHANGE_PANEL,
       panelConst,
-      panelSide
+      panelSide,
     };
   },
 
@@ -153,8 +121,8 @@ export const actions = {
   selectView(viewName) {
     return {
       type: SELECT_VIEW,
-      viewName
-    }
+      viewName,
+    };
   },
 
   setComponentAttribute(component, attrKey, newAttrValue) {
@@ -178,10 +146,40 @@ const reducerObj = {
   },
 
   [SET_COMPONENT_TREE_HIGHLIGHT](state, action) {
-    const dropSpots = findDropSpot(action.pos, state.currentPage.componentTree);
+    const mousePos = action.pos;
+    const nodeTree = state.currentPage.componentTree;
 
-    state.dropPoints = dropSpots.nodesInMin;
-    state.selectedDropPoint = dropSpots.closestNode;
+    const DIST_RANGE = 100;
+
+    let minDist = DIST_RANGE;
+    let closestNode;
+    const nodesInMin = [];
+
+    nodeTree.walkChildren(function (node) {
+      if (node.getDropPoints) {
+        node.getDropPoints().forEach(function (dropPoint) {
+
+          const dist = minDistanceBetweenPointAndLine(mousePos, dropPoint.points);
+
+          console.log("dist", dist);
+
+          if (dist < DIST_RANGE) {
+            nodesInMin.push(dropPoint);
+            if (dist < minDist) {
+              minDist = dist;
+              closestNode = dropPoint;
+            }
+          }
+        });
+      }
+    });
+
+    if (closestNode) {
+      closestNode.isActive = true;
+    }
+
+    state.dropPoints = nodesInMin;
+    state.selectedDropPoint = closestNode;
   },
 
   [RESET_COMPONENT_TREE_HIGHLIGHT](state) {
@@ -197,7 +195,7 @@ const reducerObj = {
       const { parent, insertionIndex } = state.selectedDropPoint;
       let addedComponent;
 
-      if(action.isExistingComponent) {
+      if (action.isExistingComponent) {
         action.Component.deleteSelf();
         addedComponent = action.Component;
       } else {
@@ -236,20 +234,20 @@ const reducerObj = {
        }
        ),
      */
-    var fakePage = container.createVariant(
+    const fakePage = container.createVariant(
       {
         attributes: {
-          height: "100%"
+          height: '100%',
         },
         isRoot: true,
         children: [
           container.createVariant(
             {
               /*               attributes: {height: "100px"}*/
-            }
-          )
-        ]
-      }
+            },
+          ),
+        ],
+      },
     );
 
     /*
@@ -286,36 +284,35 @@ const reducerObj = {
   [SET_HOVERED_NODES](state, action) {
     const HOVER_RADIUS = 100;
     const nodesInRadius = {};
-    state.currentPage.componentTree.walkChildren(function(node) {
-      var {middleX, middleY} = node.getRect("pageView");
+    state.currentPage.componentTree.walkChildren(function (node) {
+      const { middleX, middleY } = node.getRect('pageView');
 
-      if (distanceBetweenPoints({x: middleX, y: middleY}, action.mousePosition) < HOVER_RADIUS) {
+      if (distanceBetweenPoints({ x: middleX, y: middleY }, action.mousePosition) < HOVER_RADIUS) {
         nodesInRadius[node.id] = true;
       }
     });
 
     state.nodeIdsInHoverRadius = nodesInRadius;
   },
-  [SET_TREE_MOVE_HIGHLIGHT](state, action) {
+  [SET_TREE_MOVE_HIGHLIGHT](state) {
     /* Get Tree In Between Points */
-    var {pos} = action;
-    var componentTree = state.currentPage.componentTree;
-    var insertionPoints = [];
+    const componentTree = state.currentPage.componentTree;
+    const insertionPoints = [];
 
-    componentTree.walkChildren(function(node, ind) {
+    componentTree.walkChildren(function (node, ind) {
       if (node.isLastChild()) {
         /* get next node */
 
       } else {
-        var {x, y} = node.getRect("treeView");
+        const { x, y } = node.getRect('treeView');
         insertionPoints.push({
           insertionIndex: ind - 1,
           parent: node.parent,
-          point: {x, y}
+          point: { x, y },
         });
       }
     });
-  }
+  },
 };
 
 

@@ -7,48 +7,48 @@ import {
   NUMBER,
   COLOR,
   DROPDOWN,
-  attributeFieldset
+  attributeFieldset,
 } from '../base_components.js';
-import {actionDispatch} from '../stateManager.js';
+import { actionDispatch } from '../stateManager.js';
 
-var TextInput = React.createClass({
-  getInitialState: function() {
+const TextInput = React.createClass({
+  getInitialState() {
     return {
       isEditing: false,
-      tempText: ''
-    }
+      tempText: '',
+    };
   },
-  startEdit: function() {
+  startEdit() {
     this.setState({
       isEditing: true,
-      tempText: this.props.value
-    })
+      tempText: this.props.value,
+    });
   },
-  onChange: function (e) {
-    this.setState({tempText: e.target.value});
+  onChange(e) {
+    this.setState({ tempText: e.target.value });
   },
-  submit: function (e) {
+  submit(e) {
     this.setState({
       isEditing: false,
-      tempText: ''
+      tempText: '',
     });
-    actionDispatch.setComponentAttribute(this.props.component, this.props.attrKey, e.target.value)
+    actionDispatch.setComponentAttribute(this.props.component, this.props.attrKey, e.target.value);
   },
-  render: function() {
-    var value = this.state.isEditing ? this.state.tempText : this.props.value;
+  render() {
+    const value = this.state.isEditing ? this.state.tempText : this.props.value;
 
-    return <input onFocus={this.startEdit} onBlur={this.submit} onChange={this.onChange} type="text" value={value}/>
-  }
+    return <input onFocus={this.startEdit} onBlur={this.submit} onChange={this.onChange} type="text" value={value} />;
+  },
 });
 
-var Dropdown = React.createClass({
-  onChange: function (e) {
+const Dropdown = React.createClass({
+  onChange(e) {
     actionDispatch.setComponentAttribute(this.props.component, this.props.attrKey, e.target.value);
-
   },
-  render: function() {
-    var choices = _.map(this.props.choices, function (choice) {
-      var value, text;
+  render() {
+    const choices = _.map(this.props.choices, function (choice) {
+      let value,
+        text;
 
       if (_.isString(choice)) {
         value = choice;
@@ -58,42 +58,42 @@ var Dropdown = React.createClass({
         text = choice.text;
       }
 
-      return <option value={value}>{text}</option>
+      return <option value={value}>{text}</option>;
     });
 
     return (
       <select value={this.value} onChange={this.onChange}>
         {choices}
       </select>
-    )
-  }
+    );
+  },
 });
 
-var ColorPicker = React.createClass({
+const ColorPicker = React.createClass({
   getInitialState() {
     return {
-      isOpen: false
-    }
+      isOpen: false,
+    };
   },
 
-  onChange: function(color) {
+  onChange(color) {
     actionDispatch.setComponentAttribute(this.props.component, this.props.attrKey, color.hex);
   },
 
-  render: function () {
-    var {value} = this.props;
-    var picker;
-    var color = value;
+  render() {
+    const { value } = this.props;
+    let picker;
+    let color = value;
 
-    if (value === "transparent") {
-      color = "white";
+    if (value === 'transparent') {
+      color = 'white';
     }
 
-    var sx = {
+    const sx = {
       backgroundColor: color,
       width: 60,
-      height: 20
-    }
+      height: 20,
+    };
 
     if (this.state.isOpen) {
       picker = <ChromePicker color={color} onChange={this.onChange} />;
@@ -101,34 +101,34 @@ var ColorPicker = React.createClass({
 
     return (
       <div>
-        <div onClick={() => { this.setState({isOpen: !this.state.isOpen}) }} className={classnames("colorDisplay", "ba")} style={sx}></div>
+        <div onClick={() => { this.setState({ isOpen: !this.state.isOpen }); }} className={classnames('colorDisplay', 'ba')} style={sx} />
         {picker}
       </div>
     );
-  }
+  },
 });
 
-var AttributeField = React.createClass({
-  render: function() {
-    var {attrKey, attrVal, component} = this.props;
-    var field;
+const AttributeField = React.createClass({
+  render() {
+    let { attrKey, attrVal, component } = this.props;
+    let field;
 
-    var fieldSet = {
-      fieldType: TEXT_FIELD
-    }
+    let fieldSet = {
+      fieldType: TEXT_FIELD,
+    };
 
     if (attributeFieldset[attrKey]) {
       fieldSet = attributeFieldset[attrKey];
     }
 
     if (fieldSet.fieldType === TEXT_FIELD) {
-      field = <TextInput value={attrVal} attrKey={attrKey} component={component}/>;
+      field = <TextInput value={attrVal} attrKey={attrKey} component={component} />;
     } else if (fieldSet.fieldType === DROPDOWN) {
-      field = <Dropdown value={attrVal} attrKey={attrKey} choices={fieldSet.fieldSettings.choices} component={component}/>;
+      field = <Dropdown value={attrVal} attrKey={attrKey} choices={fieldSet.fieldSettings.choices} component={component} />;
     } else if (fieldSet.fieldType === COLOR) {
-      field = <ColorPicker  value={attrVal} attrKey={attrKey} component={component}/>;
+      field = <ColorPicker value={attrVal} attrKey={attrKey} component={component} />;
     } else {
-      field = <TextInput value={attrVal} attrKey={attrKey} component={component}/>;
+      field = <TextInput value={attrVal} attrKey={attrKey} component={component} />;
     }
 
     return (
@@ -136,8 +136,8 @@ var AttributeField = React.createClass({
         <span>{attrKey}:</span>
         {field}
       </div>
-    )
-  }
+    );
+  },
 });
 
 export default AttributeField;

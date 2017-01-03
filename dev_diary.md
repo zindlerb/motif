@@ -126,6 +126,10 @@ Need mocks for all of these
 
 
 
+
+
+
+
 Component Inheritance:
 - Components inherit traits and children from their component block.
 - Components can override the traits of their component block

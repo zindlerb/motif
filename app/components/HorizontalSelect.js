@@ -15,24 +15,25 @@ change existing header instance
 
 
 export default function HorizontalSelect(props) {
-  var options = _.map(props.options, function (option, ind) {
-    var content;
-    var headerClick = function() {
+  const options = _.map(props.options, function (option, ind) {
+    let content;
+    const headerClick = function () {
       props.onClick(option.name);
-    }
+    };
 
     if (option.faClass) {
-      content = <i className={classnames("icon", "fa", option.faClass)} aria-hidden="true"></i>;
+      content = <i className={classnames('icon', 'fa', option.faClass)} aria-hidden="true" />;
     } else {
       content = <span>{option.text}</span>;
     }
 
     return (
-      <div className={classnames("flex-auto tc pa1 h-100 c-pointer", {
+      <div
+        className={classnames('flex-auto tc pa1 h-100 c-pointer', {
           highlighted: option.name === props.activePanel,
         })}
-           onClick={headerClick}
-           key={ind}
+        onClick={headerClick}
+        key={ind}
       >
         {content}
       </div>
@@ -40,9 +41,11 @@ export default function HorizontalSelect(props) {
   });
 
   return (
-    <div className={classnames("horizontal-select justify-around flex", {
-        border: props.hasBorder
-      }, props.className)}>
+    <div
+      className={classnames('horizontal-select justify-around flex', {
+        border: props.hasBorder,
+      }, props.className)}
+    >
       {options}
     </div>
   );

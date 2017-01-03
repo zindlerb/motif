@@ -22,7 +22,9 @@ export const HEADER = "HEADER";
 export const PARAGRAPH = "PARAGRAPH";
 export const IMAGE = "IMAGE";
 
-
+export var getInsertionSpacerId = function (parent, insertionInd, view) {
+  return [parent, insertionInd, view].join("_");
+}
 
 /* Attribute Fieldset */
 export var attributeFieldset = {
@@ -233,46 +235,38 @@ Container.getDropPoints = function() {
   var rect = this.getRect("pageView");
   var attrs = this.getAllAttrs();
   var flexDirection = attrs.flexDirection;
-  var initialPoint;
+  var initialPoints;
   var hasNoChildren = this.children.length === 0;
-  var padding = 10;
+  var padding = 1;
 
   if (flexDirection === "column") {
-    if (hasNoChildren) {
-      initialPoint = {x: rect.middleX, y: rect.y + padding};
-    } else {
-      initialPoint = {x: rect.middleX, y: rect.y};
-    }
+    initialPoints = [{x: rect.x, y: rect.y + padding}, {x: rect.x + rect.w, y: rect.y + padding}];
   } else if (flexDirection === "row") {
-    if (hasNoChildren) {
-      initialPoint = {x: rect.x + padding, y: rect.middleY};
-    } else {
-      initialPoint = {x: rect.x, y: rect.middleY};
-    }
+    initialPoints = [{x: rect.x + padding, y: rect.y}, {x: rect.x + padding, y: rect.y + rect.h}];
   }
 
   var dropPoints = [
     {
       insertionIndex: 0,
       parent: this,
-      point: initialPoint
+      points: initialPoints
     }
   ];
 
   this.children.forEach((child, ind) => {
     var rect = child.getRect("pageView");
-    var point;
+    var points;
 
     if (flexDirection === "column") {
-      point = {x: rect.middleX, y: rect.y + rect.h};
+      points = [{x: rect.x, y: rect.y + rect.h}, {x: rect.x + rect.w, y: rect.y + rect.h}];
     } else if (flexDirection === "row") {
-      point = {x: rect.x + rect.w, y: rect.middleY};
+      points = [{x: rect.x + rect.w, y: rect.y}, {x: rect.x + rect.w, y: rect.y + rect.h}];
     }
 
     dropPoints.push({
       insertionIndex: ind + 1,
       parent: this,
-      point: point
+      points: points
     })
   });
 

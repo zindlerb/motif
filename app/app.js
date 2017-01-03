@@ -3,10 +3,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
-import {dragManager, DragImage} from './dragManager.js';
+import { dragManager, DragImage } from './dragManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
-import {store} from './stateManager.js';
+import { store } from './stateManager.js';
 
 /* Components */
 import LeftPanel from './components/LeftPanel.js';
@@ -17,20 +17,20 @@ import DropPointRenderer from './components/DropPointRenderer.js';
 
 import Something from './tests/component_model.js';
 
-var App = React.createClass({
-  getInitialState: function() {
+const App = React.createClass({
+  getInitialState() {
     return store.getState();
   },
 
-  componentDidMount: function() {
-    var that = this;
-    store.subscribe(function() {
+  componentDidMount() {
+    const that = this;
+    store.subscribe(function () {
       that.setState(store.getState());
     });
   },
 
-  render: function() {
-    var {
+  render() {
+    let {
       componentBoxes,
       activeLeftPanel,
       activeRightPanel,
@@ -40,35 +40,36 @@ var App = React.createClass({
       dropPoints,
       activeView,
       nodeIdsInHoverRadius,
-      globalCursor
+      globalCursor,
     } = this.state;
 
     return (
-      <div className={classnames("flex h-100", globalCursor)}>
+      <div className={classnames('flex h-100', globalCursor)}>
         <div className="sidebar flex-none h-100">
-          <LeftPanel components={componentBoxes} pages={pages} activePanel={activeLeftPanel} currentPage={currentPage}/>
+          <LeftPanel components={componentBoxes} pages={pages} activePanel={activeLeftPanel} currentPage={currentPage} />
         </div>
         <div className="flex-auto w-100 h-100">
           <StaticRenderer
-              page={currentPage}
-              activeView={activeView}
-              componentProps={{
-                activeComponent: activeComponent,
-                nodeIdsInHoverRadius
-              }}/>
+            page={currentPage}
+            activeView={activeView}
+            componentProps={{
+              activeComponent,
+              nodeIdsInHoverRadius,
+            }}
+          />
         </div>
         <div className="sidebar h-100 flex-none">
           <RightPanel activeComponent={activeComponent} activePanel={activeRightPanel} tree={currentPage.componentTree} />
         </div>
-        <DropPointRenderer dropPoints={dropPoints}/>
-        <DragImage/>
+        <DropPointRenderer dropPoints={dropPoints} />
+        <DragImage />
       </div>
     );
-  }
-})
+  },
+});
 
-ReactDOM.render( < App / > ,
-                 document.getElementById('content')
+ReactDOM.render(< App / >,
+                 document.getElementById('content'),
 );
 
 /*

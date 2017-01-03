@@ -1,4 +1,4 @@
- export function distanceBetweenPoints(p1, p2) {
+export function distanceBetweenPoints(p1, p2) {
   return Math.abs(Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2)));
 }
 
@@ -29,14 +29,6 @@ export class Rect {
     this.middleY = this.y + (this.h / 2);
   }
 
-  isPointInRectangle() {
-
-  }
-
-  isCircleInRectangle() {
-
-  }
-
   fromElement(el) {
     const height = el.height();
     const width = el.width();
@@ -55,4 +47,44 @@ export class Rect {
 }
 export function getGlobalPosFromSyntheticEvent(e) {
   return { x: e.clientX, y: e.clientY };
+}
+
+export function minDistanceBetweenPointAndLine(p, line) {
+  /* From http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment */
+  const {x, y} = p;
+  const x1 = line[0].x;
+  const y1 = line[0].y;
+  const x2 = line[1].x;
+  const y2 = line[1].y;
+
+  /* TD: Why does this work? */
+  const A = x - x1;
+  const B = y - y1;
+  const C = x2 - x1;
+  const D = y2 - y1;
+
+  const dot = A * C + B * D;
+  const len_sq = C * C + D * D;
+  let param = -1;
+  if (len_sq != 0) //in case of 0 length line
+    param = dot / len_sq;
+
+  let xx, yy;
+
+  if (param < 0) {
+    xx = x1;
+    yy = y1;
+  }
+  else if (param > 1) {
+    xx = x2;
+    yy = y2;
+  }
+  else {
+    xx = x1 + param * C;
+    yy = y1 + param * D;
+  }
+
+  const dx = x - xx;
+  const dy = y - yy;
+  return Math.sqrt(dx * dx + dy * dy);
 }

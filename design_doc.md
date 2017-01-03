@@ -164,3 +164,38 @@ P, LI, H
 - Italics/No
 
 Image:
+
+
+
+
+
+Drag and Drop:
+
+Strategy:
+Drop spots are rendered to the right of child elements in the direction of the flow.
+First elements are against the beginning wall.
+Drop spots need to be seperate from the layout to prevent shifting.
+
+
+Algorithmn:
+- Find all the drop spots from the items. - drop spots represented as 2 points [point,point]
+- Compute the ones that are in range - closest point in radius
+- Mark active and closest ones
+- Render over the canvas
+
+Edge Cases:
+- Spaced out elements will look weird
+- It might be nice for touching elements to expand and give way?
+- 0 Width and height elements - and what about when they are nested?
+
+Random idea:
+- abstract data layout of the dom - not full look but not html - has some signifiers about how things are? Like half direct manipulation?? Some food for thought
+
+TD:
+- Fix fucked up drag preview
+- Implement better drop display
+- Get it working for reordering components
+
+if time:
+- Add make component - get that working
+- Add save reload
