@@ -197,7 +197,7 @@ var ComponentBaseClass = {
     var el = this._domElements[elementType];
 
     if (!el) {
-      throw "Element Missing!"
+      return false;
     }
 
     return new Rect().fromElement($(el));
@@ -237,7 +237,7 @@ Container.getDropPoints = function() {
   var flexDirection = attrs.flexDirection;
   var initialPoints;
   var hasNoChildren = this.children.length === 0;
-  var padding = 1;
+  var padding = 2;
 
   if (flexDirection === "column") {
     initialPoints = [{x: rect.x, y: rect.y + padding}, {x: rect.x + rect.w, y: rect.y + padding}];

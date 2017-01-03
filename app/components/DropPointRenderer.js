@@ -18,7 +18,7 @@ function DropPoint(props) {
         y1={points[0].y}
         x2={points[1].x}
         y2={points[1].y}
-        stroke-width={1}
+        strokeWidth={2}
         stroke={fill}
     />
   );
@@ -28,15 +28,19 @@ const DropPointRenderer = React.createClass({
   render() {
     if (this.props.dropPoints) {
       const circles = _.map(this.props.dropPoints, function (dropPoint, ind) {
-        return <DropPoint key={ind} point={dropPoint.points} isActive={dropPoint.isActive} />;
+        return <DropPoint key={ind} points={dropPoint.points} isActive={dropPoint.isActive} />;
       });
 
-      return (<svg
-        className="absolute w-100 h-100 click-through" style={{
-          left: 0,
-          top: 0,
-        }}
-      >{circles}</svg>);
+      return (
+        <svg
+            className="absolute w-100 h-100 click-through"
+            style={{
+              left: 0,
+              top: 0,
+            }}>
+          {circles}
+        </svg>
+      );
     } else {
       return <div style={{ display: 'none' }} />;
     }

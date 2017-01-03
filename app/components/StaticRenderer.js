@@ -41,7 +41,13 @@ const ContainerClassReact = createDraggableComponent(dragData, React.createClass
   },
 
   shouldExpand() {
-    return this.props.mComponentData.getRect('pageView').h < 10;
+    const rect = this.props.mComponentData.getRect('pageView')
+    if (!rect) {
+      /* No element assigned yet */
+      return false;
+    }
+
+    return rect.h < 10;
   },
 
   render() {
@@ -60,9 +66,10 @@ const ContainerClassReact = createDraggableComponent(dragData, React.createClass
 
     return (
       <div
+          onClick={this.props.onClick}
+          onMouseDown={this.props.onMouseDown}
           ref={makeComponentRefCallback(mComponentData)}
           style={Object.assign(this.props.sx, sx)}
-          onClick={this.props.onClick}
           className={classnames('node_' + mComponentData.id, 'expandable-element', { expanded: this.state.isExpanded }, className)}
       >
         {children}
@@ -76,6 +83,7 @@ const HeaderClassReact = createDraggableComponent(dragData, React.createClass({
     const { mComponentData, className } = this.props;
     return (
       <h1
+          onMouseDown={this.props.onMouseDown}
           ref={makeComponentRefCallback(mComponentData)}
           style={this.props.sx} className={classnames('node_' + mComponentData.id, className)}
           onClick={this.props.onClick}
@@ -91,6 +99,7 @@ const ParagraphClassReact = createDraggableComponent(dragData, React.createClass
     const { mComponentData, className } = this.props;
     return (
       <p
+          onMouseDown={this.props.onMouseDown}
           ref={makeComponentRefCallback(mComponentData)}
           style={this.props.sx} className={classnames('node_' + mComponentData.id, className)}
           onClick={this.props.onClick}
@@ -106,6 +115,7 @@ const ImageClassReact = createDraggableComponent(dragData, React.createClass({
     const { mComponentData, className } = this.props;
     return (
       <img
+          onMouseDown={this.props.onMouseDown}
           ref={makeComponentRefCallback(mComponentData)}
           style={this.props.sx}
           className={classnames('node_' + mComponentData.id, className)}

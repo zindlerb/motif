@@ -192,10 +192,8 @@ Random idea:
 - abstract data layout of the dom - not full look but not html - has some signifiers about how things are? Like half direct manipulation?? Some food for thought
 
 TD:
-- Fix fucked up drag preview
-- Implement better drop display
 - Get it working for reordering components
-
-if time:
-- Add make component - get that working
+- Get the expansion working ok
+- Add make component
 - Add save reload
+- Add tree view

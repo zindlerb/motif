@@ -161,8 +161,6 @@ const reducerObj = {
 
           const dist = minDistanceBetweenPointAndLine(mousePos, dropPoint.points);
 
-          console.log("dist", dist);
-
           if (dist < DIST_RANGE) {
             nodesInMin.push(dropPoint);
             if (dist < minDist) {
