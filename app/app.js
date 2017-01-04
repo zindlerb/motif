@@ -3,23 +3,24 @@
 let dialog = require('electron').remote.require('dialog');
 /* import fs from 'fs';*/
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import _ from 'lodash';
-import { dragManager, DragImage } from './dragManager.js';
-import classnames from 'classnames';
-import $ from 'jquery';
-import { store, actionDispatch } from './stateManager.js';
+/*
+ * import React from 'react';
+ * import ReactDOM from 'react-dom';
+ * import _ from 'lodash';
+ * import { dragManager, DragImage } from './dragManager.js';
+ * import classnames from 'classnames';
+ * import $ from 'jquery';
+ * import { store, actionDispatch } from './stateManager.js';
+ *
+ *
+ * import LeftPanel from './components/LeftPanel.js';
+ * import RightPanel from './components/RightPanel.js';
+ * import StaticRenderer from './components/StaticRenderer.js';
+ * import ComponentTree from './components/ComponentTree.js';
+ * import DropPointRenderer from './components/DropPointRenderer.js';
+ *
+ * import Something from './tests/component_model.js';*/
 
-/* Components */
-import LeftPanel from './components/LeftPanel.js';
-import RightPanel from './components/RightPanel.js';
-import StaticRenderer from './components/StaticRenderer.js';
-import ComponentTree from './components/ComponentTree.js';
-import DropPointRenderer from './components/DropPointRenderer.js';
-
-import Something from './tests/component_model.js';
-/* const dialog = remote.dialog;*/
 
 const App = React.createClass({
   getInitialState() {

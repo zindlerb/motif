@@ -34,6 +34,5 @@ module.exports = {
     // Remove later
     "react/jsx-indent-props": 0,
     "jsx-a11y/img-has-alt": 0,
-
   }
 };
