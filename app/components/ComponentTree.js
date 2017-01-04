@@ -5,36 +5,71 @@ import { actionDispatch } from '../stateManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
 
-const Spacer = function () {
-  const sx = {
-    border: '1px solid orange',
-    marginTop: 1,
-    marginBottom: 1,
-  };
+const Spacer = function (props) {
+  let sx;
+  if (props.isActive) {
+    sx = {
+      border: '1px solid orange',
+      marginTop: 1,
+      marginBottom: 1,
+    };
+  } else if (props.isNear) {
+    sx = {
+      border: '1px solid blue',
+      marginTop: 1,
+      marginBottom: 1,
+    };
+  }
+
   return (
-    <div ref={(ref) => { }} style={sx} />
+    <div style={sx} />
   );
 };
+
+
 
 const ComponentTree = React.createClass({
   render() {
     let children;
-    let extraSpacer;
+    let afterSpacer, beforeSpacer;
+    let { treeDropPoints, treeSelectedDropPoint, node } = this.props;
+    if (node.parent) {
+      function checkActive (dropPoint, ind) {
+        console.log('dropPoint', dropPoint, 'ind', ind, 'node', node);
+        if (!dropPoint) { return false };
+        return dropPoint.parent.id === node.parent.id && dropPoint.insertionIndex === ind;
+      }
 
-    if (this.props.node.children && this.props.node.children.length) {
-      children = <TreeChildren children={this.props.node.children} />;
+      if (this.props.node.isFirstChild()) {
+        beforeSpacer = <Spacer
+                           isActive={checkActive(treeSelectedDropPoint, 0)}
+                           isNear={_.some(treeDropPoints, (dp) => {checkActive(dp, 0)})}
+                       />;
+      }
+
+      afterSpacer = (
+        <Spacer
+            isActive={checkActive(treeSelectedDropPoint, node.getInd() + 1)}
+            isNear={_.some(treeDropPoints, (dp) => {
+                checkActive(dp, node.getInd() + 1)
+              })}
+        />
+      )
     }
 
-    if (this.props.isFirstChild()) {
-      extraSpacer = <Spacer />;
+    if (this.props.node.children && this.props.node.children.length) {
+      children = <TreeChildren children={this.props.node.children} treeDropPoints={treeDropPoints} treeSelectedDropPoint={treeSelectedDropPoint} />;
     }
 
     return (
-      <div className="mt1">
-        {extraSpacer}
-        <TreeItem node={this.props.node} />
+      <div
+          className="mt1"
+          ref={(ref) => { this.props.node._domElements.treeView = ref; }}
+      >
+        {beforeSpacer}
+        <TreeItem {...this.props} />
         {children}
-        <Spacer />
+        {afterSpacer}
       </div>
     );
   },
@@ -47,6 +82,7 @@ const TreeItem = createDraggableComponent(
       actionDispatch.setTreeMoveHighlight(pos);
     },
     onEnd(props) {
+      actionDispatch.resetTreeHighlight();
       actionDispatch.addComponent(props.node, true);
     },
   },
@@ -57,7 +93,6 @@ const TreeItem = createDraggableComponent(
     render() {
       return (
         <span
-          ref={(ref) => { this.props.node._domElements.treeView = ref; }}
           onMouseDown={this.props.onMouseDown}
           onClick={this.onClick}
           className={classnames(
@@ -75,8 +110,17 @@ const TreeItem = createDraggableComponent(
 
 const TreeChildren = React.createClass({
   render() {
+    let { treeDropPoints, treeSelectedDropPoint } = this.props;
     const children = _.map(this.props.children, function (child, ind) {
-      return <ComponentTree node={child} key={child.id} isFirst={ind === 0} />;
+      return (
+        <ComponentTree
+            treeSelectedDropPoint={treeSelectedDropPoint}
+            treeDropPoints={treeDropPoints}
+            node={child}
+            key={child.id}
+            isFirst={ind === 0}
+        />
+      );
     });
 
     return (

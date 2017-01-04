@@ -1,5 +1,6 @@
 import createStore from 'redux/lib/createStore';
 import bindActionCreators from 'redux/lib/bindActionCreators';
+import _ from 'lodash';
 
 import { Container, Header, Text, Image } from './base_components';
 import { minDistanceBetweenPointAndLine, guid } from './utils';
@@ -36,6 +37,10 @@ const initialState = {
 };
 
 /* Constants */
+const OPEN_SITE = 'OPEN_SITE';
+const RESET_TREE_MOVE_HIGHLIGHT = 'RESET_TREE_MOVE_HIGHLIGHT';
+const CHANGE_COMPONENT_NAME = 'CHANGE_COMPONENT_NAME';
+const CREATE_COMPONENT_BLOCK = 'CREATE_COMPONENT_BLOCK';
 const SET_GLOBAL_CURSOR = 'SET_GLOBAL_CURSOR';
 const SET_HOVERED_NODES = 'SET_HOVERED_NODES';
 const SET_COMPONENT_TREE_HIGHLIGHT = 'SET_COMPONENT_TREE_HIGHLIGHT';
@@ -54,6 +59,24 @@ const SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
 const SELECT_VIEW = 'SELECT_VIEW';
 
 export const actions = {
+  openSite(state) {
+    return {
+      type: OPEN_SITE,
+      state
+    }
+  },
+  resetTreeHighlight() {
+    return {
+      type: RESET_TREE_MOVE_HIGHLIGHT,
+    }
+  },
+  changeComponentName(component, newName) {
+    return {
+      type: CHANGE_COMPONENT_NAME,
+      component,
+      newName
+    }
+  },
   setHoveredNodes(x, y) {
     return {
       type: SET_HOVERED_NODES,
@@ -72,6 +95,14 @@ export const actions = {
       type: SET_TREE_MOVE_HIGHLIGHT,
       pos,
     };
+  },
+
+  createComponentBlock(component) {
+    console.log("create comp")
+    return {
+      type: CREATE_COMPONENT_BLOCK,
+      component
+    }
   },
 
   addComponent(Component, isExistingComponent) {
@@ -292,25 +323,94 @@ const reducerObj = {
 
     state.nodeIdsInHoverRadius = nodesInRadius;
   },
-  [SET_TREE_MOVE_HIGHLIGHT](state) {
+  [RESET_TREE_MOVE_HIGHLIGHT](state) {
+    state.treeDropPoints = undefined;
+    state.treeSelectedDropPoint = undefined;
+  },
+  [SET_TREE_MOVE_HIGHLIGHT](state, action) {
+    const { pos } = action;
+    const closestInsertionPoints = [];
+    const closestDistances = [];
     /* Get Tree In Between Points */
     const componentTree = state.currentPage.componentTree;
     const insertionPoints = [];
 
     componentTree.walkChildren(function (node, ind) {
-      if (node.isLastChild()) {
-        /* get next node */
-
-      } else {
-        const { x, y } = node.getRect('treeView');
+      const { x, y, w, h } = node.getRect('treeView');
+      if (node.isFirstChild()) {
         insertionPoints.push({
-          insertionIndex: ind - 1,
+          insertionIndex: ind,
           parent: node.parent,
-          point: { x, y },
+          points: [{ x, y: y }, { x: x + w, y: y }],
+        });
+      } else {
+        insertionPoints.push({
+          insertionIndex: ind,
+          parent: node.parent,
+          points: [{ x, y: y + h }, { x: x + w, y: y + h }],
         });
       }
     });
+
+    console.log("insertionPoints", insertionPoints);
+
+    insertionPoints.forEach(function(insertionPoint) {
+      var distFromNode = minDistanceBetweenPointAndLine(pos, insertionPoint.points);
+
+      if (closestInsertionPoints.length < 3) {
+        closestInsertionPoints.push(insertionPoint);
+        closestDistances.push(distFromNode);
+      } else {
+        console.log("loop");
+        for (var i = 0; i < closestDistances.length; i++) {
+          if (closestDistances[i] < distFromNode) {
+            closestInsertionPoints.splice(i, 0, insertionPoint)
+            closestDistances.splice(i, 0, distFromNode);
+            break;
+          }
+        }
+
+        if (closestInsertionPoints.length > 3) {
+          closestInsertionPoints.pop();
+          closestDistances.pop();
+        }
+      }
+    });
+
+    state.treeDropPoints = _.tail(closestInsertionPoints);
+    state.treeSelectedDropPoint = _.first(closestInsertionPoints);
+
+    console.log("closestInsertionPoints", closestInsertionPoints);
   },
+  [CHANGE_COMPONENT_NAME](state, action) {
+    action.component.name = action.newName;
+  },
+  [CREATE_COMPONENT_BLOCK](state, action) {
+    const { component } = action;
+    component.name = "New Component Block";
+    const oldParent = component.parent;
+    delete component.parent;
+    /* Replace self with a variant */
+    const variant = component.createVariant({
+      parent: oldParent
+    });
+
+    oldParent.children.map(function(child) {
+      if (child.id === component.id) {
+        return variant;
+      } else {
+        return child
+      }
+    });
+
+    state.componentBoxes.yours.push(component);
+  },
+  [OPEN_SITE](state, action) {
+    for (var key in state) {
+      delete state[key];
+    }
+    Object.assign(state, action.state);
+  }
 };
 
 

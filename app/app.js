@@ -1,12 +1,15 @@
 // ES6 Component
 // Import React and ReactDOM
+let dialog = require('electron').remote.require('dialog');
+/* import fs from 'fs';*/
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import { dragManager, DragImage } from './dragManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
-import { store } from './stateManager.js';
+import { store, actionDispatch } from './stateManager.js';
 
 /* Components */
 import LeftPanel from './components/LeftPanel.js';
@@ -16,6 +19,7 @@ import ComponentTree from './components/ComponentTree.js';
 import DropPointRenderer from './components/DropPointRenderer.js';
 
 import Something from './tests/component_model.js';
+/* const dialog = remote.dialog;*/
 
 const App = React.createClass({
   getInitialState() {
@@ -27,6 +31,36 @@ const App = React.createClass({
     store.subscribe(function () {
       that.setState(store.getState());
     });
+  },
+
+  saveFile () {
+    if (this.state.nonSerializable.filename) {
+      var copiedState = Object.assign({}, this.state);
+      delete copiedState.nonSerializable;
+      /*       fs.writeFile(this.state.nonSerializable.filename, JSON.stringify(copiedState))*/
+    } else {
+      dialog.showSaveDialog({
+        title: 'Save Site',
+        filters: [
+          { extensions: ['json'] }
+        ]
+      });
+    }
+  },
+
+  openSite () {
+    dialog.showOpenDialog({
+      title: 'Select a site to edit',
+      properties: ['openFile'],
+      filters: [
+        { extensions: ['json'] }
+      ]
+    }, (filenames) => {
+      if (!filenames) return;
+      /*       var state = JSON.parse(fs.readFileSync(filenames[0], 'utf8'));*/
+      state.nonSerializable = {filename: filenames[0]};
+      actionDispatch.openFile(state);
+    })
   },
 
   render() {
@@ -41,28 +75,40 @@ const App = React.createClass({
       activeView,
       nodeIdsInHoverRadius,
       globalCursor,
+      treeDropPoints,
+      treeSelectedDropPoint
     } = this.state;
 
     return (
-      <div className={classnames('flex h-100', globalCursor)}>
-        <div className="sidebar flex-none h-100">
-          <LeftPanel components={componentBoxes} pages={pages} activePanel={activeLeftPanel} currentPage={currentPage} />
+      <div>
+        <button onClick={this.openFile}>Open</button>
+        <button onClick={this.saveFile}>Save</button>
+        <div className={classnames('flex h-100', globalCursor)}>
+          <div className="sidebar flex-none h-100">
+            <LeftPanel components={componentBoxes} pages={pages} activePanel={activeLeftPanel} currentPage={currentPage} />
+          </div>
+          <div className="flex-auto w-100 h-100">
+            <StaticRenderer
+                page={currentPage}
+                activeView={activeView}
+                componentProps={{
+                  activeComponent,
+                  nodeIdsInHoverRadius,
+                }}
+            />
+          </div>
+          <div className="sidebar h-100 flex-none">
+            <RightPanel
+                activeComponent={activeComponent}
+                activePanel={activeRightPanel}
+                tree={currentPage.componentTree}
+                treeDropPoints={treeDropPoints}
+                treeSelectedDropPoint={treeSelectedDropPoint}
+            />
+          </div>
+          <DropPointRenderer dropPoints={dropPoints} />
+          <DragImage />
         </div>
-        <div className="flex-auto w-100 h-100">
-          <StaticRenderer
-            page={currentPage}
-            activeView={activeView}
-            componentProps={{
-              activeComponent,
-              nodeIdsInHoverRadius,
-            }}
-          />
-        </div>
-        <div className="sidebar h-100 flex-none">
-          <RightPanel activeComponent={activeComponent} activePanel={activeRightPanel} tree={currentPage.componentTree} />
-        </div>
-        <DropPointRenderer dropPoints={dropPoints} />
-        <DragImage />
       </div>
     );
   },

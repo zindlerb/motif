@@ -16,6 +16,9 @@ const iconList = [
     { name: 'ASSETS', faClass: 'fa-file-image-o' },
 ];
 
+
+
+
 const ComponentBlock = createDraggableComponent({
   dragType: 'addComponent',
   onDrag(props, pos, ctx) {
@@ -24,22 +27,65 @@ const ComponentBlock = createDraggableComponent({
   onEnd(props, pos, ctx) {
     actionDispatch.addComponent(props.component);
   },
-}, function (props) {
-  return (
-    <li ref={props.ref} onMouseDown={props.onMouseDown} className={classnames('m-auto componentBlock pv2 w4 draggableShadow mv2 tc list', props.className)}>
-      {props.component.name}
-    </li>
-  );
-});
+}, React.createClass({
+  getInitialState() {
+    return {
+      isHovering: false,
+      isEditing: false,
+    };
+  },
+  beginHover() {
+
+  },
+  endHover() {
+
+  },
+  render: function () {
+    let editMarker, content;
+    if (this.state.isHovering) {
+      editMarker = <i onClick={() => { this.setState({isEditing: true}) }} className="fa fa-pencil-square-o editSymbol" aria-hidden="true"></i>;
+    }
+
+    if (this.state.isEditing) {
+      content = (
+        <input
+            className="w-60"
+            focused={true}
+            type="text"
+            value={this.state.tempName}
+            onChange={(e) => { this.setState({tempName: e.target.value}) }}
+            onBlur={() => {
+                actionDispatch.changeComponentName(this.props.component, this.state.tempName);
+                this.setState({isEditing: false});
+              }}
+        />
+      )
+    } else {
+      content = this.props.component.name;
+    }
+
+    return (
+      <li
+          ref={this.props.ref}
+          onMouseEnter={() => { this.setState({isHovering: true}) }}
+          onMouseLeave={() => { this.setState({isHovering: false}) }}
+          onMouseDown={this.props.onMouseDown}
+          className={classnames(
+              'm-auto componentBlock pv2 w4 draggableShadow mv2 tc list',
+              this.props.className
+            )}>
+        {content}
+        {editMarker}
+      </li>
+    );
+  }
+}));
 
 function PlusButton(props) {
   return <i onClick={props.action} className="fa fa-plus-circle" aria-hidden="true" />;
 }
 
 const LeftPanel = React.createClass({
-  getInitialState() {
-    return { activeSitePanelTab: 'COMPONENTS' };
-  },
   render() {
     let body;
     let { activePanel, pages, components, currentPage } = this.props;
@@ -47,7 +93,7 @@ const LeftPanel = React.createClass({
     if (activePanel === 'COMPONENTS') {
       const defaultItems = _.map(components.ours, (component, ind) => <ComponentBlock component={component} key={ind} />);
 
-      let userComponents;
+      let userComponents = _.map(components.yours, (component, ind) => <ComponentBlock component={component} key={ind} />);
 
       body = (
         <div>

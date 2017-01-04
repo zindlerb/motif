@@ -134,3 +134,12 @@ body * {
 .c-pointer {
   cursor: pointer !important;
 }
+
+.list {
+  position: relative;
+}
+
+.editSymbol {
+  position: absolute;
+  right: 8px;
+}

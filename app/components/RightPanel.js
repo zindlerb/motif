@@ -17,17 +17,28 @@ const iconList = [
 
 const RightPanel = React.createClass({
   render() {
-    let body;
-    let { activeComponent, tree } = this.props;
+    let body, attrs;
+    let { activeComponent, tree, treeDropPoints, treeSelectedDropPoint } = this.props;
     if (this.props.activePanel === 'ATTRIBUTES' && activeComponent) {
-      body = [];
+      attrs = [];
       _.forEach(activeComponent.getAllAttrs(), (attrVal, attrKey) => {
-        body.push(
+        attrs.push(
           <AttributeField component={activeComponent} attrKey={attrKey} attrVal={attrVal} />,
         );
       });
+
+      body = (
+        <div>
+          <button onClick={() => { actionDispatch.createComponentBlock(activeComponent)}}>Make Component Block</button>
+          {attrs}
+        </div>
+      )
     } else if (this.props.activePanel === 'TREE') {
-      body = <ComponentTree node={tree} />;
+      body = <ComponentTree
+                 node={tree}
+                 treeDropPoints={treeDropPoints}
+                 treeSelectedDropPoint={treeSelectedDropPoint}
+             />;
     }
 
 

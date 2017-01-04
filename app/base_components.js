@@ -204,18 +204,32 @@ var ComponentBaseClass = {
   },
 
   isLastChild() {
+    if (!this.parent) {
+      return false;
+    }
     return _.last(this.parent.children).id === this.id;
   },
 
   isFirstChild() {
+    if (!this.parent) {
+      return false;
+    }
     return _.first(this.parent.children).id === this.id;
   },
 
-  walkChildren(func, ind) {
-    func(this, ind);
+  getInd() {
+    return this.parent.children.indexOf(function(child) {
+      return child.id === this.id;
+    });
+  },
+
+  walkChildren(func, ind, isChild) {
+    if (isChild) {
+      func(this, ind);
+    }
 
     this.children.forEach(function (child, ind) {
-      child.walkChildren(func, ind);
+      child.walkChildren(func, ind, true);
     });
   },
 }
