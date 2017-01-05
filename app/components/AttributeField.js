@@ -4,12 +4,11 @@ import _ from 'lodash';
 import { ChromePicker } from 'react-color';
 import {
   TEXT_FIELD,
-  NUMBER,
   COLOR,
   DROPDOWN,
   attributeFieldset,
-} from '../base_components.js';
-import { actionDispatch } from '../stateManager.js';
+} from '../base_components';
+import { actionDispatch } from '../stateManager';
 
 const TextInput = React.createClass({
   getInitialState() {
@@ -18,14 +17,14 @@ const TextInput = React.createClass({
       tempText: '',
     };
   },
+  onChange(e) {
+    this.setState({ tempText: e.target.value });
+  },
   startEdit() {
     this.setState({
       isEditing: true,
       tempText: this.props.value,
     });
-  },
-  onChange(e) {
-    this.setState({ tempText: e.target.value });
   },
   submit(e) {
     this.setState({
@@ -37,7 +36,12 @@ const TextInput = React.createClass({
   render() {
     const value = this.state.isEditing ? this.state.tempText : this.props.value;
 
-    return <input onFocus={this.startEdit} onBlur={this.submit} onChange={this.onChange} type="text" value={value} />;
+    return (<input
+                onFocus={this.startEdit}
+                onBlur={this.submit}
+                onChange={this.onChange}
+                type="text"
+                value={value} />);
   },
 });
 
@@ -108,36 +112,38 @@ const ColorPicker = React.createClass({
   },
 });
 
-const AttributeField = React.createClass({
-  render() {
-    let { attrKey, attrVal, component } = this.props;
-    let field;
+const AttributeField = function (props) {
+  let { attrKey, attrVal, component } = props;
+  let field;
 
-    let fieldSet = {
-      fieldType: TEXT_FIELD,
-    };
+  let fieldSet = {
+    fieldType: TEXT_FIELD,
+  };
 
-    if (attributeFieldset[attrKey]) {
-      fieldSet = attributeFieldset[attrKey];
-    }
+  if (attributeFieldset[attrKey]) {
+    fieldSet = attributeFieldset[attrKey];
+  }
 
-    if (fieldSet.fieldType === TEXT_FIELD) {
-      field = <TextInput value={attrVal} attrKey={attrKey} component={component} />;
-    } else if (fieldSet.fieldType === DROPDOWN) {
-      field = <Dropdown value={attrVal} attrKey={attrKey} choices={fieldSet.fieldSettings.choices} component={component} />;
-    } else if (fieldSet.fieldType === COLOR) {
-      field = <ColorPicker value={attrVal} attrKey={attrKey} component={component} />;
-    } else {
-      field = <TextInput value={attrVal} attrKey={attrKey} component={component} />;
-    }
+  if (fieldSet.fieldType === TEXT_FIELD) {
+    field = <TextInput value={attrVal} attrKey={attrKey} component={component} />;
+  } else if (fieldSet.fieldType === DROPDOWN) {
+    field = (<Dropdown
+                 value={attrVal}
+                 attrKey={attrKey}
+                 choices={fieldSet.fieldSettings.choices}
+                 component={component} />);
+  } else if (fieldSet.fieldType === COLOR) {
+    field = <ColorPicker value={attrVal} attrKey={attrKey} component={component} />;
+  } else {
+    field = <TextInput value={attrVal} attrKey={attrKey} component={component} />;
+  }
 
-    return (
-      <div>
-        <span>{attrKey}:</span>
-        {field}
-      </div>
-    );
-  },
-});
+  return (
+    <div>
+      <span>{attrKey}:</span>
+      {field}
+    </div>
+  );
+};
 
 export default AttributeField;

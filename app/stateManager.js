@@ -11,12 +11,6 @@ const text = Text;
 const image = Image;
 
 const initialState = {
-  componentMap: {
-    [container.id]: container,
-    [header.id]: header,
-    [text.id]: text,
-    [image.id]: image,
-  },
   siteName: 'Something',
   componentBoxes: {
     ours: [
@@ -35,6 +29,36 @@ const initialState = {
   activeRightPanel: 'ATTRIBUTES',
   nodeIdsInHoverRadius: {},
 };
+
+function serializer() {
+  // serializableKeys ['siteName', 'componentBoxes', 'pages'];
+
+  function serialize(state) {
+    var componentMap = {};
+    var newPages = [];
+
+    state.pages.forEach(function(page) {
+      var { componentTree } = page;
+
+
+    });
+
+    return {
+      siteName: state.siteName,
+      pages: newPages,
+      componentMap
+    }
+
+  }
+
+  function deserialize(jsonState) {
+
+  }
+
+  return {serialize, deserialize};
+}
+
+
 
 /* Constants */
 const OPEN_SITE = 'OPEN_SITE';

@@ -1,26 +1,24 @@
 // ES6 Component
 // Import React and ReactDOM
-let dialog = require('electron').remote.require('dialog');
-/* import fs from 'fs';*/
+import { remote } from 'electron';
+let dialog = remote.dialog;
 
-/*
- * import React from 'react';
- * import ReactDOM from 'react-dom';
- * import _ from 'lodash';
- * import { dragManager, DragImage } from './dragManager.js';
- * import classnames from 'classnames';
- * import $ from 'jquery';
- * import { store, actionDispatch } from './stateManager.js';
- *
- *
- * import LeftPanel from './components/LeftPanel.js';
- * import RightPanel from './components/RightPanel.js';
- * import StaticRenderer from './components/StaticRenderer.js';
- * import ComponentTree from './components/ComponentTree.js';
- * import DropPointRenderer from './components/DropPointRenderer.js';
- *
- * import Something from './tests/component_model.js';*/
+import fs from 'fs';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import _ from 'lodash';
+import { dragManager, DragImage } from './dragManager.js';
+import classnames from 'classnames';
+import $ from 'jquery';
+import { store, actionDispatch } from './stateManager.js';
 
+import LeftPanel from './components/LeftPanel.js';
+import RightPanel from './components/RightPanel.js';
+import StaticRenderer from './components/StaticRenderer.js';
+import ComponentTree from './components/ComponentTree.js';
+import DropPointRenderer from './components/DropPointRenderer.js';
+
+import Something from './tests/component_model.js';
 
 const App = React.createClass({
   getInitialState() {
@@ -34,33 +32,47 @@ const App = React.createClass({
     });
   },
 
-  saveFile () {
-    if (this.state.nonSerializable.filename) {
-      var copiedState = Object.assign({}, this.state);
+  saveSite () {
+    function writeFile(filename, state) {
+      var copiedState = Object.assign({}, state);
       delete copiedState.nonSerializable;
-      /*       fs.writeFile(this.state.nonSerializable.filename, JSON.stringify(copiedState))*/
+      fs.writeFile(filename, JSON.stringify(copiedState))
+    }
+
+    if (this.state.nonSerializable && this.state.nonSerializable.filename) {
+      writeFile(state.nonSerializable.filename, this.state);
     } else {
       dialog.showSaveDialog({
         title: 'Save Site',
         filters: [
-          { extensions: ['json'] }
+          {
+            name: 'motif file',
+            extensions: ['json']
+          }
         ]
+      }, (filename) => {
+        writeFile(filename, this.state);
       });
     }
   },
 
   openSite () {
+    console.log('open');
     dialog.showOpenDialog({
       title: 'Select a site to edit',
       properties: ['openFile'],
       filters: [
-        { extensions: ['json'] }
+        {
+          name: 'motif file',
+          extensions: ['json']
+        }
       ]
     }, (filenames) => {
       if (!filenames) return;
-      /*       var state = JSON.parse(fs.readFileSync(filenames[0], 'utf8'));*/
+      var state = JSON.parse(fs.readFileSync(filenames[0], 'utf8'));
       state.nonSerializable = {filename: filenames[0]};
-      actionDispatch.openFile(state);
+      console.log("newState", state);
+      actionDispatch.openSite(state);
     })
   },
 
@@ -80,10 +92,13 @@ const App = React.createClass({
       treeSelectedDropPoint
     } = this.state;
 
+    window.state = this.state;
+    console.log("state", this.state);
+
     return (
-      <div>
-        <button onClick={this.openFile}>Open</button>
-        <button onClick={this.saveFile}>Save</button>
+      <div className="h-100">
+        <button onClick={this.openSite}>Open</button>
+        <button onClick={this.saveSite}>Save</button>
         <div className={classnames('flex h-100', globalCursor)}>
           <div className="sidebar flex-none h-100">
             <LeftPanel components={componentBoxes} pages={pages} activePanel={activeLeftPanel} currentPage={currentPage} />

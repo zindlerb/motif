@@ -1,13 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
 import classnames from 'classnames';
-import $ from 'jquery';
 
-import { DragSource } from 'react-dnd';
-import { store, actionDispatch } from '../stateManager.js';
-import { createDraggableComponent, dragManager } from '../dragManager.js';
-import { getGlobalPosFromSyntheticEvent } from '../utils.js';
-import HorizontalSelect from './HorizontalSelect.js';
+import { actionDispatch } from '../stateManager';
+import { createDraggableComponent } from '../dragManager';
+import HorizontalSelect from './HorizontalSelect';
 
 const iconList = [
     { name: 'PAGES', faClass: 'fa-files-o' },
@@ -16,15 +13,12 @@ const iconList = [
     { name: 'ASSETS', faClass: 'fa-file-image-o' },
 ];
 
-
-
-
 const ComponentBlock = createDraggableComponent({
   dragType: 'addComponent',
-  onDrag(props, pos, ctx) {
+  onDrag(props, pos) {
     actionDispatch.setComponentMoveHighlight(pos);
   },
-  onEnd(props, pos, ctx) {
+  onEnd(props, pos) {
     actionDispatch.addComponent(props.component);
   },
 }, React.createClass({
@@ -40,10 +34,16 @@ const ComponentBlock = createDraggableComponent({
   endHover() {
 
   },
-  render: function () {
+  render() {
     let editMarker, content;
     if (this.state.isHovering) {
-      editMarker = <i onClick={() => { this.setState({isEditing: true}) }} className="fa fa-pencil-square-o editSymbol" aria-hidden="true"></i>;
+      editMarker = (
+        <i
+            onClick={() => { this.setState({isEditing: true}); }}
+            className="fa fa-pencil-square-o editSymbol"
+            aria-hidden="true"
+        />
+      );
     }
 
     if (this.state.isEditing) {
