@@ -88,3 +88,14 @@ export function minDistanceBetweenPointAndLine(p, line) {
   const dy = y - yy;
   return Math.sqrt(dx * dx + dy * dy);
 }
+
+export function wasRightButtonPressed(e) {
+  let isRightMB;
+
+  if ("which" in e)  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+    isRightMB = e.which == 3;
+  else if ("button" in e)  // IE, Opera
+    isRightMB = e.button == 2;
+
+  return isRightMB;
+}

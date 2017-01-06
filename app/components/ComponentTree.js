@@ -1,6 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { dragManager, createDraggableComponent } from '../dragManager.js';
+import { wasRightButtonPressed } from '../utils.js';
 import { actionDispatch } from '../stateManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
@@ -91,8 +92,12 @@ const TreeItem = createDraggableComponent(
     },
   },
   React.createClass({
-    onClick() {
-      actionDispatch.selectComponent(this.props.node);
+    onClick(e) {
+      if (wasRightButtonPressed(e)) {
+        actionDispatch.openMenu(this.props.node);
+      } else {
+        actionDispatch.selectComponent(this.props.node);
+      }
     },
     render() {
       return (

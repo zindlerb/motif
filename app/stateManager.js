@@ -19,6 +19,15 @@ import {
 } from './base_components';
 import { minDistanceBetweenPointAndLine, guid } from './utils';
 
+export const MENU_STATES = {
+  CLOSED: 'CLOSED',
+
+  /* Open States */
+  ROOT: 'ROOT',
+  INSERTION: 'INSERTION',
+  WRAP: 'WRAP',
+}
+
 const initialState = {
   siteName: 'Something',
   componentBoxes: {
@@ -37,6 +46,7 @@ const initialState = {
   activeLeftPanel: 'COMPONENTS',
   activeRightPanel: 'ATTRIBUTES',
   nodeIdsInHoverRadius: {},
+  menu: { state: MENU_STATES.CLOSED }
 };
 
 function serializerFactory() {
@@ -189,10 +199,24 @@ const CHANGE_PAGE = 'CHANGE_PAGE';
 
 const SELECT_COMPONENT = 'SELECT_COMPONENT';
 const SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
+const DELETE_ACTIVE_COMPONENT = 'DELETE_ACTIVE_COMPONENT';
 
 const SELECT_VIEW = 'SELECT_VIEW';
+const NEW_MENU_STATE = 'NEW_MENU_STATE';
 
 export const actions = {
+  newMenuState(state, component) {
+    return {
+      type: NEW_MENU_STATE,
+      state,
+      component
+    }
+  },
+  deleteActiveComponent() {
+    return {
+      type: DELETE_ACTIVE_COMPONENT
+    }
+  },
   openSite(state) {
     return {
       type: OPEN_SITE,
@@ -301,6 +325,24 @@ export const actions = {
 
 
 const reducerObj = {
+  [OPEN_MENU](state, action) {
+    state.menu.state = MENU_STATES.ROOT;
+    state.menu.component = action.component;
+  },
+  [CLOSE_MENU](state) {
+    state.menu.state = MENU_STATES.CLOSED;
+    state.menu.component = undefined;
+  },
+  [NEW_MENU_STATE](state, action) {
+    let {menuState, component} = action;
+
+    if (menuState === MENU_STATES.ROOT && !component) {
+      throw new Error("Missing component in open menu action");
+    }
+
+    state.menu.state = menuState;
+    state.menu.component = component;
+  },
   [SELECT_VIEW](state, action) {
     state.activeView = action.viewName;
   },
@@ -505,9 +547,12 @@ const reducerObj = {
   },
   [OPEN_SITE](state, action) {
     Object.assign(state, action.state);
+  },
+  [DELETE_ACTIVE_COMPONENT](state) {
+    state.activeComponent.deleteSelf();
+    state.activeComponent = undefined;
   }
 };
-
 
 function reducer(state, action) {
   if (reducerObj[action.type]) {

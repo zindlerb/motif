@@ -2,6 +2,7 @@
 // Import React and ReactDOM
 import { remote } from 'electron';
 let dialog = remote.dialog;
+import mousetrap from 'mousetrap';
 
 import fs from 'fs';
 import React from 'react';
@@ -30,6 +31,12 @@ const App = React.createClass({
     store.subscribe(function () {
       that.setState(store.getState());
     });
+
+    mousetrap.bind(['backspace', 'del'], () => {
+      if (this.state.activeComponent) {
+        actionDispatch.deleteActiveComponent();
+      }
+    }, 'keyup');
 
     this.openFile('/Users/brianzindler/Documents/reload.json');
   },
