@@ -31,11 +31,12 @@ const App = React.createClass({
       that.setState(store.getState());
     });
 
-    /*     this.openFile('/Users/brianzindler/Documents/reload.json');*/
+    this.openFile('/Users/brianzindler/Documents/reload.json');
   },
 
   saveSite () {
     function writeFile(filename, state) {
+      console.log('saved state:', JSON.parse(serializer.serialize(state)));
       fs.writeFile(filename, serializer.serialize(state));
     }
 
@@ -58,15 +59,14 @@ const App = React.createClass({
 
   openFile(filename) {
     fs.readFile(filename, 'utf8', function (err, file) {
-      if (!err) {
+      if (err) {
+        console.warn("No file found for ", filename);
+      } else {
         var state = serializer.deserialize(file);
-
         state.nonSerializable = { filename: filename };
-
         actionDispatch.openSite(state);
       }
     });
-
   },
 
   openSite () {

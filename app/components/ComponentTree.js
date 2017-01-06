@@ -26,13 +26,11 @@ const Spacer = function (props) {
   );
 };
 
-
-
 const ComponentTree = React.createClass({
   render() {
     let children;
     let afterSpacer, beforeSpacer;
-    let { treeDropPoints, treeSelectedDropPoint, node } = this.props;
+    let { treeDropPoints, treeSelectedDropPoint, node, activeComponent } = this.props;
     if (node.parent) {
       function checkActive (dropPoint, ind) {
         if (!dropPoint) { return false };
@@ -56,8 +54,15 @@ const ComponentTree = React.createClass({
       )
     }
 
-    if (this.props.node.children && this.props.node.children.length) {
-      children = <TreeChildren children={this.props.node.children} treeDropPoints={treeDropPoints} treeSelectedDropPoint={treeSelectedDropPoint} />;
+    if (node.children && node.children.length) {
+      children = (
+        <TreeChildren
+            children={node.children}
+            treeDropPoints={treeDropPoints}
+            treeSelectedDropPoint={treeSelectedDropPoint}
+            activeComponent={activeComponent}
+        />
+      );
     }
 
     return (
@@ -66,7 +71,7 @@ const ComponentTree = React.createClass({
           ref={(ref) => { this.props.node['###domElements'].treeView = ref; }}
       >
         {beforeSpacer}
-        <TreeItem {...this.props} />
+        <TreeItem {...this.props} isActive={ activeComponent && activeComponent.id === node.id}/>
         {children}
         {afterSpacer}
       </div>
@@ -97,7 +102,10 @@ const TreeItem = createDraggableComponent(
           className={classnames(
                 this.props.className,
                 'outline_' + this.props.node.id,
-                { highlightBottom: false },
+              {
+                highlightBottom: false,
+                isActive: this.props.isActive
+              },
                 'db',
               )}
         >{this.props.node.name}
@@ -109,12 +117,13 @@ const TreeItem = createDraggableComponent(
 
 const TreeChildren = React.createClass({
   render() {
-    let { treeDropPoints, treeSelectedDropPoint } = this.props;
+    let { treeDropPoints, treeSelectedDropPoint, activeComponent } = this.props;
     const children = _.map(this.props.children, function (child, ind) {
       return (
         <ComponentTree
             treeSelectedDropPoint={treeSelectedDropPoint}
             treeDropPoints={treeDropPoints}
+            activeComponent={activeComponent}
             node={child}
             key={child.id}
             isFirst={ind === 0}

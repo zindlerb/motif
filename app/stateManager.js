@@ -3,6 +3,7 @@ import bindActionCreators from 'redux/lib/bindActionCreators';
 import _ from 'lodash';
 
 import {
+  Component,
   container,
   header,
   text,
@@ -41,12 +42,18 @@ const initialState = {
 function serializerFactory() {
   // serializableKeys ['siteName', 'componentBoxes', 'pages', 'currentPage'];
 
-  /*
-     Td:
+  function replaceComponentsOnComponentDatum(componentData, cb) {
+    _.forEach(componentData, function(val, key) {
+      if (_.includes(['master', 'parent'], key)) {
+        componentData[key] = cb(val);
+      } else if (_.includes(['_variants', 'children'], key)) {
+        componentData[key] = _.map(componentData[key], function(compData) {
+          return cb(compData);
+        });
+      }
+    });
+  }
 
-      go through and put any component found into a queue
-
-   */
   function serialize(state) {
     var componentMap = {};
     var newPages = [];
@@ -55,36 +62,39 @@ function serializerFactory() {
       yours: []
     }
 
-    function serializeComponent(component) {
-      let data = component.getSerializableData();
+    function putSelfAndAllChildrenInComponentMap(component) {
+      componentMap[component.id] = component.getSerializableData();
 
-      if (!componentMap[data.id]) {
-        ['children', '_variants'].forEach(function(key) {
-          data[key] = _.map(data[key], serializeComponent);
-        });
-
-        if(component.master) {
-          component.master = serializeComponent(component.master);
-        }
-
-        if(component.parent) {
-          component.parent = serializeComponent(component.parent);
-        }
-
-        componentMap[data.id] = data;
-      }
-
-      return data.id;
+      component.walkChildren(function(childComponent) {
+        componentMap[childComponent.id] = childComponent.getSerializableData();
+      });
     }
 
+    // Put all components and their children in component map.
     state.pages.forEach(function(page) {
       let newPage = Object.assign({}, page);
-      newPage.componentTree = serializeComponent(page.componentTree);
+      putSelfAndAllChildrenInComponentMap(page.componentTree);
+
+      newPage.componentTree = page.componentTree.id
       newPages.push(newPage);
     });
 
     ['ours', 'yours'].forEach(function (key) {
-      newComponentBoxes[key] = _.map(state.componentBoxes[key], serializeComponent);
+      newComponentBoxes[key] = _.map(state.componentBoxes[key], function (component) {
+        putSelfAndAllChildrenInComponentMap(component);
+        return component.id;
+      });
+    });
+
+    // Within component map transform all component references into ids
+    _.forEach(componentMap, function(component) {
+      replaceComponentsOnComponentDatum(component, function (childComponent) {
+        if (childComponent) {
+          return childComponent.id;
+        } else {
+          return childComponent;
+        }
+      });
     });
 
     return JSON.stringify({
@@ -105,48 +115,42 @@ function serializerFactory() {
       currentPage
     } = JSON.parse(jsonState);
 
-    function deserializeComponent(componentId) {
-      let component;
-
-      if (_.isString(componentId)) {
-        let componentData = componentMap[componentId];
-
-
-        if (componentData.componentType === CONTAINER) {
-          component = new Container(componentData);
-        } else if (componentData.componentType === TEXT) {
-          component = new Text(componentData);
-        } else if (componentData.componentType === IMAGE) {
-          component = new Image(componentData);
-        } else if (componentData.componentType === HEADER) {
-          component = new Header(componentData);
-        }
-
-        ['children', '_variants'].forEach(function(key) {
-          component[key] = _.map(component[key], deserializeComponent);
-        });
-
-        if (component.master) {
-          component.master = deserializeComponent(component.master);
-        }
-
-        if (component.parent) {
-          component.master = deserializeComponent(component.parent);
-        }
-      } else {
-        component = componentId;
+    function componentDataToClass(componentData) {
+      if (componentData.componentType === CONTAINER) {
+        return new Container(componentData);
+      } else if (componentData.componentType === TEXT) {
+        return new Text(componentData);
+      } else if (componentData.componentType === IMAGE) {
+        return new Image(componentData);
+      } else if (componentData.componentType === HEADER) {
+        return new Header(componentData);
       }
-
-      return component;
     }
 
+    let componentClassMap = {};
+
+    _.forEach(componentMap, function(componentData, key) {
+      componentClassMap[key] = componentDataToClass(componentData);
+    });
+
+    _.forEach(componentClassMap, function(component, key) {
+      replaceComponentsOnComponentDatum(
+        component,
+        function(id) {
+          return componentClassMap[id];
+        }
+      );
+    });
+
     let newPages = _.map(pages, function(page) {
-      page.componentTree = deserializeComponent(page.componentTree);
+      page.componentTree = componentClassMap[page.componentTree];
       return page;
     });
 
     _.forEach(componentBoxes, function (val, key) {
-      componentBoxes[key] = _.map(val, deserializeComponent);
+      componentBoxes[key] = _.map(val, function(componentId) {
+        return componentClassMap[componentId];
+      });
     });
 
     let currentPageObj = _.find(newPages, function (page) {
@@ -165,7 +169,6 @@ function serializerFactory() {
 }
 
 export let serializer = serializerFactory();
-
 
 /* Constants */
 const OPEN_SITE = 'OPEN_SITE';
@@ -511,7 +514,7 @@ function reducer(state, action) {
     reducerObj[action.type](state, action);
   }
 
-  console.log(action.type, _.cloneDeep(state));
+  /*   console.log(action.type, _.cloneDeep(state));*/
 
   return state;
 }

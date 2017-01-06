@@ -38,6 +38,7 @@ const RightPanel = React.createClass({
                  node={tree}
                  treeDropPoints={treeDropPoints}
                  treeSelectedDropPoint={treeSelectedDropPoint}
+                 activeComponent={activeComponent}
              />;
     }
 

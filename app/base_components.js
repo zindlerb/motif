@@ -80,7 +80,7 @@ export var attributeFieldset = {
   }
 }
 
-class Component {
+export class Component {
   constructor(componentType, spec) {
     this.attributes = {};
     this.children = [];
@@ -106,7 +106,7 @@ class Component {
       'componentType',
       'name',
     ].reduce((dataObj, key) => {
-      dataObj[key] = this[key];
+      dataObj[key] = _.clone(this[key]);
 
       return dataObj;
     }, {});
