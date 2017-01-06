@@ -35,7 +35,6 @@ const ComponentTree = React.createClass({
     let { treeDropPoints, treeSelectedDropPoint, node } = this.props;
     if (node.parent) {
       function checkActive (dropPoint, ind) {
-        console.log('dropPoint', dropPoint, 'ind', ind, 'node', node);
         if (!dropPoint) { return false };
         return dropPoint.parent.id === node.parent.id && dropPoint.insertionIndex === ind;
       }
@@ -64,7 +63,7 @@ const ComponentTree = React.createClass({
     return (
       <div
           className="mt1"
-          ref={(ref) => { this.props.node._domElements.treeView = ref; }}
+          ref={(ref) => { this.props.node['###domElements'].treeView = ref; }}
       >
         {beforeSpacer}
         <TreeItem {...this.props} />

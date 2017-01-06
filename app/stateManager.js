@@ -2,13 +2,21 @@ import createStore from 'redux/lib/createStore';
 import bindActionCreators from 'redux/lib/bindActionCreators';
 import _ from 'lodash';
 
-import { Container, Header, Text, Image } from './base_components';
+import {
+  container,
+  header,
+  text,
+  image,
+  Container,
+  Header,
+  Text,
+  Image,
+  CONTAINER,
+  HEADER,
+  TEXT,
+  IMAGE
+} from './base_components';
 import { minDistanceBetweenPointAndLine, guid } from './utils';
-
-const container = Container;
-const header = Header;
-const text = Text;
-const image = Image;
 
 const initialState = {
   siteName: 'Something',
@@ -30,34 +38,133 @@ const initialState = {
   nodeIdsInHoverRadius: {},
 };
 
-function serializer() {
-  // serializableKeys ['siteName', 'componentBoxes', 'pages'];
+function serializerFactory() {
+  // serializableKeys ['siteName', 'componentBoxes', 'pages', 'currentPage'];
 
+  /*
+     Td:
+
+      go through and put any component found into a queue
+
+   */
   function serialize(state) {
     var componentMap = {};
     var newPages = [];
-
-    state.pages.forEach(function(page) {
-      var { componentTree } = page;
-
-
-    });
-
-    return {
-      siteName: state.siteName,
-      pages: newPages,
-      componentMap
+    var newComponentBoxes = {
+      ours: [],
+      yours: []
     }
 
+    function serializeComponent(component) {
+      let data = component.getSerializableData();
+
+      if (!componentMap[data.id]) {
+        ['children', '_variants'].forEach(function(key) {
+          data[key] = _.map(data[key], serializeComponent);
+        });
+
+        if(component.master) {
+          component.master = serializeComponent(component.master);
+        }
+
+        if(component.parent) {
+          component.parent = serializeComponent(component.parent);
+        }
+
+        componentMap[data.id] = data;
+      }
+
+      return data.id;
+    }
+
+    state.pages.forEach(function(page) {
+      let newPage = Object.assign({}, page);
+      newPage.componentTree = serializeComponent(page.componentTree);
+      newPages.push(newPage);
+    });
+
+    ['ours', 'yours'].forEach(function (key) {
+      newComponentBoxes[key] = _.map(state.componentBoxes[key], serializeComponent);
+    });
+
+    return JSON.stringify({
+      siteName: state.siteName,
+      pages: newPages,
+      componentMap,
+      componentBoxes: newComponentBoxes,
+      currentPage: state.currentPage.id
+    })
   }
 
   function deserialize(jsonState) {
+    let {
+      siteName,
+      pages,
+      componentMap,
+      componentBoxes,
+      currentPage
+    } = JSON.parse(jsonState);
 
+    function deserializeComponent(componentId) {
+      let component;
+
+      if (_.isString(componentId)) {
+        let componentData = componentMap[componentId];
+
+
+        if (componentData.componentType === CONTAINER) {
+          component = new Container(componentData);
+        } else if (componentData.componentType === TEXT) {
+          component = new Text(componentData);
+        } else if (componentData.componentType === IMAGE) {
+          component = new Image(componentData);
+        } else if (componentData.componentType === HEADER) {
+          component = new Header(componentData);
+        }
+
+        ['children', '_variants'].forEach(function(key) {
+          component[key] = _.map(component[key], deserializeComponent);
+        });
+
+        if (component.master) {
+          component.master = deserializeComponent(component.master);
+        }
+
+        if (component.parent) {
+          component.master = deserializeComponent(component.parent);
+        }
+      } else {
+        component = componentId;
+      }
+
+      return component;
+    }
+
+    let newPages = _.map(pages, function(page) {
+      page.componentTree = deserializeComponent(page.componentTree);
+      return page;
+    });
+
+    _.forEach(componentBoxes, function (val, key) {
+      componentBoxes[key] = _.map(val, deserializeComponent);
+    });
+
+    let currentPageObj = _.find(newPages, function (page) {
+      return page.id === currentPage;
+    });
+
+    return {
+      siteName,
+      pages: newPages,
+      componentBoxes,
+      currentPage: currentPageObj
+    }
   }
 
   return {serialize, deserialize};
 }
 
+export let serializer = serializerFactory();
 
 
 /* Constants */
@@ -122,7 +229,6 @@ export const actions = {
   },
 
   createComponentBlock(component) {
-    console.log("create comp")
     return {
       type: CREATE_COMPONENT_BLOCK,
       component
@@ -271,46 +377,16 @@ const reducerObj = {
   },
 
   [ADD_NEW_PAGE](state) {
-    /*
-       container.createVariant(
-       {
-       attributes: { height: "100px" },
-       children: [header.createVariant()]
-       }
-       ),
-       container.createVariant(
-       {
-       children: [
-       container.createVariant(),
-       container.createVariant()
-       ]
-       }
-       ),
-     */
     const fakePage = container.createVariant(
       {
         attributes: {
           height: '100%',
         },
         isRoot: true,
-        children: [
-          container.createVariant(
-            {
-              /*               attributes: {height: "100px"}*/
-            },
-          ),
-        ],
       },
     );
 
-    /*
-       container.createVariant({
-       attributes: {
-       height: "100%"
-       },
-       isRoot: true,
-       })
-     */
+    fakePage.addChild(container.createVariant());
 
     const newPage = {
       name: 'New Page',
@@ -376,8 +452,6 @@ const reducerObj = {
       }
     });
 
-    console.log("insertionPoints", insertionPoints);
-
     insertionPoints.forEach(function(insertionPoint) {
       var distFromNode = minDistanceBetweenPointAndLine(pos, insertionPoint.points);
 
@@ -385,7 +459,6 @@ const reducerObj = {
         closestInsertionPoints.push(insertionPoint);
         closestDistances.push(distFromNode);
       } else {
-        console.log("loop");
         for (var i = 0; i < closestDistances.length; i++) {
           if (closestDistances[i] < distFromNode) {
             closestInsertionPoints.splice(i, 0, insertionPoint)
@@ -403,8 +476,6 @@ const reducerObj = {
 
     state.treeDropPoints = _.tail(closestInsertionPoints);
     state.treeSelectedDropPoint = _.first(closestInsertionPoints);
-
-    console.log("closestInsertionPoints", closestInsertionPoints);
   },
   [CHANGE_COMPONENT_NAME](state, action) {
     action.component.name = action.newName;
@@ -430,9 +501,6 @@ const reducerObj = {
     state.componentBoxes.yours.push(component);
   },
   [OPEN_SITE](state, action) {
-    for (var key in state) {
-      delete state[key];
-    }
     Object.assign(state, action.state);
   }
 };
@@ -442,6 +510,8 @@ function reducer(state, action) {
   if (reducerObj[action.type]) {
     reducerObj[action.type](state, action);
   }
+
+  console.log(action.type, _.cloneDeep(state));
 
   return state;
 }

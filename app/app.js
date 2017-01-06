@@ -10,7 +10,7 @@ import _ from 'lodash';
 import { dragManager, DragImage } from './dragManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
-import { store, actionDispatch } from './stateManager.js';
+import { store, actionDispatch, serializer } from './stateManager.js';
 
 import LeftPanel from './components/LeftPanel.js';
 import RightPanel from './components/RightPanel.js';
@@ -30,13 +30,13 @@ const App = React.createClass({
     store.subscribe(function () {
       that.setState(store.getState());
     });
+
+    /*     this.openFile('/Users/brianzindler/Documents/reload.json');*/
   },
 
   saveSite () {
     function writeFile(filename, state) {
-      var copiedState = Object.assign({}, state);
-      delete copiedState.nonSerializable;
-      fs.writeFile(filename, JSON.stringify(copiedState))
+      fs.writeFile(filename, serializer.serialize(state));
     }
 
     if (this.state.nonSerializable && this.state.nonSerializable.filename) {
@@ -56,8 +56,20 @@ const App = React.createClass({
     }
   },
 
+  openFile(filename) {
+    fs.readFile(filename, 'utf8', function (err, file) {
+      if (!err) {
+        var state = serializer.deserialize(file);
+
+        state.nonSerializable = { filename: filename };
+
+        actionDispatch.openSite(state);
+      }
+    });
+
+  },
+
   openSite () {
-    console.log('open');
     dialog.showOpenDialog({
       title: 'Select a site to edit',
       properties: ['openFile'],
@@ -69,10 +81,7 @@ const App = React.createClass({
       ]
     }, (filenames) => {
       if (!filenames) return;
-      var state = JSON.parse(fs.readFileSync(filenames[0], 'utf8'));
-      state.nonSerializable = {filename: filenames[0]};
-      console.log("newState", state);
-      actionDispatch.openSite(state);
+      this.openFile(filenames[0]);
     })
   },
 
@@ -93,7 +102,6 @@ const App = React.createClass({
     } = this.state;
 
     window.state = this.state;
-    console.log("state", this.state);
 
     return (
       <div className="h-100">

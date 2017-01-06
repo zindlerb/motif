@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import classnames from 'classnames';
-import { CONTAINER, HEADER, PARAGRAPH, IMAGE } from '../base_components';
+import { Container, Header, Text, Image } from '../base_components';
 import { createDraggableComponent } from '../dragManager';
 import { actionDispatch } from '../stateManager';
 
@@ -19,7 +19,7 @@ const dragData = {
 
 function makeComponentRefCallback(mComponentData) {
   return function (ref) {
-    mComponentData._domElements.pageView = ref;
+    mComponentData['###domElements'].pageView = ref;
   };
 }
 
@@ -146,7 +146,7 @@ function makeClick(component) {
 
 const MComponentDataRenderer = function (props) {
   /* TD: expand for custom components */
-  const componentType = props.mComponentData.componentType;
+  let mComponentData = props.mComponentData;
   const { htmlProperties, sx } = props.mComponentData.getRenderableProperties();
   let className, component;
 
@@ -154,7 +154,7 @@ const MComponentDataRenderer = function (props) {
     className = { isActive: props.componentProps.activeComponent.id === props.mComponentData.id };
   }
 
-  if (componentType === CONTAINER) {
+  if (mComponentData instanceof Container) {
     component = (<ContainerClassReact
                      className={className}
                      onClick={makeClick(props.mComponentData)}
@@ -162,11 +162,11 @@ const MComponentDataRenderer = function (props) {
                      htmlProperties={htmlProperties}
                      sx={sx}
                  />);
-  } else if (componentType === HEADER) {
+  } else if (mComponentData instanceof Header) {
     component = <HeaderClassReact className={className} onClick={makeClick(props.mComponentData)} {...props} htmlProperties={htmlProperties} sx={sx} />;
-  } else if (componentType === PARAGRAPH) {
+  } else if (mComponentData instanceof Text) {
     component = <ParagraphClassReact className={className} onClick={makeClick(props.mComponentData)} {...props} htmlProperties={htmlProperties} sx={sx} />;
-  } else if (componentType === IMAGE) {
+  } else if (mComponentData instanceof Image) {
     component = <ImageClassReact className={className} onClick={makeClick(props.mComponentData)} {...props} htmlProperties={htmlProperties} sx={sx} />;
   }
 
