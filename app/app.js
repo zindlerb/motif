@@ -34,7 +34,7 @@ const App = React.createClass({
 
     mousetrap.bind(['backspace', 'del'], () => {
       if (this.state.activeComponent) {
-        actionDispatch.deleteActiveComponent();
+        actionDispatch.deleteActiveComponent(this.state.activeComponent);
       }
     }, 'keyup');
 

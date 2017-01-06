@@ -199,7 +199,7 @@ const CHANGE_PAGE = 'CHANGE_PAGE';
 
 const SELECT_COMPONENT = 'SELECT_COMPONENT';
 const SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
-const DELETE_ACTIVE_COMPONENT = 'DELETE_ACTIVE_COMPONENT';
+const DELETE_COMPONENT = 'DELETE_COMPONENT';
 
 const SELECT_VIEW = 'SELECT_VIEW';
 const NEW_MENU_STATE = 'NEW_MENU_STATE';
@@ -212,9 +212,10 @@ export const actions = {
       component
     }
   },
-  deleteActiveComponent() {
+  deleteActiveComponent(component) {
     return {
-      type: DELETE_ACTIVE_COMPONENT
+      type: DELETE_COMPONENT,
+      component
     }
   },
   openSite(state) {
@@ -548,9 +549,13 @@ const reducerObj = {
   [OPEN_SITE](state, action) {
     Object.assign(state, action.state);
   },
-  [DELETE_ACTIVE_COMPONENT](state) {
-    state.activeComponent.deleteSelf();
-    state.activeComponent = undefined;
+  [DELETE_COMPONENT](state, action) {
+    let {component} = action;
+    component.deleteSelf();
+
+    if (component.id === state.activeComponent.id) {
+      state.activeComponent = undefined;
+    }
   }
 };
 
