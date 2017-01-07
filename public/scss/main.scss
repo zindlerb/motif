@@ -143,3 +143,22 @@ body * {
   position: absolute;
   right: 8px;
 }
+
+.component-menu {
+  border: 1px solid black;
+  background-color: white;
+
+  li {
+    border-bottom: 1px solid black;
+    cursor: pointer;
+  }
+
+  li:hover {
+    opacity: .6;
+    background-color: gray;
+  }
+
+  li:last-child {
+    border-bottom: 0px;
+  }
+}

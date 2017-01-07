@@ -18,6 +18,7 @@ import RightPanel from './components/RightPanel.js';
 import StaticRenderer from './components/StaticRenderer.js';
 import ComponentTree from './components/ComponentTree.js';
 import DropPointRenderer from './components/DropPointRenderer.js';
+import ComponentMenu from './components/ComponentMenu.js';
 
 import Something from './tests/component_model.js';
 
@@ -32,6 +33,16 @@ const App = React.createClass({
       that.setState(store.getState());
     });
 
+    window.onclick = () => {
+      if (this.state.menu.isOpen) {
+        actionDispatch.closeMenu();
+      }
+
+      if (this.state.activeComponent) {
+        actionDispatch.selectComponent(undefined);
+      }
+    }
+
     mousetrap.bind(['backspace', 'del'], () => {
       if (this.state.activeComponent) {
         actionDispatch.deleteActiveComponent(this.state.activeComponent);
@@ -43,7 +54,6 @@ const App = React.createClass({
 
   saveSite () {
     function writeFile(filename, state) {
-      console.log('saved state:', JSON.parse(serializer.serialize(state)));
       fs.writeFile(filename, serializer.serialize(state));
     }
 
@@ -105,10 +115,17 @@ const App = React.createClass({
       nodeIdsInHoverRadius,
       globalCursor,
       treeDropPoints,
-      treeSelectedDropPoint
+      treeSelectedDropPoint,
+      menu
     } = this.state;
 
-    window.state = this.state;
+    let componentMapByName = _.reduce(componentBoxes, function (componentMapByName, componentList) {
+      _.forEach(componentList, function (component) {
+        componentMapByName[component.name] = component;
+      });
+
+      return componentMapByName;
+    }, {});
 
     return (
       <div className="h-100">
@@ -140,6 +157,7 @@ const App = React.createClass({
           <DropPointRenderer dropPoints={dropPoints} />
           <DragImage />
         </div>
+        <ComponentMenu menu={menu} componentMapByName={componentMapByName}/>
       </div>
     );
   },

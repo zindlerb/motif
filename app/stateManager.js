@@ -19,15 +19,6 @@ import {
 } from './base_components';
 import { minDistanceBetweenPointAndLine, guid } from './utils';
 
-export const MENU_STATES = {
-  CLOSED: 'CLOSED',
-
-  /* Open States */
-  ROOT: 'ROOT',
-  INSERTION: 'INSERTION',
-  WRAP: 'WRAP',
-}
-
 const initialState = {
   siteName: 'Something',
   componentBoxes: {
@@ -46,7 +37,7 @@ const initialState = {
   activeLeftPanel: 'COMPONENTS',
   activeRightPanel: 'ATTRIBUTES',
   nodeIdsInHoverRadius: {},
-  menu: { state: MENU_STATES.CLOSED }
+  menu: { isOpen: false }
 };
 
 function serializerFactory() {
@@ -181,6 +172,8 @@ function serializerFactory() {
 export let serializer = serializerFactory();
 
 /* Constants */
+const WRAP_COMPONENT = 'WRAP_COMPONENT';
+const INSERT_COMPONENT = 'INSERT_COMPONENT';
 const OPEN_SITE = 'OPEN_SITE';
 const RESET_TREE_MOVE_HIGHLIGHT = 'RESET_TREE_MOVE_HIGHLIGHT';
 const CHANGE_COMPONENT_NAME = 'CHANGE_COMPONENT_NAME';
@@ -202,14 +195,21 @@ const SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
 const DELETE_COMPONENT = 'DELETE_COMPONENT';
 
 const SELECT_VIEW = 'SELECT_VIEW';
-const NEW_MENU_STATE = 'NEW_MENU_STATE';
+const OPEN_MENU = 'OPEN_MENU';
+const CLOSE_MENU = 'CLOSE_MENU';
 
 export const actions = {
-  newMenuState(state, component) {
+  openMenu(component, componentX, componentY) {
     return {
-      type: NEW_MENU_STATE,
-      state,
-      component
+      type: OPEN_MENU,
+      component,
+      componentX,
+      componentY
+    }
+  },
+  closeMenu() {
+    return {
+      type: CLOSE_MENU
     }
   },
   deleteActiveComponent(component) {
@@ -322,28 +322,51 @@ export const actions = {
       newAttrValue,
     };
   },
+
+  wrapComponent(parentComponent) {
+    return {
+      type: WRAP_COMPONENT,
+      parentComponent
+    }
+  },
+
+  insertComponent(childComponent) {
+    return {
+      type: INSERT_COMPONENT,
+      childComponent
+    }
+  }
 };
 
 
 const reducerObj = {
   [OPEN_MENU](state, action) {
-    state.menu.state = MENU_STATES.ROOT;
+    state.menu.isOpen = true;
     state.menu.component = action.component;
+    state.menu.componentX = action.componentX;
+    state.menu.componentY = action.componentY;
   },
+
   [CLOSE_MENU](state) {
-    state.menu.state = MENU_STATES.CLOSED;
+    state.menu.isOpen = false;
     state.menu.component = undefined;
   },
-  [NEW_MENU_STATE](state, action) {
-    let {menuState, component} = action;
 
-    if (menuState === MENU_STATES.ROOT && !component) {
-      throw new Error("Missing component in open menu action");
-    }
+  [WRAP_COMPONENT](state, action) {
+    let component = state.menu.component;
+    let componentParent = component.parent;
+    let newParent = action.parentComponent.createVariant();
 
-    state.menu.state = menuState;
-    state.menu.component = component;
+    component.parent.removeChild(component);
+    newParent.addChild(component);
+    componentParent.addChild(newParent);
   },
+
+  [INSERT_COMPONENT](state, action) {
+    let component = state.menu.component;
+    component.addChild(action.childComponent.createVariant(), 0);
+  },
+
   [SELECT_VIEW](state, action) {
     state.activeView = action.viewName;
   },

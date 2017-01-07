@@ -179,10 +179,6 @@ export function createDraggableComponent(spec, Component) {
       e.stopPropagation();
     },
 
-    onMouseUp() {
-      this.setState({ isDragging: false });
-    },
-
     render() {
       return (
         <Component

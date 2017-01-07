@@ -1,82 +1,135 @@
 import React from 'react';
 import _ from 'lodash';
-import { actionDispatch, MENU_STATES } from '../stateManager.js';
+import { actionDispatch, } from '../stateManager.js';
+import fuzzy from 'fuzzy';
 
-export const MENU_STATES = {
-  CLOSED: 'CLOSED',
+function fuzzyFilterList(stringList, testString) {
+  var results = fuzzy.filter(testString, stringList);
+  var matches = results.map(function(el) { return el.string; });
 
-  /* Open States */
-  ROOT: 'ROOT',
-  INSERTION: 'INSERTION',
-  WRAP: 'WRAP',
+  return matches;
 }
 
-function makeMenuStateDispatch(state) {
-  return function (props) {
-    function () {
-      actionDispatch.newMenuState(state);
-    }
-  }
-}
-
-export const MENU_STATES = {
-  /* Open States */
-  ROOT: 'ROOT',
-  INSERTION: 'INSERTION',
-  WRAP: 'WRAP',
-}
+const ROOT = 'ROOT';
+const INSERTION = 'INSERTION';
+const WRAP = 'WRAP';
 
 const ComponentMenu = React.createClass({
   getInitialState: function () {
     return {
       searchString: '',
-      menuState:
+      menuState: ROOT
     };
   },
 
-  render: function() {
-    let { menuState } = this.state;
-    let listItems;
-    if (menuState === MENU_STATES.ROOT) {
-      listItems = [
-        (<li onClick={() => { this.setState({menuState: MENU_STATES.INSERTION}) }}>
-          Insert
-        </li>),
-
-        (<li onClick={() => { this.setState({menuState: MENU_STATES.WRAP}) }}>
-          Wrap
-        </li>),
-
-        (<li onClick={() => {
-            actionDispatch.deleteComponent(this.props.component);
-            actionDispatch.closeMenu();
-          }}>
-          Delete
-        </li>),
-
-        (<li onClick={() => {
-            actionDispatch.createComponentBlock(this.props.component);
-            actionDispatch.closeMenu();
-          }}>
-          Make Component
-        </li>)
-      ]
-    } else if (menuState === MENU_STATES.INSERTION || menuState === MENU_STATES.WRAP) {
-      listItems = [
-        (<li onClick={() => {this.setState({menuState: MENU_STATES.ROOT})}}>Back</li>),
-        (<li onChange={(e) => { this.setState({searchString: e.target.value}); }}>
-          Back
-        </li>),
-      ]
-
-      listItems = listItems.concat()
+  componentWillReceiveProps(nextProps) {
+    if (!nextProps.menu.isOpen && this.state.menuState !== ROOT) {
+      this.setState({
+        searchString: '',
+        menuState: ROOT
+      });
     }
+  },
 
-    return (
-      <ul>
-        {listElements}
-      </ul>
-    );
+  render: function() {
+    let { componentMapByName, menu } = this.props;
+    let { menuComponent, isOpen, componentX, componentY } = menu;
+    let { menuState, searchString } = this.state;
+    let listItems;
+    let sx = { position: 'absolute' };
+
+    if (isOpen) {
+      sx.left = componentX;
+      sx.top = componentY;
+
+      if (menuState === ROOT) {
+        listItems = [
+          (<li onClick={(e) => {
+              this.setState({menuState: INSERTION})
+              e.stopPropagation();
+            }}>
+  Insert
+          </li>),
+
+          (<li onClick={(e) => {
+              this.setState({menuState: WRAP})
+              e.stopPropagation();
+            }}>
+            Wrap
+          </li>),
+
+          (<li onClick={(e) => {
+              actionDispatch.deleteComponent(menuComponent);
+              actionDispatch.closeMenu();
+              e.stopPropagation();
+            }}>
+            Delete
+          </li>),
+
+          (<li onClick={(e) => {
+              actionDispatch.createComponentBlock(menuComponent);
+              actionDispatch.closeMenu();
+              e.stopPropagation();
+            }}>
+            Make Component
+          </li>)
+        ]
+      } else if (menuState === INSERTION || menuState === WRAP) {
+        let makeComponentOnClick;
+        let componentList = _.keys(componentMapByName);
+
+        if (menuState === INSERTION) {
+          makeComponentOnClick = (component) => {
+            return (e) => {
+              actionDispatch.insertComponent(component);
+            }
+          }
+        } else if (menuState === WRAP) {
+          makeComponentOnClick = (component) => {
+            return (e) => {
+              actionDispatch.wrapComponent(component);
+            }
+          }
+        }
+
+        listItems = [
+          (<li onClick={(e) => {
+              this.setState({menuState: ROOT});
+              e.stopPropagation();
+            }}>Back</li>),
+          (<li onClick={(e) => { e.stopPropagation(); }}>
+            <input
+                type="text"
+                value={searchString}
+                onChange={(e) => {
+                    this.setState({searchString: e.target.value});
+                    e.stopPropagation();
+                  }}
+            />
+          </li>),
+        ]
+
+        if (searchString) {
+          componentList = fuzzyFilterList(componentList, searchString);
+        }
+
+        componentList = componentList.map(function(componentName) {
+          return (<li onClick={makeComponentOnClick(componentMapByName[componentName])}>
+            {componentName}
+          </li>);
+        });
+
+        listItems = listItems.concat(componentList);
+      }
+
+      return (
+        <ul style={sx} className="component-menu">
+          {listItems}
+        </ul>
+      );
+    } else {
+      return <div/>;
+    }
   }
 });
 

@@ -197,6 +197,7 @@ export class Component {
   }
 
   getRect(elementType) {
+    // treeView, componentView
     var el = this['###domElements'][elementType];
 
     if (!el) {
