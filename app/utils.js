@@ -99,3 +99,37 @@ export function wasRightButtonPressed(e) {
 
   return isRightMB;
 }
+
+
+class GlobalEventManager() {
+  // Lower priority fires first
+  // Event listeners are passed (browserEvent, cancel)
+  // Cancel acts like prevent default
+  constructor() {
+    this.events = {};
+  }
+
+  addListener(eventName, listener, priority) {
+    if (!this.events[eventName]) {
+      window.addEventListener(eventName, (e) => {
+        let isCanceled = false;
+        let cancel = () => { isCanceled = true };
+
+        let eventArr = this.events[eventName];
+        for (var i = 0; i < eventArr.length; i++) {
+          if (!isCanceled) {
+            eventArr[i].listener(e, cancel);
+          }
+        }
+      });
+
+      this.events[eventName] = [];
+    }
+
+    this.events[eventName].push({listener, priority: priority});
+
+    this.events[eventName] = _.sortBy(this.events[eventName], (ev) => { ev.priority });
+  }
+}
+
+export globalEventManager();

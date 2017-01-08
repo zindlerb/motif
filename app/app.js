@@ -33,7 +33,10 @@ const App = React.createClass({
       that.setState(store.getState());
     });
 
-    window.onclick = () => {
+    dragManager.setListeners(this._el);
+
+    window.onmouseup = () => {
+
       if (this.state.menu.isOpen) {
         actionDispatch.closeMenu();
       }
@@ -128,7 +131,7 @@ const App = React.createClass({
     }, {});
 
     return (
-      <div className="h-100">
+      <div className="h-100" ref={(el) => { this._el = el}}>
         <button onClick={this.openSite}>Open</button>
         <button onClick={this.saveSite}>Save</button>
         <div className={classnames('flex h-100', globalCursor)}>

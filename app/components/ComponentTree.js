@@ -93,11 +93,13 @@ const TreeItem = createDraggableComponent(
   },
   React.createClass({
     onClick(e) {
+      console.log('inside click');
       if (wasRightButtonPressed(e)) {
         actionDispatch.openMenu(this.props.node, e.clientX, e.clientY);
       } else {
         actionDispatch.selectComponent(this.props.node);
       }
+
       // Manager is stoping propigation - but should rly consumate
     },
     render() {

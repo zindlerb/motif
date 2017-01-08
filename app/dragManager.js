@@ -19,7 +19,7 @@ const Drag = function (mouseDownEvent, spec) {
   }
 };
 
-const DragManager = function () {
+const DragManager = function (element) {
   this.drag = null;
   this.listeners = {
     [LISTEN_ALL]: [],
