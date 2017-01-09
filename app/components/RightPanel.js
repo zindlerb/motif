@@ -23,7 +23,7 @@ const RightPanel = React.createClass({
       attrs = [];
       _.forEach(activeComponent.getAllAttrs(), (attrVal, attrKey) => {
         attrs.push(
-          <AttributeField component={activeComponent} attrKey={attrKey} attrVal={attrVal} />,
+          <AttributeField component={activeComponent} attrKey={attrKey} attrVal={attrVal} key={attrKey} />,
         );
       });
 

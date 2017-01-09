@@ -35,22 +35,21 @@ const ComponentTree = React.createClass({
     if (node.parent) {
       function checkActive (dropPoint, ind) {
         if (!dropPoint) { return false };
+
         return dropPoint.parent.id === node.parent.id && dropPoint.insertionIndex === ind;
       }
 
       if (this.props.node.isFirstChild()) {
         beforeSpacer = <Spacer
                            isActive={checkActive(treeSelectedDropPoint, 0)}
-                           isNear={_.some(treeDropPoints, (dp) => {checkActive(dp, 0)})}
                        />;
       }
+
+      console.log('get ind', node.getInd());
 
       afterSpacer = (
         <Spacer
             isActive={checkActive(treeSelectedDropPoint, node.getInd() + 1)}
-            isNear={_.some(treeDropPoints, (dp) => {
-                checkActive(dp, node.getInd() + 1)
-              })}
         />
       )
     }
@@ -93,14 +92,11 @@ const TreeItem = createDraggableComponent(
   },
   React.createClass({
     onClick(e) {
-      console.log('inside click');
       if (wasRightButtonPressed(e)) {
         actionDispatch.openMenu(this.props.node, e.clientX, e.clientY);
       } else {
         actionDispatch.selectComponent(this.props.node);
       }
-
-      // Manager is stoping propigation - but should rly consumate
     },
     render() {
       return (

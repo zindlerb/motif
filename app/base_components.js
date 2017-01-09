@@ -222,7 +222,7 @@ export class Component {
   }
 
   getInd() {
-    return this.parent.children.indexOf(function(child) {
+    return _.findIndex(this.parent.children, (child) => {
       return child.id === this.id;
     });
   }

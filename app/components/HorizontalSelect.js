@@ -17,8 +17,9 @@ change existing header instance
 export default function HorizontalSelect(props) {
   const options = _.map(props.options, function (option, ind) {
     let content;
-    const headerClick = function () {
+    const headerClick = function (e) {
       props.onClick(option.name);
+      e.stopPropagation();
     };
 
     if (option.faClass) {
@@ -32,7 +33,7 @@ export default function HorizontalSelect(props) {
         className={classnames('flex-auto tc pa1 h-100 c-pointer', {
           highlighted: option.name === props.activePanel,
         })}
-        onClick={headerClick}
+        onMouseUp={headerClick}
         key={ind}
       >
         {content}

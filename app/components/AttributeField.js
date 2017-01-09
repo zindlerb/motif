@@ -50,7 +50,7 @@ const Dropdown = React.createClass({
     actionDispatch.setComponentAttribute(this.props.component, this.props.attrKey, e.target.value);
   },
   render() {
-    const choices = _.map(this.props.choices, function (choice) {
+    const choices = _.map(this.props.choices, function (choice, ind) {
       let value,
         text;
 
@@ -62,7 +62,7 @@ const Dropdown = React.createClass({
         text = choice.text;
       }
 
-      return <option value={value}>{text}</option>;
+      return <option value={value} key={ind}>{text}</option>;
     });
 
     return (

@@ -5,7 +5,7 @@ import $ from 'jquery';
 
 import _ from 'lodash';
 import { actionDispatch } from './stateManager';
-import { guid, getGlobalPosFromSyntheticEvent } from './utils';
+import { guid, getGlobalPosFromSyntheticEvent, globalEventManager } from './utils';
 
 const LISTEN_ALL = '$$$LISTEN_TO_ALL';
 
@@ -24,8 +24,9 @@ const DragManager = function (element) {
   this.listeners = {
     [LISTEN_ALL]: [],
   };
-  window.addEventListener('mousemove', this._onMouseMove.bind(this));
-  window.addEventListener('mouseup', this._onMouseUp.bind(this));
+
+  globalEventManager.addListener('mousemove', this._onMouseMove.bind(this), 1);
+  globalEventManager.addListener('mouseup', this._onMouseUp.bind(this), 1);
 };
 
 DragManager.prototype.start = function (mouseDownEvent, spec) {
@@ -70,7 +71,7 @@ DragManager.prototype._onMouseMove = function (mouseMoveEvent) {
   }
 };
 
-DragManager.prototype._onMouseUp = function (mouseUpEvent) {
+DragManager.prototype._onMouseUp = function (mouseUpEvent, cancel) {
   if (!this.drag) return;
 
   if (this.drag.onEnd) {
@@ -80,6 +81,8 @@ DragManager.prototype._onMouseUp = function (mouseUpEvent) {
   this.fireListeners('onEnd', mouseUpEvent);
 
   this.drag = null;
+
+  cancel();
 };
 
 DragManager.prototype._consummate = function (mouseMoveEvent) {

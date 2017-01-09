@@ -33,8 +33,9 @@ const ComponentMenu = React.createClass({
 
   render: function() {
     let { componentMapByName, menu } = this.props;
-    let { menuComponent, isOpen, componentX, componentY } = menu;
+    let { component, isOpen, componentX, componentY } = menu;
     let { menuState, searchString } = this.state;
+    let menuComponent = component;
     let listItems;
     let sx = { position: 'absolute' };
 
@@ -44,33 +45,41 @@ const ComponentMenu = React.createClass({
 
       if (menuState === ROOT) {
         listItems = [
-          (<li onClick={(e) => {
-              this.setState({menuState: INSERTION})
-              e.stopPropagation();
-            }}>
+          (<li
+               key={INSERTION}
+               onMouseUp={(e) => {
+                   this.setState({menuState: INSERTION})
+                   e.stopPropagation();
+                 }}>
   Insert
           </li>),
 
-          (<li onClick={(e) => {
-              this.setState({menuState: WRAP})
-              e.stopPropagation();
-            }}>
+          (<li
+               key={WRAP}
+               onMouseUp={(e) => {
+                   this.setState({menuState: WRAP})
+                   e.stopPropagation();
+                 }}>
             Wrap
           </li>),
 
-          (<li onClick={(e) => {
-              actionDispatch.deleteComponent(menuComponent);
-              actionDispatch.closeMenu();
-              e.stopPropagation();
-            }}>
+          (<li
+               key={"DELETE"}
+               onMouseUp={(e) => {
+                   actionDispatch.deleteComponent(menuComponent);
+                   actionDispatch.closeMenu();
+                   e.stopPropagation();
+                 }}>
             Delete
           </li>),
 
-          (<li onClick={(e) => {
-              actionDispatch.createComponentBlock(menuComponent);
-              actionDispatch.closeMenu();
-              e.stopPropagation();
-            }}>
+          (<li
+               key={"MAKE_COMPONENT"}
+               onMouseUp={(e) => {
+                   actionDispatch.createComponentBlock(menuComponent);
+                   actionDispatch.closeMenu();
+                   e.stopPropagation();
+                 }}>
             Make Component
           </li>)
         ]
@@ -93,11 +102,13 @@ const ComponentMenu = React.createClass({
         }
 
         listItems = [
-          (<li onClick={(e) => {
-              this.setState({menuState: ROOT});
-              e.stopPropagation();
-            }}>Back</li>),
-          (<li onClick={(e) => { e.stopPropagation(); }}>
+          (<li
+               key={"ROOT"}
+               onMouseUp={(e) => {
+                   this.setState({menuState: ROOT});
+                   e.stopPropagation();
+                 }}>Back</li>),
+          (<li key={"SEARCH"} onMouseUp={(e) => { e.stopPropagation(); }}>
             <input
                 type="text"
                 value={searchString}
@@ -114,7 +125,8 @@ const ComponentMenu = React.createClass({
         }
 
         componentList = componentList.map(function(componentName) {
-          return (<li onClick={makeComponentOnClick(componentMapByName[componentName])}>
+          return (<li
+key={componentName}                      onMouseUp={makeComponentOnClick(componentMapByName[componentName])}>
             {componentName}
           </li>);
         });

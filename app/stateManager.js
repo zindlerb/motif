@@ -212,7 +212,7 @@ export const actions = {
       type: CLOSE_MENU
     }
   },
-  deleteActiveComponent(component) {
+  deleteComponent(component) {
     return {
       type: DELETE_COMPONENT,
       component
@@ -543,6 +543,8 @@ const reducerObj = {
       }
     });
 
+    console.log("treeDropPoints", _.tail(closestInsertionPoints), "treeSelectedDropPoint", _.first(closestInsertionPoints));
+
     state.treeDropPoints = _.tail(closestInsertionPoints);
     state.treeSelectedDropPoint = _.first(closestInsertionPoints);
   },
@@ -576,7 +578,7 @@ const reducerObj = {
     let {component} = action;
     component.deleteSelf();
 
-    if (component.id === state.activeComponent.id) {
+    if (state.activeComponent && component.id === state.activeComponent.id) {
       state.activeComponent = undefined;
     }
   }

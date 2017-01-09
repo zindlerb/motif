@@ -101,7 +101,7 @@ export function wasRightButtonPressed(e) {
 }
 
 
-class GlobalEventManager() {
+class GlobalEventManager {
   // Lower priority fires first
   // Event listeners are passed (browserEvent, cancel)
   // Cancel acts like prevent default
@@ -132,4 +132,4 @@ class GlobalEventManager() {
   }
 }
 
-export globalEventManager();
+export const globalEventManager = new GlobalEventManager();

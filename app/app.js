@@ -12,6 +12,7 @@ import { dragManager, DragImage } from './dragManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
 import { store, actionDispatch, serializer } from './stateManager.js';
+import { globalEventManager } from './utils.js';
 
 import LeftPanel from './components/LeftPanel.js';
 import RightPanel from './components/RightPanel.js';
@@ -33,10 +34,7 @@ const App = React.createClass({
       that.setState(store.getState());
     });
 
-    dragManager.setListeners(this._el);
-
-    window.onmouseup = () => {
-
+    globalEventManager.addListener('mouseup', () => {
       if (this.state.menu.isOpen) {
         actionDispatch.closeMenu();
       }
@@ -44,7 +42,7 @@ const App = React.createClass({
       if (this.state.activeComponent) {
         actionDispatch.selectComponent(undefined);
       }
-    }
+    }, 10000);
 
     mousetrap.bind(['backspace', 'del'], () => {
       if (this.state.activeComponent) {
@@ -61,7 +59,7 @@ const App = React.createClass({
     }
 
     if (this.state.nonSerializable && this.state.nonSerializable.filename) {
-      writeFile(state.nonSerializable.filename, this.state);
+      writeFile(this.state.nonSerializable.filename, this.state);
     } else {
       dialog.showSaveDialog({
         title: 'Save Site',
