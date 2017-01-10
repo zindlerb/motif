@@ -10,10 +10,17 @@ import HorizontalSelect from './HorizontalSelect';
 const dragData = {
   dragType: 'addComponent',
   onDrag(props, pos) {
-    actionDispatch.setComponentMoveHighlight(pos);
+    actionDispatch.updateComponentViewDropSpots(pos);
   },
   onEnd(props) {
-    actionDispatch.addComponent(props.mComponentData, true);
+    const selectedComponentViewDropSpot = props.componentProps.selectedComponentViewDropSpot;
+    if (props.componentProps.selectedComponentViewDropSpot) {
+      actionDispatch.moveComponent(
+        props.mComponentData,
+        selectedComponentViewDropSpot.parent,
+        selectedComponentViewDropSpot.insertionIndex
+      );
+    }
   },
 };
 

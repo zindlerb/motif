@@ -18,7 +18,7 @@ const iconList = [
 const RightPanel = React.createClass({
   render() {
     let body, attrs;
-    let { activeComponent, tree, treeDropPoints, treeSelectedDropPoint } = this.props;
+    let { activeComponent, tree, otherPossibleTreeViewDropSpots, selectedTreeViewDropSpot } = this.props;
     if (this.props.activePanel === 'ATTRIBUTES' && activeComponent) {
       attrs = [];
       _.forEach(activeComponent.getAllAttrs(), (attrVal, attrKey) => {
@@ -36,8 +36,8 @@ const RightPanel = React.createClass({
     } else if (this.props.activePanel === 'TREE') {
       body = <ComponentTree
                  node={tree}
-                 treeDropPoints={treeDropPoints}
-                 treeSelectedDropPoint={treeSelectedDropPoint}
+                 otherPossibleTreeViewDropSpots={otherPossibleTreeViewDropSpots}
+                 selectedTreeViewDropSpot={selectedTreeViewDropSpot}
                  activeComponent={activeComponent}
              />;
     }

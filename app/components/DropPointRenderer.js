@@ -26,10 +26,15 @@ function DropPoint(props) {
 
 const DropPointRenderer = React.createClass({
   render() {
-    if (this.props.dropPoints) {
-      const circles = _.map(this.props.dropPoints, function (dropPoint, ind) {
-        return <DropPoint key={ind} points={dropPoint.points} isActive={dropPoint.isActive} />;
+    let { dropPoints, activeDropPoint } = this.props;
+    if (dropPoints || activeDropPoint) {
+      const circles = _.map(dropPoints, function (dropPoint, ind) {
+        return <DropPoint key={ind} points={dropPoint.points} isActive={false} />;
       });
+
+      if (activeDropPoint) {
+        circles.push(<DropPoint key={"ACTIVE"} points={activeDropPoint.points} isActive={true} />);
+      }
 
       return (
         <svg

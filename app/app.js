@@ -11,7 +11,8 @@ import _ from 'lodash';
 import { dragManager, DragImage } from './dragManager.js';
 import classnames from 'classnames';
 import $ from 'jquery';
-import { store, actionDispatch, serializer } from './stateManager.js';
+import { store, actionDispatch } from './stateManager.js';
+import serializer from './serializer';
 import { globalEventManager } from './utils.js';
 
 import LeftPanel from './components/LeftPanel.js';
@@ -111,12 +112,14 @@ const App = React.createClass({
       pages,
       currentPage,
       activeComponent,
-      dropPoints,
       activeView,
-      nodeIdsInHoverRadius,
       globalCursor,
-      treeDropPoints,
-      treeSelectedDropPoint,
+
+      otherPossibleComponentViewDropSpots,
+      selectedComponentViewDropSpot,
+
+      otherPossibleTreeViewDropSpots,
+      selectedTreeViewDropSpot,
       menu
     } = this.state;
 
@@ -142,7 +145,7 @@ const App = React.createClass({
                 activeView={activeView}
                 componentProps={{
                   activeComponent,
-                  nodeIdsInHoverRadius,
+                  selectedComponentViewDropSpot
                 }}
             />
           </div>
@@ -151,11 +154,14 @@ const App = React.createClass({
                 activeComponent={activeComponent}
                 activePanel={activeRightPanel}
                 tree={currentPage.componentTree}
-                treeDropPoints={treeDropPoints}
-                treeSelectedDropPoint={treeSelectedDropPoint}
+                otherPossibleTreeViewDropSpots={otherPossibleTreeViewDropSpots}
+                selectedTreeViewDropSpot={selectedTreeViewDropSpot}
             />
           </div>
-          <DropPointRenderer dropPoints={dropPoints} />
+          <DropPointRenderer
+              dropPoints={otherPossibleComponentViewDropSpots}
+              activeDropPoint={selectedComponentViewDropSpot}
+          />
           <DragImage />
         </div>
         <ComponentMenu menu={menu} componentMapByName={componentMapByName}/>

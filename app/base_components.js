@@ -155,7 +155,7 @@ export class Component {
     return child;
   }
 
-  deleteSelf() {
+  removeSelf() {
     this.parent.removeChild(this);
     _.remove(this.master._variants, (variant) => {
       return variant === this.id;

@@ -16,7 +16,6 @@ const template = [
       {
         label: 'open',
         click: function() {
-          console.log("clicked");
         }
       },
       {

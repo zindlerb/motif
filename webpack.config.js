@@ -1,7 +1,7 @@
 /*
 
    Add back in eslint once the tab spacing issue is fixed with html.
-   eslint-loader
+
 */
 
 module.exports = {
@@ -18,7 +18,7 @@ module.exports = {
     loaders: [
       {
         test: /\.js$/,
-        loader: 'babel-loader',
+        loader: 'babel-loader!eslint-loader',
         exclude: /node_modules/
       },
       {

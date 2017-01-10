@@ -31,7 +31,7 @@ const ComponentTree = React.createClass({
   render() {
     let children;
     let afterSpacer, beforeSpacer;
-    let { treeDropPoints, treeSelectedDropPoint, node, activeComponent } = this.props;
+    let { otherPossibleTreeViewDropSpots, selectedTreeViewDropSpot, node, activeComponent } = this.props;
     if (node.parent) {
       function checkActive (dropPoint, ind) {
         if (!dropPoint) { return false };
@@ -41,15 +41,13 @@ const ComponentTree = React.createClass({
 
       if (this.props.node.isFirstChild()) {
         beforeSpacer = <Spacer
-                           isActive={checkActive(treeSelectedDropPoint, 0)}
+                           isActive={checkActive(selectedTreeViewDropSpot, 0)}
                        />;
       }
 
-      console.log('get ind', node.getInd());
-
       afterSpacer = (
         <Spacer
-            isActive={checkActive(treeSelectedDropPoint, node.getInd() + 1)}
+            isActive={checkActive(selectedTreeViewDropSpot, node.getInd() + 1)}
         />
       )
     }
@@ -58,8 +56,8 @@ const ComponentTree = React.createClass({
       children = (
         <TreeChildren
             children={node.children}
-            treeDropPoints={treeDropPoints}
-            treeSelectedDropPoint={treeSelectedDropPoint}
+            otherPossibleTreeViewDropSpots={otherPossibleTreeViewDropSpots}
+            selectedTreeViewDropSpot={selectedTreeViewDropSpot}
             activeComponent={activeComponent}
         />
       );
@@ -83,10 +81,10 @@ const TreeItem = createDraggableComponent(
   {
     dragType: 'moveComponent',
     onDrag(props, pos) {
-      actionDispatch.setTreeMoveHighlight(pos);
+      actionDispatch.updateTreeViewDropSpots(pos);
     },
     onEnd(props) {
-      actionDispatch.resetTreeHighlight();
+      actionDispatch.resetTreeViewDropSpots();
       actionDispatch.addComponent(props.node, true);
     },
   },
@@ -121,12 +119,12 @@ const TreeItem = createDraggableComponent(
 
 const TreeChildren = React.createClass({
   render() {
-    let { treeDropPoints, treeSelectedDropPoint, activeComponent } = this.props;
+    let { otherPossibleTreeViewDropSpots, selectedTreeViewDropSpot, activeComponent } = this.props;
     const children = _.map(this.props.children, function (child, ind) {
       return (
         <ComponentTree
-            treeSelectedDropPoint={treeSelectedDropPoint}
-            treeDropPoints={treeDropPoints}
+            selectedTreeViewDropSpot={selectedTreeViewDropSpot}
+            otherPossibleTreeViewDropSpots={otherPossibleTreeViewDropSpots}
             activeComponent={activeComponent}
             node={child}
             key={child.id}

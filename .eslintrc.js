@@ -34,6 +34,8 @@ module.exports = {
     // Remove later
     "react/jsx-indent-props": 0,
     "jsx-a11y/img-has-alt": 0,
-    "prefer-const": 0
+    "prefer-const": 0,
+    "comma-dangle": 0,
+    "no-plusplus": 0
   }
 };

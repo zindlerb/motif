@@ -16,7 +16,7 @@ const iconList = [
 const ComponentBlock = createDraggableComponent({
   dragType: 'addComponent',
   onDrag(props, pos) {
-    actionDispatch.setComponentMoveHighlight(pos);
+    actionDispatch.updateComponentViewDropSpots(pos);
   },
   onEnd(props, pos) {
     actionDispatch.addComponent(props.component);
