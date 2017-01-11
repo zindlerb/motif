@@ -1,5 +1,6 @@
-// Tests
+var _ = require('lodash');
 
+// Tests
 var baseComponents = require('../app/base_components.js');
 
 var container = baseComponents.container;
@@ -7,7 +8,7 @@ var text = baseComponents.text;
 var header = baseComponents.header;
 var image = baseComponents.image;
 
-test('createVariant', () => {
+describe('createVariant', () => {
   var containerVariant = container.createVariant();
 
   it('copies spec properties correctly', () => {
@@ -56,7 +57,7 @@ test('createVariant', () => {
 
 });
 
-test('addChild', () => {
+describe('addChild', () => {
   var containerVariant = container.createVariant();
   var containerVariantVariant = containerVariant.createVariant();
 
@@ -77,11 +78,11 @@ test('addChild', () => {
   });
 
   it('adds the children to variants', () => {
-    expect(containerVariantVariant.children.length).tobe(3);
+    expect(containerVariantVariant.children.length).toBe(3);
   });
 });
 
-test('removeChild', () => {
+describe('removeChild', () => {
   //Td think about how this effects
 
   var badKid = header.createVariant();
@@ -105,19 +106,20 @@ test('removeChild', () => {
   });
 });
 
-test('removeSelf', () => {
+describe('removeSelf', () => {
   var badKid = header.createVariant();
+  var vBadKid = badKid.createVariant();
   var containerVariant = container.createVariant({
-    children: [badKid]
+    children: [vBadKid]
   });
-  var master = badKid.master;
-  badKid.removeSelf();
-  it('remove the variantReference', () => {
+  var master = vBadKid.master;
+  vBadKid.removeSelf();
+  it('remove the variant reference', () => {
     expect(master._variants.length).toBe(0);
   });
 });
 
-test('getAllAttrs', () => {
+describe('getAllAttrs', () => {
   var hv = header.createVariant({
     attributes: {
       backgroundColor: 'red',
@@ -142,11 +144,11 @@ test('getAllAttrs', () => {
   });
 });
 
-test('getRect', () => {
+describe('getRect', () => {
   // TD: involves dom elements so is trickier
 });
 
-test('isLastChild', () => {
+describe('isLastChild', () => {
   var vc = container.createVariant();
   var vi = image.createVariant();
   var vt = text.createVariant();
@@ -157,7 +159,7 @@ test('isLastChild', () => {
   expect(vt.isLastChild()).toBeTruthy();
 });
 
-test('isFirstChild', () => {
+describe('isFirstChild', () => {
   var vc = container.createVariant();
   var vi = image.createVariant();
   var vt = text.createVariant();
@@ -168,7 +170,7 @@ test('isFirstChild', () => {
   expect(vt.isFirstChild()).toBeFalsy();
 });
 
-test('getInd', () => {
+describe('getInd', () => {
   var vc = container.createVariant();
   var vi = image.createVariant();
   var vt = text.createVariant();
@@ -182,7 +184,7 @@ test('getInd', () => {
   expect(vh.getInd()).toBe(2);
 });
 
-test('walkChildren', () => {
+describe('walkChildren', () => {
   var vc = container.createVariant();
   var vc2 = container.createVariant();
   var vi = image.createVariant();
@@ -202,14 +204,15 @@ test('walkChildren', () => {
   });
 
   it('does not walk self', () => {
-
+    expect(walkedChildren[vc.id]).toBeUndefined();
   });
 
   it('walked all children', () => {
-
+    expect(_.keys(walkedChildren).length).toBe(4);
   });
 
   it('gets the correct indexes', () => {
-
+    expect(walkedChildren[vc2.id].ind).toBe(2);
+    expect(walkedChildren[vh.id].ind).toBe(0);
   });
 });
