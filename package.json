@@ -8,7 +8,7 @@
         "lint": "./node_modules/.bin/eslint app/*",
         "dev": "webpack -d --watch",
         "build": "webpack -p",
-        "test": "jest"
+        "test": "jest --watch"
     },
     "repository": "https://github.com/electron/electron-quick-start",
     "keywords": [
@@ -55,5 +55,8 @@
         "react-dom": "^0.14.7",
         "redux": "^3.6.0",
         "updeep": "^1.0.0"
+    },
+    "jest": {
+        "testPathDirs": ["./__tests__"]
     }
 }

@@ -76,7 +76,7 @@ export const attributeFieldset = {
 };
 
 export class Component {
-  constructor(componentType, spec) {
+  constructor(spec) {
     this.attributes = {};
     this.children = [];
     this._variants = [];
@@ -85,7 +85,6 @@ export class Component {
 
     _.merge(this, spec);
 
-    this.componentType = componentType;
     this.id = guid();
     this['###domElements'] = {};
   }
@@ -113,6 +112,11 @@ export class Component {
     variant.constructor(Object.assign(spec || {}, {
       master: this
     }));
+
+    //If children in spec. For debugging
+    variant.children.forEach((child) => {
+      child.parent = variant;
+    });
 
     _.forEach(this.children, function (child) {
       variant.addChild(child.createVariant());
@@ -143,12 +147,17 @@ export class Component {
 
     delete child.parent;
 
+    this._variants.forEach(function(variant) {
+      variant.removeChild(child);
+    });
+
     return child;
   }
 
   removeSelf() {
     this.parent.removeChild(this);
     _.remove(this.master._variants, variant => variant === this.id);
+    this.master = undefined;
   }
 
   getAllAttrs() {
@@ -158,6 +167,14 @@ export class Component {
     }
 
     return Object.assign({}, masterAttrs, this.attributes);
+  }
+
+  getName() {
+    if (!this.name) {
+      return this.master.name;
+    }
+
+    return this.name;
   }
 
   getRenderableProperties() {
@@ -225,28 +242,12 @@ export class Component {
   }
 }
 
-const defaultAttributes = {
-  position: 'static',
-  margin: '0px',
-  padding: '0px',
-  height: 'auto',
-  width: 'auto',
-  backgroundColor: 'transparent'
-};
+
 
 export class Container extends Component {
-  constructor(spec) {
-    let defaultSpec = {
-      name: 'Container',
-      attributes: _.extend(defaultAttributes, {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start'
-      }),
-      childrenAllowed: true
-    };
-
-    super(CONTAINER, spec || defaultSpec);
+  constructor(...args) {
+    super(...args);
+    this.componentType = CONTAINER;
   }
 
   getDropPoints() {
@@ -298,45 +299,62 @@ export class Container extends Component {
 }
 
 export class Text extends Component {
-  constructor(spec) {
-    let defaultSpec = {
-      name: 'Text',
-      attributes: _.extend(defaultAttributes, {
-        text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. In quis libero at libero dictum tempor. Cras ut odio erat. Fusce semper odio ac dignissim sollicitudin. Vivamus in tortor lobortis, bibendum lacus feugiat, vestibulum magna. Vivamus pellentesque mollis turpis, at consequat nisl tincidunt at. Nullam finibus cursus varius. Nam id consequat nunc, vitae accumsan metus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse fringilla sed lorem eleifend porta. Vivamus euismod, sapien at pretium convallis, elit libero auctor felis, id porttitor dui leo id ipsum. Etiam urna velit, ornare condimentum tincidunt quis, tincidunt a dolor. Morbi at ex hendrerit, vestibulum tellus eu, rhoncus est. In rutrum, diam dignissim condimentum tristique, ante odio rhoncus justo, quis maximus elit orci id orci.'
-      })
-    };
-
-    super(TEXT, spec || defaultSpec);
+  constructor(...args) {
+    super(...args);
+    this.componentType = TEXT;
   }
 }
 
 export class Header extends Component {
-  constructor(spec) {
-    let defaultSpec = {
-      name: 'Header',
-      attributes: _.extend(defaultAttributes, {
-        text: 'I am a header'
-      })
-    };
-
-    super(HEADER, spec || defaultSpec);
+  constructor(...args) {
+    super(...args);
+    this.componentType = HEADER;
   }
 }
 
 export class Image extends Component {
-  constructor(spec) {
-    let defaultSpec = {
-      name: 'Image',
-      attributes: _.extend(defaultAttributes, {
-        src: './public/img/slack/everywhere.png'
-      }),
-    };
-
-    super(IMAGE, spec || defaultSpec);
+  constructor(...args) {
+    super(...args)
+    this.componentType = IMAGE;
   }
 }
 
-export const container = new Container();
-export const text = new Text();
-export const header = new Header();
-export const image = new Image();
+const defaultAttributes = {
+  position: 'static',
+  margin: '0px',
+  padding: '0px',
+  height: 'auto',
+  width: 'auto',
+  backgroundColor: 'transparent'
+};
+
+export const container = new Container({
+  name: 'Container',
+  attributes: _.extend(defaultAttributes, {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start'
+  }),
+  childrenAllowed: true
+});
+
+export const text = new Text({
+  name: 'Text',
+  attributes: _.extend(defaultAttributes, {
+    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. In quis libero at libero dictum tempor. Cras ut odio erat. Fusce semper odio ac dignissim sollicitudin. Vivamus in tortor lobortis, bibendum lacus feugiat, vestibulum magna. Vivamus pellentesque mollis turpis, at consequat nisl tincidunt at. Nullam finibus cursus varius. Nam id consequat nunc, vitae accumsan metus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse fringilla sed lorem eleifend porta. Vivamus euismod, sapien at pretium convallis, elit libero auctor felis, id porttitor dui leo id ipsum. Etiam urna velit, ornare condimentum tincidunt quis, tincidunt a dolor. Morbi at ex hendrerit, vestibulum tellus eu, rhoncus est. In rutrum, diam dignissim condimentum tristique, ante odio rhoncus justo, quis maximus elit orci id orci.'
+  })
+});
+
+export const header = new Header({
+  name: 'Header',
+  attributes: _.extend(defaultAttributes, {
+    text: 'I am a header'
+  })
+});
+
+export const image = new Image({
+  name: 'Image',
+  attributes: _.extend(defaultAttributes, {
+    src: ''
+  }),
+});
