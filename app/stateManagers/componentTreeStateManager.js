@@ -19,10 +19,11 @@ const CREATE_COMPONENT_BLOCK = 'CREATE_COMPONENT_BLOCK';
 const SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
 
 export const componentTreeActions = {
-  wrapComponent(parentComponent) {
+  wrapComponent(parentComponent, childComponent) {
     return {
       type: WRAP_COMPONENT,
-      parentComponent
+      parentComponent,
+      childComponent
     };
   },
 
@@ -71,10 +72,11 @@ export const componentTreeActions = {
     };
   },
 
-  updateTreeViewDropSpots(pos) {
+  updateTreeViewDropSpots(pos, draggedComponent) {
     return {
       type: UPDATE_TREE_VIEW_DROP_SPOTS,
       pos,
+      draggedComponent
     };
   },
 
@@ -112,7 +114,7 @@ export const componentTreeActions = {
 
 export const componentTreeReducer = {
   [WRAP_COMPONENT](state, action) {
-    let component = state.menu.component;
+    let component = action.childComponent;
     let componentParent = component.parent;
     let newParent = action.parentComponent.createVariant();
 
@@ -186,7 +188,7 @@ export const componentTreeReducer = {
   },
 
   [UPDATE_TREE_VIEW_DROP_SPOTS](state, action) {
-    const { pos } = action;
+    const { pos, draggedComponent } = action;
     const closestInsertionPoints = [];
     const closestDistances = [];
     /* Get Tree In Between Points */
@@ -194,52 +196,34 @@ export const componentTreeReducer = {
     const insertionPoints = [];
 
     componentTree.walkChildren(function (node, ind) {
-      const { x, y, w, h } = node.getRect('treeView');
-      if (node.isFirstChild()) {
+      if (node.id !== draggedComponent.id) {
+        const { x, y, w, h } = node.getRect('treeView');
+        if (node.isFirstChild()) {
+          insertionPoints.push({
+            insertionIndex: ind,
+            parent: node.parent,
+            points: [{ x, y }, { x: x + w, y }],
+          });
+        }
+
         insertionPoints.push({
-          insertionIndex: ind,
-          parent: node.parent,
-          points: [{ x, y }, { x: x + w, y }],
-        });
-      } else {
-        insertionPoints.push({
-          insertionIndex: ind,
+          insertionIndex: ind + 1,
           parent: node.parent,
           points: [{ x, y: y + h }, { x: x + w, y: y + h }],
         });
       }
     });
 
-    insertionPoints.forEach(function (insertionPoint) {
-      const distFromNode = minDistanceBetweenPointAndLine(pos, insertionPoint.points);
+    let sortedInsertionPoints = _.sortBy(insertionPoints, function(insertionPoint) {
+      return minDistanceBetweenPointAndLine(pos, insertionPoint.points);
+    }).slice(0,3);
 
-      if (closestInsertionPoints.length < 3) {
-        closestInsertionPoints.push(insertionPoint);
-        closestDistances.push(distFromNode);
-      } else {
-        for (let i = 0; i < closestDistances.length; i++) {
-          if (closestDistances[i] < distFromNode) {
-            closestInsertionPoints.splice(i, 0, insertionPoint);
-            closestDistances.splice(i, 0, distFromNode);
-            break;
-          }
-        }
-
-        if (closestInsertionPoints.length > 3) {
-          closestInsertionPoints.pop();
-          closestDistances.pop();
-        }
-      }
-    });
-
-    console.log('treeDropPoints', _.tail(closestInsertionPoints), 'treeSelectedDropPoint', _.first(closestInsertionPoints));
-
-    state.otherPossibleTreeViewDropSpots = _.tail(closestInsertionPoints);
-    state.selectedTreeViewDropSpot = _.first(closestInsertionPoints);
+    state.otherPossibleTreeViewDropSpots = _.tail(sortedInsertionPoints);
+    state.selectedTreeViewDropSpot = _.first(sortedInsertionPoints);
   },
 
   [RESET_TREE_VIEW_DROP_SPOTS](state) {
-    state.otherPossibleComponentViewDropSpots = undefined;
+    state.otherPossibleTreeViewDropSpots = undefined;
     state.selectedTreeViewDropSpot = undefined;
   },
 

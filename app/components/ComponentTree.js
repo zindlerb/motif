@@ -1,10 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
-import { dragManager, createDraggableComponent } from '../dragManager.js';
-import { wasRightButtonPressed } from '../utils.js';
-import { actionDispatch } from '../stateManager.js';
 import classnames from 'classnames';
-import $ from 'jquery';
+
+import { createDraggableComponent } from '../dragManager';
+import { wasRightButtonPressed } from '../utils';
+import { actionDispatch } from '../stateManager';
 
 const Spacer = function (props) {
   let sx;
@@ -30,26 +30,42 @@ const Spacer = function (props) {
 const ComponentTree = React.createClass({
   render() {
     let children;
-    let afterSpacer, beforeSpacer;
-    let { otherPossibleTreeViewDropSpots, selectedTreeViewDropSpot, node, activeComponent } = this.props;
+    let afterSpacer, beforeSpacer, afterSpacerInd;
+    let {
+      otherPossibleTreeViewDropSpots,
+      selectedTreeViewDropSpot,
+      node,
+      activeComponent
+    } = this.props;
+
+    function checkActive(dropPoint, ind) {
+      if (!dropPoint) { return false; }
+
+      return (dropPoint.parent.id === node.parent.id &&
+              dropPoint.insertionIndex === ind);
+    }
+
     if (node.parent) {
-      function checkActive (dropPoint, ind) {
-        if (!dropPoint) { return false };
-
-        return dropPoint.parent.id === node.parent.id && dropPoint.insertionIndex === ind;
-      }
-
       if (this.props.node.isFirstChild()) {
-        beforeSpacer = <Spacer
-                           isActive={checkActive(selectedTreeViewDropSpot, 0)}
-                       />;
+        beforeSpacer = (
+          <Spacer
+              isActive={checkActive(selectedTreeViewDropSpot, 0)}
+              isNear={_.some(otherPossibleTreeViewDropSpots, (dspot) => {
+                  return checkActive(dspot, 0);
+                })}
+          />
+        );
       }
 
+      afterSpacerInd = node.getInd() + 1;
       afterSpacer = (
         <Spacer
-            isActive={checkActive(selectedTreeViewDropSpot, node.getInd() + 1)}
+            isActive={checkActive(selectedTreeViewDropSpot, afterSpacerInd)}
+            isNear={_.some(otherPossibleTreeViewDropSpots, (dspot) => {
+                return checkActive(dspot, afterSpacerInd);
+              })}
         />
-      )
+      );
     }
 
     if (node.children && node.children.length) {
@@ -69,7 +85,7 @@ const ComponentTree = React.createClass({
           ref={(ref) => { this.props.node['###domElements'].treeView = ref; }}
       >
         {beforeSpacer}
-        <TreeItem {...this.props} isActive={ activeComponent && activeComponent.id === node.id}/>
+        <TreeItem {...this.props} isActive={activeComponent && activeComponent.id === node.id} />
         {children}
         {afterSpacer}
       </div>
@@ -81,11 +97,19 @@ const TreeItem = createDraggableComponent(
   {
     dragType: 'moveComponent',
     onDrag(props, pos) {
-      actionDispatch.updateTreeViewDropSpots(pos);
+      actionDispatch.updateTreeViewDropSpots(pos, props.node);
     },
     onEnd(props) {
+      const { node, selectedTreeViewDropSpot } = props;
+      if (selectedTreeViewDropSpot) {
+        actionDispatch.moveComponent(
+          node,
+          selectedTreeViewDropSpot.parent,
+          selectedTreeViewDropSpot.insertionIndex
+        );
+      }
+
       actionDispatch.resetTreeViewDropSpots();
-      actionDispatch.addComponent(props.node, true);
     },
   },
   React.createClass({
@@ -97,20 +121,19 @@ const TreeItem = createDraggableComponent(
       }
     },
     render() {
+      const className = classnames(
+        this.props.className,
+        'outline_' + this.props.node.id,
+        { highlightBottom: false, isActive: this.props.isActive },
+        'db'
+      );
+
       return (
         <span
-          onMouseDown={this.props.onMouseDown}
-          onMouseUp={this.onClick}
-          className={classnames(
-                this.props.className,
-                'outline_' + this.props.node.id,
-              {
-                highlightBottom: false,
-                isActive: this.props.isActive
-              },
-                'db',
-              )}
-        >{this.props.node.name}
+            onMouseDown={this.props.onMouseDown}
+            onMouseUp={this.onClick}
+            className={className}>
+          {this.props.node.name}
         </span>
       );
     },

@@ -1,28 +1,20 @@
+import path from 'path';
 import createStore from 'redux/lib/createStore';
 import bindActionCreators from 'redux/lib/bindActionCreators';
-import _ from 'lodash';
 
 import {
   componentTreeActions,
   componentTreeReducer
-} from './stateManagers/componentTreeStateManager.js';
+} from './stateManagers/componentTreeStateManager';
+
+import { guid } from './utils';
 
 import {
-  Component,
   container,
   header,
   text,
   image,
-  Container,
-  Header,
-  Text,
-  Image,
-  CONTAINER,
-  HEADER,
-  TEXT,
-  IMAGE
 } from './base_components';
-import { minDistanceBetweenPointAndLine, guid } from './utils';
 
 const initialState = {
   siteName: 'Something',
@@ -36,6 +28,7 @@ const initialState = {
     yours: [],
   },
   pages: [],
+  assets: [],
   currentPage: undefined,
   activeComponent: undefined,
   activeView: 'BORDER',
@@ -47,7 +40,7 @@ const initialState = {
   selectedComponentViewDropSpot: undefined,
 
   selectedTreeViewDropSpot: undefined,
-  otherPossibleTreeViewDropSpots: undefined
+  otherPossibleTreeViewDropSpots: undefined,
 };
 
 /* Constants */
@@ -59,7 +52,8 @@ const CHANGE_PAGE = 'CHANGE_PAGE';
 const SELECT_VIEW = 'SELECT_VIEW';
 const OPEN_MENU = 'OPEN_MENU';
 const CLOSE_MENU = 'CLOSE_MENU';
-
+const SET_ACTIVE_FILENAME = 'SET_ACTIVE_FILENAME';
+const ADD_ASSET = 'ADD_ASSET';
 
 export const actions = Object.assign({
   openMenu(component, componentX, componentY) {
@@ -68,18 +62,29 @@ export const actions = Object.assign({
       component,
       componentX,
       componentY
-    }
+    };
   },
   closeMenu() {
     return {
       type: CLOSE_MENU
+    };
+  },
+  addAsset(filename) {
+    return {
+      type: ADD_ASSET,
+      filename
     }
   },
-
   openSite(state) {
     return {
       type: OPEN_SITE,
-      state
+      state,
+    };
+  },
+  setActiveFilename(filename) {
+    return {
+      type: SET_ACTIVE_FILENAME,
+      filename
     }
   },
   setGlobalCursor(cl) {
@@ -159,10 +164,12 @@ const reducerObj = Object.assign({
   },
 
   [CHANGE_PANEL](state, action) {
-    if (action.panelSide) {
-      state.activeRightPanel = action.panelConst;
-    } else {
-      state.activeLeftPanel = action.panelConst;
+    const { panelSide, panelConst } = action;
+
+    if (panelSide === 'right') {
+      state.activeRightPanel = panelConst;
+    } else if (panelSide === 'left') {
+      state.activeLeftPanel = panelConst;
     }
   },
 
@@ -170,10 +177,20 @@ const reducerObj = Object.assign({
     state.currentPage = action.page;
   },
 
-
   [OPEN_SITE](state, action) {
     Object.assign(state, action.state);
+
   },
+  [SET_ACTIVE_FILENAME](state, action) {
+    state.nonSerializable = { filename: action.filename };
+  },
+  [ADD_ASSET](state, action) {
+    const { filename } = action;
+    state.assets.push({
+      src: filename,
+      name: path.parse(filename).name
+    });
+  }
 }, componentTreeReducer);
 
 function reducer(state, action) {

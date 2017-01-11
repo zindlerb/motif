@@ -14,13 +14,15 @@ const dragData = {
   },
   onEnd(props) {
     const selectedComponentViewDropSpot = props.componentProps.selectedComponentViewDropSpot;
-    if (props.componentProps.selectedComponentViewDropSpot) {
+    if (selectedComponentViewDropSpot) {
       actionDispatch.moveComponent(
         props.mComponentData,
         selectedComponentViewDropSpot.parent,
         selectedComponentViewDropSpot.insertionIndex
       );
     }
+
+    actionDispatch.resetComponentViewDropSpots();
   },
 };
 
@@ -48,7 +50,7 @@ const ContainerClassReact = createDraggableComponent(dragData, React.createClass
   },
 
   shouldExpand() {
-    const rect = this.props.mComponentData.getRect('pageView')
+    const rect = this.props.mComponentData.getRect('pageView');
     if (!rect) {
       /* No element assigned yet */
       return false;
@@ -168,13 +170,31 @@ const MComponentDataRenderer = function (props) {
                      {...props}
                      htmlProperties={htmlProperties}
                      sx={sx}
-                 />);
+    />);
   } else if (mComponentData instanceof Header) {
-    component = <HeaderClassReact className={className} onClick={makeClick(props.mComponentData)} {...props} htmlProperties={htmlProperties} sx={sx} />;
+    component = (<HeaderClassReact
+                     className={className}
+                     onClick={makeClick(props.mComponentData)}
+                     {...props}
+                     htmlProperties={htmlProperties}
+                     sx={sx}
+                 />);
   } else if (mComponentData instanceof Text) {
-    component = <ParagraphClassReact className={className} onClick={makeClick(props.mComponentData)} {...props} htmlProperties={htmlProperties} sx={sx} />;
+    component = (<ParagraphClassReact
+                     className={className}
+                     onClick={makeClick(props.mComponentData)}
+                     {...props}
+                     htmlProperties={htmlProperties}
+                     sx={sx}
+                 />);
   } else if (mComponentData instanceof Image) {
-    component = <ImageClassReact className={className} onClick={makeClick(props.mComponentData)} {...props} htmlProperties={htmlProperties} sx={sx} />;
+    component = (<ImageClassReact
+                     className={className}
+                     onClick={makeClick(props.mComponentData)}
+                     {...props}
+                     htmlProperties={htmlProperties}
+                     sx={sx}
+                 />);
   }
 
   return component;
@@ -188,7 +208,7 @@ const StaticRenderer = React.createClass({
     };
   },
 
-  mouseMove(e) {
+  mouseMove() {
     /*     actionDispatch.setHoveredNodes(e.clientX, e.clientY);*/
   },
 
@@ -202,7 +222,6 @@ const StaticRenderer = React.createClass({
 
   render() {
     const {
-      mComponentData,
       activeView,
       page,
       componentProps,
@@ -210,7 +229,13 @@ const StaticRenderer = React.createClass({
     let renderer;
 
     if (page) {
-      renderer = <MComponentDataRenderer mComponentData={page.componentTree} componentProps={componentProps} isMouseInRenderer={this.state.isMouseInRenderer} />;
+      renderer = (
+        <MComponentDataRenderer
+            mComponentData={page.componentTree}
+            componentProps={componentProps}
+            isMouseInRenderer={this.state.isMouseInRenderer}
+        />
+      );
     }
 
     return (
@@ -228,9 +253,9 @@ const StaticRenderer = React.createClass({
         />
         <div
             onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave} onMouseMove={this.mouseove} className={classnames('ma2 h-100 ba c-grab', {
-                'static-view-border': activeView === 'BORDER',
-                'static-view-detail': activeView === 'DETAIL',
-              })}
+              'static-view-border': activeView === 'BORDER',
+              'static-view-detail': activeView === 'DETAIL',
+            })}
         >
           {renderer}
         </div>

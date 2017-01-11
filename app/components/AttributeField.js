@@ -37,11 +37,13 @@ const TextInput = React.createClass({
     const value = this.state.isEditing ? this.state.tempText : this.props.value;
 
     return (<input
+                onMouseUp={(e) => e.stopPropagation()}
                 onFocus={this.startEdit}
                 onBlur={this.submit}
                 onChange={this.onChange}
                 type="text"
-                value={value} />);
+                value={value}
+    />);
   },
 });
 
@@ -131,7 +133,8 @@ const AttributeField = function (props) {
                  value={attrVal}
                  attrKey={attrKey}
                  choices={fieldSet.fieldSettings.choices}
-                 component={component} />);
+                 component={component}
+    />);
   } else if (fieldSet.fieldType === COLOR) {
     field = <ColorPicker value={attrVal} attrKey={attrKey} component={component} />;
   } else {

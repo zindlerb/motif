@@ -2,13 +2,15 @@
 
    Add back in eslint once the tab spacing issue is fixed with html.
 
+   eslint-loader
 */
 
 module.exports = {
   target: 'electron',
   entry: './app/entry.js',
   eslint: {
-    configFile: './.eslintrc.js'
+    configFile: './.eslintrc.js',
+    quiet: true
   },
   output: {
     filename: 'bundle.js',
@@ -18,7 +20,7 @@ module.exports = {
     loaders: [
       {
         test: /\.js$/,
-        loader: 'babel-loader!eslint-loader',
+        loader: 'babel-loader',
         exclude: /node_modules/
       },
       {

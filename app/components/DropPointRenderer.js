@@ -1,12 +1,9 @@
 import React from 'react';
 import _ from 'lodash';
-import classnames from 'classnames';
 
 function DropPoint(props) {
-  var { points, fill } = props;
-  var fill = 'pink';
-  const width = 40;
-  const height = 5;
+  let { points } = props;
+  let fill = 'pink';
 
   if (props.isActive) {
     fill = 'purple';
@@ -33,7 +30,7 @@ const DropPointRenderer = React.createClass({
       });
 
       if (activeDropPoint) {
-        circles.push(<DropPoint key={"ACTIVE"} points={activeDropPoint.points} isActive={true} />);
+        circles.push(<DropPoint key={'ACTIVE'} points={activeDropPoint.points} isActive />);
       }
 
       return (
@@ -42,7 +39,8 @@ const DropPointRenderer = React.createClass({
             style={{
               left: 0,
               top: 0,
-            }}>
+            }}
+        >
           {circles}
         </svg>
       );

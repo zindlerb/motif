@@ -19,7 +19,7 @@ const Drag = function (mouseDownEvent, spec) {
   }
 };
 
-const DragManager = function (element) {
+const DragManager = function () {
   this.drag = null;
   this.listeners = {
     [LISTEN_ALL]: [],
@@ -236,8 +236,8 @@ export const DragImage = React.createClass({
   getPosition(e) {
     const rootEl = $(this._el).children();
     return {
-      x: (e.clientX - rootEl.width()/2),
-      y: (e.clientY - rootEl.height()/2),
+      x: (e.clientX - (rootEl.width() / 2)),
+      y: (e.clientY - (rootEl.height() / 2)),
     };
   },
 

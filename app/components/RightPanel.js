@@ -1,13 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
-import { dragManager } from '../dragManager.js';
-import classnames from 'classnames';
-import $ from 'jquery';
-import { actionDispatch } from '../stateManager.js';
+import { actionDispatch } from '../stateManager';
 
-import HorizontalSelect from './HorizontalSelect.js';
-import AttributeField from './AttributeField.js';
-import ComponentTree from './ComponentTree.js';
+import HorizontalSelect from './HorizontalSelect';
+import AttributeField from './AttributeField';
+import ComponentTree from './ComponentTree';
 
 const iconList = [
   { name: 'ATTRIBUTES', faClass: 'fa-table' },
@@ -18,28 +15,44 @@ const iconList = [
 const RightPanel = React.createClass({
   render() {
     let body, attrs;
-    let { activeComponent, tree, otherPossibleTreeViewDropSpots, selectedTreeViewDropSpot } = this.props;
+    let {
+      activeComponent,
+      tree,
+      otherPossibleTreeViewDropSpots,
+      selectedTreeViewDropSpot
+    } = this.props;
+
     if (this.props.activePanel === 'ATTRIBUTES' && activeComponent) {
       attrs = [];
       _.forEach(activeComponent.getAllAttrs(), (attrVal, attrKey) => {
         attrs.push(
-          <AttributeField component={activeComponent} attrKey={attrKey} attrVal={attrVal} key={attrKey} />,
+          (<AttributeField
+               component={activeComponent}
+               attrKey={attrKey}
+               attrVal={attrVal}
+               key={attrKey}
+           />)
         );
       });
 
       body = (
         <div>
-          <button onClick={() => { actionDispatch.createComponentBlock(activeComponent)}}>Make Component Block</button>
+          <button
+              onClick={() => {
+                  actionDispatch.createComponentBlock(activeComponent);
+                }}>
+            Make Component Block
+          </button>
           {attrs}
         </div>
-      )
+      );
     } else if (this.props.activePanel === 'TREE') {
-      body = <ComponentTree
+      body = (<ComponentTree
                  node={tree}
                  otherPossibleTreeViewDropSpots={otherPossibleTreeViewDropSpots}
                  selectedTreeViewDropSpot={selectedTreeViewDropSpot}
                  activeComponent={activeComponent}
-             />;
+      />);
     }
 
 

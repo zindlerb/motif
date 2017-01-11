@@ -28,14 +28,28 @@ module.exports = {
     "no-shadow": 0,
     "react/jsx-filename-extension": 0,
     "react/no-multi-comp": 0,
-    "react/prop-types": 1,
     "jsx-a11y/no-static-element-interactions": 0,
     "react/jsx-indent-props": 0,
     // Remove later
-    "react/jsx-indent-props": 0,
     "jsx-a11y/img-has-alt": 0,
     "prefer-const": 0,
     "comma-dangle": 0,
-    "no-plusplus": 0
+    "no-plusplus": 0,
+    "no-unused-expressions": 0,
+    "react/jsx-closing-bracket-location": 0,
+
+    // Possibly add back in later
+    "react/prefer-stateless-function": 0,
+    "indent": 0,
+    "react/jsx-indent-props": 0,
+    "react/prop-types": 1,
+    "react/no-children-prop": 0,
+    "react/jsx-indent": 0,
+    "arrow-body-style": 0,
+    "spaced-comment": 0
+  },
+  "env": {
+    "browser": true,
+    "node": true
   }
 };

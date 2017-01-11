@@ -15,11 +15,11 @@ function serializerFactory() {
   // serializableKeys ['siteName', 'componentBoxes', 'pages', 'currentPage'];
 
   function replaceComponentsOnComponentDatum(componentData, cb) {
-    _.forEach(componentData, function(val, key) {
+    _.forEach(componentData, function (val, key) {
       if (_.includes(['master', 'parent'], key)) {
         componentData[key] = cb(val);
       } else if (_.includes(['_variants', 'children'], key)) {
-        componentData[key] = _.map(componentData[key], function(compData) {
+        componentData[key] = _.map(componentData[key], function (compData) {
           return cb(compData);
         });
       }
@@ -27,27 +27,27 @@ function serializerFactory() {
   }
 
   function serialize(state) {
-    var componentMap = {};
-    var newPages = [];
-    var newComponentBoxes = {
+    let componentMap = {};
+    let newPages = [];
+    let newComponentBoxes = {
       ours: [],
       yours: []
-    }
+    };
 
     function putSelfAndAllChildrenInComponentMap(component) {
       componentMap[component.id] = component.getSerializableData();
 
-      component.walkChildren(function(childComponent) {
+      component.walkChildren(function (childComponent) {
         componentMap[childComponent.id] = childComponent.getSerializableData();
       });
     }
 
     // Put all components and their children in component map.
-    state.pages.forEach(function(page) {
+    state.pages.forEach(function (page) {
       let newPage = Object.assign({}, page);
       putSelfAndAllChildrenInComponentMap(page.componentTree);
 
-      newPage.componentTree = page.componentTree.id
+      newPage.componentTree = page.componentTree.id;
       newPages.push(newPage);
     });
 
@@ -59,7 +59,7 @@ function serializerFactory() {
     });
 
     // Within component map transform all component references into ids
-    _.forEach(componentMap, function(component) {
+    _.forEach(componentMap, function (component) {
       replaceComponentsOnComponentDatum(component, function (childComponent) {
         if (childComponent) {
           return childComponent.id;
@@ -74,8 +74,9 @@ function serializerFactory() {
       pages: newPages,
       componentMap,
       componentBoxes: newComponentBoxes,
-      currentPage: state.currentPage.id
-    })
+      currentPage: state.currentPage.id,
+      assets: state.assets
+    });
   }
 
   function deserialize(jsonState) {
@@ -84,7 +85,8 @@ function serializerFactory() {
       pages,
       componentMap,
       componentBoxes,
-      currentPage
+      currentPage,
+      assets
     } = JSON.parse(jsonState);
 
     function componentDataToClass(componentData) {
@@ -96,31 +98,33 @@ function serializerFactory() {
         return new Image(componentData);
       } else if (componentData.componentType === HEADER) {
         return new Header(componentData);
+      } else {
+        throw new Error('Malformed Component Data', componentData);
       }
     }
 
     let componentClassMap = {};
 
-    _.forEach(componentMap, function(componentData, key) {
+    _.forEach(componentMap, function (componentData, key) {
       componentClassMap[key] = componentDataToClass(componentData);
     });
 
-    _.forEach(componentClassMap, function(component, key) {
+    _.forEach(componentClassMap, function (component) {
       replaceComponentsOnComponentDatum(
         component,
-        function(id) {
+        function (id) {
           return componentClassMap[id];
         }
       );
     });
 
-    let newPages = _.map(pages, function(page) {
+    let newPages = _.map(pages, function (page) {
       page.componentTree = componentClassMap[page.componentTree];
       return page;
     });
 
     _.forEach(componentBoxes, function (val, key) {
-      componentBoxes[key] = _.map(val, function(componentId) {
+      componentBoxes[key] = _.map(val, function (componentId) {
         return componentClassMap[componentId];
       });
     });
@@ -133,11 +137,12 @@ function serializerFactory() {
       siteName,
       pages: newPages,
       componentBoxes,
-      currentPage: currentPageObj
-    }
+      currentPage: currentPageObj,
+      assets
+    };
   }
 
-  return {serialize, deserialize};
+  return { serialize, deserialize };
 }
 
 const serializer = serializerFactory();

@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export function distanceBetweenPoints(p1, p2) {
   return Math.abs(Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2)));
 }
@@ -51,7 +53,7 @@ export function getGlobalPosFromSyntheticEvent(e) {
 
 export function minDistanceBetweenPointAndLine(p, line) {
   /* From http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment */
-  const {x, y} = p;
+  const { x, y } = p;
   const x1 = line[0].x;
   const y1 = line[0].y;
   const x2 = line[1].x;
@@ -63,39 +65,41 @@ export function minDistanceBetweenPointAndLine(p, line) {
   const C = x2 - x1;
   const D = y2 - y1;
 
-  const dot = A * C + B * D;
-  const len_sq = C * C + D * D;
+  const dot = (A * C) + (B * D);
+  const lenSq = (C * C) + (D * D);
   let param = -1;
-  if (len_sq != 0) //in case of 0 length line
-    param = dot / len_sq;
+
+  // in case of 0 length line
+  if (lenSq !== 0) {
+    param = dot / lenSq;
+  }
 
   let xx, yy;
 
   if (param < 0) {
     xx = x1;
     yy = y1;
-  }
-  else if (param > 1) {
+  } else if (param > 1) {
     xx = x2;
     yy = y2;
-  }
-  else {
-    xx = x1 + param * C;
-    yy = y1 + param * D;
+  } else {
+    xx = x1 + (param * C);
+    yy = y1 + (param * D);
   }
 
   const dx = x - xx;
   const dy = y - yy;
-  return Math.sqrt(dx * dx + dy * dy);
+  return Math.sqrt((dx * dx) + (dy * dy));
 }
 
 export function wasRightButtonPressed(e) {
   let isRightMB;
 
-  if ("which" in e)  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
-    isRightMB = e.which == 3;
-  else if ("button" in e)  // IE, Opera
-    isRightMB = e.button == 2;
+  if ('which' in e) { // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+    isRightMB = e.which === 3;
+  } else if ('button' in e) { // IE, Opera
+    isRightMB = e.button === 2;
+  }
 
   return isRightMB;
 }
@@ -113,10 +117,10 @@ class GlobalEventManager {
     if (!this.events[eventName]) {
       window.addEventListener(eventName, (e) => {
         let isCanceled = false;
-        let cancel = () => { isCanceled = true };
+        let cancel = () => { isCanceled = true; };
 
         let eventArr = this.events[eventName];
-        for (var i = 0; i < eventArr.length; i++) {
+        for (let i = 0; i < eventArr.length; i++) {
           if (!isCanceled) {
             eventArr[i].listener(e, cancel);
           }
@@ -126,9 +130,9 @@ class GlobalEventManager {
       this.events[eventName] = [];
     }
 
-    this.events[eventName].push({listener, priority: priority});
+    this.events[eventName].push({ listener, priority });
 
-    this.events[eventName] = _.sortBy(this.events[eventName], (ev) => { ev.priority });
+    this.events[eventName] = _.sortBy(this.events[eventName], (ev) => { ev.priority; });
   }
 }
 

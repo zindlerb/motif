@@ -1,28 +1,25 @@
 // ES6 Component
 // Import React and ReactDOM
 import { remote } from 'electron';
-let dialog = remote.dialog;
 import mousetrap from 'mousetrap';
-
 import fs from 'fs';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
-import { dragManager, DragImage } from './dragManager.js';
 import classnames from 'classnames';
-import $ from 'jquery';
-import { store, actionDispatch } from './stateManager.js';
+
+import { DragImage } from './dragManager';
+import { store, actionDispatch } from './stateManager';
 import serializer from './serializer';
-import { globalEventManager } from './utils.js';
+import { globalEventManager } from './utils';
 
-import LeftPanel from './components/LeftPanel.js';
-import RightPanel from './components/RightPanel.js';
-import StaticRenderer from './components/StaticRenderer.js';
-import ComponentTree from './components/ComponentTree.js';
-import DropPointRenderer from './components/DropPointRenderer.js';
-import ComponentMenu from './components/ComponentMenu.js';
+import LeftPanel from './components/LeftPanel';
+import RightPanel from './components/RightPanel';
+import StaticRenderer from './components/StaticRenderer';
+import DropPointRenderer from './components/DropPointRenderer';
+import ComponentMenu from './components/ComponentMenu';
 
-import Something from './tests/component_model.js';
+let dialog = remote.dialog;
 
 const App = React.createClass({
   getInitialState() {
@@ -40,23 +37,32 @@ const App = React.createClass({
         actionDispatch.closeMenu();
       }
 
-      if (this.state.activeComponent) {
-        actionDispatch.selectComponent(undefined);
-      }
+      // TD: add back in in some way. Right now is too trigger happy
+      /* if (this.state.activeComponent) {
+       *   actionDispatch.selectComponent(undefined);
+       * }*/
     }, 10000);
 
     mousetrap.bind(['backspace', 'del'], () => {
       if (this.state.activeComponent) {
-        actionDispatch.deleteActiveComponent(this.state.activeComponent);
+        actionDispatch.deleteComponent(this.state.activeComponent);
       }
     }, 'keyup');
+
+    setInterval(() => {
+      if (this.state.nonSerializable &&
+          this.state.nonSerializable.filename) {
+        this.saveSite();
+      }
+    }, 1000 * 60);
 
     this.openFile('/Users/brianzindler/Documents/reload.json');
   },
 
-  saveSite () {
+  saveSite() {
     function writeFile(filename, state) {
       fs.writeFile(filename, serializer.serialize(state));
+      actionDispatch.setActiveFilename(filename);
     }
 
     if (this.state.nonSerializable && this.state.nonSerializable.filename) {
@@ -79,16 +85,15 @@ const App = React.createClass({
   openFile(filename) {
     fs.readFile(filename, 'utf8', function (err, file) {
       if (err) {
-        console.warn("No file found for ", filename);
+        console.warn('No file found for ', filename);
       } else {
-        var state = serializer.deserialize(file);
-        state.nonSerializable = { filename: filename };
-        actionDispatch.openSite(state);
+        actionDispatch.openSite(serializer.deserialize(file), filename);
+        actionDispatch.setActiveFilename(filename);
       }
     });
   },
 
-  openSite () {
+  openSite() {
     dialog.showOpenDialog({
       title: 'Select a site to edit',
       properties: ['openFile'],
@@ -101,7 +106,7 @@ const App = React.createClass({
     }, (filenames) => {
       if (!filenames) return;
       this.openFile(filenames[0]);
-    })
+    });
   },
 
   render() {
@@ -120,7 +125,8 @@ const App = React.createClass({
 
       otherPossibleTreeViewDropSpots,
       selectedTreeViewDropSpot,
-      menu
+      menu,
+      assets
     } = this.state;
 
     let componentMapByName = _.reduce(componentBoxes, function (componentMapByName, componentList) {
@@ -132,12 +138,19 @@ const App = React.createClass({
     }, {});
 
     return (
-      <div className="h-100" ref={(el) => { this._el = el}}>
+      <div className="h-100" ref={(el) => { this._el = el; }}>
         <button onClick={this.openSite}>Open</button>
         <button onClick={this.saveSite}>Save</button>
         <div className={classnames('flex h-100', globalCursor)}>
           <div className="sidebar flex-none h-100">
-            <LeftPanel components={componentBoxes} pages={pages} activePanel={activeLeftPanel} currentPage={currentPage} />
+            <LeftPanel
+                assets={assets}
+                components={componentBoxes}
+                pages={pages}
+                activePanel={activeLeftPanel}
+                selectedComponentViewDropSpot={selectedComponentViewDropSpot}
+                currentPage={currentPage}
+            />
           </div>
           <div className="flex-auto w-100 h-100">
             <StaticRenderer
@@ -164,7 +177,7 @@ const App = React.createClass({
           />
           <DragImage />
         </div>
-        <ComponentMenu menu={menu} componentMapByName={componentMapByName}/>
+        <ComponentMenu menu={menu} componentMapByName={componentMapByName} />
       </div>
     );
   },
@@ -173,28 +186,3 @@ const App = React.createClass({
 ReactDOM.render(< App / >,
                  document.getElementById('content'),
 );
-
-/*
-
-   finish full app with low performance and insanely simple structure so there is more room for tuneups.
-
-
-   For performance I can do a has mutated flag and use connectors to sync up...
-   Isn't this essentially like having components subscribe to specific state?
-
-
-   Need to revise the flex grow flex shrink ideas.... Growing is natural in many cases. Should closer map to how it is set up like I want this constant and I want this not...
-
-   Proposed superdiv spec
-   - Horizontal or Vertical
-   - Fills 100% of the width
-   - When horizontal
-   - Non fixed sizes fill the rest of the width
-   - Can set the distribution along both axis like in flex.
-
-
-   - if it hits the side evenly distribute the elements?
-
-
-   - What if it is justified left and you don't hit the side of the containing element?
- */

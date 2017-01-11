@@ -1,3 +1,4 @@
+import { remote } from 'electron';
 import React from 'react';
 import _ from 'lodash';
 import classnames from 'classnames';
@@ -13,33 +14,40 @@ const iconList = [
     { name: 'ASSETS', faClass: 'fa-file-image-o' },
 ];
 
-const ComponentBlock = createDraggableComponent({
+let dialog = remote.dialog;
+
+let dragSpec = {
   dragType: 'addComponent',
   onDrag(props, pos) {
     actionDispatch.updateComponentViewDropSpots(pos);
   },
-  onEnd(props, pos) {
-    actionDispatch.addComponent(props.component);
+  onEnd(props) {
+    if (props.selectedComponentViewDropSpot) {
+      actionDispatch.addComponent(
+        props.createComponent(),
+        props.selectedComponentViewDropSpot.parent,
+        props.selectedComponentViewDropSpot.insertionIndex
+      );
+    }
+
+    actionDispatch.resetComponentViewDropSpots();
   },
-}, React.createClass({
+}
+
+const ComponentBlock = createDraggableComponent(dragSpec, React.createClass({
   getInitialState() {
     return {
       isHovering: false,
       isEditing: false,
     };
   },
-  beginHover() {
-
-  },
-  endHover() {
-
-  },
   render() {
     let editMarker, content;
+
     if (this.state.isHovering) {
       editMarker = (
         <i
-            onClick={() => { this.setState({isEditing: true}); }}
+            onClick={() => { this.setState({ isEditing: true }); }}
             className="fa fa-pencil-square-o editSymbol"
             aria-hidden="true"
         />
@@ -50,16 +58,16 @@ const ComponentBlock = createDraggableComponent({
       content = (
         <input
             className="w-60"
-            focused={true}
+            focused
             type="text"
             value={this.state.tempName}
-            onChange={(e) => { this.setState({tempName: e.target.value}) }}
+            onChange={(e) => { this.setState({ tempName: e.target.value }); }}
             onBlur={() => {
-                actionDispatch.changeComponentName(this.props.component, this.state.tempName);
-                this.setState({isEditing: false});
-              }}
+              actionDispatch.changeComponentName(this.props.component, this.state.tempName);
+              this.setState({ isEditing: false });
+            }}
         />
-      )
+      );
     } else {
       content = this.props.component.name;
     }
@@ -67,13 +75,14 @@ const ComponentBlock = createDraggableComponent({
     return (
       <li
           ref={this.props.ref}
-          onMouseEnter={() => { this.setState({isHovering: true}) }}
-          onMouseLeave={() => { this.setState({isHovering: false}) }}
+          onMouseEnter={() => { this.setState({ isHovering: true }); }}
+          onMouseLeave={() => { this.setState({ isHovering: false }); }}
           onMouseDown={this.props.onMouseDown}
           className={classnames(
               'm-auto componentBlock pv2 w4 draggableShadow mv2 tc list',
               this.props.className
-            )}>
+            )}
+      >
         {content}
         {editMarker}
       </li>
@@ -81,19 +90,59 @@ const ComponentBlock = createDraggableComponent({
   }
 }));
 
+const AssetIcon = createDraggableComponent(
+  dragSpec,
+  React.createClass({
+    getInitialState() {
+      return {
+        isHovering: false
+      }
+
+    },
+    render: function() {
+      const width = 100;
+      return (
+        <div
+            style={{width}}
+            className={this.props.className}
+            onMouseDown={this.props.onMouseDown}
+            ref={this.props.ref}>
+          <img style={{width, height: 100}} src={this.props.src}/>
+          <span>{this.props.name}</span>
+        </div>
+      );
+    }
+  })
+);
+
 function PlusButton(props) {
-  return <i onClick={props.action} className="fa fa-plus-circle" aria-hidden="true" />;
+  return <i onClick={props.onClick} className="fa fa-plus-circle" aria-hidden="true" />;
 }
 
 const LeftPanel = React.createClass({
   render() {
     let body;
-    let { activePanel, pages, components, currentPage } = this.props;
+    let {
+      activePanel,
+      pages,
+      components,
+      currentPage,
+      selectedComponentViewDropSpot,
+      assets
+    } = this.props;
 
     if (activePanel === 'COMPONENTS') {
-      const defaultItems = _.map(components.ours, (component, ind) => <ComponentBlock component={component} key={ind} />);
-
-      let userComponents = _.map(components.yours, (component, ind) => <ComponentBlock component={component} key={ind} />);
+      let componentBlockElements = {};
+      _.forEach(components, function (componentBlockArr, key) {
+        componentBlockElements[key] = _.map(componentBlockArr, (component, ind) => {
+          return (<ComponentBlock
+                      createComponent={() => component.createVariant()}
+                      component={component}
+                      key={ind}
+                      selectedComponentViewDropSpot={selectedComponentViewDropSpot}
+                  />);
+        });
+      });
 
       body = (
         <div>
@@ -101,12 +150,12 @@ const LeftPanel = React.createClass({
 
           <h3 className="f5 pl3 pv2">Ours</h3>
           <ul className="list">
-            {defaultItems}
+            {componentBlockElements['ours']}
           </ul>
 
           <h3 className="f5 pl3 pv2">Yours</h3>
           <ul>
-            {userComponents}
+            {componentBlockElements['yours']}
           </ul>
         </div>
             );
@@ -125,19 +174,64 @@ const LeftPanel = React.createClass({
         <div>
           <div className="cf">
             <h2 className="f4 pt2 pb3 tc w-40 fl">Pages</h2>
-            <PlusButton className="ph2 fl" action={actionDispatch.addPage} />
+            <PlusButton className="ph2 fl" onClick={() => actionDispatch.addPage()} />
           </div>
           <ul>
             {pageList}
           </ul>
         </div>
-            );
+      );
+    } else if (activePanel === 'ASSETS') {
+      let assetList = _.map(assets, function (asset) {
+        return (
+          <AssetIcon
+              src={asset.src}
+              createComponent={() => {
+                  return image.createVariant({
+                    name: asset.name,
+                    attributes: { src: asset.src }
+                  });
+                }}
+              name={asset.name} />
+        );
+      });
+
+      body = (
+        <div>
+          <div className="cf">
+            <h2 className="f4 pt2 pb3 tc w-40 fl">Assets</h2>
+            <PlusButton
+                className="ph2 fl"
+                onClick={() => {
+                    dialog.showOpenDialog({
+                      title: 'Select an asset to import',
+                      properties: ['openFile'],
+                      filters: [
+                        {
+                          name: 'asset file',
+                          extensions: ['jpeg', 'png', 'gif', 'svg']
+                        }
+                      ]
+                    }, (filenames) => {
+                      if (!filenames) return;
+                      actionDispatch.addAsset(filenames[0]);
+                    });
+                  }} />
+          </div>
+          <ul>
+            {assetList}
+          </ul>
+        </div>
+      );
     }
 
+    console.log('active panel', activePanel);
 
     return (
       <div>
-        <HorizontalSelect onClick={(name) => { actionDispatch.changePanel(name, 'left'); }} options={iconList} activePanel={this.props.activePanel} />
+        <HorizontalSelect onClick={(name) => {
+            actionDispatch.changePanel(name, 'left');
+          }} options={iconList} activePanel={this.props.activePanel} />
         {body}
       </div>
     );
