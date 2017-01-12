@@ -4,7 +4,9 @@ var serializer = require('../app/serializer.js');
 // emit lots of actions
 
 describe('serializer', () => {
-  it('can be deserialize')
+  it('can be deserialize', () => {
+
+  });
 });
 
 describe('deserializer', () => {
