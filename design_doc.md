@@ -165,8 +165,35 @@ P, LI, H
 
 Image:
 
+What properties benefit from direct manip?
+- height width
+- padding, margin, border
+- positioning? - absolute esp
 
 
+knowing what is there vs. easily changing what you need to.
+
+could have:
+- uniform text like view
+- search and key navigation
+- hide and remove unused fields
+- all fields have a corresponding visualization while editing
+- all fields have an explanation that is revealed somehow (hover most likely)
+- key shortcut for search bar
+
+- later have direct manipulation contextual menus on component like in etoys
+
+What about
+- multipart fields - border shorthand
+- breakpoints? how do these fit in?
+
+
+
+
+
+Inline:
+- make links
+- change appearance of specific text
 
 
 Drag and Drop:
