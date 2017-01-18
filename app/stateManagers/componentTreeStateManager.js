@@ -146,6 +146,7 @@ export const componentTreeReducer = {
 
   [SELECT_COMPONENT](state, action) {
     state.activeComponent = action.component;
+    state.activeRightPanel = 'ATTRIBUTES';
   },
 
   [UPDATE_COMPONENT_VIEW_DROP_SPOTS](state, action) {

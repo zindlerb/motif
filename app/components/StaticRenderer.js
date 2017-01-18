@@ -160,7 +160,7 @@ const MComponentDataRenderer = function (props) {
   let className, component;
 
   if (props.componentProps.activeComponent) {
-    className = { isActive: props.componentProps.activeComponent.id === props.mComponentData.id };
+    className = { 'active-component': props.componentProps.activeComponent.id === props.mComponentData.id };
   }
 
   if (mComponentData instanceof Container) {
@@ -223,6 +223,7 @@ const StaticRenderer = React.createClass({
   render() {
     const {
       activeView,
+      activeBreakpoint,
       page,
       componentProps,
     } = this.props;
@@ -239,20 +240,40 @@ const StaticRenderer = React.createClass({
     }
 
     return (
-      <div className="h-100">
-        <HorizontalSelect
-            className="ma2"
-            onClick={(name) => { actionDispatch.selectView(name); }}
-            hasBorder
-            activePanel={activeView}
-            options={[
-              { text: 'None', name: 'NONE' },
-              { text: 'Border', name: 'BORDER' },
-              { text: 'Detail', name: 'DETAIL' },
-            ]}
-        />
+      <div className="h-100 ph2">
+        <div className="mb2 flex justify-center">
+          <div>
+            <span className="db f6">View</span>
+            <HorizontalSelect
+                className=""
+                onClick={(name) => { actionDispatch.selectView(name); }}
+                hasBorder
+                activePanel={activeView}
+                options={[
+                  { text: 'None', name: 'NONE' },
+                  { text: 'Border', name: 'BORDER' },
+                  { text: 'Detail', name: 'DETAIL' },
+                ]}
+            />
+          </div>
+          <div className="ml2">
+            <span className="db f6">Breakpoint</span>
+            <HorizontalSelect
+                className=""
+                onClick={(name) => { actionDispatch.selectBreakpoint(name); }}
+                hasBorder
+                activePanel={activeBreakpoint}
+                options={[
+                  { name: 'NONE', text: 'None' },
+                  { name: 'TABLET', faClass: 'fa-tablet' },
+                  { name: 'LAPTOP', faClass: 'fa-laptop' },
+                  { name: 'DESKTOP', faClass: 'fa-desktop' },
+                ]}
+            />
+          </div>
+        </div>
         <div
-            onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave} onMouseMove={this.mouseove} className={classnames('ma2 h-100 ba c-grab', {
+            onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave} onMouseMove={this.mouseove} className={classnames('mv2 h-100 ba c-grab', {
               'static-view-border': activeView === 'BORDER',
               'static-view-detail': activeView === 'DETAIL',
             })}

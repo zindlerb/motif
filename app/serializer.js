@@ -13,7 +13,6 @@ import {
 
 function serializerFactory() {
   // serializableKeys ['siteName', 'componentBoxes', 'pages', 'currentPage'];
-
   function replaceComponentsOnComponentDatum(componentData, cb) {
     _.forEach(componentData, function (val, key) {
       if (_.includes(['master', 'parent'], key)) {

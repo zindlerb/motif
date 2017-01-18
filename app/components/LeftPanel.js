@@ -6,10 +6,10 @@ import classnames from 'classnames';
 import { actionDispatch } from '../stateManager';
 import { createDraggableComponent } from '../dragManager';
 import HorizontalSelect from './HorizontalSelect';
+import CartoonButton from './CartoonButton.js';
 
 const iconList = [
     { name: 'PAGES', faClass: 'fa-files-o' },
-    { name: 'STYLE_GUIDE', faClass: 'fa-paint-brush' },
     { name: 'COMPONENTS', faClass: 'fa-id-card-o' },
     { name: 'ASSETS', faClass: 'fa-file-image-o' },
 ];
@@ -161,9 +161,14 @@ const LeftPanel = React.createClass({
             );
     } else if (activePanel === 'PAGES') {
       const pageList = _.map(pages, function (page, ind) {
+        const isActive = page.id === currentPage.id;
         return (
           <li
-            className={classnames({ highlighted: page.id === currentPage.id })}
+              className={classnames({
+                  highlighted: isActive,
+                  'c-default': isActive,
+                  'c-pointer': !isActive
+                }, 'pl2 pv1 page-item')}
             onClick={() => actionDispatch.changePage(page)}
             key={ind}
           >
@@ -172,11 +177,14 @@ const LeftPanel = React.createClass({
       });
       body = (
         <div>
-          <div className="cf">
-            <h2 className="f4 pt2 pb3 tc w-40 fl">Pages</h2>
-            <PlusButton className="ph2 fl" onClick={() => actionDispatch.addPage()} />
+          <div className="tc">
+            <h2 className="f4 mt3 mb2">Pages</h2>
+            <CartoonButton
+                text="New Page"
+                onClick={() => actionDispatch.addPage()}
+            />
           </div>
-          <ul>
+          <ul className="mt3">
             {pageList}
           </ul>
         </div>
@@ -225,13 +233,16 @@ const LeftPanel = React.createClass({
       );
     }
 
-    console.log('active panel', activePanel);
-
     return (
       <div>
-        <HorizontalSelect onClick={(name) => {
-            actionDispatch.changePanel(name, 'left');
-          }} options={iconList} activePanel={this.props.activePanel} />
+        <HorizontalSelect
+            onClick={(name) => {
+                actionDispatch.changePanel(name, 'left');
+              }}
+            options={iconList}
+            activePanel={this.props.activePanel}
+            className="w-100"
+        />
         {body}
       </div>
     );

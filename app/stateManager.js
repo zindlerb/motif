@@ -1,3 +1,4 @@
+import { hri } from 'human-readable-ids';
 import path from 'path';
 import createStore from 'redux/lib/createStore';
 import bindActionCreators from 'redux/lib/bindActionCreators';
@@ -32,7 +33,8 @@ const initialState = {
   currentPage: undefined,
   activeComponent: undefined,
   activeView: 'BORDER',
-  activeLeftPanel: 'COMPONENTS',
+  activeBreakpoint: 'NONE',
+  activeLeftPanel: 'PAGES',
   activeRightPanel: 'ATTRIBUTES',
   menu: { isOpen: false },
 
@@ -41,9 +43,12 @@ const initialState = {
 
   selectedTreeViewDropSpot: undefined,
   otherPossibleTreeViewDropSpots: undefined,
+
+  rendererWidth: undefined,
 };
 
 /* Constants */
+const SELECT_BREAKPOINT = 'SELECT_BREAKPOINT';
 const OPEN_SITE = 'OPEN_SITE';
 const SET_GLOBAL_CURSOR = 'SET_GLOBAL_CURSOR';
 const ADD_NEW_PAGE = 'ADD_NEW_PAGE';
@@ -54,8 +59,21 @@ const OPEN_MENU = 'OPEN_MENU';
 const CLOSE_MENU = 'CLOSE_MENU';
 const SET_ACTIVE_FILENAME = 'SET_ACTIVE_FILENAME';
 const ADD_ASSET = 'ADD_ASSET';
+const SET_RENDERER_WIDTH = 'SET_RENDERER_WIDTH';
 
 export const actions = Object.assign({
+  setRendererWidth(newWidth) {
+    return {
+      type: SET_RENDERER_WIDTH,
+      newWidth
+    }
+  },
+  selectBreakpoint(newBreakpoint) {
+    return {
+      type: SELECT_BREAKPOINT,
+      newBreakpoint
+    }
+  },
   openMenu(component, componentX, componentY) {
     return {
       type: OPEN_MENU,
@@ -133,6 +151,7 @@ const reducerObj = Object.assign({
     state.menu.isOpen = false;
     state.menu.component = undefined;
   },
+
   [SELECT_VIEW](state, action) {
     state.activeView = action.viewName;
   },
@@ -154,11 +173,11 @@ const reducerObj = Object.assign({
     fakePage.addChild(container.createVariant());
 
     const newPage = {
-      name: 'New Page',
+      name: hri.random(),
       id: guid(),
       componentTree: fakePage,
     };
-
+    state.activeRightPanel = 'DETAILS';
     state.pages.push(newPage);
     state.currentPage = newPage;
   },
@@ -179,17 +198,24 @@ const reducerObj = Object.assign({
 
   [OPEN_SITE](state, action) {
     Object.assign(state, action.state);
-
   },
+
   [SET_ACTIVE_FILENAME](state, action) {
     state.nonSerializable = { filename: action.filename };
   },
+
   [ADD_ASSET](state, action) {
     const { filename } = action;
     state.assets.push({
       src: filename,
       name: path.parse(filename).name
     });
+  },
+  [SELECT_BREAKPOINT](state, action) {
+    state.activeBreakpoint = action.newBreakpoint;
+  },
+  [SET_RENDERER_WIDTH](state, action) {
+    state.rendererWidth = action.newWidth;
   }
 }, componentTreeReducer);
 
@@ -198,7 +224,7 @@ function reducer(state, action) {
     reducerObj[action.type](state, action);
   }
 
-  /*   console.log(action.type, _.cloneDeep(state));*/
+  /*console.log(action.type, _.cloneDeep(state));*/
 
   return state;
 }

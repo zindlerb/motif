@@ -37,6 +37,7 @@ const TextInput = React.createClass({
     const value = this.state.isEditing ? this.state.tempText : this.props.value;
 
     return (<input
+                className="w-100"
                 onMouseUp={(e) => e.stopPropagation()}
                 onFocus={this.startEdit}
                 onBlur={this.submit}
@@ -68,7 +69,7 @@ const Dropdown = React.createClass({
     });
 
     return (
-      <select value={this.value} onChange={this.onChange}>
+      <select className="w-100" value={this.value} onChange={this.onChange}>
         {choices}
       </select>
     );
@@ -126,9 +127,7 @@ const AttributeField = function (props) {
     fieldSet = attributeFieldset[attrKey];
   }
 
-  if (fieldSet.fieldType === TEXT_FIELD) {
-    field = <TextInput value={attrVal} attrKey={attrKey} component={component} />;
-  } else if (fieldSet.fieldType === DROPDOWN) {
+  if (fieldSet.fieldType === DROPDOWN) {
     field = (<Dropdown
                  value={attrVal}
                  attrKey={attrKey}
@@ -142,8 +141,10 @@ const AttributeField = function (props) {
   }
 
   return (
-    <div>
-      <span>{attrKey}:</span>
+    <div className="mb2">
+      <div className="mb1">
+        <span className="f7">{attrKey}:</span>
+      </div>
       {field}
     </div>
   );

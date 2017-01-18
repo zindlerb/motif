@@ -1,8 +1,25 @@
 /* Colors */
-$highlight: #FFB09F;
+$highlight: #EBEBEB;
+$potential-highlight: #f5f5f5;
+
+$bright: #f99063;
+
 $border: #BDBDBD;
 
+$spacing-none: 0;
+$spacing-extra-small: .25rem;
+$spacing-small: .5rem;
+$spacing-medium: 1rem;
+$spacing-large: 2rem;
+$spacing-extra-large: 4rem;
+$spacing-extra-extra-large: 8rem;
+$spacing-extra-extra-extra-large: 16rem;
+
 /* Utils */
+.bright-background {
+  background-color: $bright;
+}
+
 .c-pointer {
   cursor: pointer;
 }
@@ -69,11 +86,13 @@ body * {
   width: 200px;
   background-color: white;
   border-right: 1px solid $border;
+  border-left: 1px solid $border;
 }
 
 
 /* COMPONENTS */
 .horizontal-select {
+  display: inline-flex;
   border-bottom: 1px solid $border;
 
   &.border {
@@ -103,8 +122,8 @@ body * {
   margin-right: auto;
 }
 
-.isActive {
-  border: 3px solid $highlight !important;
+.active-component {
+  border: 3px solid $bright !important;
 }
 
 .expandable-element {
@@ -120,7 +139,7 @@ body * {
 
 /* View Modes */
 .static-view-border * {
-  outline: 1px solid gold;
+  outline: 1px solid gray;
 }
 
 .static-view-detail * {
@@ -161,4 +180,57 @@ body * {
   li:last-child {
     border-bottom: 0px;
   }
+}
+
+.cartoon-button {
+  position: relative;
+  display: inline-block;
+  border-radius: 8px;
+  background: #F2F2F2;
+  box-shadow: 0 3px #B3B3B3;
+  border: 1px solid #C3C3C3;
+  cursor: pointer;
+}
+
+.cartoon-button:hover {
+  top: 1px;
+  box-shadow: 0 2px #B3B3B3;
+}
+
+.cartoon-button:active {
+  top: 3px;
+  box-shadow: 0 0px #B3B3B3;
+}
+
+.cartoon-button:focus {
+  outline:0;
+}
+
+.m-auto {
+  margin: auto;
+}
+
+.page-item.highlighted:hover {
+  background-color: $highlight;
+}
+
+.page-item:hover {
+  background-color: $potential-highlight;
+}
+
+.f7 {
+  font-size: .75rem;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.drag-handle {
+  position: absolute;
+  top: 40%;
 }

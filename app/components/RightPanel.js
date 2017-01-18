@@ -2,9 +2,11 @@ import React from 'react';
 import _ from 'lodash';
 import { actionDispatch } from '../stateManager';
 
+import SidebarHeader from './SidebarHeader';
 import HorizontalSelect from './HorizontalSelect';
 import AttributeField from './AttributeField';
 import ComponentTree from './ComponentTree';
+import CartoonButton from './CartoonButton';
 
 const iconList = [
   { name: 'ATTRIBUTES', faClass: 'fa-table' },
@@ -17,12 +19,13 @@ const RightPanel = React.createClass({
     let body, attrs;
     let {
       activeComponent,
+      activePanel,
       tree,
       otherPossibleTreeViewDropSpots,
       selectedTreeViewDropSpot
     } = this.props;
 
-    if (this.props.activePanel === 'ATTRIBUTES' && activeComponent) {
+    if (activePanel === 'ATTRIBUTES' && activeComponent) {
       attrs = [];
       _.forEach(activeComponent.getAllAttrs(), (attrVal, attrKey) => {
         attrs.push(
@@ -37,29 +40,39 @@ const RightPanel = React.createClass({
 
       body = (
         <div>
-          <button
-              onClick={() => {
-                  actionDispatch.createComponentBlock(activeComponent);
-                }}>
-            Make Component Block
-          </button>
+          <SidebarHeader text="Attributes"/>
+          <div className="tc mb3 mt2">
+            <CartoonButton
+                onClick={() => { actionDispatch.createComponentBlock(activeComponent); }}
+                text="Make Component Block"
+            />
+          </div>
           {attrs}
         </div>
       );
-    } else if (this.props.activePanel === 'TREE') {
+    } else if (activePanel === 'TREE') {
       body = (<ComponentTree
                  node={tree}
                  otherPossibleTreeViewDropSpots={otherPossibleTreeViewDropSpots}
                  selectedTreeViewDropSpot={selectedTreeViewDropSpot}
                  activeComponent={activeComponent}
       />);
+    } else if (activePanel === 'DETAILS') {
+      body = (<SidebarHeader text='Page Settings'/>);
     }
 
 
     return (
       <div>
-        <HorizontalSelect options={iconList} activePanel={this.props.activePanel} onClick={(name) => { actionDispatch.changePanel(name, 'right'); }} />
-        {body}
+        <HorizontalSelect
+            className="w-100"
+            options={iconList}
+            activePanel={this.props.activePanel}
+            onClick={(name) => { actionDispatch.changePanel(name, 'right'); }}
+        />
+        <div className="ph1">
+          {body}
+        </div>
       </div>
     );
   },

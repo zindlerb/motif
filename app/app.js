@@ -7,6 +7,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import classnames from 'classnames';
+import $ from 'jquery'
 
 import { DragImage } from './dragManager';
 import { store, actionDispatch } from './stateManager';
@@ -20,6 +21,30 @@ import DropPointRenderer from './components/DropPointRenderer';
 import ComponentMenu from './components/ComponentMenu';
 
 let dialog = remote.dialog;
+
+function DragHandle(props) {
+  var height = 60;
+  var width = 20;
+  var left;
+
+  if (props.direction === 'left') {
+    left = -width;
+  } else if (props.direction === 'right') {
+    left = '100%';
+  }
+
+  var style = {
+    height,
+    width,
+    left
+  }
+
+  return (
+    <svg className='drag-handle' style={style}>
+      <rect x='0' y='0' height={height} width={width} fill='black'/>
+    </svg>
+  );
+}
 
 const App = React.createClass({
   getInitialState() {
@@ -56,7 +81,8 @@ const App = React.createClass({
       }
     }, 1000 * 60);
 
-    this.openFile('/Users/brianzindler/Documents/reload.json');
+    actionDispatch.setRendererWidth($(this._rendererEl).width());
+    /*this.openFile('/Users/brianzindler/Documents/reload.json');*/
   },
 
   saveSite() {
@@ -126,7 +152,9 @@ const App = React.createClass({
       otherPossibleTreeViewDropSpots,
       selectedTreeViewDropSpot,
       menu,
-      assets
+      assets,
+      activeBreakpoint,
+      rendererWidth,
     } = this.state;
 
     let componentMapByName = _.reduce(componentBoxes, function (componentMapByName, componentList) {
@@ -152,15 +180,22 @@ const App = React.createClass({
                 currentPage={currentPage}
             />
           </div>
-          <div className="flex-auto w-100 h-100">
+          <div
+              className="flex-auto h-100 mh4"
+              ref={(el) => { this._rendererEl = el }}
+              style={{width: rendererWidth}}>
             <StaticRenderer
+                width={rendererWidth}
                 page={currentPage}
+                activeBreakpoint={activeBreakpoint}
                 activeView={activeView}
                 componentProps={{
                   activeComponent,
                   selectedComponentViewDropSpot
                 }}
             />
+            <DragHandle direction="left"/>
+            <DragHandle direction="right"/>
           </div>
           <div className="sidebar h-100 flex-none">
             <RightPanel

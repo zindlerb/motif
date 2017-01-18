@@ -13,7 +13,6 @@ change existing header instance
 
  */
 
-
 export default function HorizontalSelect(props) {
   const options = _.map(props.options, function (option, ind) {
     let content;
@@ -30,7 +29,7 @@ export default function HorizontalSelect(props) {
 
     return (
       <div
-        className={classnames('flex-auto tc pa1 h-100 c-pointer', {
+        className={classnames('flex-auto tc pv1 ph2 h-100 c-pointer', {
           highlighted: option.name === props.activePanel,
         })}
         onMouseUp={headerClick}
@@ -43,7 +42,7 @@ export default function HorizontalSelect(props) {
 
   return (
     <div
-      className={classnames('horizontal-select justify-around flex', {
+      className={classnames('horizontal-select justify-around align-center', {
         border: props.hasBorder,
       }, props.className)}
     >
