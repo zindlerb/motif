@@ -42,10 +42,16 @@ const RightPanel = React.createClass({
         <div>
           <SidebarHeader text="Attributes"/>
           <div className="tc mb3 mt2">
+            <span>Name: {activeComponent.getName()}</span>
             <CartoonButton
                 onClick={() => { actionDispatch.createComponentBlock(activeComponent); }}
-                text="Make Component Block"
+                text="Make Component"
             />
+            <CartoonButton
+                onClick={() => { actionDispatch.syncComponent(activeComponent); }}
+                text="Sync"
+            />
+            <span>State:</span>
           </div>
           {attrs}
         </div>

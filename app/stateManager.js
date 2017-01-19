@@ -44,7 +44,8 @@ const initialState = {
   selectedTreeViewDropSpot: undefined,
   otherPossibleTreeViewDropSpots: undefined,
 
-  rendererWidth: undefined,
+  // TD: dynamically set initial renderer width
+  rendererWidth: 200,
 };
 
 /* Constants */
@@ -212,6 +213,18 @@ const reducerObj = Object.assign({
     });
   },
   [SELECT_BREAKPOINT](state, action) {
+    var widths = {
+      'TABLET': 640,
+      'LAPTOP': 1024,
+      'DESKTOP': 1824,
+    }
+
+    var newWidth = widths[action.newBreakpoint];
+
+    if (newWidth) {
+      state.rendererWidth = newWidth;
+    }
+
     state.activeBreakpoint = action.newBreakpoint;
   },
   [SET_RENDERER_WIDTH](state, action) {
@@ -224,7 +237,7 @@ function reducer(state, action) {
     reducerObj[action.type](state, action);
   }
 
-  /*console.log(action.type, _.cloneDeep(state));*/
+  /*   console.log(action.type, _.cloneDeep(state));*/
 
   return state;
 }

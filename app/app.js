@@ -9,7 +9,7 @@ import _ from 'lodash';
 import classnames from 'classnames';
 import $ from 'jquery'
 
-import { DragImage } from './dragManager';
+import { DragImage, dragManager } from './dragManager';
 import { store, actionDispatch } from './stateManager';
 import serializer from './serializer';
 import { globalEventManager } from './utils';
@@ -22,29 +22,7 @@ import ComponentMenu from './components/ComponentMenu';
 
 let dialog = remote.dialog;
 
-function DragHandle(props) {
-  var height = 60;
-  var width = 20;
-  var left;
 
-  if (props.direction === 'left') {
-    left = -width;
-  } else if (props.direction === 'right') {
-    left = '100%';
-  }
-
-  var style = {
-    height,
-    width,
-    left
-  }
-
-  return (
-    <svg className='drag-handle' style={style}>
-      <rect x='0' y='0' height={height} width={width} fill='black'/>
-    </svg>
-  );
-}
 
 const App = React.createClass({
   getInitialState() {
@@ -56,6 +34,8 @@ const App = React.createClass({
     store.subscribe(function () {
       that.setState(store.getState());
     });
+
+    that.setState(store.getState());
 
     globalEventManager.addListener('mouseup', () => {
       if (this.state.menu.isOpen) {
@@ -81,7 +61,6 @@ const App = React.createClass({
       }
     }, 1000 * 60);
 
-    actionDispatch.setRendererWidth($(this._rendererEl).width());
     /*this.openFile('/Users/brianzindler/Documents/reload.json');*/
   },
 
@@ -181,9 +160,9 @@ const App = React.createClass({
             />
           </div>
           <div
-              className="flex-auto h-100 mh4"
+              className="flex-auto h-100 mh4 relative"
               ref={(el) => { this._rendererEl = el }}
-              style={{width: rendererWidth}}>
+          >
             <StaticRenderer
                 width={rendererWidth}
                 page={currentPage}
@@ -194,8 +173,6 @@ const App = React.createClass({
                   selectedComponentViewDropSpot
                 }}
             />
-            <DragHandle direction="left"/>
-            <DragHandle direction="right"/>
           </div>
           <div className="sidebar h-100 flex-none">
             <RightPanel

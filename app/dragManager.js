@@ -204,31 +204,38 @@ export const DragImage = React.createClass({
 
   componentDidMount() {
     const that = this;
-
+    var isDragging = false;
     dragManager.subscribe({
       onStart(e, ctx) {
-        actionDispatch.setGlobalCursor('c-grabbing');
-        that.setState({
-          element: ctx.drag.dragImage.element,
-          isDragging: true,
-        });
+        if (ctx.drag.dragImage) {
+          isDragging = true;
+          actionDispatch.setGlobalCursor('c-grabbing');
+          that.setState({
+            element: ctx.drag.dragImage.element,
+            isDragging: true,
+          });
+        }
       },
 
       onDrag(e) {
-        const newState = that.getPosition(e);
-        if (!that.state.isConsumated) {
-          newState.isConsumated = true;
-        }
+        if (isDragging) {
+          const newState = that.getPosition(e);
+          if (!that.state.isConsumated) {
+            newState.isConsumated = true;
+          }
 
-        that.setState(newState);
+          that.setState(newState);
+        }
       },
 
       onEnd() {
-        actionDispatch.setGlobalCursor(undefined);
-        that.setState({
-          isConsumated: false,
-          isDragging: false,
-        });
+        if (isDragging) {
+          actionDispatch.setGlobalCursor(undefined);
+          that.setState({
+            isConsumated: false,
+            isDragging: false,
+          });
+        }
       },
     });
   },

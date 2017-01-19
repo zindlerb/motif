@@ -21,6 +21,78 @@ export const getInsertionSpacerId = function (parent, insertionInd, view) {
   return [parent, insertionInd, view].join('_');
 };
 
+/*
+Attrs and children can be altered with attrs
+
+attributes: {
+  state: {attributes, children}
+}
+
+Lets say a component is
+
+Container
+  Container
+    Header
+
+I want to say on hover the header gets an underline
+
+Where do I specify that?
+
+On the header component then that propegates to the children.
+
+But!
+
+If a component can have diff children based on their state how does this workShop
+
+For a state are you choosing the existance of components or their ful state
+
+If it is the existance then what about new components?
+
+
+
+A new state is a variant?
+
+State A
+C
+  C
+
+State B
+C
+ C
+
+Add H to 2nd C
+
+State B
+C
+ C
+  H
+
+What is A?
+- Unchanged under the aparatus model
+What if I delete A?
+- The C -> H gets deleted in B
+
+
+
+
+What would things look like if I went more of the react model?
+
+Component Instances Cannot be Mutated
+
+Components Expose Arguments - these arguments can be edited from the outside
+Components Expose Types - dropdown of types
+
+Need to prototype workflow of building up components
+
+What is the actual diff between the aparatus model and the react model?
+
+
+
+In css how would you declare multiple layouts for different states?
+
+
+*/
+
 /* Attribute Fieldset */
 export const attributeFieldset = {
   position: {
@@ -75,8 +147,22 @@ export const attributeFieldset = {
   }
 };
 
+// States
+export const DEFAULT = 'DEFAULT';
+export const HOVER = 'HOVER';
+// State managed outside component and passed in.
+
+/*
+   change get css to handle states
+   change change attr
+   change get attr
+
+
+ */
+
 export class Component {
   constructor(spec) {
+
     this.attributes = {};
     this.children = [];
     this._variants = [];
@@ -160,13 +246,21 @@ export class Component {
     this.master = undefined;
   }
 
-  getAllAttrs() {
+  getAllAttrs(state) {
     let masterAttrs = {};
     if (this.master) {
-      masterAttrs = this.master.getAllAttrs();
+      masterAttrs = this.master.getAllAttrs(state);
     }
 
-    return Object.assign({}, masterAttrs, this.attributes);
+    return Object.assign({}, masterAttrs, this.attributes[state]);
+  }
+
+  setAttr(state, key, newVal) {
+    if (!this.attributes[state]) {
+      this.attributes[state] = {};
+    }
+
+    this.attributes[state][key] = newVal;
   }
 
   getName() {
@@ -186,20 +280,19 @@ export class Component {
       text: true,
     };
 
-    return _.reduce(this.getAllAttrs(), function (renderableAttributes, attrVal, attrKey) {
-      if (attrToHtmlPropertyLookup[attrKey]) {
-        renderableAttributes.htmlProperties[attrKey] = attrVal;
-      } else if (attrToCssLookup[attrKey]) {
-        Object.assign(renderableAttributes.sx, attrToCssLookup[attrKey](attrVal));
-      } else {
-        renderableAttributes.sx[attrKey] = attrVal;
-      }
+    return _.reduce(this.getAllAttrs(), function (stateAttrs, attrs, state) {
+      stateAttrs[state] = _.reduce(attrs, function (renderableAttributes, attrVal, attrKey) {
+        if (attrToHtmlPropertyLookup[attrKey]) {
+          renderableAttributes.htmlProperties[attrKey] = attrVal;
+        } else if (attrToCssLookup[attrKey]) {
+          Object.assign(renderableAttributes.sx, attrToCssLookup[attrKey](attrVal));
+        } else {
+          renderableAttributes.sx[attrKey] = attrVal;
+        }
+      }, {htmlProperties: [], sx: []});
 
       return renderableAttributes;
-    }, {
-      htmlProperties: {},
-      sx: {}
-    });
+    }, {});
   }
 
   getRect(elementType) {
