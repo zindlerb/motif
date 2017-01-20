@@ -224,3 +224,10 @@ TD:
 - Add make component
 - Add save reload
 - Add tree view
+
+
+
+
+Relevant Attribute Panel Information:
+- What properties are changed from parent?
+- When in a state what is different from the main state

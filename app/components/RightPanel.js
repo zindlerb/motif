@@ -1,12 +1,15 @@
 import React from 'react';
 import _ from 'lodash';
 import { actionDispatch } from '../stateManager';
+import { HOVER, DEFAULT } from '../base_components';
 
+import Dropdown from './forms/Dropdown';
 import SidebarHeader from './SidebarHeader';
 import HorizontalSelect from './HorizontalSelect';
 import AttributeField from './AttributeField';
 import ComponentTree from './ComponentTree';
 import CartoonButton from './CartoonButton';
+
 
 const iconList = [
   { name: 'ATTRIBUTES', faClass: 'fa-table' },
@@ -22,18 +25,21 @@ const RightPanel = React.createClass({
       activePanel,
       tree,
       otherPossibleTreeViewDropSpots,
-      selectedTreeViewDropSpot
+      selectedTreeViewDropSpot,
+      activeComponentState
     } = this.props;
 
     if (activePanel === 'ATTRIBUTES' && activeComponent) {
       attrs = [];
-      _.forEach(activeComponent.getAllAttrs(), (attrVal, attrKey) => {
+      let componentAttrs = activeComponent.getAllAttrs(activeComponentState);
+      _.forEach(activeComponent.fields, (field) => {
         attrs.push(
           (<AttributeField
+               fieldData={field}
                component={activeComponent}
-               attrKey={attrKey}
-               attrVal={attrVal}
-               key={attrKey}
+               attrKey={field.name}
+               attrVal={componentAttrs[field.name]}
+               key={field.name}
            />)
         );
       });
@@ -52,6 +58,13 @@ const RightPanel = React.createClass({
                 text="Sync"
             />
             <span>State:</span>
+            <Dropdown
+                choices={[
+                  {text: 'Default', value: DEFAULT},
+                  {text: 'Hover', value: HOVER}
+                ]}
+                onChange={(val) => { actionDispatch.setActiveComponentState(val) }}
+                value={activeComponentState}/>
           </div>
           {attrs}
         </div>

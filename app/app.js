@@ -116,6 +116,7 @@ const App = React.createClass({
 
   render() {
     let {
+      activeComponentState,
       componentBoxes,
       activeLeftPanel,
       activeRightPanel,
@@ -176,6 +177,7 @@ const App = React.createClass({
           </div>
           <div className="sidebar h-100 flex-none">
             <RightPanel
+                activeComponentState={activeComponentState}
                 activeComponent={activeComponent}
                 activePanel={activeRightPanel}
                 tree={currentPage.componentTree}

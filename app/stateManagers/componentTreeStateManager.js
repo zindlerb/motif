@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { minDistanceBetweenPointAndLine } from '../utils';
+import { DEFAULT } from '../base_components.js';
 
 const WRAP_COMPONENT = 'WRAP_COMPONENT';
 const ADD_COMPONENT = 'ADD_COMPONENT';
@@ -145,6 +146,7 @@ export const componentTreeReducer = {
   },
 
   [SELECT_COMPONENT](state, action) {
+    state.activeComponentState = DEFAULT;
     state.activeComponent = action.component;
     state.activeRightPanel = 'ATTRIBUTES';
   },
@@ -254,6 +256,10 @@ export const componentTreeReducer = {
   },
 
   [SET_COMPONENT_ATTRIBUTE](state, action) {
-    action.component.attributes[action.attrKey] = action.newAttrValue;
+    action.component.setAttr(
+      state.activeComponentState,
+      action.attrKey,
+      action.newAttrValue
+    );
   },
 };

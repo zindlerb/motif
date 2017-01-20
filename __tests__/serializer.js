@@ -25,5 +25,7 @@ describe('serializer', () => {
     var serializedState = serializer.serialize(store.getState());
     actionDispatch.openSite(serializer.deserialize(serializedState), 'fake_file');
     var newState = store.getState();
+
+    expect(newState).toEqual(oldState);
   });
 });

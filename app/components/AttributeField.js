@@ -6,7 +6,6 @@ import {
   TEXT_FIELD,
   COLOR,
   DROPDOWN,
-  attributeFieldset,
 } from '../base_components';
 import { actionDispatch } from '../stateManager';
 
@@ -116,25 +115,17 @@ const ColorPicker = React.createClass({
 });
 
 const AttributeField = function (props) {
-  let { attrKey, attrVal, component } = props;
+  let { attrKey, attrVal, component, fieldData } = props;
   let field;
 
-  let fieldSet = {
-    fieldType: TEXT_FIELD,
-  };
-
-  if (attributeFieldset[attrKey]) {
-    fieldSet = attributeFieldset[attrKey];
-  }
-
-  if (fieldSet.fieldType === DROPDOWN) {
+  if (fieldData.fieldType === DROPDOWN) {
     field = (<Dropdown
                  value={attrVal}
                  attrKey={attrKey}
-                 choices={fieldSet.fieldSettings.choices}
+                 choices={fieldData.choices}
                  component={component}
     />);
-  } else if (fieldSet.fieldType === COLOR) {
+  } else if (fieldData.fieldType === COLOR) {
     field = <ColorPicker value={attrVal} attrKey={attrKey} component={component} />;
   } else {
     field = <TextInput value={attrVal} attrKey={attrKey} component={component} />;

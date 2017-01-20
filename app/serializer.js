@@ -5,10 +5,12 @@ import {
   Header,
   Text,
   Image,
+  Root,
   CONTAINER,
   HEADER,
   TEXT,
-  IMAGE
+  IMAGE,
+  ROOT
 } from './base_components';
 
 function serializerFactory() {
@@ -97,8 +99,10 @@ function serializerFactory() {
         return new Image(componentData);
       } else if (componentData.componentType === HEADER) {
         return new Header(componentData);
+      } else if (componentData.componentType === ROOT) {
+        return new Root(componentData);
       } else {
-        throw new Error('Malformed Component Data', componentData);
+        throw new Error('Malformed Component Data ' + JSON.stringify(componentData));
       }
     }
 

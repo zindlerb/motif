@@ -2,7 +2,7 @@ import $ from 'jquery';
 import React from 'react';
 import _ from 'lodash';
 import classnames from 'classnames';
-import { Container, Header, Text, Image, DEFAULT, HOVER } from '../base_components';
+import { Root, Container, Header, Text, Image, DEFAULT, HOVER } from '../base_components';
 import { createDraggableComponent, dragManager } from '../dragManager';
 import { actionDispatch } from '../stateManager';
 
@@ -33,6 +33,34 @@ function makeComponentRefCallback(mComponentData) {
   return function (ref) {
     mComponentData['###domElements'].pageView = ref;
   };
+}
+
+const RootClassReact = function (props) {
+  const {
+    mComponentData,
+    sx,
+    className,
+    componentProps,
+    isMouseInRenderer
+  } = props;
+
+  const children = _.map(mComponentData.children, function (child) {
+    return (
+      <MComponentDataRenderer
+          key={child.id}
+          mComponentData={child}
+          componentProps={componentProps}
+          isMouseInRenderer={isMouseInRenderer}
+      />);
+  });
+
+  return (
+    <div
+        className={classnames('root-component', className)}
+        style={sx}>
+      { children }
+    </div>
+  );
 }
 
 const ContainerClassReact = createDraggableComponent(dragData, React.createClass({
@@ -79,8 +107,8 @@ const ContainerClassReact = createDraggableComponent(dragData, React.createClass
 
     return (
       <div
-          onMouseEnter={() => { this.setState({isHovered: true}) }}
-          onMouseLeave={() => { this.setState({isHovered: false}) }}
+          onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
+          onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
           onClick={this.props.onClick}
           onMouseDown={this.props.onMouseDown}
           ref={makeComponentRefCallback(mComponentData)}
@@ -104,8 +132,8 @@ const HeaderClassReact = createDraggableComponent(dragData, React.createClass({
     const { mComponentData, className } = this.props;
     return (
       <h1
-          onMouseEnter={() => { this.setState({isHovered: true}) }}
-          onMouseLeave={() => { this.setState({isHovered: false}) }}
+          onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
+          onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
           onMouseDown={this.props.onMouseDown}
           ref={makeComponentRefCallback(mComponentData)}
           style={this.props.sx} className={classnames('node_' + mComponentData.id, className)}
@@ -128,8 +156,8 @@ const ParagraphClassReact = createDraggableComponent(dragData, React.createClass
     const { mComponentData, className } = this.props;
     return (
       <p
-          onMouseEnter={() => { this.setState({isHovered: true}) }}
-          onMouseLeave={() => { this.setState({isHovered: false}) }}
+          onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
+          onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
           onMouseDown={this.props.onMouseDown}
           ref={makeComponentRefCallback(mComponentData)}
           style={this.props.sx} className={classnames('node_' + mComponentData.id, className)}
@@ -152,8 +180,8 @@ const ImageClassReact = createDraggableComponent(dragData, React.createClass({
     const { mComponentData, className } = this.props;
     return (
       <img
-          onMouseEnter={() => { this.setState({isHovered: true}) }}
-          onMouseLeave={() => { this.setState({isHovered: false}) }}
+          onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
+          onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
           onMouseDown={this.props.onMouseDown}
           ref={makeComponentRefCallback(mComponentData)}
           style={this.props.sx}
@@ -164,17 +192,6 @@ const ImageClassReact = createDraggableComponent(dragData, React.createClass({
     );
   },
 }));
-
-/*
-   I have a tree of components as data.
-   What do I need to do with the components:
-   - render them
-   - change their properties
-   - Rearrange them
-   - Compute data from them (ex. drop points)
-
-   Need to seperate the data and the rendering...
- */
 
 function makeClick(component) {
   return function (e) {
@@ -191,11 +208,11 @@ const MComponentDataRenderer = React.createClass({
   },
 
   setHovered() {
-    this.setState({isHovered: false});
+    this.setState({isHovered: true});
   },
 
   resetHovered() {
-    this.setState({isHovered: true});
+    this.setState({isHovered: false});
   },
 
   getComponentState() {
@@ -208,55 +225,86 @@ const MComponentDataRenderer = React.createClass({
 
   render: function () {
     /* TD: expand for custom components */
-    let mComponentData = this.props.mComponentData;
-    const { htmlProperties, sx } = this.props.mComponentData.getRenderableProperties(this.getComponentState());
     let className, component;
+    let {componentProps, mComponentData} = this.props;
 
-    if (this.props.componentProps.activeComponent) {
+    let componentState = this.getComponentState();
+    let renderableProperties = mComponentData.getRenderableProperties(DEFAULT);
+
+    if (componentState !== DEFAULT) {
+      _.merge(
+        renderableProperties,
+        mComponentData.getRenderableProperties(componentState)
+      );
+    }
+
+    const { htmlProperties, sx } = renderableProperties;
+
+    if (componentProps.activeComponent) {
       className = { 'active-component': this.props.componentProps.activeComponent.id === this.props.mComponentData.id };
     }
 
-    if (mComponentData instanceof Container) {
-      component = (<ContainerClassReact
-                       className={className}
-                       onClick={makeClick(this.props.mComponentData)}
-                       {...this.props}
-                       htmlProperties={htmlProperties}
-                       sx={sx}
-                   />);
+    if (mComponentData instanceof Root) {
+      component = (
+        <RootClassReact
+            className={className}
+            {...this.props}
+            sx={sx}
+        />
+      );
+    } else if (mComponentData instanceof Container) {
+      component = (
+        <ContainerClassReact
+            className={className}
+            onMouseEnter={this.setHovered}
+            onMouseLeave={this.resetHovered}
+            onClick={makeClick(mComponentData)}
+            {...this.props}
+            htmlProperties={htmlProperties}
+            sx={sx}
+        />
+      );
     } else if (mComponentData instanceof Header) {
-      component = (<HeaderClassReact
-                       className={className}
-                       onClick={makeClick(this.props.mComponentData)}
-                       {...this.props}
-                       htmlProperties={htmlProperties}
-                       sx={sx}
-                   />);
+      component = (
+        <HeaderClassReact
+            className={className}
+            onMouseEnter={this.setHovered}
+            onMouseLeave={this.resetHovered}
+            onClick={makeClick(mComponentData)}
+            {...this.props}
+            htmlProperties={htmlProperties}
+            sx={sx}
+        />
+      );
     } else if (mComponentData instanceof Text) {
-      component = (<ParagraphClassReact
-                       className={className}
-                       onClick={makeClick(this.props.mComponentData)}
-                       {...this.props}
-                       htmlProperties={htmlProperties}
-                       sx={sx}
-                   />);
+      component = (
+        <ParagraphClassReact
+            className={className}
+            onMouseEnter={this.setHovered}
+            onMouseLeave={this.resetHovered}
+            onClick={makeClick(mComponentData)}
+            {...this.props}
+            htmlProperties={htmlProperties}
+            sx={sx}
+        />
+      );
     } else if (mComponentData instanceof Image) {
-      component = (<ImageClassReact
-                       className={className}
-                       onClick={makeClick(this.props.mComponentData)}
-                       {...this.props}
-                       htmlProperties={htmlProperties}
-                       sx={sx}
-                   />);
+      component = (
+        <ImageClassReact
+            className={className}
+            onMouseEnter={this.setHovered}
+            onMouseLeave={this.resetHovered}
+            onClick={makeClick(mComponentData)}
+            {...this.props}
+            htmlProperties={htmlProperties}
+            sx={sx}
+        />
+      );
     }
 
     return component;
   }
 });
-
-  function (props) {
-
-};
 
 function DragHandle(props) {
   var height = 60;

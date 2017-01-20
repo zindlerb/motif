@@ -120,6 +120,7 @@ const ComponentMenu = React.createClass({
                 }}
             />
           </li>),
+
         ];
 
         if (searchString) {

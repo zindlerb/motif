@@ -7,6 +7,7 @@ import {
   componentTreeActions,
   componentTreeReducer
 } from './stateManagers/componentTreeStateManager';
+import {DEFAULT} from './base_components.js';
 
 import { guid } from './utils';
 
@@ -15,6 +16,7 @@ import {
   header,
   text,
   image,
+  root
 } from './base_components';
 
 const initialState = {
@@ -49,6 +51,7 @@ const initialState = {
 };
 
 /* Constants */
+const SET_ACTIVE_COMPONENT_STATE = 'SET_ACTIVE_COMPONENT_STATE';
 const SELECT_BREAKPOINT = 'SELECT_BREAKPOINT';
 const OPEN_SITE = 'OPEN_SITE';
 const SET_GLOBAL_CURSOR = 'SET_GLOBAL_CURSOR';
@@ -63,6 +66,12 @@ const ADD_ASSET = 'ADD_ASSET';
 const SET_RENDERER_WIDTH = 'SET_RENDERER_WIDTH';
 
 export const actions = Object.assign({
+  setActiveComponentState(newState) {
+    return {
+      type: SET_ACTIVE_COMPONENT_STATE,
+      newState
+    }
+  },
   setRendererWidth(newWidth) {
     return {
       type: SET_RENDERER_WIDTH,
@@ -162,14 +171,8 @@ const reducerObj = Object.assign({
   },
 
   [ADD_NEW_PAGE](state) {
-    const fakePage = container.createVariant(
-      {
-        attributes: {
-          height: '100%',
-        },
-        isRoot: true,
-      },
-    );
+    const fakePage = root.createVariant();
+
 
     fakePage.addChild(container.createVariant());
 
@@ -229,7 +232,11 @@ const reducerObj = Object.assign({
   },
   [SET_RENDERER_WIDTH](state, action) {
     state.rendererWidth = action.newWidth;
+  },
+  [SET_ACTIVE_COMPONENT_STATE](state, action) {
+    state.activeComponentState = action.newState;
   }
+
 }, componentTreeReducer);
 
 function reducer(state, action) {

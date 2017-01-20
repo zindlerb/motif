@@ -3,30 +3,46 @@ var _ = require('lodash');
 // Tests
 var baseComponents = require('../app/base_components.js');
 
+var DEFAULT = baseComponents.DEFAULT;
+var containerAttributes = baseComponents.containerAttributes;
+
 var container = baseComponents.container;
 var text = baseComponents.text;
 var header = baseComponents.header;
 var image = baseComponents.image;
 
+describe('base components', () => {
+  it('copies the attributes correctly', () => {
+    expect(container.attributes).toEqual(containerAttributes);
+  });
+});
+
+/*
+ * describe('getRenderableProperties', () => {
+ *
+ * });*/
+
 describe('createVariant', () => {
   var containerVariant = container.createVariant();
 
   it('copies spec properties correctly', () => {
-    expect(containerVariant.attributes).toEqual({});
+    expect(containerVariant.attributes[DEFAULT]).toEqual({});
 
     var textVariant = text.createVariant({
-      attributes: { something: 12 }
+      attributes: {
+        [DEFAULT]: { something: 12 }
+      }
     });
 
-    expect(textVariant.attributes.something).toBe(12);
+    expect(textVariant.attributes[DEFAULT].something).toBe(12);
 
     var headerVariant = header.createVariant();
 
-    expect(headerVariant.attributes).toEqual({});
+    expect(headerVariant.attributes[DEFAULT]).toEqual({});
 
     var imageVariant = image.createVariant();
 
-    expect(imageVariant.attributes).toEqual({});
+    expect(imageVariant.attributes[DEFAULT]).toEqual({});
   });
 
   it('adds component to masters variants', () => {
@@ -122,18 +138,22 @@ describe('removeSelf', () => {
 describe('getAllAttrs', () => {
   var hv = header.createVariant({
     attributes: {
-      backgroundColor: 'red',
-      text: 'hi'
+      [DEFAULT]: {
+        backgroundColor: 'red',
+        text: 'hi'
+      }
     }
   });
 
   var hvv = hv.createVariant({
     attributes: {
-      text: 'no'
+      [DEFAULT]: {
+        text: 'no'
+      }
     }
   });
 
-  var attrs = hvv.getAllAttrs();
+  var attrs = hvv.getAllAttrs(DEFAULT);
 
   it('has the parents attrs', () => {
     expect(attrs.backgroundColor).toBe('red');
