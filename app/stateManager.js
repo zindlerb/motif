@@ -34,6 +34,7 @@ const initialState = {
   assets: [],
   currentPage: undefined,
   activeComponent: undefined,
+  hoveredComponent: undefined,
   activeView: 'BORDER',
   activeBreakpoint: 'NONE',
   activeLeftPanel: 'PAGES',

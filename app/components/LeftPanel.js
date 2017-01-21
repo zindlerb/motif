@@ -5,6 +5,7 @@ import classnames from 'classnames';
 
 import { actionDispatch } from '../stateManager';
 import { createDraggableComponent } from '../dragManager';
+import { createNewAsset } from '../base_components';
 import HorizontalSelect from './HorizontalSelect';
 import CartoonButton from './CartoonButton.js';
 
@@ -195,10 +196,7 @@ const LeftPanel = React.createClass({
           <AssetIcon
               src={asset.src}
               createComponent={() => {
-                  return image.createVariant({
-                    name: asset.name,
-                    attributes: { src: asset.src }
-                  });
+                  return createNewAsset(asset);
                 }}
               name={asset.name} />
         );

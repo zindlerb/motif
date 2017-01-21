@@ -22,11 +22,13 @@ const RightPanel = React.createClass({
     let body, attrs;
     let {
       activeComponent,
+      hoveredComponent,
       activePanel,
       tree,
       otherPossibleTreeViewDropSpots,
       selectedTreeViewDropSpot,
-      activeComponentState
+      activeComponentState,
+      assets
     } = this.props;
 
     if (activePanel === 'ATTRIBUTES' && activeComponent) {
@@ -70,12 +72,17 @@ const RightPanel = React.createClass({
         </div>
       );
     } else if (activePanel === 'TREE') {
-      body = (<ComponentTree
-                 node={tree}
-                 otherPossibleTreeViewDropSpots={otherPossibleTreeViewDropSpots}
-                 selectedTreeViewDropSpot={selectedTreeViewDropSpot}
-                 activeComponent={activeComponent}
-      />);
+      body = (
+        <ComponentTree
+            node={tree}
+            context={{
+              otherPossibleTreeViewDropSpots,
+              selectedTreeViewDropSpot,
+              activeComponent,
+              hoveredComponent,
+            }}
+        />
+      );
     } else if (activePanel === 'DETAILS') {
       body = (<SidebarHeader text='Page Settings'/>);
     }

@@ -135,6 +135,7 @@ const App = React.createClass({
       assets,
       activeBreakpoint,
       rendererWidth,
+      hoveredComponent
     } = this.state;
 
     let componentMapByName = _.reduce(componentBoxes, function (componentMapByName, componentList) {
@@ -169,7 +170,8 @@ const App = React.createClass({
                 page={currentPage}
                 activeBreakpoint={activeBreakpoint}
                 activeView={activeView}
-                componentProps={{
+                context={{
+                  hoveredComponent,
                   activeComponent,
                   selectedComponentViewDropSpot
                 }}
@@ -177,6 +179,7 @@ const App = React.createClass({
           </div>
           <div className="sidebar h-100 flex-none">
             <RightPanel
+                hoveredComponent={hoveredComponent}
                 activeComponentState={activeComponentState}
                 activeComponent={activeComponent}
                 activePanel={activeRightPanel}
@@ -191,7 +194,7 @@ const App = React.createClass({
           />
           <DragImage />
         </div>
-        <ComponentMenu menu={menu} componentMapByName={componentMapByName} />
+        <ComponentMenu menu={menu} componentMapByName={componentMapByName} assets={assets} />
       </div>
     );
   },

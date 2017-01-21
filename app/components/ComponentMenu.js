@@ -1,7 +1,9 @@
 import React from 'react';
 import _ from 'lodash';
 import fuzzy from 'fuzzy';
+import { Rect } from '../utils';
 
+import { createNewAsset } from '../base_components';
 import { actionDispatch } from '../stateManager';
 
 function fuzzyFilterList(stringList, testString) {
@@ -12,14 +14,25 @@ function fuzzyFilterList(stringList, testString) {
 }
 
 const ROOT = 'ROOT';
-const INSERTION = 'INSERTION';
-const WRAP = 'WRAP';
+const INSERT_ASSET = 'INSERT_ASSET';
+const INSERT_COMPONENT = 'INSERT_COMPONENT';
+
+function LeftTriangle (props) {
+  const size = 10;
+  return (
+    <img
+        className={props.className}
+        style={{width: size, height: size}}
+        alt=""
+        src="public/img/assets/left-triangle.svg"/>
+  );
+}
 
 const ComponentMenu = React.createClass({
   getInitialState() {
     return {
       searchString: '',
-      menuState: ROOT
+      openListItem: undefined,
     };
   },
 
@@ -27,121 +40,146 @@ const ComponentMenu = React.createClass({
     if (!nextProps.menu.isOpen && this.state.menuState !== ROOT) {
       this.setState({
         searchString: '',
-        menuState: ROOT
+        openListItem: undefined,
       });
     }
   },
 
   render() {
-    let { componentMapByName, menu } = this.props;
+    let { componentMapByName, menu, assets } = this.props;
     let { component, isOpen, componentX, componentY } = menu;
-    let { menuState, searchString } = this.state;
+    let { openListItem, searchString, secondaryPosX, secondaryPosY } = this.state;
     let menuComponent = component;
-    let listItems;
-    let sx = { position: 'absolute' };
+    let listItems, secondaryList;
+
+    let sx = {
+      position: 'absolute',
+      left: componentX,
+      top: componentY
+    };
+
+    let secondaryMenuWidth = 100;
+    let secondaryListStyle = {
+      position: 'absolute',
+      left: secondaryPosX - secondaryMenuWidth,
+      top: secondaryPosY,
+      width: secondaryMenuWidth
+    };
+    let componentList;
 
     if (isOpen) {
-      sx.left = componentX;
-      sx.top = componentY;
-
-      if (menuState === ROOT) {
-        listItems = [
-          (<li
-               key={INSERTION}
-               onMouseUp={(e) => {
-                 this.setState({ menuState: INSERTION });
-                 e.stopPropagation();
-               }}
-          >
-  Insert
-          </li>),
-
-          (<li
-               key={WRAP}
-               onMouseUp={(e) => {
-                 this.setState({ menuState: WRAP });
-                 e.stopPropagation();
-               }}
-          >
-            Wrap
-          </li>),
-
-          (<li
-               key={'DELETE'}
-               onMouseUp={(e) => {
-                 actionDispatch.deleteComponent(menuComponent);
-                 actionDispatch.closeMenu();
-                 e.stopPropagation();
-               }}
-          >
-            Delete
-          </li>),
-
-          (<li
-               key={'MAKE_COMPONENT'}
-               onMouseUp={(e) => {
-                 actionDispatch.createComponentBlock(menuComponent);
-                 actionDispatch.closeMenu();
-                 e.stopPropagation();
-               }}
-          >
-            Make Component
-          </li>)
-        ];
-      } else if (menuState === INSERTION || menuState === WRAP) {
-        let makeComponentOnClick;
-        let componentList = _.keys(componentMapByName);
-
-        if (menuState === INSERTION) {
-          makeComponentOnClick = component => () => {
-            actionDispatch.addComponent(component, menu.component, 0);
-          };
-        } else if (menuState === WRAP) {
-          makeComponentOnClick = component => () => {
-            actionDispatch.wrapComponent(component, menu.component);
-          };
+      if (openListItem) {
+        if (openListItem === INSERT_COMPONENT) {
+          componentList = _.keys(componentMapByName).map(function (componentName) {
+            return (
+              <li
+                  key={componentName}
+                  onMouseUp={() => {
+                      actionDispatch.addComponent(
+                        componentMapByName[componentName],
+                        menu.component.parent,
+                        menu.component.getInd()
+                      );
+                    }}>
+                {componentName}
+              </li>
+            );
+          });
         }
 
-        listItems = [
-          (<li
-               key={'ROOT'}
-               onMouseUp={(e) => {
-                 this.setState({ menuState: ROOT });
-                 e.stopPropagation();
-               }}
-          >Back</li>),
-          (<li key={'SEARCH'} onMouseUp={(e) => { e.stopPropagation(); }}>
-            <input
-                type="text"
-                value={searchString}
-                onChange={(e) => {
-                  this.setState({ searchString: e.target.value });
-                  e.stopPropagation();
-                }}
-            />
-          </li>),
-
-        ];
-
-        if (searchString) {
-          componentList = fuzzyFilterList(componentList, searchString);
+        if (openListItem === INSERT_ASSET) {
+          componentList = assets.map(function(asset, ind) {
+            return (
+              <li
+                  key={ind}
+                  onMouseUp={() => {
+                      console.log('asset', asset);
+                      actionDispatch.addComponent(
+                        createNewAsset(asset),
+                        menu.component.parent,
+                        menu.component.getInd()
+                      );
+                    }}>
+                {asset.name}
+              </li>
+            );
+          });
         }
 
-        componentList = componentList.map(function (componentName) {
-          return (<li
-key={componentName} onMouseUp={makeComponentOnClick(componentMapByName[componentName])}
-          >
-            {componentName}
-          </li>);
-        });
+        secondaryList = (
+          <ul className="component-menu" style={secondaryListStyle}>
+            {componentList}
+          </ul>
+        );
+      }
 
-        listItems = listItems.concat(componentList);
+      if (openListItem === INSERT_ASSET) {
+        secondaryList = (
+          <ul className="component-menu" style={secondaryListStyle}>
+            {componentList}
+          </ul>
+        );
       }
 
       return (
-        <ul style={sx} className="component-menu">
-          {listItems}
-        </ul>
+        <div>
+          <ul style={sx} className="component-menu">
+            <li
+                key={'DELETE'}
+                onMouseEnter={() => { this.setState({openListItem: undefined}) }}
+                onMouseUp={(e) => {
+                    actionDispatch.deleteComponent(menuComponent);
+                    actionDispatch.closeMenu();
+                    e.stopPropagation();
+                  }}>
+              <i className="fa fa-trash ph1" aria-hidden="true" />
+              Delete
+            </li>
+            <li
+                key={'MAKE_COMPONENT'}
+                onMouseEnter={() => { this.setState({openListItem: undefined}) }}
+                onMouseUp={(e) => {
+                    actionDispatch.createComponentBlock(menuComponent);
+                    actionDispatch.closeMenu();
+                    e.stopPropagation();
+                  }}>
+              <i className="fa fa-id-card-o ph1" aria-hidden="true"/>
+              Make Component
+            </li>
+            <li
+                className={INSERT_COMPONENT}
+                key={INSERT_COMPONENT}
+                ref={(ref) => { this._insertComponentEl = ref }}
+                onMouseEnter={(e) => {
+                    let rect = new Rect().fromElement(this._insertComponentEl);
+                    this.setState({
+                      openListItem: INSERT_COMPONENT,
+                      secondaryPosX: rect.x,
+                      secondaryPosY: rect.y,
+                    });
+                    e.stopPropagation();
+                  }}>
+              <LeftTriangle className='ph1'/>
+              Insert Component
+            </li>
+            <li
+                key={INSERT_ASSET}
+                ref={(ref) => { this._insertAssetEl = ref }}
+                onMouseEnter={(e) => {
+                    let rect = new Rect().fromElement(this._insertAssetEl);
+                    this.setState({
+                      openListItem: INSERT_ASSET,
+                      secondaryPosX: rect.x,
+                      secondaryPosY: rect.y,
+                    });
+                    e.stopPropagation();
+                  }}>
+              <LeftTriangle className='ph1'/>
+              Insert Asset
+            </li>
+          </ul>
+          {secondaryList}
+        </div>
       );
     } else {
       return <div />;

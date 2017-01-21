@@ -2,10 +2,13 @@
 $highlight: #EBEBEB;
 $potential-highlight: #f5f5f5;
 
+$border-radius: 3px;
+
 $bright: #f99063;
 
 $border: #BDBDBD;
 
+/* SPACING */
 $spacing-none: 0;
 $spacing-extra-small: .25rem;
 $spacing-small: .5rem;
@@ -14,6 +17,15 @@ $spacing-large: 2rem;
 $spacing-extra-large: 4rem;
 $spacing-extra-extra-large: 8rem;
 $spacing-extra-extra-extra-large: 16rem;
+
+/* TYPE SCALE */
+$f1: 3rem;
+$f2: 2.25rem;
+$f3: 1.5rem;
+$f4: 1.25rem;
+$f5: 1rem;
+$f6: .875rem;
+$f7: .75rem;
 
 /* Utils */
 .bright-background {
@@ -126,6 +138,18 @@ body * {
   border: 3px solid $bright !important;
 }
 
+.hovered-component {
+  border: 3px solid $potential-highlight !important;
+}
+
+.treeItem.isHovered {
+  background-color: $potential-highlight;
+}
+
+.treeItem.isActive {
+  background-color: $highlight;
+}
+
 .expandable-element {
   /* height: 0px; */
   /* -webkit-transition: 500ms; */
@@ -163,24 +187,7 @@ body * {
   right: 8px;
 }
 
-.component-menu {
-  border: 1px solid black;
-  background-color: white;
 
-  li {
-    border-bottom: 1px solid black;
-    cursor: pointer;
-  }
-
-  li:hover {
-    opacity: .6;
-    background-color: gray;
-  }
-
-  li:last-child {
-    border-bottom: 0px;
-  }
-}
 
 .cartoon-button {
   position: relative;
@@ -238,4 +245,30 @@ body * {
 
 .root-component {
   outline: 0px solid gray !important;
+}
+
+/* COMPONENTS */
+
+/* Menu */
+.component-menu {
+  border: 1px solid $border;
+  border-radius: $border-radius;
+  box-shadow: 1px 1px 3px $border;
+  background-color: white;
+
+  li {
+    font-size: $f7;
+    border-bottom: 1px solid $border;
+    cursor: pointer;
+    padding: $spacing-extra-small;
+  }
+
+  li:hover {
+    opacity: .6;
+    background-color: $highlight;
+  }
+
+  li:last-child {
+    border-bottom: 0px;
+  }
 }

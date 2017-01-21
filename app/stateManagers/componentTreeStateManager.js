@@ -2,6 +2,9 @@ import _ from 'lodash';
 import { minDistanceBetweenPointAndLine } from '../utils';
 import { DEFAULT } from '../base_components.js';
 
+const UNHOVER_COMPONENT = 'UNHOVER_COMPONENT';
+const HOVER_COMPONENT = 'HOVER_COMPONENT';
+
 const WRAP_COMPONENT = 'WRAP_COMPONENT';
 const ADD_COMPONENT = 'ADD_COMPONENT';
 const MOVE_COMPONENT = 'MOVE_COMPONENT';
@@ -58,6 +61,19 @@ export const componentTreeActions = {
       type: SELECT_COMPONENT,
       component,
     };
+  },
+
+  hoverComponent(component) {
+    return {
+      type: HOVER_COMPONENT,
+      component
+    }
+  },
+
+  unHoverComponent() {
+    return {
+      type: UNHOVER_COMPONENT
+    }
   },
 
   updateComponentViewDropSpots(pos) {
@@ -124,6 +140,11 @@ export const componentTreeReducer = {
     componentParent.addChild(newParent);
   },
 
+  [HOVER_COMPONENT](state, action) {
+    console.log('hover')
+    state.hoveredComponent = action.component;
+  },
+
   [ADD_COMPONENT](state, action) {
     let { component, parentComponent, insertionIndex } = action;
 
@@ -148,7 +169,6 @@ export const componentTreeReducer = {
   [SELECT_COMPONENT](state, action) {
     state.activeComponentState = DEFAULT;
     state.activeComponent = action.component;
-    state.activeRightPanel = 'ATTRIBUTES';
   },
 
   [UPDATE_COMPONENT_VIEW_DROP_SPOTS](state, action) {
@@ -262,4 +282,8 @@ export const componentTreeReducer = {
       action.newAttrValue
     );
   },
+
+  [UNHOVER_COMPONENT](state) {
+    state.hoveredComponent = undefined;
+  }
 };

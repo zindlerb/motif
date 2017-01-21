@@ -32,11 +32,19 @@ const ComponentTree = React.createClass({
     let children;
     let afterSpacer, beforeSpacer, afterSpacerInd;
     let {
+      context,
+      node,
+    } = this.props;
+
+    const {
       otherPossibleTreeViewDropSpots,
       selectedTreeViewDropSpot,
-      node,
-      activeComponent
-    } = this.props;
+      activeComponent,
+      hoveredComponent
+    } = context;
+
+    const treeItemIsActive = activeComponent && node.id === activeComponent.id;
+    const treeItemIsHovered = hoveredComponent && node.id === hoveredComponent.id;
 
     function checkActive(dropPoint, ind) {
       if (!dropPoint) { return false; }
@@ -72,9 +80,7 @@ const ComponentTree = React.createClass({
       children = (
         <TreeChildren
             children={node.children}
-            otherPossibleTreeViewDropSpots={otherPossibleTreeViewDropSpots}
-            selectedTreeViewDropSpot={selectedTreeViewDropSpot}
-            activeComponent={activeComponent}
+            context={context}
         />
       );
     }
@@ -85,7 +91,11 @@ const ComponentTree = React.createClass({
           ref={(ref) => { this.props.node['###domElements'].treeView = ref; }}
       >
         {beforeSpacer}
-        <TreeItem {...this.props} isActive={activeComponent && activeComponent.id === node.id} />
+        <TreeItem
+            {...this.props}
+            isActive={treeItemIsActive}
+            isHovered={treeItemIsHovered}
+        />
         {children}
         {afterSpacer}
       </div>
@@ -121,19 +131,36 @@ const TreeItem = createDraggableComponent(
       }
     },
     render() {
-      const className = classnames(
-        this.props.className,
-        'outline_' + this.props.node.id,
-        { highlightBottom: false, isActive: this.props.isActive },
+      const {
+        node,
+        className,
+        isActive,
+        isHovered,
+        onMouseDown
+      } = this.props;
+
+      const treeItemClassName = classnames(
+        'treeItem',
+        className,
+        'outline_' + node.id,
+        {
+          highlightBottom: false,
+          isActive,
+          isHovered
+        },
         'db'
       );
 
       return (
         <span
-            onMouseDown={this.props.onMouseDown}
+            onMouseDown={onMouseDown}
+            onMouseEnter={() => {
+                actionDispatch.hoverComponent(node)
+              }}
+            onMouseLeave={() => { actionDispatch.unHoverComponent() }}
             onMouseUp={this.onClick}
-            className={className}>
-          {this.props.node.name}
+            className={treeItemClassName}>
+          {node.name}
         </span>
       );
     },
@@ -142,13 +169,16 @@ const TreeItem = createDraggableComponent(
 
 const TreeChildren = React.createClass({
   render() {
-    let { otherPossibleTreeViewDropSpots, selectedTreeViewDropSpot, activeComponent } = this.props;
-    const children = _.map(this.props.children, function (child, ind) {
+    let {
+      otherPossibleTreeViewDropSpots,
+      selectedTreeViewDropSpot,
+      activeComponent,
+      hoveredComponent
+    } = this.props.context;
+    const children = _.map(this.props.children, (child, ind) => {
       return (
         <ComponentTree
-            selectedTreeViewDropSpot={selectedTreeViewDropSpot}
-            otherPossibleTreeViewDropSpots={otherPossibleTreeViewDropSpots}
-            activeComponent={activeComponent}
+            context={this.props.context}
             node={child}
             key={child.id}
             isFirst={ind === 0}

@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import $ from 'jquery';
 
 export function distanceBetweenPoints(p1, p2) {
   return Math.abs(Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2)));
@@ -32,6 +33,9 @@ export class Rect {
   }
 
   fromElement(el) {
+    if (!(el instanceof $)) {
+      el = $(el);
+    }
     const height = el.height();
     const width = el.width();
     const offset = el.offset();

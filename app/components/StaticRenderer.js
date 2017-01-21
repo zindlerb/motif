@@ -16,7 +16,7 @@ const dragData = {
     actionDispatch.updateComponentViewDropSpots(pos);
   },
   onEnd(props) {
-    const selectedComponentViewDropSpot = props.componentProps.selectedComponentViewDropSpot;
+    const selectedComponentViewDropSpot = props.context.selectedComponentViewDropSpot;
     if (selectedComponentViewDropSpot) {
       actionDispatch.moveComponent(
         props.mComponentData,
@@ -40,7 +40,7 @@ const RootClassReact = function (props) {
     mComponentData,
     sx,
     className,
-    componentProps,
+    context,
     isMouseInRenderer
   } = props;
 
@@ -49,7 +49,7 @@ const RootClassReact = function (props) {
       <MComponentDataRenderer
           key={child.id}
           mComponentData={child}
-          componentProps={componentProps}
+          context={context}
           isMouseInRenderer={isMouseInRenderer}
       />);
   });
@@ -92,15 +92,14 @@ const ContainerClassReact = createDraggableComponent(dragData, React.createClass
   },
 
   render() {
-    const { mComponentData, componentProps, isMouseInRenderer, className } = this.props;
-    const sx = {};
+    const { mComponentData, context, isMouseInRenderer, className } = this.props;
 
     const children = _.map(mComponentData.children, function (child) {
       return (
         <MComponentDataRenderer
             key={child.id}
             mComponentData={child}
-            componentProps={componentProps}
+            context={context}
             isMouseInRenderer={isMouseInRenderer}
         />);
     });
@@ -112,7 +111,7 @@ const ContainerClassReact = createDraggableComponent(dragData, React.createClass
           onClick={this.props.onClick}
           onMouseDown={this.props.onMouseDown}
           ref={makeComponentRefCallback(mComponentData)}
-          style={Object.assign(this.props.sx, sx)}
+          style={this.props.sx}
           className={classnames('node_' + mComponentData.id, 'expandable-element', { expanded: this.state.isExpanded }, className)}
       >
         {children}
@@ -129,17 +128,22 @@ const HeaderClassReact = createDraggableComponent(dragData, React.createClass({
   },
 
   render() {
-    const { mComponentData, className } = this.props;
+    const {
+      mComponentData,
+      className,
+      sx,
+      htmlProperties,
+    } = this.props;
     return (
       <h1
           onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
           onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
           onMouseDown={this.props.onMouseDown}
           ref={makeComponentRefCallback(mComponentData)}
-          style={this.props.sx} className={classnames('node_' + mComponentData.id, className)}
+          style={sx} className={classnames('node_' + mComponentData.id, className)}
           onClick={this.props.onClick}
       >
-        {this.props.htmlProperties.text}
+        {htmlProperties.text}
       </h1>
     );
   },
@@ -177,16 +181,21 @@ const ImageClassReact = createDraggableComponent(dragData, React.createClass({
   },
 
   render() {
-    const { mComponentData, className } = this.props;
+    const {
+      mComponentData,
+      className,
+      sx,
+      htmlProperties
+    } = this.props;
     return (
       <img
           onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
           onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
           onMouseDown={this.props.onMouseDown}
           ref={makeComponentRefCallback(mComponentData)}
-          style={this.props.sx}
+          style={sx}
           className={classnames('node_' + mComponentData.id, className)}
-          src={mComponentData.attributes.src}
+          src={htmlProperties.src}
           onClick={this.props.onClick}
       />
     );
@@ -196,6 +205,7 @@ const ImageClassReact = createDraggableComponent(dragData, React.createClass({
 function makeClick(component) {
   return function (e) {
     actionDispatch.selectComponent(component);
+    actionDispatch.changePanel('ATTRIBUTES', 'right');
     e.stopPropagation();
   };
 }
@@ -208,10 +218,12 @@ const MComponentDataRenderer = React.createClass({
   },
 
   setHovered() {
+    actionDispatch.hoverComponent(this.props.mComponentData);
     this.setState({isHovered: true});
   },
 
   resetHovered() {
+    actionDispatch.unHoverComponent();
     this.setState({isHovered: false});
   },
 
@@ -226,7 +238,8 @@ const MComponentDataRenderer = React.createClass({
   render: function () {
     /* TD: expand for custom components */
     let className, component;
-    let {componentProps, mComponentData} = this.props;
+    let { context, mComponentData } = this.props;
+    let { hoveredComponent, activeComponent } = context;
 
     let componentState = this.getComponentState();
     let renderableProperties = mComponentData.getRenderableProperties(DEFAULT);
@@ -239,15 +252,20 @@ const MComponentDataRenderer = React.createClass({
     }
 
     const { htmlProperties, sx } = renderableProperties;
+    const isActiveComponent = activeComponent && activeComponent.id === mComponentData.id;
 
-    if (componentProps.activeComponent) {
-      className = { 'active-component': this.props.componentProps.activeComponent.id === this.props.mComponentData.id };
-    }
+    className = {
+      'active-component': isActiveComponent,
+      'hovered-component': (
+        !isActiveComponent &&
+        hoveredComponent &&
+        hoveredComponent.id === mComponentData.id
+      )
+    };
 
     if (mComponentData instanceof Root) {
       component = (
         <RootClassReact
-            className={className}
             {...this.props}
             sx={sx}
         />
@@ -366,8 +384,8 @@ const StaticRenderer = React.createClass({
       activeView,
       activeBreakpoint,
       page,
-      componentProps,
-      width
+      context,
+      width,
     } = this.props;
     let renderer;
 
@@ -375,7 +393,7 @@ const StaticRenderer = React.createClass({
       renderer = (
         <MComponentDataRenderer
             mComponentData={page.componentTree}
-            componentProps={componentProps}
+            context={context}
             isMouseInRenderer={this.state.isMouseInRenderer}
         />
       );

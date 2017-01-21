@@ -28,7 +28,6 @@ export const HOVER = 'HOVER';
 
 export class Component {
   constructor(spec) {
-
     this.attributes = {
       [DEFAULT]: {}
     };
@@ -156,6 +155,7 @@ export class Component {
 
     let attrToHtmlPropertyLookup = {
       text: true,
+      src: true
     };
 
     return _.reduce(this.getAllAttrs(state), function (renderableAttributes, attrVal, attrKey) {
@@ -213,8 +213,6 @@ export class Component {
     });
   }
 }
-
-
 
 export class Container extends Component {
   constructor(...args) {
@@ -282,8 +280,6 @@ export class Container extends Component {
     return dropPoints;
   }
 }
-
-
 
 export class Root extends Container {
   constructor(...args) {
@@ -380,3 +376,12 @@ export const image = new Image({
     })
   },
 });
+
+export function createNewAsset(asset) {
+  return image.createVariant({
+    name: asset.name,
+    attributes: {
+      [DEFAULT]: { src: asset.src }
+    }
+  })
+}
