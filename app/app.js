@@ -67,6 +67,9 @@ const App = React.createClass({
   saveSite() {
     function writeFile(filename, state) {
       fs.writeFile(filename, serializer.serialize(state));
+      console.log('before state', state);
+      console.log('saved state', JSON.parse(serializer.serialize(state)));
+
       actionDispatch.setActiveFilename(filename);
     }
 

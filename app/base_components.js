@@ -385,3 +385,5 @@ export function createNewAsset(asset) {
     }
   })
 }
+
+console.log(createNewAsset({name: 'test', src: 'test'}));
