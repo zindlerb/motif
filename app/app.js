@@ -8,9 +8,10 @@ import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import classnames from 'classnames';
 import $ from 'jquery'
+import { connect, bindActionCreators } from 'redux';
 
 import { DragImage, dragManager } from './dragManager';
-import { store, actionDispatch } from './stateManager';
+import { store, actions } from './stateManager';
 import serializer from './serializer';
 import { globalEventManager } from './utils';
 
@@ -22,21 +23,8 @@ import ComponentMenu from './components/ComponentMenu';
 
 let dialog = remote.dialog;
 
-
-
-const App = React.createClass({
-  getInitialState() {
-    return store.getState();
-  },
-
+const Editor = React.createClass({
   componentDidMount() {
-    const that = this;
-    store.subscribe(function () {
-      that.setState(store.getState());
-    });
-
-    that.setState(store.getState());
-
     globalEventManager.addListener('mouseup', () => {
       if (this.state.menu.isOpen) {
         actionDispatch.closeMenu();
@@ -67,9 +55,6 @@ const App = React.createClass({
   saveSite() {
     function writeFile(filename, state) {
       fs.writeFile(filename, serializer.serialize(state));
-      console.log('before state', state);
-      console.log('saved state', JSON.parse(serializer.serialize(state)));
-
       actionDispatch.setActiveFilename(filename);
     }
 
@@ -141,13 +126,9 @@ const App = React.createClass({
       hoveredComponent
     } = this.state;
 
-    let componentMapByName = _.reduce(componentBoxes, function (componentMapByName, componentList) {
-      _.forEach(componentList, function (component) {
-        componentMapByName[component.name] = component;
-      });
 
-      return componentMapByName;
-    }, {});
+
+    console.log(this.props);
 
     return (
       <div className="h-100" ref={(el) => { this._el = el; }}>
@@ -181,28 +162,30 @@ const App = React.createClass({
             />
           </div>
           <div className="sidebar h-100 flex-none">
-            <RightPanel
-                hoveredComponent={hoveredComponent}
-                activeComponentState={activeComponentState}
-                activeComponent={activeComponent}
-                activePanel={activeRightPanel}
-                tree={currentPage.componentTree}
-                otherPossibleTreeViewDropSpots={otherPossibleTreeViewDropSpots}
-                selectedTreeViewDropSpot={selectedTreeViewDropSpot}
-            />
+            <RightPanel actions={actions} />
           </div>
-          <DropPointRenderer
-              dropPoints={otherPossibleComponentViewDropSpots}
-              activeDropPoint={selectedComponentViewDropSpot}
-          />
+          <DropPointRenderer />
           <DragImage />
         </div>
-        <ComponentMenu menu={menu} componentMapByName={componentMapByName} assets={assets} />
+        <ComponentMenu actions={actions}/>
       </div>
     );
   },
 });
 
-ReactDOM.render(< App / >,
-                 document.getElementById('content'),
+/*
+   Top level inject just actions
+   All components connect from there.
+   Turn off pure for all.
+*/
+
+const EditorWithDispatch = connect(null, (dispatch) => {
+  return { actions: bindActionCreators(actions, dispatch) };
+})(Editor);
+
+ReactDOM.render(
+  <Provider store={store}>
+    <EditorWithDispatch />
+  </Provider>,
+  document.getElementById('content'),
 );

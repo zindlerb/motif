@@ -17,24 +17,34 @@ const iconList = [
   { name: 'DETAILS', faClass: 'fa-info-circle' },
 ];
 
+const fields = {
+
+}
+
 const RightPanel = React.createClass({
   render() {
     let body, attrs;
     let {
-      activeComponent,
-      hoveredComponent,
+      siteComponents,
+      rootTreeId,
+      activeComponentId,
+      hoveredComponentId,
       activePanel,
-      tree,
       otherPossibleTreeViewDropSpots,
       selectedTreeViewDropSpot,
       activeComponentState,
       assets
     } = this.props;
 
-    if (activePanel === 'ATTRIBUTES' && activeComponent) {
+    if (activePanel === 'ATTRIBUTES' && activeComponentId) {
       attrs = [];
-      let componentAttrs = activeComponent.getAllAttrs(activeComponentState);
-      _.forEach(activeComponent.fields, (field) => {
+      let activeComponent = siteComponents.components[activeComponentId];
+      let componentAttrs = siteComponents.getStateAttributes(
+        activeComponentId,
+        activeComponentState
+      );
+
+      _.forEach(fields[activeComponent.componentType], (field) => {
         attrs.push(
           (<AttributeField
                fieldData={field}
@@ -74,19 +84,18 @@ const RightPanel = React.createClass({
     } else if (activePanel === 'TREE') {
       body = (
         <ComponentTree
-            node={tree}
+            node={siteComponents.getRenderTree(rootTreeId)}
             context={{
               otherPossibleTreeViewDropSpots,
               selectedTreeViewDropSpot,
-              activeComponent,
-              hoveredComponent,
+              activeComponentId,
+              hoveredComponentId,
             }}
         />
       );
     } else if (activePanel === 'DETAILS') {
       body = (<SidebarHeader text='Page Settings'/>);
     }
-
 
     return (
       <div>
@@ -104,4 +113,15 @@ const RightPanel = React.createClass({
   },
 });
 
-export default RightPanel;
+export default connect(function(state) {
+  return {
+    siteComponents: state.siteComponents
+    activeComponentId: state.activeComponentId ,
+    hoveredComponentId: state.hoveredComponentId,
+    rootTreeId: state.currentPage.componentTreeId,
+    activeComponentState: state.activeComponentState,
+    activePanel: state.activeRightPanel,
+    otherPossibleTreeViewDropSpots: state.otherPossibleTreeViewDropSpots,
+    selectedTreeViewDropSpot: state.selectedTreeViewDropSpot
+  }
+}, null, null, {pure: false})(RightPanel);

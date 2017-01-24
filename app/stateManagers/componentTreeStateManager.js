@@ -23,50 +23,42 @@ const CREATE_COMPONENT_BLOCK = 'CREATE_COMPONENT_BLOCK';
 const SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
 
 export const componentTreeActions = {
-  wrapComponent(parentComponent, childComponent) {
-    return {
-      type: WRAP_COMPONENT,
-      parentComponent,
-      childComponent
-    };
-  },
-
-  moveComponent(component, parentComponent, insertionIndex) {
+  moveComponent(componentId, parentComponentId, insertionIndex) {
     return {
       type: MOVE_COMPONENT,
-      component,
-      parentComponent,
+      componentId,
+      parentComponentId,
       insertionIndex
     };
   },
 
-  addComponent(component, parentComponent, insertionIndex) {
+  addComponent(componentId, parentComponentId, insertionIndex) {
     return {
       type: ADD_COMPONENT,
-      component,
-      parentComponent,
+      componentId,
+      parentComponentId,
       insertionIndex
     };
   },
 
-  deleteComponent(component) {
+  deleteComponent(componentId) {
     return {
       type: DELETE_COMPONENT,
-      component
+      componentId
     };
   },
 
-  selectComponent(component) {
+  selectComponent(componentId) {
     return {
       type: SELECT_COMPONENT,
-      component,
+      componentId,
     };
   },
 
-  hoverComponent(component) {
+  hoverComponent(componentId) {
     return {
       type: HOVER_COMPONENT,
-      component
+      componentId
     }
   },
 
@@ -89,11 +81,11 @@ export const componentTreeActions = {
     };
   },
 
-  updateTreeViewDropSpots(pos, draggedComponent) {
+  updateTreeViewDropSpots(pos, draggedComponentId) {
     return {
       type: UPDATE_TREE_VIEW_DROP_SPOTS,
       pos,
-      draggedComponent
+      draggedComponentId
     };
   },
 
@@ -103,77 +95,73 @@ export const componentTreeActions = {
     };
   },
 
-  changeComponentName(component, newName) {
+  changeComponentName(componentId, newName) {
     return {
       type: CHANGE_COMPONENT_NAME,
-      component,
+      componentId,
       newName
     };
   },
 
-  createComponentBlock(component) {
+  createComponentBlock(componentId) {
     return {
       type: CREATE_COMPONENT_BLOCK,
-      component
+      componentId
     };
   },
 
-  setComponentAttribute(component, attrKey, newAttrValue) {
+  setComponentAttribute(componentId, attrKey, newAttrValue) {
     return {
       type: SET_COMPONENT_ATTRIBUTE,
-      component,
+      componentId,
       attrKey,
       newAttrValue,
     };
   },
 };
 
-
 export const componentTreeReducer = {
-  [WRAP_COMPONENT](state, action) {
-    let component = action.childComponent;
-    let componentParent = component.parent;
-    let newParent = action.parentComponent.createVariant();
-
-    component.parent.removeChild(component);
-    newParent.addChild(component);
-    componentParent.addChild(newParent);
-  },
-
   [HOVER_COMPONENT](state, action) {
-    console.log('hover')
     state.hoveredComponent = action.component;
   },
 
   [ADD_COMPONENT](state, action) {
-    let { component, parentComponent, insertionIndex } = action;
+    let { componentId, parentComponentId, insertionIndex } = action;
+    let siteComponents = state.siteComponents;
 
-    parentComponent.addChild(component.createVariant(), insertionIndex);
+    siteComponents.addChild(
+      parentComponentId,
+      siteComponents.createVariant(componentId).id,
+      insertionIndex
+    );
   },
 
   [MOVE_COMPONENT](state, action) {
-    let { component, parentComponent, insertionIndex } = action;
-    component.removeSelf();
-    parentComponent.addChild(component, insertionIndex);
+    let { componentId, parentComponentId, insertionIndex } = action;
+    let siteComponents = state.siteComponents;
+
+    siteComponents.moveComponent(componentId, parentComponentId, insertionIndex);
   },
 
   [DELETE_COMPONENT](state, action) {
-    let { component } = action;
-    component.removeSelf();
+    let { componentId } = action;
+    let { siteComponents, activeComponentId } = state;
 
-    if (state.activeComponent && component.id === state.activeComponent.id) {
-      state.activeComponent = undefined;
+    siteComponents.deleteComponent(componentId);
+
+    if (activeComponentId === componentId) {
+      state.activeComponentId = undefined;
     }
   },
 
   [SELECT_COMPONENT](state, action) {
     state.activeComponentState = DEFAULT;
-    state.activeComponent = action.component;
+    state.activeComponentId = action.componentId;
   },
 
   [UPDATE_COMPONENT_VIEW_DROP_SPOTS](state, action) {
     const mousePos = action.pos;
-    const nodeTree = state.currentPage.componentTree;
+    const nodeTreeId = state.currentPage.componentTreeId;
 
     const DIST_RANGE = 100;
 
@@ -181,20 +169,18 @@ export const componentTreeReducer = {
     let closestNode;
     const nodesInMin = [];
 
-    nodeTree.walkChildren(function (node) {
-      if (node.getDropPoints) {
-        node.getDropPoints().forEach(function (dropPoint) {
-          const dist = minDistanceBetweenPointAndLine(mousePos, dropPoint.points);
+    state.siteComponents.walkChildren(function (node) {
+      this.getDropPoints(node.id).forEach(function (dropPoint) {
+        const dist = minDistanceBetweenPointAndLine(mousePos, dropPoint.points);
 
-          if (dist < DIST_RANGE) {
-            nodesInMin.push(dropPoint);
-            if (dist < minDist) {
-              minDist = dist;
-              closestNode = dropPoint;
-            }
+        if (dist < DIST_RANGE) {
+          nodesInMin.push(dropPoint);
+          if (dist < minDist) {
+            minDist = dist;
+            closestNode = dropPoint;
           }
-        });
-      }
+        }
+      });
     });
 
     if (closestNode) {
@@ -211,27 +197,28 @@ export const componentTreeReducer = {
   },
 
   [UPDATE_TREE_VIEW_DROP_SPOTS](state, action) {
-    const { pos, draggedComponent } = action;
+    const { pos, draggedComponentId } = action;
+    const { siteComponents } = state;
     const closestInsertionPoints = [];
     const closestDistances = [];
     /* Get Tree In Between Points */
-    const componentTree = state.currentPage.componentTree;
+    const componentTree = state.currentPage.componentTreeId;
     const insertionPoints = [];
 
-    componentTree.walkChildren(function (node, ind) {
-      if (node.id !== draggedComponent.id) {
-        const { x, y, w, h } = node.getRect('treeView');
-        if (node.isFirstChild()) {
+    state.siteComponents.walkChildren(componentTreeId, function (node, ind) {
+      if (node.id !== draggedComponentId) {
+        const { x, y, w, h } = this.getRect(node.id, 'treeView');
+        if (this.isFirstChild(node.id)) {
           insertionPoints.push({
             insertionIndex: ind,
-            parent: node.parent,
+            parentId: node.parentId,
             points: [{ x, y }, { x: x + w, y }],
           });
         }
 
         insertionPoints.push({
           insertionIndex: ind + 1,
-          parent: node.parent,
+          parentId: node.parentId,
           points: [{ x, y: y + h }, { x: x + w, y: y + h }],
         });
       }
@@ -251,36 +238,39 @@ export const componentTreeReducer = {
   },
 
   [CHANGE_COMPONENT_NAME](state, action) {
-    action.component.name = action.newName;
+    state.siteComponents.components[action.componentId].name = action.newName;
   },
 
   [CREATE_COMPONENT_BLOCK](state, action) {
-    const { component } = action;
-    component.name = 'New Component Block';
-    const oldParent = component.parent;
-    delete component.parent;
+    const { componentId } = action;
+    const { siteComponents } = state;
+
+    siteComponents.components[componentId].name = 'New Component Block'
+    const oldParentId = component.parentId;
+    delete component.parentId;
     /* Replace self with a variant */
-    const variant = component.createVariant({
-      parent: oldParent
+    const variant = siteComponents.createVariant(componentId, {
+      parent: oldParentId
     });
 
-    oldParent.children.map(function (child) {
-      if (child.id === component.id) {
-        return variant;
+    siteComponents.components[oldParentId].childIds.map(function (childId) {
+      if (childId === componentId) {
+        return variant.id;
       } else {
-        return child;
+        return childId;
       }
     });
 
-    state.componentBoxes.yours.push(component);
+    state.componentBoxes.yours.push(componentId);
   },
 
   [SET_COMPONENT_ATTRIBUTE](state, action) {
-    action.component.setAttr(
+    state.siteComponents.setAttribute(
+      action.componentId,
       state.activeComponentState,
       action.attrKey,
       action.newAttrValue
-    );
+    )
   },
 
   [UNHOVER_COMPONENT](state) {

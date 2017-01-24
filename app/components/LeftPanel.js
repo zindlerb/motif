@@ -247,4 +247,6 @@ const LeftPanel = React.createClass({
   },
 });
 
-export default LeftPanel;
+export default connect(() => {
+
+})(LeftPanel);

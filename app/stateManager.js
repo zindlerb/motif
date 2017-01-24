@@ -7,11 +7,10 @@ import {
   componentTreeActions,
   componentTreeReducer
 } from './stateManagers/componentTreeStateManager';
-import {DEFAULT} from './base_components.js';
-
 import { guid } from './utils';
-
 import {
+  DEFAULT,
+  SiteComponents,
   container,
   header,
   text,
@@ -40,6 +39,8 @@ const initialState = {
   activeLeftPanel: 'PAGES',
   activeRightPanel: 'ATTRIBUTES',
   menu: { isOpen: false },
+
+  siteComponents: new SiteComponents(),
 
   otherPossibleComponentViewDropSpots: undefined,
   selectedComponentViewDropSpot: undefined,
@@ -172,16 +173,17 @@ const reducerObj = Object.assign({
   },
 
   [ADD_NEW_PAGE](state) {
-    const fakePage = root.createVariant();
-
-
-    fakePage.addChild(container.createVariant());
+    // TD: FIX
+    const rv = state.siteComponents.createVariant(root.id);
+    const cv = state.siteComponents.createVariant(container.id);
+    state.siteComponents.addChild(rv.id, cv.id);
 
     const newPage = {
       name: hri.random(),
       id: guid(),
-      componentTree: fakePage,
+      componentTreeId: root.id,
     };
+
     state.activeRightPanel = 'DETAILS';
     state.pages.push(newPage);
     state.currentPage = newPage;
@@ -251,6 +253,5 @@ function reducer(state, action) {
 }
 
 export const store = createStore(reducer, initialState);
-export const actionDispatch = bindActionCreators(actions, store.dispatch);
 
 actionDispatch.addPage();

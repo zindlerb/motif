@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'redux';
 import _ from 'lodash';
 import fuzzy from 'fuzzy';
 import { Rect } from '../utils';
@@ -187,4 +188,29 @@ const ComponentMenu = React.createClass({
   }
 });
 
-export default ComponentMenu;
+export default connect(
+  function(state) {
+    let componentMapByName;
+    if (state.menu.isOpen) {
+      componentMapByName = _.reduce(
+        state.componentBoxes,
+        function (componentMapByName, componentList) {
+          _.forEach(componentList, function (component) {
+            componentMapByName[component.name] = component;
+          });
+
+          return componentMapByName;
+        },
+        {}
+      );
+    }
+
+    return {
+      menu: state.menu,
+      componentMapByName,
+      assets: state.assets
+    }
+  },
+  null,
+  { pure: false }
+)(ComponentMenu);
