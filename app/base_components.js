@@ -1,26 +1,36 @@
 import _ from 'lodash';
-import $ from 'jquery';
-
 import { guid, Rect } from './utils';
 
-/* Field Types */
-export const TEXT_FIELD = 'TEXT_FIELD'; /* fieldSettings:  */
-export const LARGE_TEXT_FIELD = 'LARGE_TEXT_FIELD'; /* fieldSettings:  */
-export const NUMBER = 'NUMBER'; /* fieldSettings: eventually allow for multi-value */
-export const COLOR = 'COLOR'; /* fieldSettings:  */
-export const DROPDOWN = 'DROPDOWN'; /* fieldSettings: choices - {name: , value: } */
-export const TOGGLE = 'TOGGLE'; /*  */
+const CONTAINER = 'CONTAINER';
+const HEADER = 'HEADER';
+const TEXT = 'TEXT';
+const IMAGE = 'IMAGE';
+const ROOT = 'ROOT';
 
-/* Component Types */
-export const CONTAINER = 'CONTAINER';
-export const HEADER = 'HEADER';
-export const TEXT = 'TEXT';
-export const IMAGE = 'IMAGE';
-export const ROOT = 'ROOT';
+export const componentTypes = {
+   CONTAINER,
+   HEADER,
+   TEXT,
+   IMAGE,
+   ROOT
+}
 
-// States
-export const DEFAULT = 'DEFAULT';
-export const HOVER = 'HOVER';
+const DEFAULT = 'DEFAULT';
+const HOVER = 'HOVER';
+
+export const attributeStateTypes = {
+  DEFAULT,
+  HOVER
+}
+
+export function creatNewImageSpec(asset) {
+  return {
+    name: asset.name,
+    attributes: {
+      [DEFAULT]: { src: asset.src }
+    }
+  }
+}
 
 export function createComponentData(componentType, spec) {
   return {
@@ -31,7 +41,7 @@ export function createComponentData(componentType, spec) {
     parentId: spec.parentId,
     attributes: spec.attributes || {},
     id: guid(),
-    ['###domElements']: {}
+    domElements: {}
   }
 }
 
@@ -109,7 +119,7 @@ export class SiteComponents {
     let master = this.components[masterId];
     let variant = createComponentData(
       master.componentType,
-      Object.assign({masterId: masterId}, spec)
+      Object.assign({ masterId }, spec)
     );
 
     master.variantIds.push(variant.id);
@@ -125,15 +135,6 @@ export class SiteComponents {
     });
 
     return variant;
-  }
-
-  createNewAsset(asset) {
-    this.createVariant(image.id, {
-      name: asset.name,
-      attributes: {
-        [DEFAULT]: { src: asset.src }
-      }
-    });
   }
 
   deleteComponent(componentId) {
@@ -178,7 +179,7 @@ export class SiteComponents {
   moveComponent(movedComponentId, newParentId, insertionIndex) {
     // Delete from parent and remove from all variants of parent
     let movedComponent = this.components[movedComponentId];
-    let parent = this.components[movedComponent.parent];
+    let parent = this.components[movedComponent.parentId];
 
     _.remove(parent.childIds, (childId) => {
       return childId === movedComponentId;
@@ -224,7 +225,7 @@ export class SiteComponents {
 
   getRect(componentId, viewType) {
     // Node Types: treeView, componentView
-    let el = this.components[componentId]['###domElements'][viewType];
+    let el = this.components[componentId].domElements[viewType];
 
     if (!el) {
       return undefined;
@@ -274,20 +275,30 @@ export class SiteComponents {
       src: true
     };
 
-    return _.reduce(this.getStateAttributes(componentId, state), function (renderableAttributes, attrVal, attrKey) {
-      if (attrToHtmlPropertyLookup[attrKey]) {
-        renderableAttributes.htmlProperties[attrKey] = attrVal;
-      } else if (attrToCssLookup[attrKey]) {
-        Object.assign(renderableAttributes.sx, attrToCssLookup[attrKey](attrVal));
-      } else {
-        renderableAttributes.sx[attrKey] = attrVal;
-      }
+    // TD
+    let attributes = this.getStateAttributes(componentId, DEFAULT);
 
-      return renderableAttributes;
-    }, {
-      htmlProperties: {},
-      sx: {}
-    });
+    if (state !== DEFAULT) {
+      Object.assign(attributes, this.getStateAttributes(componentId, state));
+    }
+
+    return _.reduce(
+      attributes,
+      function (renderableAttributes, attrVal, attrKey) {
+        if (attrToHtmlPropertyLookup[attrKey]) {
+          renderableAttributes.htmlProperties[attrKey] = attrVal;
+        } else if (attrToCssLookup[attrKey]) {
+          Object.assign(renderableAttributes.sx, attrToCssLookup[attrKey](attrVal));
+        } else {
+          renderableAttributes.sx[attrKey] = attrVal;
+        }
+
+        return renderableAttributes;
+      }, {
+        htmlProperties: {},
+        sx: {}
+      }
+    );
   }
 
   getRenderTree(componentId, componentStates) {
@@ -307,6 +318,7 @@ export class SiteComponents {
     // TD: if I only take certain properties I can make this cheaper
     let componentClone = _.cloneDeep(this.components[componentId]);
     let state = DEFAULT;
+    componentStates = componentStates || {};
 
     if (componentStates[componentId]) {
       state = componentStates[componentId];
@@ -322,7 +334,7 @@ export class SiteComponents {
 
     let children = [];
     componentClone.childIds.forEach((id) => {
-      children.push(this.getRenderTree(this.components[id], componentStates));
+      children.push(this.getRenderTree(id, componentStates));
     });
     componentClone.children = children;
 

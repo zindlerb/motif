@@ -1,10 +1,12 @@
-import $ from 'jquery';
 import React from 'react';
+import { connect } from 'react-redux';
 import _ from 'lodash';
 import classnames from 'classnames';
-import { Root, Container, Header, Text, Image, DEFAULT, HOVER } from '../base_components';
+import {
+  attributeStateTypes,
+  componentTypes,
+} from '../base_components';
 import { createDraggableComponent, dragManager } from '../dragManager';
-import { actionDispatch } from '../stateManager';
 
 import HorizontalSelect from './HorizontalSelect';
 
@@ -13,25 +15,25 @@ import HorizontalSelect from './HorizontalSelect';
 const dragData = {
   dragType: 'addComponent',
   onDrag(props, pos) {
-    actionDispatch.updateComponentViewDropSpots(pos);
+    props.actions.updateComponentViewDropSpots(pos);
   },
   onEnd(props) {
     const selectedComponentViewDropSpot = props.context.selectedComponentViewDropSpot;
     if (selectedComponentViewDropSpot) {
-      actionDispatch.moveComponent(
+      props.actions.moveComponent(
         props.mComponentData,
         selectedComponentViewDropSpot.parent,
         selectedComponentViewDropSpot.insertionIndex
       );
     }
 
-    actionDispatch.resetComponentViewDropSpots();
+    props.actions.resetComponentViewDropSpots();
   },
 };
 
 function makeComponentRefCallback(mComponentData) {
   return function (ref) {
-    mComponentData['###domElements'].pageView = ref;
+    mComponentData.domElements.pageView = ref;
   };
 }
 
@@ -61,7 +63,7 @@ const RootClassReact = function (props) {
       { children }
     </div>
   );
-}
+};
 
 const ContainerClassReact = createDraggableComponent(dragData, React.createClass({
   getInitialState() {
@@ -106,8 +108,8 @@ const ContainerClassReact = createDraggableComponent(dragData, React.createClass
 
     return (
       <div
-          onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
-          onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
+          onMouseEnter={(e) => { this.props.onMouseEnter(e); }}
+          onMouseLeave={(e) => { this.props.onMouseLeave(e); }}
           onClick={this.props.onClick}
           onMouseDown={this.props.onMouseDown}
           ref={makeComponentRefCallback(mComponentData)}
@@ -204,8 +206,8 @@ const ImageClassReact = createDraggableComponent(dragData, React.createClass({
 
 function makeClick(component) {
   return function (e) {
-    actionDispatch.selectComponent(component);
-    actionDispatch.changePanel('ATTRIBUTES', 'right');
+    this.props.actions.selectComponent(component);
+    this.props.actions.changePanel('ATTRIBUTES', 'right');
     e.stopPropagation();
   };
 }
@@ -217,60 +219,49 @@ const MComponentDataRenderer = React.createClass({
     }
   },
 
+  getComponentState() {
+    if (this.state.isHovered) {
+      return attributeStateTypes.HOVER;
+    } else {
+      return attributeStateTypes.DEFAULT;
+    }
+  },
+
   setHovered() {
-    actionDispatch.hoverComponent(this.props.mComponentData);
-    this.setState({isHovered: true});
+    this.props.actions.hoverComponent(this.props.mComponentData);
+    this.setState({ isHovered: true });
   },
 
   resetHovered() {
-    actionDispatch.unHoverComponent();
-    this.setState({isHovered: false});
+    this.props.actions.unHoverComponent();
+    this.setState({ isHovered: false });
   },
 
-  getComponentState() {
-    if (this.state.isHovered) {
-      return HOVER;
-    } else {
-      return DEFAULT;
-    }
-  },
-
-  render: function () {
+  render() {
     /* TD: expand for custom components */
     let className, component;
     let { context, mComponentData } = this.props;
-    let { hoveredComponent, activeComponent } = context;
+    let { hoveredComponentId, activeComponentId } = context;
+    const { htmlProperties, sx, componentType } = mComponentData;
 
-    let componentState = this.getComponentState();
-    let renderableProperties = mComponentData.getRenderableProperties(DEFAULT);
-
-    if (componentState !== DEFAULT) {
-      _.merge(
-        renderableProperties,
-        mComponentData.getRenderableProperties(componentState)
-      );
-    }
-
-    const { htmlProperties, sx } = renderableProperties;
-    const isActiveComponent = activeComponent && activeComponent.id === mComponentData.id;
+    const isActiveComponent = activeComponentId === mComponentData.id;
 
     className = {
       'active-component': isActiveComponent,
       'hovered-component': (
         !isActiveComponent &&
-        hoveredComponent &&
-        hoveredComponent.id === mComponentData.id
+        hoveredComponentId === mComponentData.id
       )
     };
 
-    if (mComponentData instanceof Root) {
+    if (componentType === componentTypes.ROOT) {
       component = (
         <RootClassReact
             {...this.props}
             sx={sx}
         />
       );
-    } else if (mComponentData instanceof Container) {
+    } else if (componentType === componentTypes.CONTAINER) {
       component = (
         <ContainerClassReact
             className={className}
@@ -282,7 +273,7 @@ const MComponentDataRenderer = React.createClass({
             sx={sx}
         />
       );
-    } else if (mComponentData instanceof Header) {
+    } else if (componentType === componentTypes.HEADER) {
       component = (
         <HeaderClassReact
             className={className}
@@ -294,7 +285,7 @@ const MComponentDataRenderer = React.createClass({
             sx={sx}
         />
       );
-    } else if (mComponentData instanceof Text) {
+    } else if (componentType === componentTypes.TEXT) {
       component = (
         <ParagraphClassReact
             className={className}
@@ -306,7 +297,7 @@ const MComponentDataRenderer = React.createClass({
             sx={sx}
         />
       );
-    } else if (mComponentData instanceof Image) {
+    } else if (componentType === componentTypes.IMAGE) {
       component = (
         <ImageClassReact
             className={className}
@@ -325,9 +316,9 @@ const MComponentDataRenderer = React.createClass({
 });
 
 function DragHandle(props) {
-  var height = 60;
-  var width = 20;
-  var left;
+  let height = 60;
+  let width = 20;
+  let left;
 
   if (props.direction === 'left') {
     left = -width;
@@ -335,7 +326,7 @@ function DragHandle(props) {
     left = '100%';
   }
 
-  var style = {
+  let style = {
     height,
     width,
     left
@@ -346,15 +337,15 @@ function DragHandle(props) {
       dragType: 'resize',
       initialX: e.clientX,
       initialWidth: props.width,
-      onDrag: function (e) {
-        actionDispatch.setRendererWidth(this.initialWidth - ((this.initialX - e.clientX) * 2) );
+      onDrag(e) {
+        this.props.actions.setRendererWidth(this.initialWidth - ((this.initialX - e.clientX) * 2));
       }
     });
   }
 
   return (
-    <svg className='drag-handle' style={style} onMouseDown={dragStart}>
-      <rect x='0' y='0' height={height} width={width} fill='black'/>
+    <svg className="drag-handle" style={style} onMouseDown={dragStart}>
+      <rect x="0" y="0" height={height} width={width} fill="black" />
     </svg>
   );
 }
@@ -365,10 +356,6 @@ const StaticRenderer = React.createClass({
     return {
       isMouseInRenderer: false,
     };
-  },
-
-  mouseMove() {
-    /*     actionDispatch.setHoveredNodes(e.clientX, e.clientY);*/
   },
 
   mouseEnter() {
@@ -383,16 +370,16 @@ const StaticRenderer = React.createClass({
     let {
       activeView,
       activeBreakpoint,
-      page,
+      componentTree,
       context,
       width,
     } = this.props;
     let renderer;
 
-    if (page) {
+    if (componentTree) {
       renderer = (
         <MComponentDataRenderer
-            mComponentData={page.componentTree}
+            mComponentData={componentTree}
             context={context}
             isMouseInRenderer={this.state.isMouseInRenderer}
         />
@@ -406,7 +393,7 @@ const StaticRenderer = React.createClass({
             <span className="db f6">View</span>
             <HorizontalSelect
                 className=""
-                onClick={(name) => { actionDispatch.selectView(name); }}
+                onClick={(name) => { this.props.actions.selectView(name); }}
                 hasBorder
                 activePanel={activeView}
                 options={[
@@ -421,7 +408,7 @@ const StaticRenderer = React.createClass({
             <HorizontalSelect
                 className=""
                 onClick={(name) => {
-                    actionDispatch.selectBreakpoint(name);
+                    this.props.actions.selectBreakpoint(name);
                   }}
                 hasBorder
                 activePanel={activeBreakpoint}
@@ -434,7 +421,7 @@ const StaticRenderer = React.createClass({
             />
           </div>
         </div>
-        <div className="h-100 m-auto relative" style={{width}}>
+        <div className="h-100 m-auto relative" style={{ width }}>
           <div
               onMouseEnter={this.mouseEnter}
               onMouseLeave={this.mouseLeave}
@@ -447,11 +434,31 @@ const StaticRenderer = React.createClass({
             {renderer}
           </div>
           <DragHandle direction="left" width={width} />
-          <DragHandle direction="right" width={width}/>
+          <DragHandle direction="right" width={width} />
         </div>
       </div>
     );
   },
 });
 
-export default StaticRenderer;
+export default connect(function (state) {
+  const { siteComponents, currentPage } = state;
+  let componentTree;
+
+  if (currentPage) {
+    const rootComponent = siteComponents.components[currentPage.componentTreeId];
+    componentTree = siteComponents.getRenderTree(rootComponent.id);
+  }
+
+  return {
+    width: state.rendererWidth,
+    componentTree,
+    activeBreakpoint: state.activeBreakpoint,
+    activeView: state.activeView,
+    context: {
+      hoveredComponentId: state.hoveredComponentId,
+      activeComponentId: state.activeComponentId,
+      selectedComponentViewDropSpot: state.selectedComponentViewDropSpot
+    }
+  };
+}, null, null, { pure: false })(StaticRenderer);

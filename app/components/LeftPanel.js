@@ -2,12 +2,12 @@ import { remote } from 'electron';
 import React from 'react';
 import _ from 'lodash';
 import classnames from 'classnames';
+import { connect } from 'react-redux';
 
-import { actionDispatch } from '../stateManager';
+import { image, createNewImageSpec } from '../base_components';
 import { createDraggableComponent } from '../dragManager';
-import { createNewAsset } from '../base_components';
 import HorizontalSelect from './HorizontalSelect';
-import CartoonButton from './CartoonButton.js';
+import CartoonButton from './CartoonButton';
 
 const iconList = [
     { name: 'PAGES', faClass: 'fa-files-o' },
@@ -20,18 +20,14 @@ let dialog = remote.dialog;
 let dragSpec = {
   dragType: 'addComponent',
   onDrag(props, pos) {
-    actionDispatch.updateComponentViewDropSpots(pos);
+    props.actions.updateComponentViewDropSpots(pos);
   },
   onEnd(props) {
     if (props.selectedComponentViewDropSpot) {
-      actionDispatch.addComponent(
-        props.createComponent(),
-        props.selectedComponentViewDropSpot.parent,
-        props.selectedComponentViewDropSpot.insertionIndex
-      );
+      props.onEnd();
     }
 
-    actionDispatch.resetComponentViewDropSpots();
+    props.actions.resetComponentViewDropSpots();
   },
 }
 
@@ -64,7 +60,7 @@ const ComponentBlock = createDraggableComponent(dragSpec, React.createClass({
             value={this.state.tempName}
             onChange={(e) => { this.setState({ tempName: e.target.value }); }}
             onBlur={() => {
-              actionDispatch.changeComponentName(this.props.component, this.state.tempName);
+              this.props.actions.changeComponentName(this.props.component, this.state.tempName);
               this.setState({ isEditing: false });
             }}
         />
@@ -98,17 +94,16 @@ const AssetIcon = createDraggableComponent(
       return {
         isHovering: false
       }
-
     },
-    render: function() {
+    render() {
       const width = 100;
       return (
         <div
-            style={{width}}
+            style={{ width }}
             className={this.props.className}
             onMouseDown={this.props.onMouseDown}
             ref={this.props.ref}>
-          <img style={{width, height: 100}} src={this.props.src}/>
+          <img style={{ width, height: 100 }} src={this.props.src} />
           <span>{this.props.name}</span>
         </div>
       );
@@ -126,7 +121,7 @@ const LeftPanel = React.createClass({
     let {
       activePanel,
       pages,
-      components,
+      componentBoxes,
       currentPage,
       selectedComponentViewDropSpot,
       assets
@@ -134,10 +129,16 @@ const LeftPanel = React.createClass({
 
     if (activePanel === 'COMPONENTS') {
       let componentBlockElements = {};
-      _.forEach(components, function (componentBlockArr, key) {
+      _.forEach(componentBoxes, function (componentBlockArr, key) {
         componentBlockElements[key] = _.map(componentBlockArr, (component, ind) => {
           return (<ComponentBlock
-                      createComponent={() => component.createVariant()}
+                      onEnd={() => {
+                          this.props.actions.addVariant(
+                            component.id,
+                            selectedComponentViewDropSpot.parent,
+                            selectedComponentViewDropSpot.insertionIndex,
+                          );
+                        }}
                       component={component}
                       key={ind}
                       selectedComponentViewDropSpot={selectedComponentViewDropSpot}
@@ -151,12 +152,12 @@ const LeftPanel = React.createClass({
 
           <h3 className="f5 pl3 pv2">Ours</h3>
           <ul className="list">
-            {componentBlockElements['ours']}
+            {componentBlockElements.ours}
           </ul>
 
           <h3 className="f5 pl3 pv2">Yours</h3>
           <ul>
-            {componentBlockElements['yours']}
+            {componentBlockElements.yours}
           </ul>
         </div>
             );
@@ -170,7 +171,7 @@ const LeftPanel = React.createClass({
                   'c-default': isActive,
                   'c-pointer': !isActive
                 }, 'pl2 pv1 page-item')}
-            onClick={() => actionDispatch.changePage(page)}
+            onClick={() => this.props.actions.changePage(page)}
             key={ind}
           >
             {page.name}
@@ -182,7 +183,7 @@ const LeftPanel = React.createClass({
             <h2 className="f4 mt3 mb2">Pages</h2>
             <CartoonButton
                 text="New Page"
-                onClick={() => actionDispatch.addPage()}
+                onClick={() => this.props.actions.addPage()}
             />
           </div>
           <ul className="mt3">
@@ -195,8 +196,13 @@ const LeftPanel = React.createClass({
         return (
           <AssetIcon
               src={asset.src}
-              createComponent={() => {
-                  return createNewAsset(asset);
+              onEnd={() => {
+                  this.props.actions.addVariant(
+                    image.id,
+                    selectedComponentViewDropSpot.parent,
+                    selectedComponentViewDropSpot.insertionIndex,
+                    createNewImageSpec(asset)
+                  );
                 }}
               name={asset.name} />
         );
@@ -220,7 +226,7 @@ const LeftPanel = React.createClass({
                       ]
                     }, (filenames) => {
                       if (!filenames) return;
-                      actionDispatch.addAsset(filenames[0]);
+                      this.props.actions.addAsset(filenames[0]);
                     });
                   }} />
           </div>
@@ -235,7 +241,7 @@ const LeftPanel = React.createClass({
       <div>
         <HorizontalSelect
             onClick={(name) => {
-                actionDispatch.changePanel(name, 'left');
+                this.props.actions.changePanel(name, 'left');
               }}
             options={iconList}
             activePanel={this.props.activePanel}
@@ -247,6 +253,26 @@ const LeftPanel = React.createClass({
   },
 });
 
-export default connect(() => {
+export default connect((state) => {
+  const componentMap = state.siteComponents.components;
 
+  const hydratedComponentBoxes = {
+    yours: [],
+    ours: []
+  };
+
+  _.forEach(state.componentBoxes, function (components, boxType) {
+    _.forEach(components, function (id) {
+      hydratedComponentBoxes[boxType].push(componentMap[id]);
+    });
+  });
+
+  return {
+    assets: state.assets,
+    componentBoxes: hydratedComponentBoxes,
+    pages: state.pages,
+    activePanel: state.activeLeftPanel,
+    selectedComponentViewDropSpot: state.selectedComponentViewDropSpot,
+    currentPage: state.currentPage,
+  }
 })(LeftPanel);

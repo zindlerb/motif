@@ -204,7 +204,7 @@ export const DragImage = React.createClass({
 
   componentDidMount() {
     const that = this;
-    var isDragging = false;
+    let isDragging = false;
     dragManager.subscribe({
       onStart(e, ctx) {
         if (ctx.drag.dragImage) {

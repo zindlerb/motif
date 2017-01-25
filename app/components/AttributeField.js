@@ -3,7 +3,6 @@ import classnames from 'classnames';
 import _ from 'lodash';
 import { ChromePicker } from 'react-color';
 import {
-  TEXT_FIELD,
   COLOR,
   DROPDOWN,
 } from '../base_components';
@@ -37,7 +36,7 @@ const TextInput = React.createClass({
 
     return (<input
                 className="w-100"
-                onMouseUp={(e) => e.stopPropagation()}
+                onMouseUp={e => e.stopPropagation()}
                 onFocus={this.startEdit}
                 onBlur={this.submit}
                 onChange={this.onChange}

@@ -88,7 +88,7 @@ const ComponentTree = React.createClass({
     return (
       <div
           className="mt1"
-          ref={(ref) => { this.props.node['###domElements'].treeView = ref; }}
+          ref={(ref) => { this.props.node.domElements.treeView = ref; }}
       >
         {beforeSpacer}
         <TreeItem
@@ -169,12 +169,6 @@ const TreeItem = createDraggableComponent(
 
 const TreeChildren = React.createClass({
   render() {
-    let {
-      otherPossibleTreeViewDropSpots,
-      selectedTreeViewDropSpot,
-      activeComponent,
-      hoveredComponent
-    } = this.props.context;
     const children = _.map(this.props.children, (child, ind) => {
       return (
         <ComponentTree

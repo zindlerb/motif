@@ -1,31 +1,24 @@
 import React from 'react';
-import { connect } from 'redux';
+import { connect } from 'react-redux';
 import _ from 'lodash';
-import fuzzy from 'fuzzy';
+// import fuzzy from 'fuzzy';
 import { Rect } from '../utils';
 
-import { createNewAsset } from '../base_components';
+import { createNewImageSpec, image } from '../base_components';
 import { actionDispatch } from '../stateManager';
-
-function fuzzyFilterList(stringList, testString) {
-  let results = fuzzy.filter(testString, stringList);
-  let matches = results.map(function (el) { return el.string; });
-
-  return matches;
-}
 
 const ROOT = 'ROOT';
 const INSERT_ASSET = 'INSERT_ASSET';
 const INSERT_COMPONENT = 'INSERT_COMPONENT';
 
-function LeftTriangle (props) {
+function LeftTriangle(props) {
   const size = 10;
   return (
     <img
         className={props.className}
-        style={{width: size, height: size}}
+        style={{ width: size, height: size }}
         alt=""
-        src="public/img/assets/left-triangle.svg"/>
+        src="public/img/assets/left-triangle.svg" />
   );
 }
 
@@ -49,9 +42,9 @@ const ComponentMenu = React.createClass({
   render() {
     let { componentMapByName, menu, assets } = this.props;
     let { component, isOpen, componentX, componentY } = menu;
-    let { openListItem, searchString, secondaryPosX, secondaryPosY } = this.state;
+    let { openListItem, secondaryPosX, secondaryPosY } = this.state;
     let menuComponent = component;
-    let listItems, secondaryList;
+    let secondaryList;
 
     let sx = {
       position: 'absolute',
@@ -76,10 +69,10 @@ const ComponentMenu = React.createClass({
               <li
                   key={componentName}
                   onMouseUp={() => {
-                      actionDispatch.addComponent(
+                      actionDispatch.addVariant(
                         componentMapByName[componentName],
-                        menu.component.parent,
-                        menu.component.getInd()
+                        menu.component.parentId,
+                        menu.component.ind
                       );
                     }}>
                 {componentName}
@@ -89,16 +82,16 @@ const ComponentMenu = React.createClass({
         }
 
         if (openListItem === INSERT_ASSET) {
-          componentList = assets.map(function(asset, ind) {
+          componentList = assets.map(function (asset, ind) {
             return (
               <li
                   key={ind}
                   onMouseUp={() => {
-                      console.log('asset', asset);
-                      actionDispatch.addComponent(
-                        createNewAsset(asset),
+                      actionDispatch.addVariant(
+                        image.id,
                         menu.component.parent,
-                        menu.component.getInd()
+                        menu.component.ind,
+                        createNewImageSpec(asset)
                       );
                     }}>
                 {asset.name}
@@ -127,7 +120,7 @@ const ComponentMenu = React.createClass({
           <ul style={sx} className="component-menu">
             <li
                 key={'DELETE'}
-                onMouseEnter={() => { this.setState({openListItem: undefined}) }}
+                onMouseEnter={() => { this.setState({ openListItem: undefined }) }}
                 onMouseUp={(e) => {
                     actionDispatch.deleteComponent(menuComponent);
                     actionDispatch.closeMenu();
@@ -138,13 +131,13 @@ const ComponentMenu = React.createClass({
             </li>
             <li
                 key={'MAKE_COMPONENT'}
-                onMouseEnter={() => { this.setState({openListItem: undefined}) }}
+                onMouseEnter={() => { this.setState({ openListItem: undefined }) }}
                 onMouseUp={(e) => {
                     actionDispatch.createComponentBlock(menuComponent);
                     actionDispatch.closeMenu();
                     e.stopPropagation();
                   }}>
-              <i className="fa fa-id-card-o ph1" aria-hidden="true"/>
+              <i className="fa fa-id-card-o ph1" aria-hidden="true" />
               Make Component
             </li>
             <li
@@ -160,7 +153,7 @@ const ComponentMenu = React.createClass({
                     });
                     e.stopPropagation();
                   }}>
-              <LeftTriangle className='ph1'/>
+              <LeftTriangle className="ph1" />
               Insert Component
             </li>
             <li
@@ -175,7 +168,7 @@ const ComponentMenu = React.createClass({
                     });
                     e.stopPropagation();
                   }}>
-              <LeftTriangle className='ph1'/>
+              <LeftTriangle className="ph1" />
               Insert Asset
             </li>
           </ul>
@@ -189,7 +182,7 @@ const ComponentMenu = React.createClass({
 });
 
 export default connect(
-  function(state) {
+  function (state) {
     let componentMapByName;
     if (state.menu.isOpen) {
       componentMapByName = _.reduce(
@@ -211,6 +204,7 @@ export default connect(
       assets: state.assets
     }
   },
+  null,
   null,
   { pure: false }
 )(ComponentMenu);

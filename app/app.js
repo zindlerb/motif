@@ -5,12 +5,11 @@ import mousetrap from 'mousetrap';
 import fs from 'fs';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import _ from 'lodash';
 import classnames from 'classnames';
-import $ from 'jquery'
-import { connect, bindActionCreators } from 'redux';
+import { connect, Provider } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-import { DragImage, dragManager } from './dragManager';
+import { DragImage } from './dragManager';
 import { store, actions } from './stateManager';
 import serializer from './serializer';
 import { globalEventManager } from './utils';
@@ -27,7 +26,7 @@ const Editor = React.createClass({
   componentDidMount() {
     globalEventManager.addListener('mouseup', () => {
       if (this.state.menu.isOpen) {
-        actionDispatch.closeMenu();
+        this.props.actions.closeMenu();
       }
 
       // TD: add back in in some way. Right now is too trigger happy
@@ -38,7 +37,7 @@ const Editor = React.createClass({
 
     mousetrap.bind(['backspace', 'del'], () => {
       if (this.state.activeComponent) {
-        actionDispatch.deleteComponent(this.state.activeComponent);
+        this.props.deleteComponent(this.state.activeComponent);
       }
     }, 'keyup');
 
@@ -55,7 +54,7 @@ const Editor = React.createClass({
   saveSite() {
     function writeFile(filename, state) {
       fs.writeFile(filename, serializer.serialize(state));
-      actionDispatch.setActiveFilename(filename);
+      this.props.actions.setActiveFilename(filename);
     }
 
     if (this.state.nonSerializable && this.state.nonSerializable.filename) {
@@ -80,8 +79,8 @@ const Editor = React.createClass({
       if (err) {
         console.warn('No file found for ', filename);
       } else {
-        actionDispatch.openSite(serializer.deserialize(file), filename);
-        actionDispatch.setActiveFilename(filename);
+        this.props.openSite(serializer.deserialize(file), filename);
+        this.props.setActiveFilename(filename);
       }
     });
   },
@@ -104,62 +103,22 @@ const Editor = React.createClass({
 
   render() {
     let {
-      activeComponentState,
-      componentBoxes,
-      activeLeftPanel,
-      activeRightPanel,
-      pages,
-      currentPage,
-      activeComponent,
-      activeView,
-      globalCursor,
-
-      otherPossibleComponentViewDropSpots,
-      selectedComponentViewDropSpot,
-
-      otherPossibleTreeViewDropSpots,
-      selectedTreeViewDropSpot,
-      menu,
-      assets,
-      activeBreakpoint,
-      rendererWidth,
-      hoveredComponent
-    } = this.state;
-
-
-
-    console.log(this.props);
+      actions
+    } = this.props;
 
     return (
       <div className="h-100" ref={(el) => { this._el = el; }}>
         <button onClick={this.openSite}>Open</button>
         <button onClick={this.saveSite}>Save</button>
-        <div className={classnames('flex h-100', globalCursor)}>
+        <div className={classnames('flex h-100')}>
           <div className="sidebar flex-none h-100">
-            <LeftPanel
-                assets={assets}
-                components={componentBoxes}
-                pages={pages}
-                activePanel={activeLeftPanel}
-                selectedComponentViewDropSpot={selectedComponentViewDropSpot}
-                currentPage={currentPage}
-            />
+            <LeftPanel actions={actions} />
           </div>
           <div
               className="flex-auto h-100 mh4 relative"
               ref={(el) => { this._rendererEl = el }}
           >
-            <StaticRenderer
-                width={rendererWidth}
-                page={currentPage}
-                activeBreakpoint={activeBreakpoint}
-                activeView={activeView}
-                context={{
-                  hoveredComponent,
-                  activeComponent,
-                  selectedComponentViewDropSpot
-                }}
-            />
+            <StaticRenderer actions={actions} />
           </div>
           <div className="sidebar h-100 flex-none">
             <RightPanel actions={actions} />
@@ -167,7 +126,7 @@ const Editor = React.createClass({
           <DropPointRenderer />
           <DragImage />
         </div>
-        <ComponentMenu actions={actions}/>
+        <ComponentMenu actions={actions} />
       </div>
     );
   },

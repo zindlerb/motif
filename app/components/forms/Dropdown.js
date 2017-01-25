@@ -1,5 +1,4 @@
 import React from 'react';
-import classnames from 'classnames';
 import _ from 'lodash';
 
 const Dropdown = React.createClass({

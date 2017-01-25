@@ -1,7 +1,6 @@
 import { hri } from 'human-readable-ids';
 import path from 'path';
 import createStore from 'redux/lib/createStore';
-import bindActionCreators from 'redux/lib/bindActionCreators';
 
 import {
   componentTreeActions,
@@ -9,7 +8,6 @@ import {
 } from './stateManagers/componentTreeStateManager';
 import { guid } from './utils';
 import {
-  DEFAULT,
   SiteComponents,
   container,
   header,
@@ -22,18 +20,18 @@ const initialState = {
   siteName: 'Something',
   componentBoxes: {
     ours: [
-      container,
-      header,
-      text,
-      image,
+      container.id,
+      header.id,
+      text.id,
+      image.id,
     ],
     yours: [],
   },
   pages: [],
   assets: [],
   currentPage: undefined,
-  activeComponent: undefined,
-  hoveredComponent: undefined,
+  activeComponentId: undefined,
+  hoveredComponentId: undefined,
   activeView: 'BORDER',
   activeBreakpoint: 'NONE',
   activeLeftPanel: 'PAGES',
@@ -219,13 +217,13 @@ const reducerObj = Object.assign({
     });
   },
   [SELECT_BREAKPOINT](state, action) {
-    var widths = {
-      'TABLET': 640,
-      'LAPTOP': 1024,
-      'DESKTOP': 1824,
+    let widths = {
+      TABLET: 640,
+      LAPTOP: 1024,
+      DESKTOP: 1824,
     }
 
-    var newWidth = widths[action.newBreakpoint];
+    let newWidth = widths[action.newBreakpoint];
 
     if (newWidth) {
       state.rendererWidth = newWidth;
@@ -254,4 +252,4 @@ function reducer(state, action) {
 
 export const store = createStore(reducer, initialState);
 
-actionDispatch.addPage();
+store.dispatch(actions.addPage());

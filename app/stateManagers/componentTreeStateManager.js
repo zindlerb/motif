@@ -1,12 +1,11 @@
 import _ from 'lodash';
 import { minDistanceBetweenPointAndLine } from '../utils';
-import { DEFAULT } from '../base_components.js';
+import { DEFAULT } from '../base_components';
 
 const UNHOVER_COMPONENT = 'UNHOVER_COMPONENT';
 const HOVER_COMPONENT = 'HOVER_COMPONENT';
 
-const WRAP_COMPONENT = 'WRAP_COMPONENT';
-const ADD_COMPONENT = 'ADD_COMPONENT';
+const ADD_VARIANT = 'ADD_VARIANT';
 const MOVE_COMPONENT = 'MOVE_COMPONENT';
 const DELETE_COMPONENT = 'DELETE_COMPONENT';
 
@@ -32,12 +31,12 @@ export const componentTreeActions = {
     };
   },
 
-  addComponent(componentId, parentComponentId, insertionIndex) {
+  addVariant(componentId, parentComponentId, insertionIndex, spec) {
     return {
-      type: ADD_COMPONENT,
+      type: ADD_VARIANT,
       componentId,
       parentComponentId,
-      insertionIndex
+      spec: spec || {},
     };
   },
 
@@ -125,13 +124,13 @@ export const componentTreeReducer = {
     state.hoveredComponent = action.component;
   },
 
-  [ADD_COMPONENT](state, action) {
-    let { componentId, parentComponentId, insertionIndex } = action;
+  [ADD_VARIANT](state, action) {
+    let { componentId, parentComponentId, insertionIndex, spec } = action;
     let siteComponents = state.siteComponents;
 
     siteComponents.addChild(
       parentComponentId,
-      siteComponents.createVariant(componentId).id,
+      siteComponents.createVariant(componentId, spec).id,
       insertionIndex
     );
   },
@@ -169,7 +168,7 @@ export const componentTreeReducer = {
     let closestNode;
     const nodesInMin = [];
 
-    state.siteComponents.walkChildren(function (node) {
+    state.siteComponents.walkChildren(nodeTreeId, function (node) {
       this.getDropPoints(node.id).forEach(function (dropPoint) {
         const dist = minDistanceBetweenPointAndLine(mousePos, dropPoint.points);
 
@@ -199,13 +198,12 @@ export const componentTreeReducer = {
   [UPDATE_TREE_VIEW_DROP_SPOTS](state, action) {
     const { pos, draggedComponentId } = action;
     const { siteComponents } = state;
-    const closestInsertionPoints = [];
-    const closestDistances = [];
+
     /* Get Tree In Between Points */
-    const componentTree = state.currentPage.componentTreeId;
+    const componentTreeId = state.currentPage.componentTreeId;
     const insertionPoints = [];
 
-    state.siteComponents.walkChildren(componentTreeId, function (node, ind) {
+    siteComponents.walkChildren(componentTreeId, function (node, ind) {
       if (node.id !== draggedComponentId) {
         const { x, y, w, h } = this.getRect(node.id, 'treeView');
         if (this.isFirstChild(node.id)) {
@@ -224,9 +222,9 @@ export const componentTreeReducer = {
       }
     });
 
-    let sortedInsertionPoints = _.sortBy(insertionPoints, function(insertionPoint) {
+    let sortedInsertionPoints = _.sortBy(insertionPoints, function (insertionPoint) {
       return minDistanceBetweenPointAndLine(pos, insertionPoint.points);
-    }).slice(0,3);
+    }).slice(0, 3);
 
     state.otherPossibleTreeViewDropSpots = _.tail(sortedInsertionPoints);
     state.selectedTreeViewDropSpot = _.first(sortedInsertionPoints);
@@ -245,6 +243,7 @@ export const componentTreeReducer = {
     const { componentId } = action;
     const { siteComponents } = state;
 
+    let component = siteComponents.components[componentId];
     siteComponents.components[componentId].name = 'New Component Block'
     const oldParentId = component.parentId;
     delete component.parentId;

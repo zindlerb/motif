@@ -46,7 +46,10 @@ module.exports = {
     "react/no-children-prop": 0,
     "react/jsx-indent": 0,
     "arrow-body-style": 0,
-    "spaced-comment": 0
+    "spaced-comment": 0,
+
+    // Def add back in later
+    "semi": 0
   },
   "env": {
     "browser": true,
