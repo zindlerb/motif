@@ -1,0 +1,4 @@
+export const dragTypes = {
+  ADD_COMPONENT: 'ADD_COMPONENT',
+  MOVE_COMPONENT: 'MOVE_COMPONENT'
+}

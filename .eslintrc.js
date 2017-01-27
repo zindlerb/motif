@@ -37,6 +37,7 @@ module.exports = {
     "no-plusplus": 0,
     "no-unused-expressions": 0,
     "react/jsx-closing-bracket-location": 0,
+    "import/prefer-default-export": 0,
 
     // Possibly add back in later
     "react/prefer-stateless-function": 0,

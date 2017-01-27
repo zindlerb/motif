@@ -35,12 +35,13 @@ export function creatNewImageSpec(asset) {
 export function createComponentData(componentType, spec) {
   return {
     componentType,
+    name: spec.name,
     childIds: spec.childIds || [],
     variantIds: [],
     masterId: spec.masterId,
     parentId: spec.parentId,
     attributes: spec.attributes || {},
-    id: guid(),
+    id: spec.id || guid(),
     domElements: {}
   }
 }
@@ -72,11 +73,13 @@ export const containerAttributes = {
 
 export const container = createComponentData(CONTAINER, {
   name: 'Container',
+  id: CONTAINER,
   attributes: containerAttributes,
 });
 
 export const text = createComponentData(TEXT, {
   name: 'Text',
+  id: TEXT,
   attributes: {
     [DEFAULT]: Object.assign({}, defaultAttributes, {
       text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. In quis libero at libero dictum tempor. Cras ut odio erat. Fusce semper odio ac dignissim sollicitudin. Vivamus in tortor lobortis, bibendum lacus feugiat, vestibulum magna. Vivamus pellentesque mollis turpis, at consequat nisl tincidunt at. Nullam finibus cursus varius. Nam id consequat nunc, vitae accumsan metus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse fringilla sed lorem eleifend porta. Vivamus euismod, sapien at pretium convallis, elit libero auctor felis, id porttitor dui leo id ipsum. Etiam urna velit, ornare condimentum tincidunt quis, tincidunt a dolor. Morbi at ex hendrerit, vestibulum tellus eu, rhoncus est. In rutrum, diam dignissim condimentum tristique, ante odio rhoncus justo, quis maximus elit orci id orci.'
@@ -86,6 +89,7 @@ export const text = createComponentData(TEXT, {
 
 export const header = createComponentData(HEADER, {
   name: 'Header',
+  id: HEADER,
   attributes: {
     [DEFAULT]: Object.assign({}, defaultAttributes, {
       text: 'I am a header'
@@ -95,6 +99,7 @@ export const header = createComponentData(HEADER, {
 
 export const image = createComponentData(IMAGE, {
   name: 'Image',
+  id: IMAGE,
   attributes: {
     [DEFAULT]: Object.assign({}, defaultAttributes, {
       src: ''
@@ -103,8 +108,8 @@ export const image = createComponentData(IMAGE, {
 });
 
 export class SiteComponents {
-  constructor() {
-    this.components = {
+  constructor(components) {
+    this.components = components || {
       [root.id]: root,
       [container.id]: container,
       [header.id]: header,
@@ -202,6 +207,7 @@ export class SiteComponents {
   // Read
   getStateAttributes(componentId, state) {
     state = state || DEFAULT;
+
     let component = this.components[componentId];
     let masterAttrs = {};
 
@@ -232,21 +238,6 @@ export class SiteComponents {
     }
 
     return new Rect().fromElement(el);
-  }
-
-  isLastChild(componentId) {
-    let parent = this.getParentData(componentId);
-    return _.last(parent.childIds) === componentId;
-  }
-
-  isFirstChild(componentId) {
-    let parent = this.getParentData(componentId);
-    return _.first(parent.childIds) === componentId;
-  }
-
-  getInd(componentId) {
-    let parent = this.getParentData(componentId);
-    return _.findIndex(parent.childIds, childId => childId === componentId);
   }
 
   walkChildren(componentId, func, ...rest) {
@@ -301,7 +292,7 @@ export class SiteComponents {
     );
   }
 
-  getRenderTree(componentId, componentStates) {
+  getRenderTree(componentId, componentStates, ...rest) {
     /*
        For future perf could store the changed node ids since last render
        and mark components to not render.
@@ -316,6 +307,8 @@ export class SiteComponents {
      */
 
     // TD: if I only take certain properties I can make this cheaper
+
+    let index = rest[0];
     let componentClone = _.cloneDeep(this.components[componentId]);
     let state = DEFAULT;
     componentStates = componentStates || {};
@@ -328,13 +321,15 @@ export class SiteComponents {
 
     componentClone.sx = sx;
     componentClone.htmlProperties = htmlProperties;
+    componentClone.index = index;
+    componentClone.name = this.getName(componentId);
 
     componentClone.parent = _.cloneDeep(this.components[componentClone.parentId]);
     componentClone.master = _.cloneDeep(this.components[componentClone.masterId]);
 
     let children = [];
-    componentClone.childIds.forEach((id) => {
-      children.push(this.getRenderTree(id, componentStates));
+    componentClone.childIds.forEach((id, ind) => {
+      children.push(this.getRenderTree(id, componentStates, ind));
     });
     componentClone.children = children;
 

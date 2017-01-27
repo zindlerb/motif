@@ -1,10 +1,12 @@
 import React from 'react';
 import _ from 'lodash';
 import classnames from 'classnames';
+import { DragSource } from 'react-dnd';
 
-import { createDraggableComponent } from '../dragManager';
+import { dragTypes } from '../constants';
+
+/* import { createDraggableComponent } from '../dragManager';*/
 import { wasRightButtonPressed } from '../utils';
-import { actionDispatch } from '../stateManager';
 
 const Spacer = function (props) {
   let sx;
@@ -34,17 +36,18 @@ const ComponentTree = React.createClass({
     let {
       context,
       node,
+      actions
     } = this.props;
 
     const {
       otherPossibleTreeViewDropSpots,
       selectedTreeViewDropSpot,
-      activeComponent,
-      hoveredComponent
+      activeComponentId,
+      hoveredComponentId
     } = context;
 
-    const treeItemIsActive = activeComponent && node.id === activeComponent.id;
-    const treeItemIsHovered = hoveredComponent && node.id === hoveredComponent.id;
+    const treeItemIsActive = node.id === activeComponentId;
+    const treeItemIsHovered = node.id === hoveredComponentId;
 
     function checkActive(dropPoint, ind) {
       if (!dropPoint) { return false; }
@@ -54,7 +57,7 @@ const ComponentTree = React.createClass({
     }
 
     if (node.parent) {
-      if (this.props.node.isFirstChild()) {
+      if (this.props.node.index === 0) {
         beforeSpacer = (
           <Spacer
               isActive={checkActive(selectedTreeViewDropSpot, 0)}
@@ -65,7 +68,7 @@ const ComponentTree = React.createClass({
         );
       }
 
-      afterSpacerInd = node.getInd() + 1;
+      afterSpacerInd = node.index + 1;
       afterSpacer = (
         <Spacer
             isActive={checkActive(selectedTreeViewDropSpot, afterSpacerInd)}
@@ -81,6 +84,7 @@ const ComponentTree = React.createClass({
         <TreeChildren
             children={node.children}
             context={context}
+            actions={actions}
         />
       );
     }
@@ -95,6 +99,7 @@ const ComponentTree = React.createClass({
             {...this.props}
             isActive={treeItemIsActive}
             isHovered={treeItemIsHovered}
+            actions={actions}
         />
         {children}
         {afterSpacer}
@@ -102,33 +107,60 @@ const ComponentTree = React.createClass({
     );
   },
 });
+/*
+   createDraggableComponent(
+   {
+   dragType: 'moveComponent',
+   onDrag(props, pos) {
+   this.props.actions.updateTreeViewDropSpots(pos, props.node);
+   },
+   onEnd(props) {
+   const { node, selectedTreeViewDropSpot } = props;
+   if (selectedTreeViewDropSpot) {
+   this.props.actions.moveComponent(
+   node,
+   selectedTreeViewDropSpot.parent,
+   selectedTreeViewDropSpot.insertionIndex
+   );
+   }
 
-const TreeItem = createDraggableComponent(
+   this.props.actions.resetTreeViewDropSpots();
+   },
+   },
+*/
+
+const TreeItem = DragSource(
+  dragTypes.MOVE_ITEM,
   {
-    dragType: 'moveComponent',
-    onDrag(props, pos) {
-      actionDispatch.updateTreeViewDropSpots(pos, props.node);
-    },
-    onEnd(props) {
-      const { node, selectedTreeViewDropSpot } = props;
-      if (selectedTreeViewDropSpot) {
-        actionDispatch.moveComponent(
-          node,
-          selectedTreeViewDropSpot.parent,
-          selectedTreeViewDropSpot.insertionIndex
-        );
-      }
+    beginDrag(props, monitor) {
+      let eventListenerArgs = ['mousemove', (e) => {
+        // in here update the highlight
+        console.log('mousemove');
+      }];
+      window.addEventListener.apply(window, evenListenerArgs);
 
-      actionDispatch.resetTreeViewDropSpots();
+      return {eventListenerArgs};
     },
+    endDrag(props, monitor) {
+      let eventListenerArgs = monitor.getItem().eventListenerArgs;
+      window.removeEventListener.apply(window, eventListenerArgs);
+      // in here trigger the component move if the conditions are right
+    }
   },
+  function (connect) {
+    return {
+      connectDragSource: connect.dragSource()
+    }
+  }
+)(
   React.createClass({
-    onClick(e) {
+    onMouseUp(e) {
       if (wasRightButtonPressed(e)) {
-        actionDispatch.openMenu(this.props.node, e.clientX, e.clientY);
+        this.props.actions.openMenu(this.props.node, e.clientX, e.clientY);
       } else {
-        actionDispatch.selectComponent(this.props.node);
+        this.props.actions.selectComponent(this.props.node.id);
       }
+      e.stopPropagation();
     },
     render() {
       const {
@@ -151,31 +183,32 @@ const TreeItem = createDraggableComponent(
         'db'
       );
 
-      return (
+      return this.props.connectDragSource(
         <span
             onMouseDown={onMouseDown}
             onMouseEnter={() => {
-                actionDispatch.hoverComponent(node)
+                this.props.actions.hoverComponent(node.id)
               }}
-            onMouseLeave={() => { actionDispatch.unHoverComponent() }}
-            onMouseUp={this.onClick}
+            onMouseLeave={() => { this.props.actions.unHoverComponent() }}
+            onMouseUp={this.onMouseUp}
             className={treeItemClassName}>
           {node.name}
         </span>
       );
     },
-  }),
+  })
 );
+
 
 const TreeChildren = React.createClass({
   render() {
-    const children = _.map(this.props.children, (child, ind) => {
+    const children = _.map(this.props.children, (child) => {
       return (
         <ComponentTree
             context={this.props.context}
+            actions={this.props.actions}
             node={child}
             key={child.id}
-            isFirst={ind === 0}
         />
       );
     });

@@ -6,13 +6,13 @@ import { connect } from 'react-redux';
 
 import { image, createNewImageSpec } from '../base_components';
 import { createDraggableComponent } from '../dragManager';
-import HorizontalSelect from './HorizontalSelect';
-import CartoonButton from './CartoonButton';
+import HorizontalSelect from '../components/HorizontalSelect';
+import CartoonButton from '../components/CartoonButton';
 
 const iconList = [
-    { name: 'PAGES', faClass: 'fa-files-o' },
-    { name: 'COMPONENTS', faClass: 'fa-id-card-o' },
-    { name: 'ASSETS', faClass: 'fa-file-image-o' },
+  { name: 'PAGES', faClass: 'fa-files-o' },
+  { name: 'COMPONENTS', faClass: 'fa-id-card-o' },
+  { name: 'ASSETS', faClass: 'fa-file-image-o' },
 ];
 
 let dialog = remote.dialog;
@@ -60,9 +60,9 @@ const ComponentBlock = createDraggableComponent(dragSpec, React.createClass({
             value={this.state.tempName}
             onChange={(e) => { this.setState({ tempName: e.target.value }); }}
             onBlur={() => {
-              this.props.actions.changeComponentName(this.props.component, this.state.tempName);
-              this.setState({ isEditing: false });
-            }}
+                this.props.actions.changeComponentName(this.props.component, this.state.tempName);
+                this.setState({ isEditing: false });
+              }}
         />
       );
     } else {
@@ -122,7 +122,7 @@ const LeftPanel = React.createClass({
       activePanel,
       pages,
       componentBoxes,
-      currentPage,
+      currentPageId,
       selectedComponentViewDropSpot,
       assets
     } = this.props;
@@ -160,10 +160,10 @@ const LeftPanel = React.createClass({
             {componentBlockElements.yours}
           </ul>
         </div>
-            );
+      );
     } else if (activePanel === 'PAGES') {
-      const pageList = _.map(pages, function (page, ind) {
-        const isActive = page.id === currentPage.id;
+      const pageList = _.map(pages, (page, ind) => {
+        const isActive = page.id === currentPageId;
         return (
           <li
               className={classnames({
@@ -171,8 +171,8 @@ const LeftPanel = React.createClass({
                   'c-default': isActive,
                   'c-pointer': !isActive
                 }, 'pl2 pv1 page-item')}
-            onClick={() => this.props.actions.changePage(page)}
-            key={ind}
+              onClick={() => this.props.actions.changePage(page.id)}
+              key={ind}
           >
             {page.name}
           </li>);
@@ -241,6 +241,7 @@ const LeftPanel = React.createClass({
       <div>
         <HorizontalSelect
             onClick={(name) => {
+                console.log('clicked');
                 this.props.actions.changePanel(name, 'left');
               }}
             options={iconList}
@@ -273,6 +274,6 @@ export default connect((state) => {
     pages: state.pages,
     activePanel: state.activeLeftPanel,
     selectedComponentViewDropSpot: state.selectedComponentViewDropSpot,
-    currentPage: state.currentPage,
+    currentPageId: state.currentPageId,
   }
-})(LeftPanel);
+}, null, null, { pure: false })(LeftPanel);

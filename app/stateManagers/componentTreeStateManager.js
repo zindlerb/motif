@@ -120,9 +120,7 @@ export const componentTreeActions = {
 };
 
 export const componentTreeReducer = {
-  [HOVER_COMPONENT](state, action) {
-    state.hoveredComponent = action.component;
-  },
+
 
   [ADD_VARIANT](state, action) {
     let { componentId, parentComponentId, insertionIndex, spec } = action;
@@ -160,7 +158,11 @@ export const componentTreeReducer = {
 
   [UPDATE_COMPONENT_VIEW_DROP_SPOTS](state, action) {
     const mousePos = action.pos;
-    const nodeTreeId = state.currentPage.componentTreeId;
+
+    const currentPage = _.find(state.pages, (page) => {
+      return page.id === state.currentPageId;
+    });
+    const nodeTreeId = currentPage.componentTreeId;
 
     const DIST_RANGE = 100;
 
@@ -199,14 +201,15 @@ export const componentTreeReducer = {
     const { pos, draggedComponentId } = action;
     const { siteComponents } = state;
 
+    const currentPage = _.find(state.pages, page => page.id === state.currentPageId);
     /* Get Tree In Between Points */
-    const componentTreeId = state.currentPage.componentTreeId;
+    const componentTreeId = currentPage.componentTreeId;
     const insertionPoints = [];
 
     siteComponents.walkChildren(componentTreeId, function (node, ind) {
       if (node.id !== draggedComponentId) {
         const { x, y, w, h } = this.getRect(node.id, 'treeView');
-        if (this.isFirstChild(node.id)) {
+        if (ind === 0) {
           insertionPoints.push({
             insertionIndex: ind,
             parentId: node.parentId,
@@ -273,6 +276,10 @@ export const componentTreeReducer = {
   },
 
   [UNHOVER_COMPONENT](state) {
-    state.hoveredComponent = undefined;
-  }
+    state.hoveredComponentId = undefined;
+  },
+
+  [HOVER_COMPONENT](state, action) {
+    state.hoveredComponentId = action.componentId;
+  },
 };

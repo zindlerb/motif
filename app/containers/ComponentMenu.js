@@ -2,10 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 // import fuzzy from 'fuzzy';
-import { Rect } from '../utils';
+import { Rect, globalEventManager } from '../utils';
 
 import { createNewImageSpec, image } from '../base_components';
-import { actionDispatch } from '../stateManager';
 
 const ROOT = 'ROOT';
 const INSERT_ASSET = 'INSERT_ASSET';
@@ -28,6 +27,14 @@ const ComponentMenu = React.createClass({
       searchString: '',
       openListItem: undefined,
     };
+  },
+
+  componentDidMount() {
+    globalEventManager.addListener('mouseup', () => {
+      if (this.props.menu.isOpen) {
+        this.props.actions.closeMenu();
+      }
+    }, 10000);
   },
 
   componentWillReceiveProps(nextProps) {
@@ -64,13 +71,13 @@ const ComponentMenu = React.createClass({
     if (isOpen) {
       if (openListItem) {
         if (openListItem === INSERT_COMPONENT) {
-          componentList = _.keys(componentMapByName).map(function (componentName) {
+          componentList = _.keys(componentMapByName).map((componentName) => {
             return (
               <li
                   key={componentName}
                   onMouseUp={() => {
-                      actionDispatch.addVariant(
-                        componentMapByName[componentName],
+                      this.props.actions.addVariant(
+                        componentMapByName[componentName].id,
                         menu.component.parentId,
                         menu.component.ind
                       );
@@ -82,12 +89,12 @@ const ComponentMenu = React.createClass({
         }
 
         if (openListItem === INSERT_ASSET) {
-          componentList = assets.map(function (asset, ind) {
+          componentList = assets.map((asset, ind) => {
             return (
               <li
                   key={ind}
                   onMouseUp={() => {
-                      actionDispatch.addVariant(
+                      this.props.actions.addVariant(
                         image.id,
                         menu.component.parent,
                         menu.component.ind,
@@ -122,8 +129,8 @@ const ComponentMenu = React.createClass({
                 key={'DELETE'}
                 onMouseEnter={() => { this.setState({ openListItem: undefined }) }}
                 onMouseUp={(e) => {
-                    actionDispatch.deleteComponent(menuComponent);
-                    actionDispatch.closeMenu();
+                    this.props.actions.deleteComponent(menuComponent.id);
+                    this.props.actions.closeMenu();
                     e.stopPropagation();
                   }}>
               <i className="fa fa-trash ph1" aria-hidden="true" />
@@ -133,8 +140,8 @@ const ComponentMenu = React.createClass({
                 key={'MAKE_COMPONENT'}
                 onMouseEnter={() => { this.setState({ openListItem: undefined }) }}
                 onMouseUp={(e) => {
-                    actionDispatch.createComponentBlock(menuComponent);
-                    actionDispatch.closeMenu();
+                    this.props.actions.createComponentBlock(menuComponent);
+                    this.props.actions.closeMenu();
                     e.stopPropagation();
                   }}>
               <i className="fa fa-id-card-o ph1" aria-hidden="true" />
@@ -188,7 +195,8 @@ export default connect(
       componentMapByName = _.reduce(
         state.componentBoxes,
         function (componentMapByName, componentList) {
-          _.forEach(componentList, function (component) {
+          _.forEach(componentList, function (componentId) {
+            let component = state.siteComponents.components[componentId];
             componentMapByName[component.name] = component;
           });
 

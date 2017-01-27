@@ -8,7 +8,7 @@ import {
 } from '../base_components';
 import { createDraggableComponent, dragManager } from '../dragManager';
 
-import HorizontalSelect from './HorizontalSelect';
+import HorizontalSelect from '../components/HorizontalSelect';
 
 // TD: remove duplication on hover and add come kind of static wrapper with element cloning
 
@@ -84,13 +84,15 @@ const ContainerClassReact = createDraggableComponent(dragData, React.createClass
   },
 
   shouldExpand() {
+    /*
     const rect = this.props.mComponentData.getRect('pageView');
     if (!rect) {
-      /* No element assigned yet */
       return false;
     }
 
     return rect.h < 10;
+     */
+    return false;
   },
 
   render() {
@@ -206,7 +208,7 @@ const ImageClassReact = createDraggableComponent(dragData, React.createClass({
 
 function makeClick(component) {
   return function (e) {
-    this.props.actions.selectComponent(component);
+    this.props.actions.selectComponent(component.id);
     this.props.actions.changePanel('ATTRIBUTES', 'right');
     e.stopPropagation();
   };
@@ -442,10 +444,11 @@ const StaticRenderer = React.createClass({
 });
 
 export default connect(function (state) {
-  const { siteComponents, currentPage } = state;
-  let componentTree;
+  const { siteComponents, currentPageId } = state;
+  let componentTree, currentPage;
 
-  if (currentPage) {
+  if (currentPageId) {
+    currentPage = _.find(state.pages, page => page.id === currentPageId);
     const rootComponent = siteComponents.components[currentPage.componentTreeId];
     componentTree = siteComponents.getRenderTree(rootComponent.id);
   }

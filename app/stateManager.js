@@ -1,7 +1,11 @@
+import _ from 'lodash';
 import { hri } from 'human-readable-ids';
 import path from 'path';
-import createStore from 'redux/lib/createStore';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk'
+import fs from 'fs';
 
+import serializer from './serializer';
 import {
   componentTreeActions,
   componentTreeReducer
@@ -29,13 +33,13 @@ const initialState = {
   },
   pages: [],
   assets: [],
-  currentPage: undefined,
+  currentPageId: undefined,
   activeComponentId: undefined,
   hoveredComponentId: undefined,
   activeView: 'BORDER',
   activeBreakpoint: 'NONE',
-  activeLeftPanel: 'PAGES',
-  activeRightPanel: 'ATTRIBUTES',
+  activeLeftPanel: 'COMPONENTS',
+  activeRightPanel: 'DETAILS',
   menu: { isOpen: false },
 
   siteComponents: new SiteComponents(),
@@ -48,12 +52,22 @@ const initialState = {
 
   // TD: dynamically set initial renderer width
   rendererWidth: 200,
+
+  fileMetaData: {}
 };
 
 /* Constants */
 const SET_ACTIVE_COMPONENT_STATE = 'SET_ACTIVE_COMPONENT_STATE';
 const SELECT_BREAKPOINT = 'SELECT_BREAKPOINT';
-const OPEN_SITE = 'OPEN_SITE';
+
+const SITE_SAVE_ATTEMPT = 'SITE_SAVE_ATTEMPT';
+const SITE_SAVE_SUCCESS = 'SITE_SAVE_SUCCESS';
+const SITE_SAVE_FAILURE = 'SITE_SAVE_FAILURE';
+
+const SITE_LOAD_ATTEMPT = 'SITE_LOAD_ATTEMPT';
+const SITE_LOAD_SUCCESS = 'SITE_LOAD_SUCCESS';
+const SITE_LOAD_FAILURE = 'SITE_LOAD_FAILURE';
+
 const SET_GLOBAL_CURSOR = 'SET_GLOBAL_CURSOR';
 const ADD_NEW_PAGE = 'ADD_NEW_PAGE';
 const CHANGE_PANEL = 'CHANGE_PANEL';
@@ -61,11 +75,48 @@ const CHANGE_PAGE = 'CHANGE_PAGE';
 const SELECT_VIEW = 'SELECT_VIEW';
 const OPEN_MENU = 'OPEN_MENU';
 const CLOSE_MENU = 'CLOSE_MENU';
-const SET_ACTIVE_FILENAME = 'SET_ACTIVE_FILENAME';
+
 const ADD_ASSET = 'ADD_ASSET';
 const SET_RENDERER_WIDTH = 'SET_RENDERER_WIDTH';
 
 export const actions = Object.assign({
+  saveSite(filename) {
+    return function (dispatch, getState) {
+      dispatch({ type: SITE_SAVE_ATTEMPT });
+      return fs.writeFile(filename, serializer.serialize(getState()), function (err) {
+        if (err) {
+          dispatch({
+            type: SITE_SAVE_FAILURE,
+          });
+        } else {
+          dispatch({
+            type: SITE_SAVE_SUCCESS,
+            filename
+          });
+        }
+      });
+    }
+  },
+
+  loadSite(filename) {
+    return function (dispatch) {
+      dispatch({ type: SITE_LOAD_ATTEMPT });
+
+      return fs.readFile(filename, 'utf8', function (err, file) {
+        if (err) {
+          dispatch({ type: SITE_LOAD_FAILURE });
+        } else {
+          console.log('file', file);
+          dispatch({
+            type: SITE_LOAD_SUCCESS,
+            fileStr: file,
+            filename
+          });
+        }
+      });
+    }
+  },
+
   setActiveComponentState(newState) {
     return {
       type: SET_ACTIVE_COMPONENT_STATE,
@@ -103,18 +154,6 @@ export const actions = Object.assign({
       filename
     }
   },
-  openSite(state) {
-    return {
-      type: OPEN_SITE,
-      state,
-    };
-  },
-  setActiveFilename(filename) {
-    return {
-      type: SET_ACTIVE_FILENAME,
-      filename
-    }
-  },
   setGlobalCursor(cl) {
     return {
       type: SET_GLOBAL_CURSOR,
@@ -134,10 +173,10 @@ export const actions = Object.assign({
       type: ADD_NEW_PAGE,
     };
   },
-  changePage(page) {
+  changePage(pageId) {
     return {
       type: CHANGE_PAGE,
-      page,
+      pageId,
     };
   },
   selectView(viewName) {
@@ -179,12 +218,12 @@ const reducerObj = Object.assign({
     const newPage = {
       name: hri.random(),
       id: guid(),
-      componentTreeId: root.id,
+      componentTreeId: rv.id,
     };
 
     state.activeRightPanel = 'DETAILS';
     state.pages.push(newPage);
-    state.currentPage = newPage;
+    state.currentPageId = newPage.id;
   },
 
   [CHANGE_PANEL](state, action) {
@@ -198,15 +237,7 @@ const reducerObj = Object.assign({
   },
 
   [CHANGE_PAGE](state, action) {
-    state.currentPage = action.page;
-  },
-
-  [OPEN_SITE](state, action) {
-    Object.assign(state, action.state);
-  },
-
-  [SET_ACTIVE_FILENAME](state, action) {
-    state.nonSerializable = { filename: action.filename };
+    state.currentPageId = action.pageId;
   },
 
   [ADD_ASSET](state, action) {
@@ -216,6 +247,7 @@ const reducerObj = Object.assign({
       name: path.parse(filename).name
     });
   },
+
   [SELECT_BREAKPOINT](state, action) {
     let widths = {
       TABLET: 640,
@@ -231,13 +263,24 @@ const reducerObj = Object.assign({
 
     state.activeBreakpoint = action.newBreakpoint;
   },
+
   [SET_RENDERER_WIDTH](state, action) {
     state.rendererWidth = action.newWidth;
   },
+
   [SET_ACTIVE_COMPONENT_STATE](state, action) {
     state.activeComponentState = action.newState;
-  }
+  },
 
+  [SITE_SAVE_SUCCESS](state, action) {
+    state.fileMetaData.filename = action.filename;
+  },
+
+  [SITE_LOAD_SUCCESS](state, action) {
+    Object.assign(state, serializer.deserialize(action.fileStr));
+
+    state.fileMetaData.filename = action.filename;
+  }
 }, componentTreeReducer);
 
 function reducer(state, action) {
@@ -245,11 +288,15 @@ function reducer(state, action) {
     reducerObj[action.type](state, action);
   }
 
-  /*   console.log(action.type, _.cloneDeep(state));*/
+  console.log(action.type, _.cloneDeep(state));
 
   return state;
 }
 
-export const store = createStore(reducer, initialState);
+export const store = createStore(
+  reducer,
+  initialState,
+  applyMiddleware(thunk)
+);
 
 store.dispatch(actions.addPage());

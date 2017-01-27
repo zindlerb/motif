@@ -6,7 +6,6 @@ import {
   COLOR,
   DROPDOWN,
 } from '../base_components';
-import { actionDispatch } from '../stateManager';
 
 const TextInput = React.createClass({
   getInitialState() {
@@ -29,10 +28,15 @@ const TextInput = React.createClass({
       isEditing: false,
       tempText: '',
     });
-    actionDispatch.setComponentAttribute(this.props.component, this.props.attrKey, e.target.value);
+    this.props.actions.setComponentAttribute(
+      this.props.component,
+      this.props.attrKey,
+      e.target.value
+    );
   },
   render() {
-    const value = this.state.isEditing ? this.state.tempText : this.props.value;
+    const { isEditing, tempText } = this.state
+    const value = isEditing ? tempText : this.props.value;
 
     return (<input
                 className="w-100"
@@ -48,7 +52,11 @@ const TextInput = React.createClass({
 
 const Dropdown = React.createClass({
   onChange(e) {
-    actionDispatch.setComponentAttribute(this.props.component, this.props.attrKey, e.target.value);
+    this.props.actions.setComponentAttribute(
+      this.props.component,
+      this.props.attrKey,
+      e.target.value
+    );
   },
   render() {
     const choices = _.map(this.props.choices, function (choice, ind) {
@@ -82,7 +90,7 @@ const ColorPicker = React.createClass({
   },
 
   onChange(color) {
-    actionDispatch.setComponentAttribute(this.props.component, this.props.attrKey, color.hex);
+    this.props.actions.setComponentAttribute(this.props.component, this.props.attrKey, color.hex);
   },
 
   render() {

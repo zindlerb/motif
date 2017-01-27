@@ -1,19 +1,18 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import { actionDispatch } from '../stateManager';
 import {
   HOVER,
   DEFAULT,
   componentTypes
 } from '../base_components';
 
-import Dropdown from './forms/Dropdown';
-import SidebarHeader from './SidebarHeader';
-import HorizontalSelect from './HorizontalSelect';
-import AttributeField from './AttributeField';
-import ComponentTree from './ComponentTree';
-import CartoonButton from './CartoonButton';
+import Dropdown from '../components/forms/Dropdown';
+import SidebarHeader from '../components/SidebarHeader';
+import HorizontalSelect from '../components/HorizontalSelect';
+import AttributeField from '../components/AttributeField';
+import ComponentTree from '../components/ComponentTree';
+import CartoonButton from '../components/CartoonButton';
 
 const iconList = [
   { name: 'ATTRIBUTES', faClass: 'fa-table' },
@@ -72,7 +71,7 @@ const RightPanel = React.createClass({
     let body, attrs;
     let {
       siteComponents,
-      rootTreeId,
+      componentTreeId,
       activeComponentId,
       hoveredComponentId,
       activePanel,
@@ -80,6 +79,8 @@ const RightPanel = React.createClass({
       selectedTreeViewDropSpot,
       activeComponentState,
     } = this.props;
+
+    console.log(activeComponentId, hoveredComponentId);
 
     if (activePanel === 'ATTRIBUTES' && activeComponentId) {
       attrs = [];
@@ -107,11 +108,13 @@ const RightPanel = React.createClass({
           <div className="tc mb3 mt2">
             <span>Name: {siteComponents.getName(activeComponentId)}</span>
             <CartoonButton
-                onClick={() => { actionDispatch.createComponentBlock(activeComponentId); }}
+                onClick={() => {
+                    this.props.actions.createComponentBlock(activeComponentId);
+                  }}
                 text="Make Component"
             />
             <CartoonButton
-                onClick={() => { actionDispatch.syncComponent(activeComponentId); }}
+                onClick={() => { this.props.actions.syncComponent(activeComponentId); }}
                 text="Sync"
             />
             <span>State:</span>
@@ -120,7 +123,7 @@ const RightPanel = React.createClass({
                   { text: 'Default', value: DEFAULT },
                   { text: 'Hover', value: HOVER }
                 ]}
-                onChange={(val) => { actionDispatch.setActiveComponentState(val) }}
+                onChange={(val) => { this.props.actions.setActiveComponentState(val) }}
                 value={activeComponentState} />
           </div>
           {attrs}
@@ -129,7 +132,8 @@ const RightPanel = React.createClass({
     } else if (activePanel === 'TREE') {
       body = (
         <ComponentTree
-            node={siteComponents.getRenderTree(rootTreeId)}
+            node={siteComponents.getRenderTree(componentTreeId)}
+            actions={this.props.actions}
             context={{
               otherPossibleTreeViewDropSpots,
               selectedTreeViewDropSpot,
@@ -148,7 +152,7 @@ const RightPanel = React.createClass({
             className="w-100"
             options={iconList}
             activePanel={this.props.activePanel}
-            onClick={(name) => { actionDispatch.changePanel(name, 'right'); }}
+            onClick={(name) => { this.props.actions.changePanel(name, 'right'); }}
         />
         <div className="ph1">
           {body}
@@ -159,11 +163,16 @@ const RightPanel = React.createClass({
 });
 
 export default connect(function (state) {
+  const currentPage = _.find(
+    state.pages,
+    page => page.id === state.currentPageId
+  );
+
   return {
     siteComponents: state.siteComponents,
     activeComponentId: state.activeComponentId,
     hoveredComponentId: state.hoveredComponentId,
-    rootTreeId: state.currentPage.componentTreeId,
+    componentTreeId: currentPage.componentTreeId,
     activeComponentState: state.activeComponentState,
     activePanel: state.activeRightPanel,
     otherPossibleTreeViewDropSpots: state.otherPossibleTreeViewDropSpots,
