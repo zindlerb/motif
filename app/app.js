@@ -8,8 +8,6 @@ import ReactDOM from 'react-dom';
 import classnames from 'classnames';
 import { connect, Provider } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
-import { DragImage } from './dragManager';
 import { store, actions } from './stateManager';
 
 import MenuBar from './containers/MenuBar';
@@ -52,7 +50,6 @@ const Editor = React.createClass({
             <RightPanel actions={actions} />
           </div>
           <DropPointRenderer />
-          <DragImage />
         </div>
         <ComponentMenu actions={actions} />
       </div>

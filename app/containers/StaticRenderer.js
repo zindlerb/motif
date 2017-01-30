@@ -6,8 +6,6 @@ import {
   attributeStateTypes,
   componentTypes,
 } from '../base_components';
-import { createDraggableComponent, dragManager } from '../dragManager';
-
 import HorizontalSelect from '../components/HorizontalSelect';
 
 // TD: remove duplication on hover and add come kind of static wrapper with element cloning
@@ -335,6 +333,7 @@ function DragHandle(props) {
   }
 
   function dragStart(e) {
+    // add a drag manager for listening and unlistening to events
     dragManager.start(e, {
       dragType: 'resize',
       initialX: e.clientX,

@@ -5,7 +5,6 @@ import classnames from 'classnames';
 import { connect } from 'react-redux';
 
 import { image, createNewImageSpec } from '../base_components';
-import { createDraggableComponent } from '../dragManager';
 import HorizontalSelect from '../components/HorizontalSelect';
 import CartoonButton from '../components/CartoonButton';
 

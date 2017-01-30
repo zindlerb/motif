@@ -4,8 +4,6 @@ import classnames from 'classnames';
 import { DragSource } from 'react-dnd';
 
 import { dragTypes } from '../constants';
-
-/* import { createDraggableComponent } from '../dragManager';*/
 import { wasRightButtonPressed } from '../utils';
 
 const Spacer = function (props) {
