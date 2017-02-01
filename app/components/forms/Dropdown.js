@@ -1,5 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
+import classnames from 'classnames';
 
 const Dropdown = React.createClass({
   /*
@@ -15,8 +16,7 @@ const Dropdown = React.createClass({
   },
   render() {
     const choices = _.map(this.props.choices, function (choice, ind) {
-      let value,
-          text;
+      let value, text;
 
       if (_.isString(choice)) {
         value = choice;
@@ -30,7 +30,10 @@ const Dropdown = React.createClass({
     });
 
     return (
-      <select className="w-100" value={this.props.value} onChange={this.onChange}>
+      <select
+          className={classnames('w-100', this.props.className)}
+          value={this.props.value}
+          onChange={this.onChange}>
         {choices}
       </select>
     );

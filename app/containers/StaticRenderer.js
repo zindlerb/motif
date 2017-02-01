@@ -2,6 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import classnames from 'classnames';
+
+import { dragManager } from '../dragManager';
 import {
   attributeStateTypes,
   componentTypes,
@@ -9,26 +11,6 @@ import {
 import HorizontalSelect from '../components/HorizontalSelect';
 
 // TD: remove duplication on hover and add come kind of static wrapper with element cloning
-
-const dragData = {
-  dragType: 'addComponent',
-  onDrag(props, pos) {
-    props.actions.updateComponentViewDropSpots(pos);
-  },
-  onEnd(props) {
-    const selectedComponentViewDropSpot = props.context.selectedComponentViewDropSpot;
-    if (selectedComponentViewDropSpot) {
-      props.actions.moveComponent(
-        props.mComponentData,
-        selectedComponentViewDropSpot.parent,
-        selectedComponentViewDropSpot.insertionIndex
-      );
-    }
-
-    props.actions.resetComponentViewDropSpots();
-  },
-};
-
 function makeComponentRefCallback(mComponentData) {
   return function (ref) {
     mComponentData.domElements.pageView = ref;
@@ -63,7 +45,7 @@ const RootClassReact = function (props) {
   );
 };
 
-const ContainerClassReact = createDraggableComponent(dragData, React.createClass({
+const ContainerClassReact = React.createClass({
   getInitialState() {
     return {
       isExpanded: false,
@@ -120,9 +102,9 @@ const ContainerClassReact = createDraggableComponent(dragData, React.createClass
       </div>
     );
   },
-}));
+});
 
-const HeaderClassReact = createDraggableComponent(dragData, React.createClass({
+const HeaderClassReact = React.createClass({
   getInitialState() {
     return {
       isHovered: false
@@ -149,9 +131,9 @@ const HeaderClassReact = createDraggableComponent(dragData, React.createClass({
       </h1>
     );
   },
-}));
+});
 
-const ParagraphClassReact = createDraggableComponent(dragData, React.createClass({
+const ParagraphClassReact = React.createClass({
   getInitialState() {
     return {
       isHovered: false
@@ -173,9 +155,9 @@ const ParagraphClassReact = createDraggableComponent(dragData, React.createClass
       </p>
     );
   },
-}));
+});
 
-const ImageClassReact = createDraggableComponent(dragData, React.createClass({
+const ImageClassReact = React.createClass({
   getInitialState() {
     return {
       isHovered: false
@@ -202,7 +184,7 @@ const ImageClassReact = createDraggableComponent(dragData, React.createClass({
       />
     );
   },
-}));
+});
 
 function makeClick(component) {
   return function (e) {
@@ -370,7 +352,6 @@ const StaticRenderer = React.createClass({
   render() {
     let {
       activeView,
-      activeBreakpoint,
       componentTree,
       context,
       width,
@@ -401,23 +382,6 @@ const StaticRenderer = React.createClass({
                   { text: 'None', name: 'NONE' },
                   { text: 'Border', name: 'BORDER' },
                   { text: 'Detail', name: 'DETAIL' },
-                ]}
-            />
-          </div>
-          <div className="ml2">
-            <span className="db f6">Breakpoint</span>
-            <HorizontalSelect
-                className=""
-                onClick={(name) => {
-                    this.props.actions.selectBreakpoint(name);
-                  }}
-                hasBorder
-                activePanel={activeBreakpoint}
-                options={[
-                  { name: 'NONE', text: 'None' },
-                  { name: 'TABLET', faClass: 'fa-tablet' },
-                  { name: 'LAPTOP', faClass: 'fa-laptop' },
-                  { name: 'DESKTOP', faClass: 'fa-desktop' },
                 ]}
             />
           </div>
@@ -455,7 +419,6 @@ export default connect(function (state) {
   return {
     width: state.rendererWidth,
     componentTree,
-    activeBreakpoint: state.activeBreakpoint,
     activeView: state.activeView,
     context: {
       hoveredComponentId: state.hoveredComponentId,

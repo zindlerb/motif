@@ -23,6 +23,8 @@ export default function HorizontalSelect(props) {
 
     if (option.faClass) {
       content = <i className={classnames('icon', 'fa', option.faClass)} aria-hidden="true" />;
+    } else if (option.src) {
+      content = <img src={option.src} className="img" />;
     } else {
       content = <span>{option.text}</span>;
     }

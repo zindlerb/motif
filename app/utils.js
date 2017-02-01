@@ -1,5 +1,8 @@
 import _ from 'lodash';
 import $ from 'jquery';
+import { remote } from 'electron';
+
+let dialog = remote.dialog;
 
 export function distanceBetweenPoints(p1, p2) {
   return Math.abs(Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2)));
@@ -17,13 +20,9 @@ export function guid() {
 
 
 export class Rect {
-  constructor(attrs) {
-    if (attrs) {
-      this.x = attrs.x;
-      this.y = attrs.y;
-      this.w = attrs.w;
-      this.h = attrs.h;
-      this.computeDerivedProperties();
+  constructor(el) {
+    if (el) {
+      this.fromElement(el);
     }
   }
 
@@ -134,10 +133,63 @@ class GlobalEventManager {
       this.events[eventName] = [];
     }
 
-    this.events[eventName].push({ listener, priority });
+    const id = guid();
 
+    this.events[eventName].push({ listener, priority, id });
     this.events[eventName] = _.sortBy(this.events[eventName], (ev) => { ev.priority; });
+
+    return id
+  }
+
+  removeListener(eventName, id) {
+    return _.remove(this.events[eventName], (listener) => {
+      return listener.id === id;
+    }).length > 0;
   }
 }
 
 export const globalEventManager = new GlobalEventManager();
+
+export function saveSiteDialog(actions) {
+  dialog.showSaveDialog({
+    title: 'Save Site',
+    filters: [
+      {
+        name: 'motif file',
+        extensions: ['json']
+      }
+    ]
+  }, (filename) => {
+    actions.saveSite(filename);
+  });
+}
+
+export function saveSiteAsDialog(actions) {
+  dialog.showSaveDialog({
+    title: 'Save Site As',
+    filters: [
+      {
+        name: 'motif file',
+        extensions: ['json']
+      }
+    ]
+  }, (filename) => {
+    actions.saveSite(filename);
+  });
+}
+
+export function loadSiteDialog(actions) {
+  dialog.showOpenDialog({
+    title: 'Select a site to edit',
+    properties: ['openFile'],
+    filters: [
+      {
+        name: 'motif file',
+        extensions: ['json']
+      }
+    ]
+  }, (filenames) => {
+    if (!filenames) return;
+    actions.loadSite(filenames[0]);
+  });
+}

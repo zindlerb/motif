@@ -2,12 +2,12 @@ import React from 'react';
 import classnames from 'classnames';
 
 function CartoonButton(props) {
-  const { text, onClick, classNames } = props;
+  const { text, onClick, className, size } = props;
 
   return (
     <button
         onClick={onClick}
-        className={classnames(classNames, 'pv1 ph2 cartoon-button f6')}>
+        className={classnames(className, 'cartoon-button', size)}>
       {text}
     </button>
   );

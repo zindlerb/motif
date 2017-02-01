@@ -1,6 +1,7 @@
+import $ from 'jquery';
 import _ from 'lodash';
-import { minDistanceBetweenPointAndLine } from '../utils';
-import { DEFAULT } from '../base_components';
+import { minDistanceBetweenPointAndLine, Rect } from '../utils';
+import { DEFAULT, componentTypes } from '../base_components';
 
 const UNHOVER_COMPONENT = 'UNHOVER_COMPONENT';
 const HOVER_COMPONENT = 'HOVER_COMPONENT';
@@ -10,9 +11,6 @@ const MOVE_COMPONENT = 'MOVE_COMPONENT';
 const DELETE_COMPONENT = 'DELETE_COMPONENT';
 
 const SELECT_COMPONENT = 'SELECT_COMPONENT';
-
-const UPDATE_COMPONENT_VIEW_DROP_SPOTS = 'UPDATE_COMPONENT_VIEW_DROP_SPOTS';
-const RESET_COMPONENT_VIEW_DROP_SPOTS = 'RESET_COMPONENT_VIEW_DROPSPOTS';
 
 const UPDATE_TREE_VIEW_DROP_SPOTS = 'UPDATE_TREE_VIEW_DROP_SPOTS';
 const RESET_TREE_VIEW_DROP_SPOTS = 'RESET_TREE_VIEW_DROP_SPOTS';
@@ -65,19 +63,6 @@ export const componentTreeActions = {
     return {
       type: UNHOVER_COMPONENT
     }
-  },
-
-  updateComponentViewDropSpots(pos) {
-    return {
-      type: UPDATE_COMPONENT_VIEW_DROP_SPOTS,
-      pos,
-    };
-  },
-
-  resetComponentViewDropSpots() {
-    return {
-      type: RESET_COMPONENT_VIEW_DROP_SPOTS,
-    };
   },
 
   updateTreeViewDropSpots(pos, draggedComponentId) {
@@ -137,6 +122,10 @@ export const componentTreeReducer = {
     let { componentId, parentComponentId, insertionIndex } = action;
     let siteComponents = state.siteComponents;
 
+    console.log('parent', state.siteComponent.components[parentComponentId]);
+    console.log('component', state.siteComponent.components[componentId]);
+    console.log('index', insertionIndex);
+
     siteComponents.moveComponent(componentId, parentComponentId, insertionIndex);
   },
 
@@ -156,47 +145,6 @@ export const componentTreeReducer = {
     state.activeComponentId = action.componentId;
   },
 
-  [UPDATE_COMPONENT_VIEW_DROP_SPOTS](state, action) {
-    const mousePos = action.pos;
-
-    const currentPage = _.find(state.pages, (page) => {
-      return page.id === state.currentPageId;
-    });
-    const nodeTreeId = currentPage.componentTreeId;
-
-    const DIST_RANGE = 100;
-
-    let minDist = DIST_RANGE;
-    let closestNode;
-    const nodesInMin = [];
-
-    state.siteComponents.walkChildren(nodeTreeId, function (node) {
-      this.getDropPoints(node.id).forEach(function (dropPoint) {
-        const dist = minDistanceBetweenPointAndLine(mousePos, dropPoint.points);
-
-        if (dist < DIST_RANGE) {
-          nodesInMin.push(dropPoint);
-          if (dist < minDist) {
-            minDist = dist;
-            closestNode = dropPoint;
-          }
-        }
-      });
-    });
-
-    if (closestNode) {
-      closestNode.isActive = true;
-    }
-
-    state.otherPossibleComponentViewDropSpots = nodesInMin;
-    state.selectedComponentViewDropSpot = closestNode;
-  },
-
-  [RESET_COMPONENT_VIEW_DROP_SPOTS](state) {
-    state.otherPossibleComponentViewDropSpots = undefined;
-    state.selectedComponentViewDropSpot = undefined;
-  },
-
   [UPDATE_TREE_VIEW_DROP_SPOTS](state, action) {
     const { pos, draggedComponentId } = action;
     const { siteComponents } = state;
@@ -208,7 +156,7 @@ export const componentTreeReducer = {
 
     siteComponents.walkChildren(componentTreeId, function (node, ind) {
       if (node.id !== draggedComponentId) {
-        const { x, y, w, h } = this.getRect(node.id, 'treeView');
+        const { x, y, w, h } = new Rect($('treeDropSpot_' + node.id + '_' + ind));
         if (ind === 0) {
           insertionPoints.push({
             insertionIndex: ind,
@@ -222,6 +170,26 @@ export const componentTreeReducer = {
           parentId: node.parentId,
           points: [{ x, y: y + h }, { x: x + w, y: y + h }],
         });
+
+        if (node.componentType === componentTypes.CONTAINER) {
+          const emptyDropSpot = Rect.fromElement(
+            $('treeDropSpot_' + node.id + '_emptyChild')
+          );
+          insertionPoints.push({
+            insertionIndex: 0,
+            parentId: node.id,
+            points: [
+              {
+                x: emptyDropSpot.x,
+                y: emptyDropSpot.y + emptyDropSpot.h
+              },
+              {
+                x: emptyDropSpot.x + emptyDropSpot.w,
+                y: emptyDropSpot.y + emptyDropSpot.h
+              }
+            ],
+          });
+        }
       }
     });
 

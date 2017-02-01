@@ -11,6 +11,7 @@ import {
   componentTreeReducer
 } from './stateManagers/componentTreeStateManager';
 import { guid } from './utils';
+import { mainViewTypes } from './constants';
 import {
   SiteComponents,
   container,
@@ -22,6 +23,7 @@ import {
 
 const initialState = {
   siteName: 'Something',
+  recentSites: [],
   componentBoxes: {
     ours: [
       container.id,
@@ -40,6 +42,7 @@ const initialState = {
   activeBreakpoint: 'NONE',
   activeLeftPanel: 'COMPONENTS',
   activeRightPanel: 'DETAILS',
+  currentMainView: mainViewTypes.EDITOR,
   menu: { isOpen: false },
 
   siteComponents: new SiteComponents(),
@@ -57,6 +60,7 @@ const initialState = {
 };
 
 /* Constants */
+const SET_PAGE_VALUE = 'SET_PAGE_VALUE';
 const SET_ACTIVE_COMPONENT_STATE = 'SET_ACTIVE_COMPONENT_STATE';
 const SELECT_BREAKPOINT = 'SELECT_BREAKPOINT';
 
@@ -75,11 +79,40 @@ const CHANGE_PAGE = 'CHANGE_PAGE';
 const SELECT_VIEW = 'SELECT_VIEW';
 const OPEN_MENU = 'OPEN_MENU';
 const CLOSE_MENU = 'CLOSE_MENU';
+const CHANGE_MAIN_VIEW = 'CHANGE_MAIN_VIEW';
 
 const ADD_ASSET = 'ADD_ASSET';
 const SET_RENDERER_WIDTH = 'SET_RENDERER_WIDTH';
 
 export const actions = Object.assign({
+  setPageValue(key, newValue) {
+    return {
+      type: SET_PAGE_VALUE,
+      key,
+      newValue
+    }
+  },
+  changeMainView(newView) {
+    return {
+      type: CHANGE_MAIN_VIEW,
+      newView
+    }
+  },
+
+  siteLoadFailure() {
+    return {
+      type: SITE_LOAD_FAILURE
+    }
+  },
+
+  siteLoadSuccess(filename, fileStr) {
+    return {
+      type: SITE_LOAD_SUCCESS,
+      fileStr,
+      filename
+    };
+  },
+
   saveSite(filename) {
     return function (dispatch, getState) {
       dispatch({ type: SITE_SAVE_ATTEMPT });
@@ -104,14 +137,9 @@ export const actions = Object.assign({
 
       return fs.readFile(filename, 'utf8', function (err, file) {
         if (err) {
-          dispatch({ type: SITE_LOAD_FAILURE });
+          this.siteLoadFailure();
         } else {
-          console.log('file', file);
-          dispatch({
-            type: SITE_LOAD_SUCCESS,
-            fileStr: file,
-            filename
-          });
+          this.siteLoadSuccess(filename, file);
         }
       });
     }
@@ -189,6 +217,12 @@ export const actions = Object.assign({
 
 
 const reducerObj = Object.assign({
+  [SET_PAGE_VALUE](state, action) {
+    const currentPage = _.find(state.pages, (page) => {
+      return page.id === state.currentPageId;
+    });
+    currentPage[action.key] = action.newValue;
+  },
   [OPEN_MENU](state, action) {
     state.menu.isOpen = true;
     state.menu.component = action.component;
@@ -280,6 +314,10 @@ const reducerObj = Object.assign({
     Object.assign(state, serializer.deserialize(action.fileStr));
 
     state.fileMetaData.filename = action.filename;
+  },
+
+  [CHANGE_MAIN_VIEW](state, action) {
+    state.currentMainView = action.newView;
   }
 }, componentTreeReducer);
 
@@ -288,8 +326,7 @@ function reducer(state, action) {
     reducerObj[action.type](state, action);
   }
 
-  console.log(action.type, _.cloneDeep(state));
-
+  console.log(action.type, action, _.cloneDeep(state));
   return state;
 }
 

@@ -2,6 +2,8 @@
 $highlight: #EBEBEB;
 $potential-highlight: #f5f5f5;
 
+$icon-color: #434343;
+
 $border-radius: 3px;
 
 $bright: #f99063;
@@ -101,6 +103,10 @@ body * {
   border-left: 1px solid $border;
 }
 
+i {
+  color: $icon-color;
+}
+
 
 /* COMPONENTS */
 .horizontal-select {
@@ -114,6 +120,10 @@ body * {
 
   .icon {
     font-size: 25px; /* looks right */
+  }
+
+  .img {
+    height: 20px;
   }
 }
 
@@ -190,6 +200,17 @@ body * {
 
 
 .cartoon-button {
+  &.medium {
+    font-size: $f3;
+    padding: $spacing-small $spacing-medium;
+  }
+
+  &.large {
+
+  }
+
+  font-size: $f6;
+  padding: $spacing-extra-small $spacing-small;
   position: relative;
   display: inline-block;
   border-radius: 8px;
@@ -267,4 +288,28 @@ body * {
   li:last-child {
     border-bottom: 0px;
   }
+}
+
+.modal-card {
+  left: 50%;
+  top: 30%;
+  position: absolute;
+  background: white;
+  width: 32rem;
+  border: 1px solid black;
+  box-shadow: 1px 1px 1px black;
+  padding: $spacing-large $spacing-small;
+  border-radius: 24px;
+
+  /* bring your own prefixes */
+  transform: translate(-50%, -50%);
+}
+
+.dark-background {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .85);
 }

@@ -9,7 +9,8 @@ function serializerFactory() {
     'componentBoxes',
     'currentPageId',
     'assets',
-    'siteComponents'
+    'siteComponents',
+    'recentSites'
   ];
 
   function serialize(state) {

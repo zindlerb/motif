@@ -4,7 +4,7 @@ import _ from 'lodash';
 import {
   HOVER,
   DEFAULT,
-  componentTypes
+  componentTypes,
 } from '../base_components';
 
 import Dropdown from '../components/forms/Dropdown';
@@ -14,9 +14,12 @@ import AttributeField from '../components/AttributeField';
 import ComponentTree from '../components/ComponentTree';
 import CartoonButton from '../components/CartoonButton';
 
+import FormLabel from '../components/forms/FormLabel';
+import TextField from '../components/forms/TextField';
+
 const iconList = [
   { name: 'ATTRIBUTES', faClass: 'fa-table' },
-  { name: 'TREE', faClass: 'fa-tree' },
+  { name: 'TREE', src: 'public/img/assets/tree-icon.svg' },
   { name: 'DETAILS', faClass: 'fa-info-circle' },
 ];
 
@@ -78,9 +81,8 @@ const RightPanel = React.createClass({
       otherPossibleTreeViewDropSpots,
       selectedTreeViewDropSpot,
       activeComponentState,
+      currentPage
     } = this.props;
-
-    console.log(activeComponentId, hoveredComponentId);
 
     if (activePanel === 'ATTRIBUTES' && activeComponentId) {
       attrs = [];
@@ -143,7 +145,33 @@ const RightPanel = React.createClass({
         />
       );
     } else if (activePanel === 'DETAILS') {
-      body = (<SidebarHeader text="Page Settings" />);
+      const inputs = [
+        { name: 'name', key: 'metaName' },
+        { name: 'url', key: 'url' },
+        { name: 'author', key: 'author' },
+        { name: 'title', key: 'title' },
+        { name: 'description', key: 'description', large: true },
+        { name: 'keywords', key: 'keywords', large: true },
+      ].map((input) => {
+        return (
+          <FormLabel name={input.name}>
+            <TextField
+                value={currentPage[input.key]}
+                onSubmit={(value) => {
+                    this.props.actions.setPageValue(input.key, value);
+                  }}
+                isLarge={input.large}
+            />
+          </FormLabel>
+        );
+      });
+
+      body = (
+        <div>
+          <SidebarHeader text="Page Settings" />
+          { inputs }
+        </div>
+      );
     }
 
     return (
@@ -169,6 +197,7 @@ export default connect(function (state) {
   );
 
   return {
+    currentPage,
     siteComponents: state.siteComponents,
     activeComponentId: state.activeComponentId,
     hoveredComponentId: state.hoveredComponentId,

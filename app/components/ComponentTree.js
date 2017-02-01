@@ -4,17 +4,18 @@ import classnames from 'classnames';
 import { DragSource } from 'react-dnd';
 
 import { dragTypes } from '../constants';
-import { wasRightButtonPressed } from '../utils';
+import { wasRightButtonPressed, globalEventManager } from '../utils';
 
 const Spacer = function (props) {
   let sx;
-  if (props.isActive) {
+  const { index, node, isActive, isNear } = props;
+  if (isActive) {
     sx = {
       border: '1px solid orange',
       marginTop: 1,
       marginBottom: 1,
     };
-  } else if (props.isNear) {
+  } else if (isNear) {
     sx = {
       border: '1px solid blue',
       marginTop: 1,
@@ -23,7 +24,10 @@ const Spacer = function (props) {
   }
 
   return (
-    <div style={sx} />
+    <div
+        style={sx}
+        className={'treeDropSpot_' + node.id + '_' + (index || 'emptyChild')}
+    />
   );
 };
 
@@ -50,7 +54,7 @@ const ComponentTree = React.createClass({
     function checkActive(dropPoint, ind) {
       if (!dropPoint) { return false; }
 
-      return (dropPoint.parent.id === node.parent.id &&
+      return (dropPoint.parentId === node.parent.id &&
               dropPoint.insertionIndex === ind);
     }
 
@@ -58,6 +62,8 @@ const ComponentTree = React.createClass({
       if (this.props.node.index === 0) {
         beforeSpacer = (
           <Spacer
+              node={node}
+              index={node.index}
               isActive={checkActive(selectedTreeViewDropSpot, 0)}
               isNear={_.some(otherPossibleTreeViewDropSpots, (dspot) => {
                   return checkActive(dspot, 0);
@@ -69,6 +75,8 @@ const ComponentTree = React.createClass({
       afterSpacerInd = node.index + 1;
       afterSpacer = (
         <Spacer
+            node={node}
+            index={node.index}
             isActive={checkActive(selectedTreeViewDropSpot, afterSpacerInd)}
             isNear={_.some(otherPossibleTreeViewDropSpots, (dspot) => {
                 return checkActive(dspot, afterSpacerInd);
@@ -105,44 +113,34 @@ const ComponentTree = React.createClass({
     );
   },
 });
-/*
-   createDraggableComponent(
-   {
-   dragType: 'moveComponent',
-   onDrag(props, pos) {
-   this.props.actions.updateTreeViewDropSpots(pos, props.node);
-   },
-   onEnd(props) {
-   const { node, selectedTreeViewDropSpot } = props;
-   if (selectedTreeViewDropSpot) {
-   this.props.actions.moveComponent(
-   node,
-   selectedTreeViewDropSpot.parent,
-   selectedTreeViewDropSpot.insertionIndex
-   );
-   }
-
-   this.props.actions.resetTreeViewDropSpots();
-   },
-   },
-*/
 
 const TreeItem = DragSource(
-  dragTypes.MOVE_ITEM,
+  dragTypes.MOVE_COMPONENT,
   {
-    beginDrag(props, monitor) {
-      let eventListenerArgs = ['mousemove', (e) => {
-        // in here update the highlight
-        console.log('mousemove');
-      }];
-      window.addEventListener.apply(window, evenListenerArgs);
+    beginDrag(props) {
+      const id = globalEventManager.addListener('drag', (e) => {
+        props.actions.updateTreeViewDropSpots(
+          {
+            x: e.clientX,
+            y: e.clientY,
+          },
+          props.node.id
+        );
+      }, 1);
 
-      return {eventListenerArgs};
+      return { id };
     },
     endDrag(props, monitor) {
-      let eventListenerArgs = monitor.getItem().eventListenerArgs;
-      window.removeEventListener.apply(window, eventListenerArgs);
-      // in here trigger the component move if the conditions are right
+      globalEventManager.removeListener('drag', monitor.getItem().id);
+      const selectedTreeViewDropSpot = props.context.selectedTreeViewDropSpot;
+      if (selectedTreeViewDropSpot) {
+        props.actions.moveComponent(
+          props.node.id,
+          selectedTreeViewDropSpot.parentId,
+          selectedTreeViewDropSpot.insertionIndex,
+        );
+      }
+      props.actions.resetTreeViewDropSpots();
     }
   },
   function (connect) {
@@ -170,7 +168,7 @@ const TreeItem = DragSource(
       } = this.props;
 
       const treeItemClassName = classnames(
-        'treeItem',
+        'treeItem w-100 pv1',
         className,
         'outline_' + node.id,
         {

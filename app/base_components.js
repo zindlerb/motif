@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import $ from 'jquery';
+
 import { guid, Rect } from './utils';
 
 const CONTAINER = 'CONTAINER';
@@ -231,7 +233,7 @@ export class SiteComponents {
 
   getRect(componentId, viewType) {
     // Node Types: treeView, componentView
-    let el = this.components[componentId].domElements[viewType];
+    let el = $('.' + viewType + '_' + componentId);
 
     if (!el) {
       return undefined;
@@ -338,55 +340,5 @@ export class SiteComponents {
 
   getParentData(componentId) {
     return this.components[this.components[componentId].parentId];
-  }
-
-  getDropPoints(componentId) {
-    if (this.components[componentId].componentType !== CONTAINER) {
-      return [];
-    }
-
-    let rect = this.getRect(componentId, 'pageView');
-    let flexDirection = this.getStateAttributes(componentId).flexDirection;
-    let initialPoints;
-    let padding = 2;
-
-    if (flexDirection === 'column') {
-      initialPoints = [
-        { x: rect.x, y: rect.y + padding },
-        { x: rect.x + rect.w, y: rect.y + padding }
-      ];
-    } else if (flexDirection === 'row') {
-      initialPoints = [
-        { x: rect.x + padding, y: rect.y },
-        { x: rect.x + padding, y: rect.y + rect.h }
-      ];
-    }
-
-    let dropPoints = [
-      {
-        insertionIndex: 0,
-        parent: componentId,
-        points: initialPoints
-      }
-    ];
-
-    this.childIds.forEach((childId, ind) => {
-      let rect = this.getRect(childId, 'pageView');
-      let points;
-
-      if (flexDirection === 'column') {
-        points = [{ x: rect.x, y: rect.y + rect.h }, { x: rect.x + rect.w, y: rect.y + rect.h }];
-      } else if (flexDirection === 'row') {
-        points = [{ x: rect.x + rect.w, y: rect.y }, { x: rect.x + rect.w, y: rect.y + rect.h }];
-      }
-
-      dropPoints.push({
-        insertionIndex: ind + 1,
-        parentId: componentId,
-        points
-      });
-    });
-
-    return dropPoints;
   }
 }

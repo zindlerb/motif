@@ -38,6 +38,7 @@ module.exports = {
     "no-unused-expressions": 0,
     "react/jsx-closing-bracket-location": 0,
     "import/prefer-default-export": 0,
+    "class-methods-use-this": 1,
 
     // Possibly add back in later
     "react/prefer-stateless-function": 0,
