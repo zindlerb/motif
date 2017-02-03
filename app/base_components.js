@@ -2,12 +2,33 @@ import _ from 'lodash';
 import $ from 'jquery';
 
 import { guid, Rect } from './utils';
+import {
+  breakpointTypes,
+  NONE
+} from './constants';
 
 const CONTAINER = 'CONTAINER';
 const HEADER = 'HEADER';
 const TEXT = 'TEXT';
 const IMAGE = 'IMAGE';
 const ROOT = 'ROOT';
+
+/*
+   attrs[state][breakpoint] =
+
+   what takes precedent??
+   -
+
+   default
+   breakpoints
+   states
+
+   getting:
+   { breakpoint: , state: }
+
+   breakpoint: none,
+   state: none, hover
+*/
 
 export const componentTypes = {
    CONTAINER,
@@ -17,20 +38,10 @@ export const componentTypes = {
    ROOT
 }
 
-const DEFAULT = 'DEFAULT';
-const HOVER = 'HOVER';
-
-export const attributeStateTypes = {
-  DEFAULT,
-  HOVER
-}
-
 export function creatNewImageSpec(asset) {
   return {
     name: asset.name,
-    attributes: {
-      [DEFAULT]: { src: asset.src }
-    }
+    defaultAttributes: { src: asset.src }
   }
 }
 
@@ -42,9 +53,10 @@ export function createComponentData(componentType, spec) {
     variantIds: [],
     masterId: spec.masterId,
     parentId: spec.parentId,
-    attributes: spec.attributes || {},
+    defaultAttributes: spec.defaultAttributes || {},
     id: spec.id || guid(),
-    domElements: {}
+    states: {},
+    obreakpoints: {}
   }
 }
 
@@ -58,55 +70,47 @@ const defaultAttributes = {
 };
 
 export const root = createComponentData(ROOT, {
-  attributes: {
-    [DEFAULT]: {
-      height: '100%'
-    }
+  id: ROOT,
+  defaultAttributes: {
+    height: '100%'
   }
 });
 
-export const containerAttributes = {
-  [DEFAULT]: Object.assign({}, defaultAttributes, {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start'
-  })
-};
+export const containerAttributes = Object.assign({}, defaultAttributes, {
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'flex-start'
+});
+
 
 export const container = createComponentData(CONTAINER, {
   name: 'Container',
   id: CONTAINER,
-  attributes: containerAttributes,
+  defaultAttributes: containerAttributes,
 });
 
 export const text = createComponentData(TEXT, {
   name: 'Text',
   id: TEXT,
-  attributes: {
-    [DEFAULT]: Object.assign({}, defaultAttributes, {
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. In quis libero at libero dictum tempor. Cras ut odio erat. Fusce semper odio ac dignissim sollicitudin. Vivamus in tortor lobortis, bibendum lacus feugiat, vestibulum magna. Vivamus pellentesque mollis turpis, at consequat nisl tincidunt at. Nullam finibus cursus varius. Nam id consequat nunc, vitae accumsan metus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse fringilla sed lorem eleifend porta. Vivamus euismod, sapien at pretium convallis, elit libero auctor felis, id porttitor dui leo id ipsum. Etiam urna velit, ornare condimentum tincidunt quis, tincidunt a dolor. Morbi at ex hendrerit, vestibulum tellus eu, rhoncus est. In rutrum, diam dignissim condimentum tristique, ante odio rhoncus justo, quis maximus elit orci id orci.'
-    })
-  }
+  defaultAttributes: Object.assign({}, defaultAttributes, {
+    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. In quis libero at libero dictum tempor. Cras ut odio erat. Fusce semper odio ac dignissim sollicitudin. Vivamus in tortor lobortis, bibendum lacus feugiat, vestibulum magna. Vivamus pellentesque mollis turpis, at consequat nisl tincidunt at. Nullam finibus cursus varius. Nam id consequat nunc, vitae accumsan metus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse fringilla sed lorem eleifend porta. Vivamus euismod, sapien at pretium convallis, elit libero auctor felis, id porttitor dui leo id ipsum. Etiam urna velit, ornare condimentum tincidunt quis, tincidunt a dolor. Morbi at ex hendrerit, vestibulum tellus eu, rhoncus est. In rutrum, diam dignissim condimentum tristique, ante odio rhoncus justo, quis maximus elit orci id orci.'
+  })
 });
 
 export const header = createComponentData(HEADER, {
   name: 'Header',
   id: HEADER,
-  attributes: {
-    [DEFAULT]: Object.assign({}, defaultAttributes, {
-      text: 'I am a header'
-    })
-  }
+  defaultAttributes: Object.assign({}, defaultAttributes, {
+    text: 'I am a header'
+  })
 });
 
 export const image = createComponentData(IMAGE, {
   name: 'Image',
   id: IMAGE,
-  attributes: {
-    [DEFAULT]: Object.assign({}, defaultAttributes, {
-      src: ''
-    })
-  },
+  defaultAttributes: Object.assign({}, defaultAttributes, {
+    src: ''
+  })
 });
 
 export class SiteComponents {
@@ -197,27 +201,59 @@ export class SiteComponents {
     this.addChild(newParentId, movedComponentId, insertionIndex);
   }
 
-  setAttribute(componentId, state, attributeName, newValue) {
-    let attributes = this.components[componentId].attributes;
-    if (!attributes[state]) {
-      attributes.state = {};
+  setAttribute(componentId, attributeName, newValue, attributeOptions) {
+    const component = this.components[componentId];
+    let attributes = component.defaultAttributes;
+
+    if (attributeOptions) {
+      // TD: Clean!!
+      const { state, breakpoint } = attributeOptions;
+      let attributeType, attributeOption;
+      if (state !== NONE) {
+        attributeType = 'states';
+        attributeOption = state;
+      } else if (breakpoint !== NONE) {
+        attributeType = 'breakpoints';
+        attributeOption = breakpoint;
+      }
+
+      if (attributeType) {
+        if (!component[attributeType][attributeOption]) {
+          component[attributeType][attributeOption] = {};
+        }
+        attributes = component[attributeType][attributeOption];
+      }
     }
 
-    attributes[state][attributeName] = newValue;
+    attributes[attributeName] = newValue;
   }
 
   // Read
-  getStateAttributes(componentId, state) {
-    state = state || DEFAULT;
-
+  getAttributes(componentId, attributeOptions) {
     let component = this.components[componentId];
     let masterAttrs = {};
 
+    let attributes = component.defaultAttributes;
+
     if (component.masterId) {
-      masterAttrs = this.getStateAttributes(component.masterId, state);
+      masterAttrs = this.getAttributes(component.masterId, attributeOptions);
     }
 
-    return Object.assign({}, masterAttrs, component.attributes[state]);
+    if (attributeOptions) {
+      const { state, breakpoint } = attributeOptions;
+
+      if (state !== NONE) {
+        attributes = component.states[state];
+      } else if (breakpoint !== NONE) {
+        attributes = component.breakpoints[breakpoint];
+      }
+    }
+
+    return Object.assign(
+      {},
+      masterAttrs,
+      attributes
+    );
   }
 
   getName(componentId) {
@@ -261,18 +297,18 @@ export class SiteComponents {
     });
   }
 
-  getRenderableProperties(componentId, state) {
+  getRenderableProperties(componentId, attributeOptions) {
     let attrToCssLookup = {};
     let attrToHtmlPropertyLookup = {
       text: true,
       src: true
     };
 
-    // TD
-    let attributes = this.getStateAttributes(componentId, DEFAULT);
+    // default attributes
+    let attributes = this.getAttributes(componentId);
 
-    if (state !== DEFAULT) {
-      Object.assign(attributes, this.getStateAttributes(componentId, state));
+    if (attributeOptions) {
+      Object.assign(attributes, this.getAttributes(componentId, attributeOptions));
     }
 
     return _.reduce(
@@ -294,13 +330,19 @@ export class SiteComponents {
     );
   }
 
-  getRenderTree(componentId, componentStates, ...rest) {
+  getRenderTree(componentId, context, ...privateVars) {
     /*
        For future perf could store the changed node ids since last render
        and mark components to not render.
      */
 
     /*
+
+       context: {
+         componentStates: { id of component and state} - only if not none
+         width
+       }
+
        component stuff with:
        sx
        htmlProperties
@@ -310,16 +352,29 @@ export class SiteComponents {
 
     // TD: if I only take certain properties I can make this cheaper
 
-    let index = rest[0];
+    let index = privateVars[0];
     let componentClone = _.cloneDeep(this.components[componentId]);
-    let state = DEFAULT;
-    componentStates = componentStates || {};
+    let breakpoint = NONE;
+    let state = NONE;
+    let defaultFont = 16; // TD: read from dom.
 
-    if (componentStates[componentId]) {
-      state = componentStates[componentId];
+    if (context) {
+      if (context.width > (30 * defaultFont) && context.width < (60 * defaultFont)) {
+        breakpoint = breakpointTypes.MEDIUM;
+      } if (context.width > (60 * defaultFont)) {
+        breakpoint = breakpointTypes.LARGE;
+      }
+
+      if (context.states[componentId]) {
+        state = context.states[componentId];
+      }
     }
 
-    let { sx, htmlProperties } = this.getRenderableProperties(componentId, state);
+
+    let { sx, htmlProperties } = this.getRenderableProperties(componentId, {
+      breakpoint,
+      state
+    });
 
     componentClone.sx = sx;
     componentClone.htmlProperties = htmlProperties;
@@ -331,7 +386,7 @@ export class SiteComponents {
 
     let children = [];
     componentClone.childIds.forEach((id, ind) => {
-      children.push(this.getRenderTree(id, componentStates, ind));
+      children.push(this.getRenderTree(id, context, ind));
     });
     componentClone.children = children;
 

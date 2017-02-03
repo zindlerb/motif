@@ -7,8 +7,8 @@ import { dragTypes } from '../constants';
 import { wasRightButtonPressed, globalEventManager } from '../utils';
 
 const Spacer = function (props) {
-  let sx;
-  const { index, node, isActive, isNear } = props;
+  let sx, indexMarker;
+  const { index, nodeId, isActive, isNear } = props;
   if (isActive) {
     sx = {
       border: '1px solid orange',
@@ -23,13 +23,26 @@ const Spacer = function (props) {
     };
   }
 
+  if (index === undefined) {
+    indexMarker = 'emptyChild';
+  } else {
+    indexMarker = index;
+  }
+
   return (
     <div
         style={sx}
-        className={'treeDropSpot_' + node.id + '_' + (index || 'emptyChild')}
+        className={'treeDropSpot_' + nodeId + '_' + indexMarker}
     />
   );
 };
+
+function checkActive(nodeId, dropPoint, ind) {
+  if (!dropPoint) { return false; }
+
+  return (dropPoint.parentId === nodeId &&
+          dropPoint.insertionIndex === ind);
+}
 
 const ComponentTree = React.createClass({
   render() {
@@ -51,22 +64,15 @@ const ComponentTree = React.createClass({
     const treeItemIsActive = node.id === activeComponentId;
     const treeItemIsHovered = node.id === hoveredComponentId;
 
-    function checkActive(dropPoint, ind) {
-      if (!dropPoint) { return false; }
-
-      return (dropPoint.parentId === node.parent.id &&
-              dropPoint.insertionIndex === ind);
-    }
-
     if (node.parent) {
-      if (this.props.node.index === 0) {
+      if (node.index === 0) {
         beforeSpacer = (
           <Spacer
-              node={node}
+              nodeId={node.id}
               index={node.index}
-              isActive={checkActive(selectedTreeViewDropSpot, 0)}
+              isActive={checkActive(node.parent.id, selectedTreeViewDropSpot, 0)}
               isNear={_.some(otherPossibleTreeViewDropSpots, (dspot) => {
-                  return checkActive(dspot, 0);
+                  return checkActive(node.parent.id, dspot, 0);
                 })}
           />
         );
@@ -75,31 +81,31 @@ const ComponentTree = React.createClass({
       afterSpacerInd = node.index + 1;
       afterSpacer = (
         <Spacer
-            node={node}
-            index={node.index}
-            isActive={checkActive(selectedTreeViewDropSpot, afterSpacerInd)}
+            nodeId={node.id}
+            index={afterSpacerInd}
+            isActive={checkActive(
+                node.parent.id,
+                selectedTreeViewDropSpot,
+                afterSpacerInd
+              )}
             isNear={_.some(otherPossibleTreeViewDropSpots, (dspot) => {
-                return checkActive(dspot, afterSpacerInd);
+                return checkActive(node.parent.id, dspot, afterSpacerInd);
               })}
         />
       );
     }
 
-    if (node.children && node.children.length) {
-      children = (
-        <TreeChildren
-            children={node.children}
-            context={context}
-            actions={actions}
-        />
-      );
-    }
+    children = (
+      <TreeChildren
+          parentId={node.id}
+          children={node.children}
+          context={context}
+          actions={actions}
+      />
+    );
 
     return (
-      <div
-          className="mt1"
-          ref={(ref) => { this.props.node.domElements.treeView = ref; }}
-      >
+      <div className="mt1">
         {beforeSpacer}
         <TreeItem
             {...this.props}
@@ -198,6 +204,8 @@ const TreeItem = DragSource(
 
 const TreeChildren = React.createClass({
   render() {
+    let emptySpacer;
+    const { parentId, context } = this.props;
     const children = _.map(this.props.children, (child) => {
       return (
         <ComponentTree
@@ -209,8 +217,29 @@ const TreeChildren = React.createClass({
       );
     });
 
+    if (this.props.children.length === 0) {
+        emptySpacer = (
+          <Spacer
+              nodeId={this.props.parentId}
+              isActive={checkActive(
+                  parentId,
+                  context.selectedTreeViewDropSpot,
+                  0
+                )}
+              isNear={_.some(context.otherPossibleTreeViewDropSpots, (dspot) => {
+                  return checkActive(
+                    parentId,
+                    dspot,
+                    0
+                  );
+                })}
+          />
+        );
+    }
+
     return (
       <div className="ml3">
+        {emptySpacer}
         {children}
       </div>
     );

@@ -101,7 +101,7 @@ const Editor = React.createClass({
             <LeftPanel actions={actions} />
           </div>
           <div
-              className="flex-auto h-100 mh4 relative"
+              className="flex-auto flex flex-column h-100 mh4 relative"
               ref={(el) => { this._rendererEl = el }}
           >
             <ViewChoiceDropdown

@@ -10,19 +10,13 @@ import {
 } from '../base_components';
 import HorizontalSelect from '../components/HorizontalSelect';
 
-// TD: remove duplication on hover and add come kind of static wrapper with element cloning
-function makeComponentRefCallback(mComponentData) {
-  return function (ref) {
-    mComponentData.domElements.pageView = ref;
-  };
-}
-
 const RootClassReact = function (props) {
   const {
     mComponentData,
     sx,
     className,
     context,
+    actions,
     isMouseInRenderer
   } = props;
 
@@ -32,6 +26,7 @@ const RootClassReact = function (props) {
           key={child.id}
           mComponentData={child}
           context={context}
+          actions={actions}
           isMouseInRenderer={isMouseInRenderer}
       />);
   });
@@ -76,16 +71,24 @@ const ContainerClassReact = React.createClass({
   },
 
   render() {
-    const { mComponentData, context, isMouseInRenderer, className } = this.props;
+    const {
+      mComponentData,
+      context,
+      isMouseInRenderer,
+      className,
+      actions
+    } = this.props;
 
     const children = _.map(mComponentData.children, function (child) {
       return (
         <MComponentDataRenderer
             key={child.id}
+            actions={actions}
             mComponentData={child}
             context={context}
             isMouseInRenderer={isMouseInRenderer}
-        />);
+        />
+      );
     });
 
     return (
@@ -94,7 +97,6 @@ const ContainerClassReact = React.createClass({
           onMouseLeave={(e) => { this.props.onMouseLeave(e); }}
           onClick={this.props.onClick}
           onMouseDown={this.props.onMouseDown}
-          ref={makeComponentRefCallback(mComponentData)}
           style={this.props.sx}
           className={classnames('node_' + mComponentData.id, 'expandable-element', { expanded: this.state.isExpanded }, className)}
       >
@@ -123,7 +125,6 @@ const HeaderClassReact = React.createClass({
           onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
           onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
           onMouseDown={this.props.onMouseDown}
-          ref={makeComponentRefCallback(mComponentData)}
           style={sx} className={classnames('node_' + mComponentData.id, className)}
           onClick={this.props.onClick}
       >
@@ -147,7 +148,6 @@ const ParagraphClassReact = React.createClass({
           onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
           onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
           onMouseDown={this.props.onMouseDown}
-          ref={makeComponentRefCallback(mComponentData)}
           style={this.props.sx} className={classnames('node_' + mComponentData.id, className)}
           onClick={this.props.onClick}
       >
@@ -176,7 +176,6 @@ const ImageClassReact = React.createClass({
           onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
           onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
           onMouseDown={this.props.onMouseDown}
-          ref={makeComponentRefCallback(mComponentData)}
           style={sx}
           className={classnames('node_' + mComponentData.id, className)}
           src={htmlProperties.src}
@@ -361,6 +360,7 @@ const StaticRenderer = React.createClass({
     if (componentTree) {
       renderer = (
         <MComponentDataRenderer
+            actions={this.props.actions}
             mComponentData={componentTree}
             context={context}
             isMouseInRenderer={this.state.isMouseInRenderer}
@@ -369,7 +369,7 @@ const StaticRenderer = React.createClass({
     }
 
     return (
-      <div className="h-100">
+      <div className="flex flex-auto flex-column">
         <div className="mb2 flex justify-center">
           <div>
             <span className="db f6">View</span>
@@ -386,18 +386,18 @@ const StaticRenderer = React.createClass({
             />
           </div>
         </div>
-        <div className="h-100 m-auto relative" style={{ width }}>
-          <div
-              onMouseEnter={this.mouseEnter}
-              onMouseLeave={this.mouseLeave}
-              onMouseMove={this.mouseove}
-              className={classnames('mv2 h-100 ba c-grab', {
-                  'static-view-border': activeView === 'BORDER',
-                  'static-view-detail': activeView === 'DETAIL',
-                })}
-          >
-            {renderer}
-          </div>
+        <div
+            onMouseEnter={this.mouseEnter}
+            onMouseLeave={this.mouseLeave}
+            onMouseMove={this.mouseove}
+            style={{ width }}
+            className={classnames('flex-auto m-auto relative ba', {
+                'static-view-border': activeView === 'BORDER',
+                'static-view-detail': activeView === 'DETAIL',
+              })}
+        >
+          {renderer}
+
           <DragHandle direction="left" width={width} />
           <DragHandle direction="right" width={width} />
         </div>
@@ -413,7 +413,10 @@ export default connect(function (state) {
   if (currentPageId) {
     currentPage = _.find(state.pages, page => page.id === currentPageId);
     const rootComponent = siteComponents.components[currentPage.componentTreeId];
-    componentTree = siteComponents.getRenderTree(rootComponent.id);
+    componentTree = siteComponents.getRenderTree(rootComponent.id, {
+      width: state.rendererWidth,
+      states: {}
+    });
   }
 
   return {

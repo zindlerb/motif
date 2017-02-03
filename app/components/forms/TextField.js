@@ -1,4 +1,39 @@
 import React from 'react';
+import $ from 'jquery';
+
+const AutoComplete = React.createClass({
+  render() {
+    const { position, items, width } = this.props;
+    const sx = {
+      width,
+      position: 'absolute',
+      top: position.x,
+      left: position.y
+    };
+
+    let listItems = items.map((item) => {
+      return (
+        <li
+            onMouseUp={() => {
+                this.props.onSubmit(item.value, true);
+              }}>
+          {item.name}
+        </li>
+      );
+    });
+
+    return (
+      <ul
+          style={sx}
+          className="autocomplete"
+          onMouseEnter={this.props.onMouseEnter}
+          onMouseLeave={this.props.onMouseLeave}
+      >
+        {listItems}
+      </ul>
+    );
+  }
+});
 
 const TextField = React.createClass({
   getInitialState() {
@@ -16,26 +51,56 @@ const TextField = React.createClass({
       tempText: this.props.value,
     });
   },
-  submit(e) {
+  submit(val, isAutoComplete) {
+    if (this.isInsideAutoComplete && !isAutoComplete) {
+      /*
+         Hack to deal with race condition of blur event
+         firing before the click on the autocomplete.
+       */
+      return;
+    }
+
     this.setState({
       isEditing: false,
       tempText: '',
     });
 
     if (this.props.onSubmit) {
-      this.props.onSubmit(e.target.value);
+      this.props.onSubmit(val);
     }
+
+    this.isInsideAutoComplete = false
   },
   render() {
     const { isEditing, tempText } = this.state
+    const { autoCompleteItems } = this.props;
     const value = isEditing ? tempText : this.props.value;
+    let pos, autoComplete;
+
+    if (autoCompleteItems && isEditing && this._el) {
+      pos = {
+        x: this._el.clientX,
+        y: this._el.clientY
+      }
+
+      autoComplete = (
+        <AutoComplete
+            width={$(this._el).width()}
+            position={pos}
+            onSubmit={this.submit}
+            items={autoCompleteItems}
+            onMouseEnter={() => { this.isInsideAutoComplete = true; }}
+            onMouseLeave={() => { this.isInsideAutoComplete = false; }}
+        />
+      );
+    }
 
     if (this.props.isLarge) {
       return (
         <textarea
             value={value}
             onFocus={this.startEdit}
-            onBlur={this.submit}
+            onBlur={e => this.submit(e.target.value)}
             onChange={this.onChange}
             onMouseUp={e => e.stopPropagation()}
             cols={20}
@@ -43,17 +108,28 @@ const TextField = React.createClass({
         />
       );
     } else {
-      return (<input
-                  className="w-100"
-                  onMouseUp={e => e.stopPropagation()}
-                  onFocus={this.startEdit}
-                  onBlur={this.submit}
-                  onChange={this.onChange}
-                  type="text"
-                  value={value}
-              />);
+      return (
+        <div className="w-100">
+          <input
+              ref={(el) => { this._el = el }}
+              className="w-100"
+              onMouseUp={e => e.stopPropagation()}
+
+              onFocus={(e) => {
+                  this.startEdit(e);
+                }}
+              onBlur={(e) => { this.submit(e.target.value); }}
+              onChange={this.onChange}
+              type="text"
+              value={value}
+          />
+          {autoComplete}
+        </div>
+      );
     }
   },
 });
 
 export default TextField;
+
+// track mouse in leave - if inside then we know not to let the blur event go through.

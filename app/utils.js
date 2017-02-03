@@ -35,6 +35,7 @@ export class Rect {
     if (!(el instanceof $)) {
       el = $(el);
     }
+
     const height = el.height();
     const width = el.width();
     const offset = el.offset();
@@ -192,4 +193,17 @@ export function loadSiteDialog(actions) {
     if (!filenames) return;
     actions.loadSite(filenames[0]);
   });
+}
+
+export function getDefaultFontSize(pa){
+  pa= pa || document.body;
+  const who = document.createElement('div');
+
+  who.style.cssText = 'display:inline-block; padding:0; line-height:1; position:absolute; visibility:hidden; font-size:1em';
+
+  who.appendChild(document.createTextNode('M'));
+  pa.appendChild(who);
+  const fs = [who.offsetWidth, who.offsetHeight];
+  pa.removeChild(who);
+  return fs;
 }

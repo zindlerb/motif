@@ -107,7 +107,6 @@ i {
   color: $icon-color;
 }
 
-
 /* COMPONENTS */
 .horizontal-select {
   display: inline-flex;
@@ -267,7 +266,7 @@ i {
 /* COMPONENTS */
 
 /* Menu */
-.component-menu {
+.component-menu, .autocomplete {
   border: 1px solid $border;
   border-radius: $border-radius;
   box-shadow: 1px 1px 3px $border;
@@ -288,6 +287,11 @@ i {
   li:last-child {
     border-bottom: 0px;
   }
+}
+
+.autocomplete {
+  max-height: 300px;
+  overflow: auto;
 }
 
 .modal-card {

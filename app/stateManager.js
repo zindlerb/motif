@@ -11,7 +11,10 @@ import {
   componentTreeReducer
 } from './stateManagers/componentTreeStateManager';
 import { guid } from './utils';
-import { mainViewTypes } from './constants';
+import {
+  mainViewTypes,
+  NONE
+} from './constants';
 import {
   SiteComponents,
   container,
@@ -53,6 +56,9 @@ const initialState = {
   selectedTreeViewDropSpot: undefined,
   otherPossibleTreeViewDropSpots: undefined,
 
+  activeComponentBreakpoint: NONE,
+  activeComponentState: NONE,
+
   // TD: dynamically set initial renderer width
   rendererWidth: 200,
 
@@ -61,7 +67,7 @@ const initialState = {
 
 /* Constants */
 const SET_PAGE_VALUE = 'SET_PAGE_VALUE';
-const SET_ACTIVE_COMPONENT_STATE = 'SET_ACTIVE_COMPONENT_STATE';
+const SET_ACTIVE_COMPONENT_ATTR_DATA = 'SET_ACTIVE_COMPONENT_ATTR_DATA';
 const SELECT_BREAKPOINT = 'SELECT_BREAKPOINT';
 
 const SITE_SAVE_ATTEMPT = 'SITE_SAVE_ATTEMPT';
@@ -145,10 +151,11 @@ export const actions = Object.assign({
     }
   },
 
-  setActiveComponentState(newState) {
+  setActiveComponentAttrData(attributeType, attributeState) {
     return {
-      type: SET_ACTIVE_COMPONENT_STATE,
-      newState
+      type: SET_ACTIVE_COMPONENT_ATTR_DATA,
+      attributeType,
+      attributeState
     }
   },
   setRendererWidth(newWidth) {
@@ -244,7 +251,6 @@ const reducerObj = Object.assign({
   },
 
   [ADD_NEW_PAGE](state) {
-    // TD: FIX
     const rv = state.siteComponents.createVariant(root.id);
     const cv = state.siteComponents.createVariant(container.id);
     state.siteComponents.addChild(rv.id, cv.id);
@@ -302,7 +308,11 @@ const reducerObj = Object.assign({
     state.rendererWidth = action.newWidth;
   },
 
-  [SET_ACTIVE_COMPONENT_STATE](state, action) {
+  [SET_ACTIVE_COMPONENT_ATTR_DATA](state, action) {
+    state.activeComponentAttrData = {
+      attributeType: action.attributeType,
+      attributeState: action.attributeState
+    }
     state.activeComponentState = action.newState;
   },
 
@@ -326,7 +336,7 @@ function reducer(state, action) {
     reducerObj[action.type](state, action);
   }
 
-  console.log(action.type, action, _.cloneDeep(state));
+  //console.log(action.type, action, _.cloneDeep(state));
   return state;
 }
 

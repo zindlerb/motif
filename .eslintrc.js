@@ -51,7 +51,8 @@ module.exports = {
     "spaced-comment": 0,
 
     // Def add back in later
-    "semi": 0
+    "semi": 0,
+    "react/jsx-boolean-value": 0
   },
   "env": {
     "browser": true,

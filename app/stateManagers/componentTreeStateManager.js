@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import { minDistanceBetweenPointAndLine, Rect } from '../utils';
-import { DEFAULT, componentTypes } from '../base_components';
+import { componentTypes } from '../base_components';
 
 const UNHOVER_COMPONENT = 'UNHOVER_COMPONENT';
 const HOVER_COMPONENT = 'HOVER_COMPONENT';
@@ -122,10 +122,6 @@ export const componentTreeReducer = {
     let { componentId, parentComponentId, insertionIndex } = action;
     let siteComponents = state.siteComponents;
 
-    console.log('parent', state.siteComponent.components[parentComponentId]);
-    console.log('component', state.siteComponent.components[componentId]);
-    console.log('index', insertionIndex);
-
     siteComponents.moveComponent(componentId, parentComponentId, insertionIndex);
   },
 
@@ -141,7 +137,7 @@ export const componentTreeReducer = {
   },
 
   [SELECT_COMPONENT](state, action) {
-    state.activeComponentState = DEFAULT;
+    state.activeComponentAttrData = {};
     state.activeComponentId = action.componentId;
   },
 
@@ -154,40 +150,37 @@ export const componentTreeReducer = {
     const componentTreeId = currentPage.componentTreeId;
     const insertionPoints = [];
 
+    function getPoints(nodeId, index) {
+      const { x, y, w } = new Rect($('.treeDropSpot_' + nodeId + '_' + index));
+
+      return [
+        { x, y },
+        { x: x + w, y }
+      ]
+    }
+
     siteComponents.walkChildren(componentTreeId, function (node, ind) {
       if (node.id !== draggedComponentId) {
-        const { x, y, w, h } = new Rect($('treeDropSpot_' + node.id + '_' + ind));
         if (ind === 0) {
           insertionPoints.push({
             insertionIndex: ind,
             parentId: node.parentId,
-            points: [{ x, y }, { x: x + w, y }],
+            points: getPoints(node.id, 0),
           });
         }
 
         insertionPoints.push({
           insertionIndex: ind + 1,
           parentId: node.parentId,
-          points: [{ x, y: y + h }, { x: x + w, y: y + h }],
+          points: getPoints(node.id, ind + 1),
         });
 
-        if (node.componentType === componentTypes.CONTAINER) {
-          const emptyDropSpot = Rect.fromElement(
-            $('treeDropSpot_' + node.id + '_emptyChild')
-          );
+        if (node.componentType === componentTypes.CONTAINER &&
+            node.childIds.length === 0) {
           insertionPoints.push({
             insertionIndex: 0,
             parentId: node.id,
-            points: [
-              {
-                x: emptyDropSpot.x,
-                y: emptyDropSpot.y + emptyDropSpot.h
-              },
-              {
-                x: emptyDropSpot.x + emptyDropSpot.w,
-                y: emptyDropSpot.y + emptyDropSpot.h
-              }
-            ],
+            points: getPoints(node.id, 'emptyChild')
           });
         }
       }
@@ -237,9 +230,12 @@ export const componentTreeReducer = {
   [SET_COMPONENT_ATTRIBUTE](state, action) {
     state.siteComponents.setAttribute(
       action.componentId,
-      state.activeComponentState,
       action.attrKey,
-      action.newAttrValue
+      action.newAttrValue,
+      {
+        breakpoint: state.activeComponentBreakpoint,
+        state: state.activeComponentState
+      }
     )
   },
 

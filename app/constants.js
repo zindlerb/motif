@@ -8,3 +8,22 @@ export const mainViewTypes = {
   ASSETS: 'ASSETS',
   COMPONENTS: 'COMPONENTS'
 }
+
+export const fieldTypes = {
+  TEXT: 'TEXT', /* fieldSettings:  */
+  LARGE_TEXT: 'LARGE_TEXT', /* fieldSettings:  */
+  NUMBER: 'NUMBER',
+  COLOR: 'COLOR', /* fieldSettings:  */
+  DROPDOWN: 'DROPDOWN', /* fieldSettings: choices - {name: , value: } */
+}
+
+export const NONE = 'NONE';
+
+export const stateTypes = {
+  HOVER: 'HOVER'
+}
+
+export const breakpointTypes = {
+  MEDIUM: 'MEDIUM',
+  LARGE: 'LARGE',
+}
