@@ -55,8 +55,8 @@ export function createComponentData(componentType, spec) {
     parentId: spec.parentId,
     defaultAttributes: spec.defaultAttributes || {},
     id: spec.id || guid(),
-    states: {},
-    obreakpoints: {}
+    states: spec.states || {},
+    breakpoints: spec.breakpoints || {}
   }
 }
 
@@ -307,7 +307,7 @@ export class SiteComponents {
     // default attributes
     let attributes = this.getAttributes(componentId);
 
-    if (attributeOptions) {
+    if (attributeOptions.state !== NONE || attributeOptions.breakpoint !== NONE) {
       Object.assign(attributes, this.getAttributes(componentId, attributeOptions));
     }
 
@@ -339,7 +339,7 @@ export class SiteComponents {
     /*
 
        context: {
-         componentStates: { id of component and state} - only if not none
+         states: { id of component and state} - only if not none
          width
        }
 
@@ -351,7 +351,6 @@ export class SiteComponents {
      */
 
     // TD: if I only take certain properties I can make this cheaper
-
     let index = privateVars[0];
     let componentClone = _.cloneDeep(this.components[componentId]);
     let breakpoint = NONE;
@@ -369,7 +368,6 @@ export class SiteComponents {
         state = context.states[componentId];
       }
     }
-
 
     let { sx, htmlProperties } = this.getRenderableProperties(componentId, {
       breakpoint,

@@ -67,8 +67,10 @@ const initialState = {
 
 /* Constants */
 const SET_PAGE_VALUE = 'SET_PAGE_VALUE';
-const SET_ACTIVE_COMPONENT_ATTR_DATA = 'SET_ACTIVE_COMPONENT_ATTR_DATA';
 const SELECT_BREAKPOINT = 'SELECT_BREAKPOINT';
+
+const SET_ACTIVE_COMPONENT_STATE = 'SET_ACTIVE_COMPONENT_STATE';
+const SET_ACTIVE_COMPONENT_BREAKPOINT = 'SET_ACTIVE_COMPONENT_BREAKPOINT';
 
 const SITE_SAVE_ATTEMPT = 'SITE_SAVE_ATTEMPT';
 const SITE_SAVE_SUCCESS = 'SITE_SAVE_SUCCESS';
@@ -151,11 +153,16 @@ export const actions = Object.assign({
     }
   },
 
-  setActiveComponentAttrData(attributeType, attributeState) {
+  setActiveComponentState(newState) {
     return {
-      type: SET_ACTIVE_COMPONENT_ATTR_DATA,
-      attributeType,
-      attributeState
+      type: SET_ACTIVE_COMPONENT_STATE,
+      newState,
+    }
+  },
+  setActiveComponentBreakpoint(newBreakpoint) {
+    return {
+      type: SET_ACTIVE_COMPONENT_BREAKPOINT,
+      newBreakpoint,
     }
   },
   setRendererWidth(newWidth) {
@@ -308,12 +315,12 @@ const reducerObj = Object.assign({
     state.rendererWidth = action.newWidth;
   },
 
-  [SET_ACTIVE_COMPONENT_ATTR_DATA](state, action) {
-    state.activeComponentAttrData = {
-      attributeType: action.attributeType,
-      attributeState: action.attributeState
-    }
+  [SET_ACTIVE_COMPONENT_STATE](state, action) {
     state.activeComponentState = action.newState;
+  },
+
+  [SET_ACTIVE_COMPONENT_BREAKPOINT](state, action) {
+    state.activeComponentBreakpoint = action.newBreakpoint;
   },
 
   [SITE_SAVE_SUCCESS](state, action) {

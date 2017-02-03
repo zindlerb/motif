@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import classnames from 'classnames';
 
-import { dragManager } from '../dragManager';
+import dragManager from '../dragManager';
 import {
   attributeStateTypes,
   componentTypes,
@@ -320,7 +320,7 @@ function DragHandle(props) {
       initialX: e.clientX,
       initialWidth: props.width,
       onDrag(e) {
-        this.props.actions.setRendererWidth(this.initialWidth - ((this.initialX - e.clientX) * 2));
+        props.actions.setRendererWidth(this.initialWidth - ((this.initialX - e.clientX) * 2));
       }
     });
   }
@@ -354,6 +354,7 @@ const StaticRenderer = React.createClass({
       componentTree,
       context,
       width,
+      actions
     } = this.props;
     let renderer;
 
@@ -398,8 +399,8 @@ const StaticRenderer = React.createClass({
         >
           {renderer}
 
-          <DragHandle direction="left" width={width} />
-          <DragHandle direction="right" width={width} />
+          <DragHandle direction="left" width={width} actions={actions} />
+          <DragHandle direction="right" width={width} actions={actions} />
         </div>
       </div>
     );

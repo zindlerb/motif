@@ -1,4 +1,5 @@
 import React from 'react';
+import $ from 'jquery';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import {
@@ -6,9 +7,9 @@ import {
 } from '../base_components';
 import {
   fieldTypes,
-  componentStateTypes,
-  attributeTypes,
-  breakpointTypes
+  stateTypes,
+  breakpointTypes,
+  NONE
 } from '../constants';
 
 import Dropdown from '../components/forms/Dropdown';
@@ -33,6 +34,43 @@ const {
   COLOR,
   DROPDOWN
 } = fieldTypes;
+
+//TD: Remove this.
+//This whole thing is a hack to get around css
+const DivToBottom = React.createClass({
+  getInitialState() {
+    return {
+      height: undefined
+    }
+  },
+
+  getHeight() {
+    return document.documentElement.clientHeight - $(this._el).offset().top;
+  },
+
+  componentDidMount() {
+    const resize = _.debounce(() => {
+      this.setState(
+        { height: this.getHeight() }
+      );
+    }, 500);
+
+    this.setState({ height: this.getHeight() });
+    window.addEventListener('resize', resize);
+  },
+
+  render() {
+    return (
+      <div
+          ref={(el) => { this._el = el }}
+          className={this.props.className}
+          style={{ height: this.state.height }}
+      >
+        {this.props.children}
+      </div>
+    )
+  }
+});
 
 /*
    What does a validation consist of?
@@ -106,15 +144,34 @@ const allFields = {
     fieldType: NUMBER,
     autoCompleteItems: heightScale
   },
+  minHeight: {
+    key: 'minHeight',
+    fieldType: NUMBER,
+    autoCompleteItems: heightScale
+  },
+  maxHeight: {
+    key: 'maxHeight',
+    fieldType: NUMBER,
+    autoCompleteItems: heightScale
+  },
   width: {
     key: 'width',
     fieldType: NUMBER,
     autoCompleteItems: widthScale
   },
-  backgroundColor: { name: 'background color', key: 'backgroundColor', fieldType: COLOR },
-  flexDirection: { name: 'flex direction', key: 'flexDirection', fieldType: DROPDOWN, choices: ['row', 'column'] },
+  minWidth: {
+    key: 'minWidth',
+    fieldType: NUMBER,
+    autoCompleteItems: heightScale
+  },
+  maxWidth: {
+    key: 'maxWidth',
+    fieldType: NUMBER,
+    autoCompleteItems: heightScale
+  },
+  backgroundColor: { key: 'backgroundColor', fieldType: COLOR },
+  flexDirection: { key: 'flexDirection', fieldType: DROPDOWN, choices: ['row', 'column'] },
   justifyContent: {
-    name: 'justify content',
     key: 'justifyContent',
     fieldType: DROPDOWN,
     choices: ['flex-start', 'flex-end', 'center', 'space-between', 'space-around']
@@ -124,16 +181,120 @@ const allFields = {
     fieldType: DROPDOWN,
     choices: ['flex-start', 'flex-end', 'center', 'baseline', 'stretch']
   },
-  text: { key: 'text', fieldType: LARGE_TEXT }
+  text: { key: 'text', fieldType: LARGE_TEXT },
+  borderWidth: {
+    key: 'borderWidth',
+    fieldType: NUMBER,
+  },
+  borderColor: {
+    key: 'borderColor',
+    fieldType: COLOR
+  },
+  borderRadius: {
+    key: 'borderRadius',
+    fieldType: NUMBER
+  },
+  borderStyle: {
+    key: 'borderStyle',
+    fieldType: DROPDOWN,
+    choices: [
+      'none',
+      'hidden',
+      'dotted',
+      'dashed',
+      'solid',
+      'double',
+      'groove',
+      'ridge',
+      'inset',
+      'outset'
+    ]
+  },
+  overflow: {
+    key: 'overflow',
+    fieldType: DROPDOWN,
+    choices: [
+      'visible',
+      'hidden',
+      'scroll',
+      'auto'
+    ]
+  },
+  fontFamily: {
+    key: 'fontFamily',
+    fieldType: DROPDOWN,
+    choices: [
+      /*
+         Too big and depends on user fonts so dynamically added later.
+       */
+    ]
+  },
+  fontStyle: {
+    key: 'fontStyle',
+    fieldType: DROPDOWN,
+    choices: [
+      'normal',
+      'italic',
+      'oblique'
+    ]
+  },
+  fontSize: {
+    key: 'fontSize',
+    fieldType: NUMBER
+  },
+  fontWeight: {
+    key: 'fontWeight',
+    fieldType: NUMBER
+  },
+  textAlign: {
+    key: 'textAlign',
+    fieldType: DROPDOWN,
+    choices: [
+      'left',
+      'right',
+      'center',
+      'justify',
+      'justify-all',
+      'start',
+      'end',
+      'match-parent'
+    ]
+  },
+  lineHeight: {
+    key: 'lineHeight',
+    fieldType: NUMBER
+  },
+  color: {
+    key: 'color',
+    fieldType: COLOR
+  }
 }
+
+const textFields = [
+  allFields.fontFamily,
+  allFields.fontStyle,
+  allFields.fontSize,
+  allFields.fontWeight,
+  allFields.textAlign,
+  allFields.lineHeight,
+  allFields.color
+];
 
 const defaultFields = [
   allFields.position,
   allFields.margin,
   allFields.padding,
   allFields.height,
+  allFields.minHeight,
+  allFields.maxHeight,
   allFields.width,
-  allFields.backgroundColor
+  allFields.minWidth,
+  allFields.maxWidth,
+  allFields.backgroundColor,
+  allFields.borderWidth,
+  allFields.borderStyle,
+  allFields.borderColor,
+  allFields.borderRadius
 ];
 
 const fields = {
@@ -142,15 +303,17 @@ const fields = {
     allFields.flexDirection,
     allFields.justifyContent,
     allFields.alignItems,
+    allFields.overflow
   ],
   [componentTypes.HEADER]: [
     ...defaultFields,
-    allFields.text
-
+    allFields.text,
+    ...textFields
   ],
   [componentTypes.TEXT]: [
     ...defaultFields,
-    allFields.text
+    allFields.text,
+    ...textFields
   ],
   [componentTypes.IMAGE]: [
     ...defaultFields,
@@ -175,16 +338,6 @@ const RightPanel = React.createClass({
       currentPage,
     } = this.props;
 
-    const { attributeType, attributeState } = activeComponentAttrData;
-    let stateVal = 'NONE';
-    let breakpointVal = 'NONE';
-
-    if (attributeType === attributeTypes.STATE) {
-      stateVal = attributeState;
-    } else if (attributeType === attributeTypes.BREAKPOINT) {
-      breakpointVal = attributeState;
-    }
-
     if (activePanel === 'ATTRIBUTES' && activeComponentId) {
       attrs = [];
       let activeComponent = siteComponents.components[activeComponentId];
@@ -192,7 +345,7 @@ const RightPanel = React.createClass({
         activeComponentId,
         {
           state: activeComponentState,
-          breakpoint: activeComponentState
+          breakpoint: activeComponentBreakpoint
         }
       );
 
@@ -210,7 +363,7 @@ const RightPanel = React.createClass({
       });
 
       body = (
-        <div>
+        <DivToBottom className="overflow-auto">
           <SidebarHeader text="Attributes" />
           <div className="tc mb3 mt2">
             <span>Name: {siteComponents.getName(activeComponentId)}</span>
@@ -228,27 +381,26 @@ const RightPanel = React.createClass({
             <Dropdown
                 choices={[
                   { text: 'None', value: NONE },
-                  { text: 'Hover', value: componentStateTypes.HOVER }
+                  { text: 'Hover', value: stateTypes.HOVER }
                 ]}
                 onChange={(val) => {
                     this.props.actions.setActiveComponentState(val);
                   }}
-                value={stateVal} />
+                value={activeComponentState} />
             <span>Breakpoint:</span>
             <Dropdown
                 choices={[
                   { text: 'None', value: NONE },
-                  { text: 'Not Small (> 30em)', value: breakpointTypes.NOT_SMALL },
-                  { text: 'Medium (30em - 60em)', value: breakpointTypes.LARGE },
+                  { text: 'Medium (30em - 60em)', value: breakpointTypes.MEDIUM },
                   { text: 'Large (> 60em)', value: breakpointTypes.LARGE }
                 ]}
                 onChange={(val) => {
                     this.props.actions.setActiveComponentBreakpoint(val);
                   }}
-                value={breakpointVal} />
+                value={activeComponentBreakpoint} />
           </div>
           {attrs}
-        </div>
+        </DivToBottom>
       );
     } else if (activePanel === 'TREE') {
       body = (

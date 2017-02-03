@@ -2,9 +2,9 @@ var _ = require('lodash');
 
 // Tests
 var baseComponents = require('../app/base_components.js');
+var constants = require('../app/constants.js');
 
-var DEFAULT = baseComponents.attributeStateTypes.DEFAULT;
-var HOVER = baseComponents.attributeStateTypes.HOVER;
+var stateTypes = constants.stateTypes;
 var containerAttributes = baseComponents.containerAttributes;
 
 var container = baseComponents.container;
@@ -15,33 +15,32 @@ var SiteComponents = baseComponents.SiteComponents;
 
 describe('base components', () => {
   it('copies the attributes correctly', () => {
-    expect(container.attributes).toEqual(containerAttributes);
+    expect(container.defaultAttributes).toEqual(containerAttributes);
   });
 });
-
 
 describe('createVariant', () => {
   var siteComponents = new SiteComponents();
   var containerVariant = siteComponents.createVariant(container.id);
 
   it('copies spec properties correctly', () => {
-    expect(containerVariant.attributes[DEFAULT]).toBeUndefined();
+    expect(containerVariant.defaultAttributes).toEqual({});
 
     var textVariant = siteComponents.createVariant(text.id, {
-      attributes: {
-        [DEFAULT]: { something: 12 }
+      defaultAttributes: {
+        something: 12
       }
     });
 
-    expect(textVariant.attributes[DEFAULT].something).toBe(12);
+    expect(textVariant.defaultAttributes.something).toBe(12);
 
     var headerVariant = siteComponents.createVariant(header.id);
 
-    expect(headerVariant.attributes[DEFAULT]).toBeUndefined();
+    expect(headerVariant.defaultAttributes).toEqual({});
 
     var imageVariant = siteComponents.createVariant(image.id);
 
-    expect(imageVariant.attributes[DEFAULT]).toBeUndefined();
+    expect(imageVariant.defaultAttributes).toEqual({});
   });
 
   it('adds component to masters variants', () => {
@@ -144,23 +143,19 @@ describe('moveComponent', () => {
 describe('getAllAttrs', () => {
   var siteComponents = new SiteComponents();
   var hv = siteComponents.createVariant(header.id, {
-    attributes: {
-      [DEFAULT]: {
-        backgroundColor: 'red',
-        text: 'hi'
-      }
+    defaultAttributes: {
+      backgroundColor: 'red',
+      text: 'hi'
     }
   });
 
   var hvv = siteComponents.createVariant(hv.id, {
-    attributes: {
-      [DEFAULT]: {
-        text: 'no'
-      }
+    defaultAttributes: {
+      text: 'no'
     }
   });
 
-  var attrs = siteComponents.getStateAttributes(hvv.id, DEFAULT);
+  var attrs = siteComponents.getAttributes(hvv.id);
 
   it('has the parents attrs', () => {
     expect(attrs.backgroundColor).toBe('red');
@@ -179,12 +174,12 @@ describe('getRenderableProperties', () => {
   var siteComponents = new SiteComponents();
   var cv = siteComponents.createVariant(container.id);
   var hv = siteComponents.createVariant(header.id, {
-    attributes: {
-      [DEFAULT]: {
-        color: 'pink',
-        text: 'hi'
-      },
-      [HOVER]: {
+    defaultAttributes: {
+      color: 'pink',
+      text: 'hi'
+    },
+    states: {
+      [stateTypes.HOVER]: {
         text: 'bye'
       }
     }
@@ -195,7 +190,10 @@ describe('getRenderableProperties', () => {
   siteComponents.addChild(cv.id, iv.id);
 
   var renderTree = siteComponents.getRenderTree(cv.id, {
-    [hv.id]: HOVER
+    width: 100,
+    states: {
+      [hv.id]: stateTypes.HOVER
+    },
   });
 
   it('hydrates the children', () => {

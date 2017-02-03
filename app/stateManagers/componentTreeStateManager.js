@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import { minDistanceBetweenPointAndLine, Rect } from '../utils';
+import { NONE } from '../constants';
 import { componentTypes } from '../base_components';
 
 const UNHOVER_COMPONENT = 'UNHOVER_COMPONENT';
@@ -137,7 +138,8 @@ export const componentTreeReducer = {
   },
 
   [SELECT_COMPONENT](state, action) {
-    state.activeComponentAttrData = {};
+    state.activeComponentState = NONE;
+    state.activeComponentBreakpoint = NONE;
     state.activeComponentId = action.componentId;
   },
 

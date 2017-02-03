@@ -2,7 +2,10 @@ import _ from 'lodash';
 import $ from 'jquery';
 import { remote } from 'electron';
 
-let dialog = remote.dialog;
+let dialog;
+if (remote) { //Hack for testing
+  dialog = remote.dialog;
+}
 
 export function distanceBetweenPoints(p1, p2) {
   return Math.abs(Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2)));
@@ -17,7 +20,6 @@ export function guid() {
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
          s4() + '-' + s4() + s4() + s4();
 }
-
 
 export class Rect {
   constructor(el) {
@@ -193,17 +195,4 @@ export function loadSiteDialog(actions) {
     if (!filenames) return;
     actions.loadSite(filenames[0]);
   });
-}
-
-export function getDefaultFontSize(pa){
-  pa= pa || document.body;
-  const who = document.createElement('div');
-
-  who.style.cssText = 'display:inline-block; padding:0; line-height:1; position:absolute; visibility:hidden; font-size:1em';
-
-  who.appendChild(document.createTextNode('M'));
-  pa.appendChild(who);
-  const fs = [who.offsetWidth, who.offsetHeight];
-  pa.removeChild(who);
-  return fs;
 }

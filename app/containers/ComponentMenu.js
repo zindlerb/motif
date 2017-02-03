@@ -140,7 +140,7 @@ const ComponentMenu = React.createClass({
                 key={'MAKE_COMPONENT'}
                 onMouseEnter={() => { this.setState({ openListItem: undefined }) }}
                 onMouseUp={(e) => {
-                    this.props.actions.createComponentBlock(menuComponent);
+                    this.props.actions.createComponentBlock(menuComponent.id);
                     this.props.actions.closeMenu();
                     e.stopPropagation();
                   }}>

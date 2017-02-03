@@ -12,7 +12,7 @@ import FormLabel from './forms/FormLabel';
 
    internally handles location in attributeField
    selection sets the attribute to the given value of the item
-*/
+ */
 
 const ColorPicker = React.createClass({
   getInitialState() {
@@ -22,11 +22,14 @@ const ColorPicker = React.createClass({
   },
 
   onChange(color) {
-    this.props.actions.setComponentAttribute(this.props.component, this.props.attrKey, color.hex);
+    this.props.onChange(color.hex);
   },
 
   render() {
     const { value } = this.props;
+
+    console.log('value', value);
+
     let picker;
     let color = value;
 
@@ -74,6 +77,13 @@ const AttributeField = React.createClass({
                    attrKey={attrKey}
                    choices={fieldData.choices}
                    component={component}
+                   onChange={(val) => {
+                       actions.setComponentAttribute(
+                         component.id,
+                         attrKey,
+                         val
+                       );
+                     }}
                />);
     } else if (fieldData.fieldType === fieldTypes.COLOR) {
       field = (
@@ -81,6 +91,13 @@ const AttributeField = React.createClass({
             value={attrVal}
             attrKey={attrKey}
             component={component}
+            onChange={(color) => {
+                actions.setComponentAttribute(
+                  component.id,
+                  attrKey,
+                  color
+                );
+              }}
         />
       );
     } else if (fieldData.fieldType === fieldTypes.NUMBER) {
@@ -90,7 +107,6 @@ const AttributeField = React.createClass({
             attrKey={attrKey}
             autoCompleteItems={fieldData.autoCompleteItems}
             onSubmit={(value) => {
-                console.log('submit', value)
                 actions.setComponentAttribute(
                   component.id,
                   attrKey,
