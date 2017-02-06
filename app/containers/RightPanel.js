@@ -44,10 +44,6 @@ const DivToBottom = React.createClass({
     }
   },
 
-  getHeight() {
-    return document.documentElement.clientHeight - $(this._el).offset().top;
-  },
-
   componentDidMount() {
     const resize = _.debounce(() => {
       this.setState(
@@ -57,6 +53,10 @@ const DivToBottom = React.createClass({
 
     this.setState({ height: this.getHeight() });
     window.addEventListener('resize', resize);
+  },
+
+  getHeight() {
+    return document.documentElement.clientHeight - $(this._el).offset().top;
   },
 
   render() {

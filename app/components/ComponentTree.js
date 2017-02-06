@@ -158,7 +158,7 @@ const TreeItem = DragSource(
   React.createClass({
     onMouseUp(e) {
       if (wasRightButtonPressed(e)) {
-        this.props.actions.openMenu(this.props.node, e.clientX, e.clientY);
+        this.props.actions.openMenu(this.props.node.id, e.clientX, e.clientY);
       } else {
         this.props.actions.selectComponent(this.props.node.id);
       }

@@ -48,9 +48,21 @@ const ComponentMenu = React.createClass({
 
   render() {
     let { componentMapByName, menu, assets } = this.props;
-    let { component, isOpen, componentX, componentY } = menu;
-    let { openListItem, secondaryPosX, secondaryPosY } = this.state;
-    let menuComponent = component;
+
+    let {
+      componentId,
+      component,
+      isOpen,
+      componentX,
+      componentY
+    } = menu;
+
+    let {
+      openListItem,
+      secondaryPosX,
+      secondaryPosY
+    } = this.state;
+
     let secondaryList;
 
     let sx = {
@@ -78,8 +90,8 @@ const ComponentMenu = React.createClass({
                   onMouseUp={() => {
                       this.props.actions.addVariant(
                         componentMapByName[componentName].id,
-                        menu.component.parentId,
-                        menu.component.ind
+                        component.parent.id,
+                        component.index
                       );
                     }}>
                 {componentName}
@@ -96,8 +108,8 @@ const ComponentMenu = React.createClass({
                   onMouseUp={() => {
                       this.props.actions.addVariant(
                         image.id,
-                        menu.component.parent,
-                        menu.component.ind,
+                        component.parent.id,
+                        component.index,
                         createNewImageSpec(asset)
                       );
                     }}>
@@ -129,7 +141,7 @@ const ComponentMenu = React.createClass({
                 key={'DELETE'}
                 onMouseEnter={() => { this.setState({ openListItem: undefined }) }}
                 onMouseUp={(e) => {
-                    this.props.actions.deleteComponent(menuComponent.id);
+                    this.props.actions.deleteComponent(componentId);
                     this.props.actions.closeMenu();
                     e.stopPropagation();
                   }}>
@@ -140,7 +152,7 @@ const ComponentMenu = React.createClass({
                 key={'MAKE_COMPONENT'}
                 onMouseEnter={() => { this.setState({ openListItem: undefined }) }}
                 onMouseUp={(e) => {
-                    this.props.actions.createComponentBlock(menuComponent.id);
+                    this.props.actions.createComponentBlock(componentId);
                     this.props.actions.closeMenu();
                     e.stopPropagation();
                   }}>
@@ -152,7 +164,7 @@ const ComponentMenu = React.createClass({
                 key={INSERT_COMPONENT}
                 ref={(ref) => { this._insertComponentEl = ref }}
                 onMouseEnter={(e) => {
-                    let rect = new Rect().fromElement(this._insertComponentEl);
+                    let rect = new Rect(this._insertComponentEl);
                     this.setState({
                       openListItem: INSERT_COMPONENT,
                       secondaryPosX: rect.x,
@@ -167,7 +179,7 @@ const ComponentMenu = React.createClass({
                 key={INSERT_ASSET}
                 ref={(ref) => { this._insertAssetEl = ref }}
                 onMouseEnter={(e) => {
-                    let rect = new Rect().fromElement(this._insertAssetEl);
+                    let rect = new Rect(this._insertAssetEl);
                     this.setState({
                       openListItem: INSERT_ASSET,
                       secondaryPosX: rect.x,
@@ -189,8 +201,11 @@ const ComponentMenu = React.createClass({
 });
 
 export default connect(
+  // This could use the render tree...
   function (state) {
+    const { siteComponents } = state;
     let componentMapByName;
+    let menu = state.menu;
     if (state.menu.isOpen) {
       componentMapByName = _.reduce(
         state.componentBoxes,
@@ -206,8 +221,18 @@ export default connect(
       );
     }
 
+    if (state.menu.isOpen) {
+      menu = Object.assign(
+        {},
+        state.menu,
+        {
+          component: siteComponents.hydrateComponent(menu.componentId)
+        }
+      )
+    }
+
     return {
-      menu: state.menu,
+      menu,
       componentMapByName,
       assets: state.assets
     }

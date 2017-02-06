@@ -177,10 +177,10 @@ export const actions = Object.assign({
       newBreakpoint
     }
   },
-  openMenu(component, componentX, componentY) {
+  openMenu(componentId, componentX, componentY) {
     return {
       type: OPEN_MENU,
-      component,
+      componentId,
       componentX,
       componentY
     };
@@ -229,7 +229,6 @@ export const actions = Object.assign({
   },
 }, componentTreeActions);
 
-
 const reducerObj = Object.assign({
   [SET_PAGE_VALUE](state, action) {
     const currentPage = _.find(state.pages, (page) => {
@@ -239,7 +238,7 @@ const reducerObj = Object.assign({
   },
   [OPEN_MENU](state, action) {
     state.menu.isOpen = true;
-    state.menu.component = action.component;
+    state.menu.componentId = action.componentId;
     state.menu.componentX = action.componentX;
     state.menu.componentY = action.componentY;
   },
@@ -343,14 +342,20 @@ function reducer(state, action) {
     reducerObj[action.type](state, action);
   }
 
-  //console.log(action.type, action, _.cloneDeep(state));
+  console.log(action.type, action, _.cloneDeep(state));
   return state;
 }
 
-export const store = createStore(
-  reducer,
-  initialState,
-  applyMiddleware(thunk)
-);
+export function getNewStore() {
+  const store = createStore(
+    reducer,
+    initialState,
+    applyMiddleware(thunk)
+  );
 
-store.dispatch(actions.addPage());
+  store.dispatch(actions.addPage());
+
+  return store;
+}
+
+export const store = getNewStore();

@@ -31,10 +31,12 @@ export const componentTreeActions = {
   },
 
   addVariant(componentId, parentComponentId, insertionIndex, spec) {
+    console.log(componentId, parentComponentId);
     return {
       type: ADD_VARIANT,
       componentId,
       parentComponentId,
+      insertionIndex,
       spec: spec || {},
     };
   },
@@ -106,8 +108,6 @@ export const componentTreeActions = {
 };
 
 export const componentTreeReducer = {
-
-
   [ADD_VARIANT](state, action) {
     let { componentId, parentComponentId, insertionIndex, spec } = action;
     let siteComponents = state.siteComponents;
@@ -209,16 +209,18 @@ export const componentTreeReducer = {
     const { componentId } = action;
     const { siteComponents } = state;
 
-    let component = siteComponents.components[componentId];
-    siteComponents.components[componentId].name = 'New Component Block'
-    const oldParentId = component.parentId;
-    delete component.parentId;
+    let masterComponent = siteComponents.components[componentId];
+    masterComponent.name = 'New Component Block'
+    const oldParentId = masterComponent.parentId;
+    delete masterComponent.parentId;
     /* Replace self with a variant */
     const variant = siteComponents.createVariant(componentId, {
-      parent: oldParentId
+      parentId: oldParentId
     });
 
-    siteComponents.components[oldParentId].childIds.map(function (childId) {
+    const parentComponent = siteComponents.components[oldParentId];
+
+    parentComponent.childIds = parentComponent.childIds.map(function (childId) {
       if (childId === componentId) {
         return variant.id;
       } else {

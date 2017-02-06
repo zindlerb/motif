@@ -28,7 +28,7 @@ const ROOT = 'ROOT';
 
    breakpoint: none,
    state: none, hover
-*/
+ */
 
 export const componentTypes = {
    CONTAINER,
@@ -122,6 +122,9 @@ export class SiteComponents {
       [text.id]: text,
       [image.id]: image,
     };
+
+    // For testing
+    this._lastCreatedId;
   }
 
   // Mutations
@@ -144,6 +147,8 @@ export class SiteComponents {
     _.forEach(master.childIds, (childId) => {
       this.addChild(variant.id, this.createVariant(childId).id);
     });
+
+    this._lastCreatedId = variant.id;
 
     return variant;
   }
@@ -387,6 +392,35 @@ export class SiteComponents {
       children.push(this.getRenderTree(id, context, ind));
     });
     componentClone.children = children;
+
+    return componentClone;
+  }
+
+  hydrateComponent(componentId) {
+    // returns component with all ids replaced with references to the component
+    /*
+       adds props;
+         index
+     */
+    let componentClone = _.cloneDeep(this.components[componentId]);
+    let parentComponent = this.components[componentClone.parentId];
+
+    componentClone.index = _.indexOf(parentComponent.childIds, (childId) => {
+      return childId === componentClone.id;
+    });
+
+    componentClone.parent = _.cloneDeep(this.components[componentClone.parentId]);
+    componentClone.master = _.cloneDeep(this.components[componentClone.masterId]);
+    componentClone.children = [];
+    componentClone.variants = [];
+
+    componentClone.childIds.forEach((childId) => {
+      componentClone.children.push(this.components[childId]);
+    });
+
+    componentClone.variantIds.forEach((variantId) => {
+      componentClone.variants.push(this.components[variantId]);
+    });
 
     return componentClone;
   }

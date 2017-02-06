@@ -39,6 +39,7 @@ module.exports = {
     "react/jsx-closing-bracket-location": 0,
     "import/prefer-default-export": 0,
     "class-methods-use-this": 1,
+    "react/no-did-mount-set-state": 1,
 
     // Possibly add back in later
     "react/prefer-stateless-function": 0,
@@ -49,6 +50,7 @@ module.exports = {
     "react/jsx-indent": 0,
     "arrow-body-style": 0,
     "spaced-comment": 0,
+
 
     // Def add back in later
     "semi": 0,
