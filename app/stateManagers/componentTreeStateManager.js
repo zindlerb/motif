@@ -1,8 +1,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import { minDistanceBetweenPointAndLine, Rect } from '../utils';
-import { NONE } from '../constants';
-import { componentTypes } from '../base_components';
+import { componentTypes, NONE } from '../constants';
 
 const UNHOVER_COMPONENT = 'UNHOVER_COMPONENT';
 const HOVER_COMPONENT = 'HOVER_COMPONENT';
@@ -31,7 +30,6 @@ export const componentTreeActions = {
   },
 
   addVariant(componentId, parentComponentId, insertionIndex, spec) {
-    console.log(componentId, parentComponentId);
     return {
       type: ADD_VARIANT,
       componentId,
@@ -161,30 +159,52 @@ export const componentTreeReducer = {
       ]
     }
 
+    /*
+       Need to add in a isDraggedComponent param to the insertion points
+       Then not render and not move if the param is present
+
+       get component indexs -
+       use them to compare to the
+     */
+    const parentId = siteComponents.components[draggedComponentId].parentId;
+    const beforeComponentIndex = siteComponents.getIndex(draggedComponentId);
+    const afterComponentIndex = beforeComponentIndex + 1;
+
+    function isDraggedComponent(node, ind) {
+      return (
+        node.parentId === parentId &&
+        (ind === beforeComponentIndex || ind === afterComponentIndex)
+      );
+    }
+
     siteComponents.walkChildren(componentTreeId, function (node, ind) {
-      if (node.id !== draggedComponentId) {
-        if (ind === 0) {
-          insertionPoints.push({
-            insertionIndex: ind,
-            parentId: node.parentId,
-            points: getPoints(node.id, 0),
-          });
-        }
-
+      // Before
+      if (ind === 0) {
         insertionPoints.push({
-          insertionIndex: ind + 1,
+          insertionIndex: ind,
           parentId: node.parentId,
-          points: getPoints(node.id, ind + 1),
+          points: getPoints(node.id, 0),
+          isDraggedComponent: isDraggedComponent(node, ind)
         });
+      }
 
-        if (node.componentType === componentTypes.CONTAINER &&
-            node.childIds.length === 0) {
-          insertionPoints.push({
-            insertionIndex: 0,
-            parentId: node.id,
-            points: getPoints(node.id, 'emptyChild')
-          });
-        }
+      // After
+      insertionPoints.push({
+        insertionIndex: ind + 1,
+        parentId: node.parentId,
+        points: getPoints(node.id, ind + 1),
+        isDraggedComponent: isDraggedComponent(node, ind + 1)
+      });
+
+      // Inside
+      if (node.componentType === componentTypes.CONTAINER &&
+          node.childIds.length === 0 &&
+          node.id !== draggedComponentId) {
+        insertionPoints.push({
+          insertionIndex: 0,
+          parentId: node.id,
+          points: getPoints(node.id, 'emptyChild')
+        });
       }
     });
 

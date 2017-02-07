@@ -4,20 +4,23 @@ import _ from 'lodash';
 // import fuzzy from 'fuzzy';
 import { Rect, globalEventManager } from '../utils';
 
-import { createNewImageSpec, image } from '../base_components';
+import {
+  createNewImageSpec,
+  image
+} from '../base_components';
 
 const ROOT = 'ROOT';
 const INSERT_ASSET = 'INSERT_ASSET';
 const INSERT_COMPONENT = 'INSERT_COMPONENT';
 
-function LeftTriangle(props) {
+function RightTriangle(props) {
   const size = 10;
   return (
     <img
         className={props.className}
         style={{ width: size, height: size }}
         alt=""
-        src="public/img/assets/left-triangle.svg" />
+        src="public/img/assets/right-triangle.svg" />
   );
 }
 
@@ -64,8 +67,10 @@ const ComponentMenu = React.createClass({
     } = this.state;
 
     let secondaryList;
+    let primaryMenuWidth = 150;
 
     let sx = {
+      width: primaryMenuWidth,
       position: 'absolute',
       left: componentX,
       top: componentY
@@ -74,7 +79,7 @@ const ComponentMenu = React.createClass({
     let secondaryMenuWidth = 100;
     let secondaryListStyle = {
       position: 'absolute',
-      left: secondaryPosX - secondaryMenuWidth,
+      left: secondaryPosX + primaryMenuWidth,
       top: secondaryPosY,
       width: secondaryMenuWidth
     };
@@ -145,8 +150,8 @@ const ComponentMenu = React.createClass({
                     this.props.actions.closeMenu();
                     e.stopPropagation();
                   }}>
-              <i className="fa fa-trash ph1" aria-hidden="true" />
               Delete
+              <i className="fa fa-trash ph1 fr" aria-hidden="true" />
             </li>
             <li
                 key={'MAKE_COMPONENT'}
@@ -156,8 +161,8 @@ const ComponentMenu = React.createClass({
                     this.props.actions.closeMenu();
                     e.stopPropagation();
                   }}>
-              <i className="fa fa-id-card-o ph1" aria-hidden="true" />
               Make Component
+              <i className="fa fa-id-card-o ph1 fr" aria-hidden="true" />
             </li>
             <li
                 className={INSERT_COMPONENT}
@@ -172,8 +177,8 @@ const ComponentMenu = React.createClass({
                     });
                     e.stopPropagation();
                   }}>
-              <LeftTriangle className="ph1" />
               Insert Component
+              <RightTriangle className="ph1 fr" />
             </li>
             <li
                 key={INSERT_ASSET}
@@ -187,8 +192,8 @@ const ComponentMenu = React.createClass({
                     });
                     e.stopPropagation();
                   }}>
-              <LeftTriangle className="ph1" />
               Insert Asset
+              <RightTriangle className="ph1 fr" />
             </li>
           </ul>
           {secondaryList}
@@ -234,7 +239,7 @@ export default connect(
     return {
       menu,
       componentMapByName,
-      assets: state.assets
+      assets: _.toArray(state.assets)
     }
   },
   null,

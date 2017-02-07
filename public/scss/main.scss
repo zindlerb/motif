@@ -216,7 +216,6 @@ i {
   background: #F2F2F2;
   box-shadow: 0 3px #B3B3B3;
   border: 1px solid #C3C3C3;
-  margin-bottom: 3px;
   cursor: pointer;
 }
 
@@ -316,4 +315,20 @@ i {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, .85);
+}
+
+.asset-icon {
+  width: 100px;
+  margin: $spacing-medium;
+}
+
+.asset-icon:hover {
+  img {
+    opacity: .5;
+  }
+}
+
+.editable-text:hover {
+  border: 1px solid #f2f2f2;
+  opacity: .75;
 }

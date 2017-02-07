@@ -4,7 +4,7 @@
 var _ = require('lodash');
 
 var { getNewStore, actions } = require('../app/stateManager.js');
-var { componentTypes } = require('../app/base_components.js');
+var { componentTypes } = require('../app/constants.js');
 
 describe('Creates variants correctly', () => {
   const store = getNewStore();

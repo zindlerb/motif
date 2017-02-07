@@ -27,3 +27,11 @@ export const breakpointTypes = {
   MEDIUM: 'MEDIUM',
   LARGE: 'LARGE',
 }
+
+export const componentTypes = {
+  CONTAINER: 'CONTAINER',
+  HEADER: 'HEADER',
+  TEXT: 'TEXT',
+  IMAGE: 'IMAGE',
+  ROOT: 'ROOT'
+}

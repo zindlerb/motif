@@ -28,8 +28,6 @@ const ColorPicker = React.createClass({
   render() {
     const { value } = this.props;
 
-    console.log('value', value);
-
     let picker;
     let color = value;
 

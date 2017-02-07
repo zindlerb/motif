@@ -31,7 +31,7 @@ const Dropdown = React.createClass({
 
     return (
       <select
-          className={classnames('w-100', this.props.className)}
+          className={classnames(this.props.className)}
           value={this.props.value}
           onChange={this.onChange}>
         {choices}

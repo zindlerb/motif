@@ -9,6 +9,7 @@ import { wasRightButtonPressed, globalEventManager } from '../utils';
 const Spacer = function (props) {
   let sx, indexMarker;
   const { index, nodeId, isActive, isNear } = props;
+
   if (isActive) {
     sx = {
       border: '1px solid orange',
@@ -37,11 +38,14 @@ const Spacer = function (props) {
   );
 };
 
-function checkActive(nodeId, dropPoint, ind) {
+function checkActive(parentId, dropPoint, ind) {
   if (!dropPoint) { return false; }
 
-  return (dropPoint.parentId === nodeId &&
-          dropPoint.insertionIndex === ind);
+  return (
+    dropPoint.parentId === parentId &&
+    dropPoint.insertionIndex === ind &&
+    !dropPoint.isDraggedComponent
+  );
 }
 
 const ComponentTree = React.createClass({
@@ -105,7 +109,7 @@ const ComponentTree = React.createClass({
     );
 
     return (
-      <div className="mt1">
+      <div>
         {beforeSpacer}
         <TreeItem
             {...this.props}
@@ -124,22 +128,32 @@ const TreeItem = DragSource(
   dragTypes.MOVE_COMPONENT,
   {
     beginDrag(props) {
+      let prevPoint = {};
       const id = globalEventManager.addListener('drag', (e) => {
-        props.actions.updateTreeViewDropSpots(
-          {
+        if (e.clientX !== prevPoint.x
+            && e.clientY !== prevPoint.y
+            && (e.clientX && e.clientY)) {
+          prevPoint = {
             x: e.clientX,
-            y: e.clientY,
-          },
-          props.node.id
-        );
-      }, 1);
+            y: e.clientY
+          }
 
+          props.actions.updateTreeViewDropSpots(
+            {
+              x: e.clientX,
+              y: e.clientY,
+            },
+            props.node.id
+          );
+        }
+      }, 1);
       return { id };
     },
     endDrag(props, monitor) {
       globalEventManager.removeListener('drag', monitor.getItem().id);
       const selectedTreeViewDropSpot = props.context.selectedTreeViewDropSpot;
-      if (selectedTreeViewDropSpot) {
+      if (selectedTreeViewDropSpot &&
+          !selectedTreeViewDropSpot.isDraggedComponent) {
         props.actions.moveComponent(
           props.node.id,
           selectedTreeViewDropSpot.parentId,
@@ -158,7 +172,11 @@ const TreeItem = DragSource(
   React.createClass({
     onMouseUp(e) {
       if (wasRightButtonPressed(e)) {
-        this.props.actions.openMenu(this.props.node.id, e.clientX, e.clientY);
+        this.props.actions.openMenu(
+          this.props.node.id,
+          e.clientX,
+          e.clientY
+        );
       } else {
         this.props.actions.selectComponent(this.props.node.id);
       }
@@ -238,7 +256,7 @@ const TreeChildren = React.createClass({
     }
 
     return (
-      <div className="ml3">
+      <div className="ml2">
         {emptySpacer}
         {children}
       </div>

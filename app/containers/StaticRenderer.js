@@ -6,8 +6,10 @@ import classnames from 'classnames';
 import dragManager from '../dragManager';
 import {
   attributeStateTypes,
-  componentTypes,
 } from '../base_components';
+import {
+  componentTypes,
+} from '../constants';
 import HorizontalSelect from '../components/HorizontalSelect';
 
 const RootClassReact = function (props) {

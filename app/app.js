@@ -14,11 +14,12 @@ import { store, actions } from './stateManager';
 
 import OpenSiteModal from './containers/OpenSiteModal';
 import LeftPanel from './containers/LeftPanel';
-import RightPanel from './containers/RightPanel';
 import StaticRenderer from './containers/StaticRenderer';
 import DropPointRenderer from './containers/DropPointRenderer';
 import ComponentMenu from './containers/ComponentMenu';
 import ViewChoiceDropdown from './components/ViewChoiceDropdown';
+import Attributes from './containers/Attributes';
+import AssetsView from './containers/AssetsView';
 import {
   saveSiteAsDialog,
   saveSiteDialog,
@@ -94,6 +95,8 @@ const Editor = React.createClass({
       currentMainView
     } = this.props;
 
+    console.log(currentMainView);
+
     if (mainViewTypes.EDITOR === currentMainView) {
       view = (
         <div className={classnames('flex h-100')}>
@@ -111,18 +114,14 @@ const Editor = React.createClass({
             <StaticRenderer actions={actions} />
           </div>
           <div className="sidebar h-100 flex-none">
-            <RightPanel actions={actions} />
+            <Attributes actions={actions} />
           </div>
           <DropPointRenderer />
           <OpenSiteModal actions={actions} />
         </div>
       );
     } else if (mainViewTypes.ASSETS === currentMainView) {
-      view = (
-        <div>
-          ASSETS
-        </div>
-      );
+      view = <AssetsView actions={actions} />
     } else if (mainViewTypes.COMPONENTS === currentMainView) {
       view = (
         <div>
@@ -155,7 +154,9 @@ const connector = connect(
   },
   (dispatch) => {
     return { actions: bindActionCreators(actions, dispatch) };
-  }
+  },
+  null,
+  { pure: false }
 );
 const dndContext = DragDropContext(HTML5Backend)
 

@@ -37,15 +37,15 @@ const initialState = {
     yours: [],
   },
   pages: [],
-  assets: [],
+  assets: {},
   currentPageId: undefined,
   activeComponentId: undefined,
   hoveredComponentId: undefined,
   activeView: 'BORDER',
   activeBreakpoint: 'NONE',
-  activeLeftPanel: 'COMPONENTS',
+  activeLeftPanel: 'TREE',
   activeRightPanel: 'DETAILS',
-  currentMainView: mainViewTypes.EDITOR,
+  currentMainView: mainViewTypes.ASSETS,
   menu: { isOpen: false },
 
   siteComponents: new SiteComponents(),
@@ -68,6 +68,7 @@ const initialState = {
 /* Constants */
 const SET_PAGE_VALUE = 'SET_PAGE_VALUE';
 const SELECT_BREAKPOINT = 'SELECT_BREAKPOINT';
+const UPDATE_ASSET_NAME = 'UPDATE_ASSET_NAME';
 
 const SET_ACTIVE_COMPONENT_STATE = 'SET_ACTIVE_COMPONENT_STATE';
 const SET_ACTIVE_COMPONENT_BREAKPOINT = 'SET_ACTIVE_COMPONENT_BREAKPOINT';
@@ -93,6 +94,13 @@ const ADD_ASSET = 'ADD_ASSET';
 const SET_RENDERER_WIDTH = 'SET_RENDERER_WIDTH';
 
 export const actions = Object.assign({
+  updateAssetName(assetId, newName) {
+    return {
+      type: UPDATE_ASSET_NAME,
+      newName,
+      assetId
+    }
+  },
   setPageValue(key, newValue) {
     return {
       type: SET_PAGE_VALUE,
@@ -288,10 +296,12 @@ const reducerObj = Object.assign({
 
   [ADD_ASSET](state, action) {
     const { filename } = action;
-    state.assets.push({
+    const id = guid();
+    state.assets[id] = {
       src: filename,
-      name: path.parse(filename).name
-    });
+      name: path.parse(filename).name,
+      id
+    }
   },
 
   [SELECT_BREAKPOINT](state, action) {
@@ -334,6 +344,10 @@ const reducerObj = Object.assign({
 
   [CHANGE_MAIN_VIEW](state, action) {
     state.currentMainView = action.newView;
+  },
+
+  [UPDATE_ASSET_NAME](state, action) {
+    state.assets[action.assetId].name = action.newName;
   }
 }, componentTreeReducer);
 
@@ -342,7 +356,7 @@ function reducer(state, action) {
     reducerObj[action.type](state, action);
   }
 
-  console.log(action.type, action, _.cloneDeep(state));
+//  console.log(action.type, action, _.cloneDeep(state));
   return state;
 }
 

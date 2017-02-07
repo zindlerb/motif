@@ -4,41 +4,19 @@ import $ from 'jquery';
 import { guid, Rect } from './utils';
 import {
   breakpointTypes,
-  NONE
+  NONE,
+  componentTypes
 } from './constants';
 
-const CONTAINER = 'CONTAINER';
-const HEADER = 'HEADER';
-const TEXT = 'TEXT';
-const IMAGE = 'IMAGE';
-const ROOT = 'ROOT';
+const {
+  CONTAINER,
+  HEADER,
+  TEXT,
+  IMAGE,
+  ROOT
+} = componentTypes;
 
-/*
-   attrs[state][breakpoint] =
-
-   what takes precedent??
-   -
-
-   default
-   breakpoints
-   states
-
-   getting:
-   { breakpoint: , state: }
-
-   breakpoint: none,
-   state: none, hover
- */
-
-export const componentTypes = {
-   CONTAINER,
-   HEADER,
-   TEXT,
-   IMAGE,
-   ROOT
-}
-
-export function creatNewImageSpec(asset) {
+export function createNewImageSpec(asset) {
   return {
     name: asset.name,
     defaultAttributes: { src: asset.src }
@@ -423,6 +401,13 @@ export class SiteComponents {
     });
 
     return componentClone;
+  }
+
+  getIndex(componentId) {
+    let parent = this.getParentData(componentId);
+    return _.findIndex(parent.childIds, (childId) => {
+      return childId === componentId;
+    });
   }
 
   getParentData(componentId) {

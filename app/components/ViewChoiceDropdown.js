@@ -5,16 +5,18 @@ import { mainViewTypes } from '../constants';
 
 function ViewChoiceDropdown(props) {
   return (
+    <div className="tc">
     <Dropdown
-        className="mv2"
+        className="mv2 w4"
         value={props.mainView}
         onChange={(value) => { props.actions.changeMainView(value) }}
         choices={[
-          { name: 'Editor', text: mainViewTypes.EDITOR },
-          { name: 'Assets', text: mainViewTypes.ASSETS },
-          { name: 'Components', text: mainViewTypes.COMPONENTS },
+          { text: 'Editor', value: mainViewTypes.EDITOR },
+          { text: 'Assets', value: mainViewTypes.ASSETS },
+          { text: 'Components', value: mainViewTypes.COMPONENTS },
         ]}
     />
+    </div>
   );
 }
 
