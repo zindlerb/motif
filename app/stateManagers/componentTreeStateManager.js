@@ -196,11 +196,12 @@ export const componentTreeReducer = {
         isDraggedComponent: isDraggedComponent(node, ind + 1)
       });
 
-      // Inside
       if (node.id === draggedComponentId) {
+        // Can't drag component inside itself
         cancel();
       } else if (node.componentType === componentTypes.CONTAINER &&
                  node.childIds.length === 0) {
+        // Inside
         insertionPoints.push({
           insertionIndex: 0,
           parentId: node.id,

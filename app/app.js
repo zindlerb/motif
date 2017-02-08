@@ -127,7 +127,6 @@ const Editor = React.createClass({
 
     return (
       <div className="h-100">
-
         { view }
         <ComponentMenu actions={actions} />
       </div>

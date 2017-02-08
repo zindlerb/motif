@@ -3,7 +3,7 @@ import _ from 'lodash';
 import classnames from 'classnames';
 import { DragSource } from 'react-dnd';
 
-import { dragTypes } from '../constants';
+import { dragTypes, componentTypes } from '../constants';
 import { wasRightButtonPressed, globalEventManager } from '../utils';
 
 const Spacer = function (props) {
@@ -194,30 +194,34 @@ const TreeItem = DragSource(
         onMouseDown
       } = this.props;
 
-      const treeItemClassName = classnames(
-        'treeItem w-100 pv1',
-        className,
-        'outline_' + node.id,
-        {
-          highlightBottom: false,
-          isActive,
-          isHovered
-        },
-        'db'
-      );
+      if (componentTypes.ROOT === node.componentType) {
+        return <span/>;
+      } else {
+        const treeItemClassName = classnames(
+          'treeItem w-100 pv1',
+          className,
+          'outline_' + node.id,
+          {
+            highlightBottom: false,
+            isActive,
+            isHovered
+          },
+          'db'
+        );
 
-      return this.props.connectDragSource(
-        <span
-            onMouseDown={onMouseDown}
-            onMouseEnter={() => {
-                this.props.actions.hoverComponent(node.id)
-              }}
-            onMouseLeave={() => { this.props.actions.unHoverComponent() }}
-            onMouseUp={this.onMouseUp}
-            className={treeItemClassName}>
-          {node.name}
-        </span>
-      );
+        return this.props.connectDragSource(
+          <span
+              onMouseDown={onMouseDown}
+              onMouseEnter={() => {
+                  this.props.actions.hoverComponent(node.id)
+                }}
+              onMouseLeave={() => { this.props.actions.unHoverComponent() }}
+              onMouseUp={this.onMouseUp}
+              className={treeItemClassName}>
+            {node.name}
+          </span>
+        );
+      }
     },
   })
 );

@@ -307,7 +307,7 @@ const Attributes = function (props) {
     });
 
     attributes = (
-      <div>
+      <div className="ph2">
         <div className="tc mb3 mt2">
           <span>Name: {siteComponents.getName(activeComponentId)}</span>
           <CartoonButton
