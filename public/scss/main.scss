@@ -107,13 +107,19 @@ i {
   color: $icon-color;
 }
 
+
+body {
+  background-color: #f4f4f4;
+}
+
 /* COMPONENTS */
 .horizontal-select {
   display: inline-flex;
   border-bottom: 1px solid $border;
+  background-color: white;
 
   &.border {
-    border: 2px solid $border;
+    border: 1px solid $border;
     border-radius: 3px;
   }
 
@@ -256,6 +262,7 @@ i {
 .drag-handle {
   position: absolute;
   top: 40%;
+  z-index: 0;
 }
 
 .root-component {
@@ -331,4 +338,59 @@ i {
 .editable-text:hover {
   border: 1px solid #f2f2f2;
   opacity: .75;
+}
+
+.icon-small {
+  width: 10px;
+}
+
+.popup-select {
+  cursor: pointer;
+}
+
+.popup {
+  z-index: 1;
+  background-color: white;
+  border-radius: $border-radius;
+  border: 1px solid $border;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+  transform: translateX(-50%);
+
+  ul {
+    font-size: $f5;
+    padding: $spacing-small 0px;
+  }
+
+  i {
+    font-size: 18px;
+    margin-right: $spacing-small;
+    margin-top: $spacing-small;
+  }
+
+  li {
+    cursor: pointer;
+    padding: $spacing-small/2 $spacing-medium;
+  }
+
+  li:not(.highlighted):hover {
+    background-color: $potential-highlight;
+  }
+}
+
+.up-arrow {
+  z-index: 2;
+  display: inline-block;
+  line-height: 0.7;
+  text-shadow: 0px -2px 0px $border, 0px -2px 2px $border;
+  transform: translateX(-50%) scale(2, 1);
+  color: white;
+}
+
+.renderer-container {
+  background-color: white;
+  border: 1px solid $border;
+}
+
+.suggestion {
+  color: light-gray;
 }

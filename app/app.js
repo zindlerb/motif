@@ -95,18 +95,13 @@ const Editor = React.createClass({
       currentMainView
     } = this.props;
 
-    console.log(currentMainView);
-
     if (mainViewTypes.EDITOR === currentMainView) {
       view = (
         <div className={classnames('flex h-100')}>
           <div className="sidebar flex-none h-100">
             <LeftPanel actions={actions} />
           </div>
-          <div
-              className="flex-auto flex flex-column h-100 mh4 relative"
-              ref={(el) => { this._rendererEl = el }}
-          >
+          <div className="flex-auto flex flex-column h-100 mh4 relative">
             <ViewChoiceDropdown
                 mainView={currentMainView}
                 actions={actions}

@@ -54,7 +54,6 @@ const LeftPanel = React.createClass({
     let {
       actions,
       siteComponents,
-      componentTreeId,
       activeComponentId,
       hoveredComponentId,
       activePanel,
@@ -63,12 +62,16 @@ const LeftPanel = React.createClass({
       currentPage,
     } = this.props;
 
-    if (activePanel === 'TREE') {
+    if (!currentPage) {
+      body = (
+        <h2 className="suggestion">No Page Selected</h2>
+      );
+    } else if (activePanel === 'TREE') {
       body = (
         <div>
           <SidebarHeader text="Component Tree" />
           <ComponentTree
-              node={siteComponents.getRenderTree(componentTreeId)}
+              node={siteComponents.getRenderTree(currentPage.componentTreeId)}
               actions={this.props.actions}
               context={{
                 otherPossibleTreeViewDropSpots,
@@ -114,8 +117,8 @@ const LeftPanel = React.createClass({
         <HorizontalSelect
             className="w-100"
             options={[
-              { name: 'TREE', src: 'public/img/assets/tree-icon.svg' },
-              { name: 'DETAILS', faClass: 'fa-info-circle' },
+              { value: 'TREE', src: 'public/img/assets/tree-icon.svg' },
+              { value: 'DETAILS', faClass: 'fa-info-circle' },
             ]}
             activePanel={this.props.activePanel}
             onClick={(name) => { actions.changePanel(name, 'left'); }}
@@ -129,18 +132,23 @@ const LeftPanel = React.createClass({
 });
 
 export default connect((state) => {
-  const currentPage = _.find(
-    state.pages,
-    page => page.id === state.currentPageId
-  );
+  let currentPage;
+  if (state.currentPageId) {
+    currentPage = _.find(
+      state.pages,
+      page => page.id === state.currentPageId
+    );
+  }
+
+
 
   return {
     activePanel: state.activeLeftPanel,
     activeComponentId: state.activeComponentId,
     hoveredComponentId: state.hoveredComponentId,
-    componentTreeId: currentPage.componentTreeId,
     siteComponents: state.siteComponents,
     pages: state.pages,
+    currentPage: currentPage,
     currentPageId: state.currentPageId,
     otherPossibleTreeViewDropSpots: state.otherPossibleTreeViewDropSpots,
     selectedTreeViewDropSpot: state.selectedTreeViewDropSpot,

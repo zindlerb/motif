@@ -41,11 +41,11 @@ const initialState = {
   currentPageId: undefined,
   activeComponentId: undefined,
   hoveredComponentId: undefined,
-  activeView: 'BORDER',
+  activeView: 'MINIMAL',
   activeBreakpoint: 'NONE',
   activeLeftPanel: 'TREE',
   activeRightPanel: 'DETAILS',
-  currentMainView: mainViewTypes.ASSETS,
+  currentMainView: mainViewTypes.EDITOR,
   menu: { isOpen: false },
 
   siteComponents: new SiteComponents(),
@@ -67,6 +67,7 @@ const initialState = {
 
 /* Constants */
 const SET_PAGE_VALUE = 'SET_PAGE_VALUE';
+const DELETE_PAGE = 'DELETE_PAGE';
 const SELECT_BREAKPOINT = 'SELECT_BREAKPOINT';
 const UPDATE_ASSET_NAME = 'UPDATE_ASSET_NAME';
 
@@ -83,8 +84,8 @@ const SITE_LOAD_FAILURE = 'SITE_LOAD_FAILURE';
 
 const SET_GLOBAL_CURSOR = 'SET_GLOBAL_CURSOR';
 const ADD_NEW_PAGE = 'ADD_NEW_PAGE';
-const CHANGE_PANEL = 'CHANGE_PANEL';
 const CHANGE_PAGE = 'CHANGE_PAGE';
+const CHANGE_PANEL = 'CHANGE_PANEL';
 const SELECT_VIEW = 'SELECT_VIEW';
 const OPEN_MENU = 'OPEN_MENU';
 const CLOSE_MENU = 'CLOSE_MENU';
@@ -101,9 +102,10 @@ export const actions = Object.assign({
       assetId
     }
   },
-  setPageValue(key, newValue) {
+  setPageValue(pageId, key, newValue) {
     return {
       type: SET_PAGE_VALUE,
+      pageId,
       key,
       newValue
     }
@@ -235,6 +237,12 @@ export const actions = Object.assign({
       viewName,
     };
   },
+  deletePage(pageId) {
+    return {
+      type: DELETE_PAGE,
+      pageId
+    }
+  }
 }, componentTreeActions);
 
 const reducerObj = Object.assign({
@@ -262,6 +270,21 @@ const reducerObj = Object.assign({
 
   [SET_GLOBAL_CURSOR](state, action) {
     state.globalCursor = action.cl;
+  },
+
+  [DELETE_PAGE](state, action) {
+    _.remove(state.pages, (page) => {
+      return page.id === action.pageId;
+    });
+
+    if (state.currentPageId === action.pageId) {
+      if (state.pages.length) {
+        state.currentPageId = state.pages[0].id;
+      } else {
+        state.currentPageId = undefined;
+      }
+
+    }
   },
 
   [ADD_NEW_PAGE](state) {

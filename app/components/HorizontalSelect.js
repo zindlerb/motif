@@ -17,7 +17,7 @@ export default function HorizontalSelect(props) {
   const options = _.map(props.options, function (option, ind) {
     let content;
     const headerClick = function (e) {
-      props.onClick(option.name);
+      props.onClick(option.value);
       e.stopPropagation();
     };
 
@@ -26,16 +26,16 @@ export default function HorizontalSelect(props) {
     } else if (option.src) {
       content = <img src={option.src} className="img" />;
     } else {
-      content = <span>{option.text}</span>;
+      content = <span className="f6">{option.text}</span>;
     }
 
     return (
       <div
-        className={classnames('flex-auto tc pv1 ph2 h-100 c-pointer', {
-          highlighted: option.name === props.activePanel,
-        })}
-        onMouseUp={headerClick}
-        key={ind}
+          className={classnames('flex-auto tc pv1 ph2 h-100 c-pointer', {
+              highlighted: option.value === props.activePanel,
+            })}
+          onMouseUp={headerClick}
+          key={ind}
       >
         {content}
       </div>

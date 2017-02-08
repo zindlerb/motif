@@ -10,7 +10,11 @@ import {
 import {
   componentTypes,
 } from '../constants';
+import { focusRefCallback } from '../utils';
 import HorizontalSelect from '../components/HorizontalSelect';
+import FormLabel from '../components/forms/FormLabel';
+import PopupSelect from '../components/PopupSelect';
+import UpArrow from '../components/UpArrow';
 
 const RootClassReact = function (props) {
   const {
@@ -302,11 +306,14 @@ function DragHandle(props) {
   let height = 60;
   let width = 20;
   let left;
+  let src;
 
   if (props.direction === 'left') {
     left = -width;
+    src = 'public/img/assets/left-handle.svg';
   } else if (props.direction === 'right') {
     left = '100%';
+    src = 'public/img/assets/right-handle.svg';
   }
 
   let style = {
@@ -316,23 +323,118 @@ function DragHandle(props) {
   }
 
   function dragStart(e) {
+    let diff;
     // add a drag manager for listening and unlistening to events
     dragManager.start(e, {
       dragType: 'resize',
       initialX: e.clientX,
       initialWidth: props.width,
       onDrag(e) {
-        props.actions.setRendererWidth(this.initialWidth - ((this.initialX - e.clientX) * 2));
+        if (props.direction === 'left') {
+          diff = (e.clientX - this.initialX);
+        } else {
+          diff = (this.initialX - e.clientX);
+        }
+
+        props.actions.setRendererWidth(this.initialWidth - (diff * 2));
       }
     });
   }
 
   return (
-    <svg className="drag-handle" style={style} onMouseDown={dragStart}>
-      <rect x="0" y="0" height={height} width={width} fill="black" />
-    </svg>
+    <img
+        onDragStart={e => e.preventDefault()}
+        className="drag-handle"
+        style={style}
+        onMouseDown={dragStart}
+        src={src}
+    />
   );
 }
+
+const PagesPopup = React.createClass({
+  getInitialState() {
+    return {
+      isEditing: false,
+      tempText: ''
+    }
+  },
+  render() {
+    const { pages, currentPage, actions } = this.props;
+    const { isEditing, tempText } = this.state;
+    let isActive;
+    let pageComponents = pages.map((page) => {
+      isActive = page.id === currentPage.id;
+
+      if (isActive && isEditing) {
+        return (
+          <li>
+            <input
+                value={tempText}
+                ref={focusRefCallback}
+                onChange={e => { this.setState({ tempText: e.target.value }) }}
+                onBlur={(e) => {
+                    this.setState({isEditing: false, tempText: ''});
+                    actions.setPageValue(page.id, 'name', e.target.value);
+                  }}
+            />
+          </li>
+        );
+      } else {
+        return (
+          <li
+              className={classnames({highlighted: isActive})}
+              onClick={() => { actions.changePage(page.id) }}
+          >
+            {page.name}
+          </li>
+        );
+      }
+    });
+
+    if (pageComponents.length === 0) {
+      pageComponents.push(
+        <li className="suggestion">Please Add a page</li>
+      );
+    }
+
+    return (
+      <div>
+        <div
+            style={{
+              top: this.props.y,
+              left: this.props.x
+            }}
+            className="popup tl fixed w5">
+          <div className="ph3">
+            <i
+                className="fa fa-plus"
+                aria-hidden="true"
+                onClick={() => { actions.addPage() }}
+            />
+            <i
+                className="fa fa-trash"
+                aria-hidden="true"
+                onClick={() => { actions.deletePage(currentPage.id) }}
+            />
+            <i
+                className="fa fa-pencil-square-o"
+                aria-hidden="true"
+                onClick={() => { this.setState({
+                    isEditing: true,
+                    tempText: currentPage.name
+                  })}}
+            />
+          </div>
+          <ul>
+            {pageComponents}
+          </ul>
+        </div>
+        <UpArrow y={this.props.y} x={this.props.x}/>
+      </div>
+    );
+  }
+})
 
 
 const StaticRenderer = React.createClass({
@@ -356,9 +458,16 @@ const StaticRenderer = React.createClass({
       componentTree,
       context,
       width,
-      actions
+      currentPage,
+      actions,
+      pages
     } = this.props;
     let renderer;
+    let currentPageName = 'No Page'
+
+    if (currentPage) {
+      currentPageName = currentPage.name;
+    }
 
     if (componentTree) {
       renderer = (
@@ -374,33 +483,40 @@ const StaticRenderer = React.createClass({
     return (
       <div className="flex flex-auto flex-column">
         <div className="mb2 flex justify-center">
-          <div>
-            <span className="db f6">View</span>
+          <FormLabel className="mh2" name="Page">
+            <PopupSelect
+                value={currentPageName}
+                className="f6 pv1">
+              <PagesPopup
+                  pages={pages}
+                  currentPage={currentPage}
+                  actions={actions}
+              />
+            </PopupSelect>
+          </FormLabel>
+          <FormLabel name="View">
             <HorizontalSelect
-                className=""
                 onClick={(name) => { this.props.actions.selectView(name); }}
                 hasBorder
                 activePanel={activeView}
                 options={[
-                  { text: 'None', name: 'NONE' },
-                  { text: 'Border', name: 'BORDER' },
-                  { text: 'Detail', name: 'DETAIL' },
+                  { text: 'Minimal', value: 'MINIMAL' },
+                  { text: 'Dense', value: 'DENSE' }
                 ]}
             />
-          </div>
+          </FormLabel>
         </div>
         <div
             onMouseEnter={this.mouseEnter}
             onMouseLeave={this.mouseLeave}
             onMouseMove={this.mouseove}
             style={{ width }}
-            className={classnames('flex-auto m-auto relative ba', {
+            className={classnames('renderer-container flex-auto m-auto relative', {
                 'static-view-border': activeView === 'BORDER',
                 'static-view-detail': activeView === 'DETAIL',
               })}
         >
           {renderer}
-
           <DragHandle direction="left" width={width} actions={actions} />
           <DragHandle direction="right" width={width} actions={actions} />
         </div>
@@ -426,6 +542,8 @@ export default connect(function (state) {
     width: state.rendererWidth,
     componentTree,
     activeView: state.activeView,
+    pages: state.pages,
+    currentPage: currentPage,
     context: {
       hoveredComponentId: state.hoveredComponentId,
       activeComponentId: state.activeComponentId,

@@ -53,7 +53,6 @@ const EditableText = React.createClass({
         <div
             className="editable-text"
             onClick={() => {
-                console.log('clicked');
                 this.setState({
                   isEditing: true,
                   tempText: value
