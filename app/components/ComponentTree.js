@@ -12,15 +12,18 @@ const Spacer = function (props) {
 
   if (isActive) {
     sx = {
-      border: '1px solid orange',
+      border: '1px solid #FF8D80',
       marginTop: 1,
-      marginBottom: 1,
     };
   } else if (isNear) {
     sx = {
-      border: '1px solid blue',
+      border: '1px solid #FFDCD8',
       marginTop: 1,
-      marginBottom: 1,
+    };
+  } else {
+    sx = {
+      border: '0px solid #FFDCD8',
+      marginTop: 0,
     };
   }
 
@@ -33,7 +36,7 @@ const Spacer = function (props) {
   return (
     <div
         style={sx}
-        className={'treeDropSpot_' + nodeId + '_' + indexMarker}
+        className={'spacer treeDropSpot_' + nodeId + '_' + indexMarker}
     />
   );
 };

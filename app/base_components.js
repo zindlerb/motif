@@ -264,6 +264,7 @@ export class SiteComponents {
   walkChildren(componentId, func, ...rest) {
     let ind, isChild;
     let component = this.components[componentId];
+    let isCanceled = false;
 
     // Used for recursion
     if (rest.length) {
@@ -272,12 +273,15 @@ export class SiteComponents {
     }
 
     if (isChild) {
-      func.call(this, component, ind);
+      func.call(this, component, ind, () => { isCanceled = true });
     }
 
-    component.childIds.forEach((childId, ind) => {
-      this.walkChildren(childId, func, ind, true);
-    });
+    if (!isCanceled) {
+      component.childIds.forEach((childId, ind) => {
+        this.walkChildren(childId, func, ind, true);
+      });
+    }
+
   }
 
   getRenderableProperties(componentId, attributeOptions) {

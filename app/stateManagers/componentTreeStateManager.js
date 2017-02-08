@@ -177,7 +177,7 @@ export const componentTreeReducer = {
       );
     }
 
-    siteComponents.walkChildren(componentTreeId, function (node, ind) {
+    siteComponents.walkChildren(componentTreeId, function (node, ind, cancel) {
       // Before
       if (ind === 0) {
         insertionPoints.push({
@@ -197,9 +197,10 @@ export const componentTreeReducer = {
       });
 
       // Inside
-      if (node.componentType === componentTypes.CONTAINER &&
-          node.childIds.length === 0 &&
-          node.id !== draggedComponentId) {
+      if (node.id === draggedComponentId) {
+        cancel();
+      } else if (node.componentType === componentTypes.CONTAINER &&
+                 node.childIds.length === 0) {
         insertionPoints.push({
           insertionIndex: 0,
           parentId: node.id,
