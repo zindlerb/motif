@@ -274,50 +274,42 @@ const fields = {
 
 const Attributes = function (props) {
   const {
-    siteComponents,
-    activeComponentId,
-    activeComponentState,
-    activeComponentBreakpoint,
+    componentName,
+    componentType,
+    attributes,
+    componentId,
+    componentState,
+    componentBreakpoint,
     actions,
   } = props;
 
-  let attributes, attributeFields = []
+  let body, attributeFields = []
 
-  if (activeComponentId) {
-    let activeComponent = siteComponents.components[activeComponentId];
-    let componentAttrs = siteComponents.getAttributes(
-      activeComponentId,
-      {
-        state: activeComponentState,
-        breakpoint: activeComponentBreakpoint
-      }
-    );
-
-    _.forEach(fields[activeComponent.componentType], (field) => {
+  if (componentId) {
+    _.forEach(fields[componentType], (field) => {
       attributeFields.push(
         (<AttributeField
              actions={actions}
              fieldData={field}
-             component={activeComponent}
-             attrKey={field.key}
-             attrVal={componentAttrs[field.key]}
-             key={field.name}
+             componentId={componentId}
+             attrVal={attributes[field.key]}
+             key={field.key}
          />)
       );
     });
 
-    attributes = (
+    body = (
       <div className="ph2">
         <div className="tc mb3 mt2">
-          <span>Name: {siteComponents.getName(activeComponentId)}</span>
+          <span>Name: {componentName}</span>
           <CartoonButton
               onClick={() => {
-                  props.actions.createComponentBlock(activeComponentId);
+                  props.actions.createComponentBlock(componentId);
                 }}
               text="Make Component"
           />
           <CartoonButton
-              onClick={() => { props.actions.syncComponent(activeComponentId); }}
+              onClick={() => { props.actions.syncComponent(componentId); }}
               text="Sync"
           />
           <span>State:</span>
@@ -329,7 +321,7 @@ const Attributes = function (props) {
               onChange={(val) => {
                   props.actions.setActiveComponentState(val);
                 }}
-              value={activeComponentState} />
+              value={componentState} />
           <span>Breakpoint:</span>
           <Dropdown
               choices={[
@@ -340,7 +332,7 @@ const Attributes = function (props) {
               onChange={(val) => {
                   props.actions.setActiveComponentBreakpoint(val);
                 }}
-              value={activeComponentBreakpoint} />
+              value={componentBreakpoint} />
         </div>
         {attributeFields}
       </div>
@@ -350,16 +342,29 @@ const Attributes = function (props) {
   return (
     <DivToBottom className="overflow-auto">
       <SidebarHeader text="Attributes" />
-      {attributes}
+      {body}
     </DivToBottom>
   );
 }
 
 export default connect((state) => {
+  const componentsContainer = state.get('componentsContainer');
+  const activeComponentId = state.get('activeComponentId');
+  const activeComponentState = state.get('activeComponentState');
+  const activeComponentBreakpoint = state.get('activeComponentBreakpoint');
+
   return {
-    siteComponents: state.siteComponents,
-    activeComponentId: state.activeComponentId,
-    activeComponentState: state.activeComponentState,
-    activeComponentBreakpoint: state.activeComponentBreakpoint,
+    componentName: componentsContainer.getName(activeComponentId),
+    componentType: componentsContainer.getIn([
+      activeComponentId,
+      'componentType'
+    ]),
+    attributes: componentsContainer.getAttributes(activeComponentId, {
+      state: activeComponentState,
+      breakpoint: activeComponentBreakpoint,
+    }),
+    componentId: activeComponentId,
+    componentState: activeComponentState,
+    componentBreakpoint: activeComponentBreakpoint,
   }
 }, null, null, { pure: false })(Attributes);

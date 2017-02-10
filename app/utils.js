@@ -203,8 +203,20 @@ export function toTitleCase(str) {
   });
 }
 
-export function focusRefCallback (ref) {
+export function focusRefCallback(ref) {
   if (ref && document.activeElement !== ref) {
     ref.focus();
   }
+}
+
+export function getComponentDomNode(componentId, viewType) {
+  // Node Types: treeView, componentView
+  const classStr = '.' + viewType + '_' + componentId;
+  let el = $(classStr);
+
+  if (!el) {
+    throw new Error('Class ' + classStr + ' Not found. With args ' + componentId + ' ' + viewType);
+  }
+
+  return el;
 }

@@ -50,11 +50,16 @@ const ComponentMenu = React.createClass({
   },
 
   render() {
-    let { componentMapByName, menu, assets } = this.props;
+    let {
+      componentIdMapByName,
+      menu,
+      assets,
+      parentId,
+      componentIndex
+    } = this.props;
 
     let {
       componentId,
-      component,
       isOpen,
       componentX,
       componentY
@@ -88,15 +93,15 @@ const ComponentMenu = React.createClass({
     if (isOpen) {
       if (openListItem) {
         if (openListItem === INSERT_COMPONENT) {
-          componentList = _.keys(componentMapByName).map((componentName) => {
+          componentList = _.keys(componentIdMapByName).map((componentName) => {
             return (
               <li
                   key={componentName}
                   onMouseUp={() => {
                       this.props.actions.addVariant(
-                        componentMapByName[componentName].id,
-                        component.parent.id,
-                        component.index
+                        componentIdMapByName[componentName],
+                        parentId,
+                        componentIndex
                       );
                     }}>
                 {componentName}
@@ -112,9 +117,9 @@ const ComponentMenu = React.createClass({
                   key={ind}
                   onMouseUp={() => {
                       this.props.actions.addVariant(
-                        image.id,
-                        component.parent.id,
-                        component.index,
+                        image.get('id'),
+                        parentId,
+                        componentIndex,
                         createNewImageSpec(asset)
                       );
                     }}>
@@ -208,41 +213,31 @@ const ComponentMenu = React.createClass({
 export default connect(
   // This could use the render tree...
   function (state) {
-    const { siteComponents } = state;
-    let componentMapByName;
-    let menu = state.menu;
-    if (state.menu.isOpen) {
-      componentMapByName = _.reduce(
-        state.componentBoxes,
-        function (componentMapByName, componentList) {
-          _.forEach(componentList, function (componentId) {
-            let component = state.siteComponents.components[componentId];
-            componentMapByName[component.name] = component;
-          });
+    const componentsContainer = state.get('componentsContainer');
+    let componentIdMapByName = {};
+    let menu = state.get('menu').toJS();
 
-          return componentMapByName;
-        },
-        {}
-      );
-    }
+    if (menu.isOpen) {
+      // TD: these cannot be recomputed during menu. Maybe cache on the menu object?
+      ['ourComponentBoxes', 'yourComponentBoxes'].forEach((componentBoxesKey) => {
+        state.get(componentBoxesKey).forEach((componentId) => {
+          let name = componentsContainer.getName(componentId);
+          componentIdMapByName[name] = componentId;
+        });
+      });
 
-    if (state.menu.isOpen) {
-      menu = Object.assign(
-        {},
-        state.menu,
-        {
-          component: siteComponents.hydrateComponent(menu.componentId)
-        }
-      )
-    }
-
-    return {
-      menu,
-      componentMapByName,
-      assets: _.toArray(state.assets)
+      return {
+        menu,
+        componentIdMapByName,
+        parentId: componentsContainer.components.getIn([
+          menu.componentId, 'parentId'
+        ]),
+        componentIndex: componentsContainer.getIndex(menu.componentId),
+        // TD: EXPENSIVE! Remove.
+        assets: _.toArray(state.get('assets').toJS())
+      }
+    } else {
+      return { menu };
     }
   },
-  null,
-  null,
-  { pure: false }
 )(ComponentMenu);

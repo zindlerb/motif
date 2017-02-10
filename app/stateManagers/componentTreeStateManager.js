@@ -19,6 +19,8 @@ const CHANGE_COMPONENT_NAME = 'CHANGE_COMPONENT_NAME';
 const CREATE_COMPONENT_BLOCK = 'CREATE_COMPONENT_BLOCK';
 const SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
 
+// test for optional argument
+
 export const componentTreeActions = {
   moveComponent(componentId, parentComponentId, insertionIndex) {
     return {

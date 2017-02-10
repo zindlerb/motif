@@ -372,9 +372,9 @@ const PagesPopup = React.createClass({
             <input
                 value={tempText}
                 ref={focusRefCallback}
-                onChange={e => { this.setState({ tempText: e.target.value }) }}
+                onChange={(e) => { this.setState({ tempText: e.target.value }) }}
                 onBlur={(e) => {
-                    this.setState({isEditing: false, tempText: ''});
+                    this.setState({ isEditing: false, tempText: '' });
                     actions.setPageValue(page.id, 'name', e.target.value);
                   }}
             />
@@ -383,7 +383,7 @@ const PagesPopup = React.createClass({
       } else {
         return (
           <li
-              className={classnames({highlighted: isActive})}
+              className={classnames({ highlighted: isActive })}
               onClick={() => { actions.changePage(page.id) }}
           >
             {page.name}
@@ -420,17 +420,19 @@ const PagesPopup = React.createClass({
             <i
                 className="fa fa-pencil-square-o"
                 aria-hidden="true"
-                onClick={() => { this.setState({
-                    isEditing: true,
-                    tempText: currentPage.name
-                  })}}
+                onClick={() => {
+                    this.setState({
+                      isEditing: true,
+                      tempText: currentPage.name
+                    });
+                  }}
             />
           </div>
           <ul>
             {pageComponents}
           </ul>
         </div>
-        <UpArrow y={this.props.y} x={this.props.x}/>
+        <UpArrow y={this.props.y} x={this.props.x} />
       </div>
     );
   }
@@ -528,22 +530,32 @@ const StaticRenderer = React.createClass({
 export default connect(function (state) {
   const { siteComponents, currentPageId } = state;
   let componentTree, currentPage;
+  let currentPageId = state.get('currentPageId');
 
   if (currentPageId) {
-    currentPage = _.find(state.pages, page => page.id === currentPageId);
-    const rootComponent = siteComponents.components[currentPage.componentTreeId];
-    componentTree = siteComponents.getRenderTree(rootComponent.id, {
-      width: state.rendererWidth,
+    let componentTreeId = state.getIn(['pages', currentPageId, 'componentTreeId']);
+
+    componentTree = state.get('componentsContainer').getRenderTree(componentTreeId, {
+      width: state.get('rendererWidth'),
+      // TD: track and add states
       states: {}
     });
   }
 
+  let pages = [];
+  this.get('pages').forEach((page) => {
+    pages.push({
+      id: page.get('id'),
+      name: page.get('name')
+    })
+  });
+
   return {
-    width: state.rendererWidth,
+    width: state.get('rendererWidth'),
     componentTree,
-    activeView: state.activeView,
+    activeView: state.get('activeView'),
     pages: state.pages,
-    currentPage: currentPage,
+    currentPage,
     context: {
       hoveredComponentId: state.hoveredComponentId,
       activeComponentId: state.activeComponentId,

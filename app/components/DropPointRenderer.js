@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import _ from 'lodash';
 
 function DropPoint(props) {
@@ -51,14 +50,4 @@ const DropPointRenderer = React.createClass({
   },
 });
 
-export default connect(
-  function (state) {
-    return {
-      dropPoints: state.otherPossibleComponentViewDropSpots,
-      activeDropPoint: state.selectedComponentViewDropSpot
-    }
-  },
-  null,
-  null,
-  { pure: false }
-)(DropPointRenderer);
+export default DropPointRenderer;

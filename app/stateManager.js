@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import Immutable from 'immutable';
 import { hri } from 'human-readable-ids';
 import path from 'path';
 import { createStore, applyMiddleware } from 'redux';
@@ -16,7 +16,7 @@ import {
   NONE
 } from './constants';
 import {
-  SiteComponents,
+  ComponentsContainer,
   container,
   header,
   text,
@@ -24,19 +24,18 @@ import {
   root
 } from './base_components';
 
-const initialState = {
+let initialState = Immutable.fromJS({
   siteName: 'Something',
   recentSites: [],
-  componentBoxes: {
-    ours: [
-      container.id,
-      header.id,
-      text.id,
-      image.id,
-    ],
-    yours: [],
-  },
-  pages: [],
+
+  ourComponentBoxes: [
+    container.get('id'),
+    header.get('id'),
+    text.get('id'),
+    image.get('id'),
+  ],
+  yourComponentBoxes: [],
+  pages: {},
   assets: {},
   currentPageId: undefined,
   activeComponentId: undefined,
@@ -47,8 +46,6 @@ const initialState = {
   activeRightPanel: 'DETAILS',
   currentMainView: mainViewTypes.EDITOR,
   menu: { isOpen: false },
-
-  siteComponents: new SiteComponents(),
 
   otherPossibleComponentViewDropSpots: undefined,
   selectedComponentViewDropSpot: undefined,
@@ -63,7 +60,7 @@ const initialState = {
   rendererWidth: 200,
 
   fileMetaData: {}
-};
+}).set('componentsContainer', new ComponentsContainer());
 
 /* Constants */
 const SET_PAGE_VALUE = 'SET_PAGE_VALUE';
@@ -82,7 +79,6 @@ const SITE_LOAD_ATTEMPT = 'SITE_LOAD_ATTEMPT';
 const SITE_LOAD_SUCCESS = 'SITE_LOAD_SUCCESS';
 const SITE_LOAD_FAILURE = 'SITE_LOAD_FAILURE';
 
-const SET_GLOBAL_CURSOR = 'SET_GLOBAL_CURSOR';
 const ADD_NEW_PAGE = 'ADD_NEW_PAGE';
 const CHANGE_PAGE = 'CHANGE_PAGE';
 const CHANGE_PANEL = 'CHANGE_PANEL';
@@ -206,12 +202,6 @@ export const actions = Object.assign({
       filename
     }
   },
-  setGlobalCursor(cl) {
-    return {
-      type: SET_GLOBAL_CURSOR,
-      cl,
-    };
-  },
   changePanel(panelConst, panelSide) {
     return {
       type: CHANGE_PANEL,
@@ -247,139 +237,142 @@ export const actions = Object.assign({
 
 const reducerObj = Object.assign({
   [SET_PAGE_VALUE](state, action) {
-    const currentPage = _.find(state.pages, (page) => {
-      return page.id === state.currentPageId;
+    state.get('pages').get(state.get('currentPageId'));
+    return state.updateIn(['pages', state.get('currentPageId')], (currentPage) => {
+      return currentPage.set(action.key, action.newValue);
     });
-    currentPage[action.key] = action.newValue;
   },
+
   [OPEN_MENU](state, action) {
-    state.menu.isOpen = true;
-    state.menu.componentId = action.componentId;
-    state.menu.componentX = action.componentX;
-    state.menu.componentY = action.componentY;
+    // TD: maybe move to local state?
+    return state.update('menu', (menu) => {
+      return menu.merge({
+        isOpen: true,
+        componentId: action.componentId,
+        componentX: action.componentX,
+        componentY: action.componentY
+      });
+    });
   },
 
   [CLOSE_MENU](state) {
-    state.menu.isOpen = false;
-    state.menu.component = undefined;
+    return state.update('menu', () => {
+      return Immutable.Map({
+        isOpen: false
+      })
+    });
   },
 
   [SELECT_VIEW](state, action) {
-    state.activeView = action.viewName;
-  },
-
-  [SET_GLOBAL_CURSOR](state, action) {
-    state.globalCursor = action.cl;
+    return state.set('activeView', action.viewName);
   },
 
   [DELETE_PAGE](state, action) {
-    _.remove(state.pages, (page) => {
-      return page.id === action.pageId;
-    });
-
-    if (state.currentPageId === action.pageId) {
-      if (state.pages.length) {
-        state.currentPageId = state.pages[0].id;
+    // TD: need to remove all the components from site components
+    return state.update('pages', (pages) => {
+      return pages.delete(action.pageId);
+    }).update('currentPageId', (currentPageId) => {
+      if (currentPageId === action.pageId) {
+        if (state.pages.length) {
+          return state.getIn(['pages', 0, 'id']);
+        } else {
+          return undefined;
+        }
       } else {
-        state.currentPageId = undefined;
+        return currentPageId;
       }
-
-    }
+    });
   },
 
   [ADD_NEW_PAGE](state) {
-    const rv = state.siteComponents.createVariant(root.id);
-    const cv = state.siteComponents.createVariant(container.id);
-    state.siteComponents.addChild(rv.id, cv.id);
+    const componentsContainer = state.get('componentsContainer');
+    const rvId = componentsContainer.createVariant(root.get('id'));
+    const cvId = componentsContainer.createVariant(container.get('id'));
+    componentsContainer.addChild(rvId, cvId);
 
-    const newPage = {
+    const newPageId = guid();
+    const newPage = Immutable.Map({
       name: hri.random(),
-      id: guid(),
-      componentTreeId: rv.id,
-    };
+      id: newPageId,
+      componentTreeId: rvId,
+    });
 
-    state.activeRightPanel = 'DETAILS';
-    state.pages.push(newPage);
-    state.currentPageId = newPage.id;
+    return state.set('currentPageId', newPageId)
+                .update('pages', (pages) => {
+                  return pages.set(newPageId, newPage);
+                });
   },
 
   [CHANGE_PANEL](state, action) {
-    const { panelSide, panelConst } = action;
-
-    if (panelSide === 'right') {
-      state.activeRightPanel = panelConst;
-    } else if (panelSide === 'left') {
-      state.activeLeftPanel = panelConst;
-    }
+    const { panelConst, panelSide } = action;
+    return state.set(({
+      right: 'activeRightPanel',
+      left: 'activeLeftPanel'
+    })[panelSide], panelConst)
   },
 
   [CHANGE_PAGE](state, action) {
-    state.currentPageId = action.pageId;
+    return state.set('currentPageId', action.pageId);
   },
 
   [ADD_ASSET](state, action) {
     const { filename } = action;
     const id = guid();
-    state.assets[id] = {
-      src: filename,
-      name: path.parse(filename).name,
-      id
-    }
-  },
-
-  [SELECT_BREAKPOINT](state, action) {
-    let widths = {
-      TABLET: 640,
-      LAPTOP: 1024,
-      DESKTOP: 1824,
-    }
-
-    let newWidth = widths[action.newBreakpoint];
-
-    if (newWidth) {
-      state.rendererWidth = newWidth;
-    }
-
-    state.activeBreakpoint = action.newBreakpoint;
+    return state.update('assets', (assets) => {
+      return assets.set(id, Immutable.Map({
+        src: filename,
+        name: path.parse(filename).name,
+        id
+      }));
+    });
   },
 
   [SET_RENDERER_WIDTH](state, action) {
-    state.rendererWidth = action.newWidth;
+    return state.set('rendererWidth', action.newWidth);
   },
 
   [SET_ACTIVE_COMPONENT_STATE](state, action) {
-    state.activeComponentState = action.newState;
+    return state.set('activeComponentState', action.newState);
   },
 
   [SET_ACTIVE_COMPONENT_BREAKPOINT](state, action) {
-    state.activeComponentBreakpoint = action.newBreakpoint;
+    return state.set('activeComponentBreakpoint', action.newBreakpoint)
   },
 
   [SITE_SAVE_SUCCESS](state, action) {
-    state.fileMetaData.filename = action.filename;
+    return state.update('fileMetaData', (fileMetaData) => {
+      return fileMetaData.set('filename', action.filename);
+    });
   },
 
   [SITE_LOAD_SUCCESS](state, action) {
+    /*
+       TD: Revisit. This is more complicated
+     */
+
+    throw 'fix';
     Object.assign(state, serializer.deserialize(action.fileStr));
 
     state.fileMetaData.filename = action.filename;
   },
 
   [CHANGE_MAIN_VIEW](state, action) {
-    state.currentMainView = action.newView;
+    return state.set('currentMainView', action.newView);
   },
 
   [UPDATE_ASSET_NAME](state, action) {
-    state.assets[action.assetId].name = action.newName;
+    return state.update('assets', (assets) => {
+      return assets.setIn([action.assetId, 'name'], action.newName);
+    });
   }
 }, componentTreeReducer);
 
 function reducer(state, action) {
+  //  console.log(action.type, action, state.toJS());
   if (reducerObj[action.type]) {
-    reducerObj[action.type](state, action);
+    return reducerObj[action.type](state, action);
   }
 
-//  console.log(action.type, action, _.cloneDeep(state));
   return state;
 }
 

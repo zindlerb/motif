@@ -1,161 +1,161 @@
 var _ = require('lodash');
 
-// Tests
-var baseComponents = require('../app/base_components.js');
-var constants = require('../app/constants.js');
-
-var stateTypes = constants.stateTypes;
-var containerAttributes = baseComponents.containerAttributes;
-
-var container = baseComponents.container;
-var text = baseComponents.text;
-var header = baseComponents.header;
-var image = baseComponents.image;
-var SiteComponents = baseComponents.SiteComponents;
+var {
+  container,
+  text,
+  header,
+  image,
+  ComponentsContainer,
+  containerAttributes
+} = require('../app/base_components.js');
+var { stateTypes } = require('../app/constants.js');
+var { guid } = require('../app/utils');
 
 describe('base components', () => {
   it('copies the attributes correctly', () => {
-    expect(container.defaultAttributes).toEqual(containerAttributes);
+    expect(container.get('defaultAttributes').toJS()).toEqual(containerAttributes);
   });
 });
 
 describe('createVariant', () => {
-  var siteComponents = new SiteComponents();
-  var containerVariant = siteComponents.createVariant(container.id);
+  let componentsContainer = new ComponentsContainer();
 
-  it('copies spec properties correctly', () => {
-    expect(containerVariant.defaultAttributes).toEqual({});
-
-    var textVariant = siteComponents.createVariant(text.id, {
-      defaultAttributes: {
-        something: 12
-      }
-    });
-
-    expect(textVariant.defaultAttributes.something).toBe(12);
-
-    var headerVariant = siteComponents.createVariant(header.id);
-
-    expect(headerVariant.defaultAttributes).toEqual({});
-
-    var imageVariant = siteComponents.createVariant(image.id);
-
-    expect(imageVariant.defaultAttributes).toEqual({});
+  var cvId = componentsContainer.createVariant(container.get('id'));
+  var hvId = componentsContainer.createVariant(header.get('id'), {
+    defaultAttributes: {
+      test: 10
+    }
   });
 
-  it('adds component to masters variants', () => {
-    expect(container.variantIds[0]).toBe(containerVariant.id);
+  componentsContainer.addChild(cvId, hvId);
+  var cvvId = componentsContainer.createVariant(cvId);
+
+  let components = componentsContainer.components;
+
+  it('initializes new variant', () => {
+    expect(
+      components.getIn([cvId, 'defaultAttributes']).toJS()
+    ).toEqual({});
   });
 
-  it('assigns master', () => {
-    expect(containerVariant.masterId).toBe(container.id);
+  it('copies spec', () => {
+    expect(
+      components.getIn([hvId, 'defaultAttributes', 'test'])
+    ).toBe(10);
   });
 
-  var hv = siteComponents.createVariant(header.id);
-
-  var containerVariantWithChildren = siteComponents.createVariant(container.id, {
-    childIds: [
-      hv.id
-    ]
+  it('sets master variant relationship', () => {
+    expect(components.getIn([header.get('id'), 'variantIds', 0])).toBe(hvId);
+    expect(components.getIn([hvId, 'masterId'])).toBe(header.get('id'));
   });
 
-  var cVVWithChildren = siteComponents.createVariant(containerVariantWithChildren.id);
-
-  var childId = containerVariantWithChildren.childIds[0];
-
-  it('copies children in spec correctly', () => {
-    expect(siteComponents.components[childId].parentId)
-      .toBe(containerVariantWithChildren.id);
-  });
-
-  it('copies children to variants', () => {
-    expect(cVVWithChildren.childIds.length).toBe(1);
+  it('adds masters children to variant', () => {
+    var hvvId = components.getIn([cvvId, 'childIds', 0]);
+    expect(hvvId).toBeDefined();
+    expect(components.getIn([hvvId, 'masterId'])).toBe(hvId);
   });
 });
 
-describe('addChild', () => {
-  var siteComponents = new SiteComponents();
-  var containerVariant = siteComponents.createVariant(container.id);
-  var containerVariantVariant = siteComponents.createVariant(containerVariant.id);
 
-  var headerVariant = siteComponents.createVariant(header.id);
-  var headerVariant2 = siteComponents.createVariant(header.id);
-  siteComponents.addChild(containerVariant.id, headerVariant.id);
-  siteComponents.addChild(containerVariant.id, headerVariant2.id);
+describe('addChild', () => {
+  var compC = new ComponentsContainer();
+  var cvId = compC.createVariant(container.get('id'));
+  var cvvId = compC.createVariant(cvId);
+
+  var hvId = compC.createVariant(header.get('id'));
+  var hv2Id = compC.createVariant(header.get('id'));
+
+  compC.addChild(cvId, hvId);
+  compC.addChild(cvId, hv2Id);
+
+  var components = compC.components;
 
   it('adds children and assigns parent', () => {
-    expect(containerVariant.childIds.length).toBe(2);
-    expect(headerVariant.parentId).toBe(containerVariant.id);
+    expect(components.getIn([cvId, 'childIds']).size).toBe(2);
+    expect(components.getIn([hvId, 'parentId'])).toBe(cvId);
   });
 
+  var hv3Id = compC.createVariant(header.get('id'));
+  compC.addChild(cvId, hv3Id, 1);
+
   it('inserts at correct index', () => {
-    var headerVariant3 = siteComponents.createVariant(header.id);
-    siteComponents.addChild(containerVariant.id, headerVariant3.id, 1);
-    expect(containerVariant.childIds[1]).toBe(headerVariant3.id);
+    expect(compC.components.getIn([cvId, 'childIds', 1])).toBe(hv3Id);
+    expect(compC.components.getIn([cvId, 'childIds']).size).toBe(3);
   });
 
   it('adds the children to variants', () => {
-    expect(containerVariantVariant.childIds.length).toBe(3);
+    expect(compC.components.getIn([cvvId, 'childIds']).size).toBe(3);
+    expect(compC.components.getIn([cvvId, 'childIds', 1]) === hv3Id).toBeFalsy();
+    expect(compC.components.getIn([hv3Id, 'variantIds']).size).toBe
   });
 });
 
-describe('deleteComponent', () => {
-  var siteComponents = new SiteComponents();
-  var badKid = siteComponents.createVariant(header.id);
-  var containerVariant = siteComponents.createVariant(container.id, {
-    childIds: [badKid.id]
-  });
-  var containerVariantVariant = siteComponents.createVariant(containerVariant.id);
+/*
+   There's more:
+   what does it do with variants of the deleted element?
+   what does it do with children of the deleted element?
+ */
 
-  siteComponents.deleteComponent(badKid.id);
+describe('deleteComponent', () => {
+  var componentsContainer = new ComponentsContainer();
+  var badKidId = componentsContainer.createVariant(header.get('id'));
+  var cvId = componentsContainer.createVariant(container.get('id'));
+  var cvvId = componentsContainer.createVariant(cvId);
+  componentsContainer.addChild(cvId, badKidId);
+  componentsContainer.deleteComponent(badKidId);
+  var components = componentsContainer.components;
 
   it('removes child from parent', () => {
-    expect(containerVariant.childIds.length).toBe(0);
+    expect(components.getIn([cvId, 'childIds']).size).toBe(0);
   });
 
   it('removes self from component map', () => {
-    expect(siteComponents.components[badKid.id]).toBeUndefined();
+    expect(components.get(badKidId)).toBeUndefined();
   });
 
   it('removes child from variants', () => {
-    expect(containerVariantVariant.childIds.length).toBe(0);
+    expect(components.getIn([cvvId, 'childIds']).size).toBe(0);
   });
 });
 
 describe('moveComponent', () => {
-  var siteComponents = new SiteComponents();
-  var cv = siteComponents.createVariant(container.id);
-  var cv2 = siteComponents.createVariant(container.id);
-  var hv = siteComponents.createVariant(header.id);
+  var componentsContainer = new ComponentsContainer();
 
-  siteComponents.addChild(cv.id, cv2.id);
-  siteComponents.addChild(cv.id, hv.id);
+  var cvId = componentsContainer.createVariant(container.get('id'));
+  var cv2Id = componentsContainer.createVariant(container.get('id'));
+  var hvId = componentsContainer.createVariant(header.get('id'));
+
+  componentsContainer.addChild(cvId, cv2Id);
+  componentsContainer.addChild(cvId, hvId);
 
   it('Moves child to new node', () => {
-    expect(cv.childIds[1]).toEqual(hv.id);
-    siteComponents.moveComponent(hv.id, cv2.id);
-    expect(cv.childIds.length).toBe(1);
-    expect(cv2.childIds[0]).toEqual(hv.id);
-  });
+    expect(componentsContainer.components.getIn(
+      [cvId, 'childIds', 1]
+    )).toEqual(hvId);
 
+    componentsContainer.moveComponent(hvId, cv2Id);
+    var components = componentsContainer.components;
+    expect(components.getIn([cvId, 'childIds']).size).toBe(1);
+    expect(components.getIn([cv2Id, 'childIds', 0])).toEqual(hvId);
+  });
 });
 
 describe('getAllAttrs', () => {
-  var siteComponents = new SiteComponents();
-  var hv = siteComponents.createVariant(header.id, {
+  var compC = new ComponentsContainer();
+  var hvId = compC.createVariant(header.get('id'), {
     defaultAttributes: {
       backgroundColor: 'red',
       text: 'hi'
     }
   });
 
-  var hvv = siteComponents.createVariant(hv.id, {
+  var hvvId = compC.createVariant(hvId, {
     defaultAttributes: {
       text: 'no'
     }
   });
 
-  var attrs = siteComponents.getAttributes(hvv.id);
+  var attrs = compC.getAttributes(hvvId);
 
   it('has the parents attrs', () => {
     expect(attrs.backgroundColor).toBe('red');
@@ -166,14 +166,10 @@ describe('getAllAttrs', () => {
   });
 });
 
-describe('getRect', () => {
-  // TD: involves dom elements so is trickier
-});
-
 describe('getRenderableProperties', () => {
-  var siteComponents = new SiteComponents();
-  var cv = siteComponents.createVariant(container.id);
-  var hv = siteComponents.createVariant(header.id, {
+  var compC = new ComponentsContainer();
+  var cvId = compC.createVariant(container.get('id'));
+  var hvId = compC.createVariant(header.get('id'), {
     defaultAttributes: {
       color: 'pink',
       text: 'hi'
@@ -184,15 +180,15 @@ describe('getRenderableProperties', () => {
       }
     }
   });
-  var iv = siteComponents.createVariant(image.id);
+  var ivId = compC.createVariant(image.get('id'));
 
-  siteComponents.addChild(cv.id, hv.id);
-  siteComponents.addChild(cv.id, iv.id);
+  compC.addChild(cvId, hvId);
+  compC.addChild(cvId, ivId);
 
-  var renderTree = siteComponents.getRenderTree(cv.id, {
+  var renderTree = compC.getRenderTree(cvId, {
     width: 100,
     states: {
-      [hv.id]: stateTypes.HOVER
+      [hvId]: stateTypes.HOVER
     },
   });
 
@@ -209,26 +205,26 @@ describe('getRenderableProperties', () => {
 });
 
 describe('walkChildren', () => {
-  var siteComponents = new SiteComponents();
-  var vc = siteComponents.createVariant(container.id);
-  var vc2 = siteComponents.createVariant(container.id);
-  var vi = siteComponents.createVariant(image.id);
-  var vt = siteComponents.createVariant(text.id);
-  var vh = siteComponents.createVariant(header.id);
-  siteComponents.addChild(vc.id, vi.id);
-  siteComponents.addChild(vc.id, vt.id);
-  siteComponents.addChild(vc.id, vc2.id);
-  siteComponents.addChild(vc2.id, vh.id);
+  var compC = new ComponentsContainer();
+  var vcId = compC.createVariant(container.get('id'));
+  var vc2Id = compC.createVariant(container.get('id'));
+  var viId = compC.createVariant(image.get('id'));
+  var vtId = compC.createVariant(text.get('id'));
+  var vhId = compC.createVariant(header.get('id'));
+  compC.addChild(vcId, viId);
+  compC.addChild(vcId, vtId);
+  compC.addChild(vcId, vc2Id);
+  compC.addChild(vc2Id, vhId);
 
   var walksSelf = false;
   var walkedChildren = {};
 
-  siteComponents.walkChildren(vc.id, (child, ind) => {
-    walkedChildren[child.id] = {component: child, ind};
+  compC.walkChildren(vcId, (child, ind) => {
+    walkedChildren[child.get('id')] = { ind };
   });
 
   it('does not walk self', () => {
-    expect(walkedChildren[vc.id]).toBeUndefined();
+    expect(walkedChildren[vcId]).toBeUndefined();
   });
 
   it('walked all children', () => {
@@ -236,7 +232,7 @@ describe('walkChildren', () => {
   });
 
   it('gets the correct indexes', () => {
-    expect(walkedChildren[vc2.id].ind).toBe(2);
-    expect(walkedChildren[vh.id].ind).toBe(0);
+    expect(walkedChildren[vc2Id].ind).toBe(2);
+    expect(walkedChildren[vhId].ind).toBe(0);
   });
 });

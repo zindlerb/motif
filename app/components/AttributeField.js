@@ -61,23 +61,22 @@ function fieldKeyToName(key) {
 const AttributeField = React.createClass({
   render() {
     let {
-      attrKey,
       attrVal,
-      component,
+      componentId,
       fieldData,
       actions
     } = this.props;
     let field, autoComplete;
+    let attrKey = fieldData.key;
 
     if (fieldData.fieldType === fieldTypes.DROPDOWN) {
       field = (<Dropdown
                    value={attrVal}
                    attrKey={attrKey}
                    choices={fieldData.choices}
-                   component={component}
                    onChange={(val) => {
                        actions.setComponentAttribute(
-                         component.id,
+                         componentId,
                          attrKey,
                          val
                        );
@@ -88,10 +87,9 @@ const AttributeField = React.createClass({
         <ColorPicker
             value={attrVal}
             attrKey={attrKey}
-            component={component}
             onChange={(color) => {
                 actions.setComponentAttribute(
-                  component.id,
+                  componentId,
                   attrKey,
                   color
                 );
@@ -106,7 +104,7 @@ const AttributeField = React.createClass({
             autoCompleteItems={fieldData.autoCompleteItems}
             onSubmit={(value) => {
                 actions.setComponentAttribute(
-                  component.id,
+                  componentId,
                   attrKey,
                   value
                 );
@@ -120,7 +118,7 @@ const AttributeField = React.createClass({
             isLarge={true}
             onSubmit={(value) => {
                 actions.setComponentAttribute(
-                  component.id,
+                  componentId,
                   attrKey,
                   value
                 );

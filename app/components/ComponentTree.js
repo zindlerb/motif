@@ -195,7 +195,7 @@ const TreeItem = DragSource(
       } = this.props;
 
       if (componentTypes.ROOT === node.componentType) {
-        return <span/>;
+        return <span />;
       } else {
         const treeItemClassName = classnames(
           'treeItem w-100 pv1',

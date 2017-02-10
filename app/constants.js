@@ -35,3 +35,8 @@ export const componentTypes = {
   IMAGE: 'IMAGE',
   ROOT: 'ROOT'
 }
+
+export const leftPanelTypes = {
+  TREE: 'TREE',
+  DETAILS: 'DETAILS'
+}

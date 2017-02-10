@@ -1,7 +1,7 @@
-import _ from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 
+import { leftPanelTypes } from '../constants';
 import HorizontalSelect from '../components/HorizontalSelect';
 import FormLabel from '../components/forms/FormLabel';
 import TextField from '../components/forms/TextField';
@@ -53,25 +53,27 @@ const LeftPanel = React.createClass({
     let body;
     let {
       actions,
-      siteComponents,
+      activePanel,
       activeComponentId,
       hoveredComponentId,
-      activePanel,
-      otherPossibleTreeViewDropSpots,
-      selectedTreeViewDropSpot,
+      componentsContainer,
+      componentTreeId,
+      currentPageId,
       currentPage,
+      otherPossibleTreeViewDropSpots,
+      selectedTreeViewDropSpot
     } = this.props;
 
-    if (!currentPage) {
+    if (!currentPageId) {
       body = (
         <h2 className="suggestion">No Page Selected</h2>
       );
-    } else if (activePanel === 'TREE') {
+    } else if (activePanel === leftPanelTypes.TREE) {
       body = (
         <div>
           <SidebarHeader text="Component Tree" />
           <ComponentTree
-              node={siteComponents.getRenderTree(currentPage.componentTreeId)}
+              node={componentsContainer.getRenderTree(componentTreeId)}
               actions={this.props.actions}
               context={{
                 otherPossibleTreeViewDropSpots,
@@ -82,7 +84,7 @@ const LeftPanel = React.createClass({
           />
         </div>
       );
-    } else if (activePanel === 'DETAILS') {
+    } else if (activePanel === leftPanelTypes.DETAILS) {
       const inputs = [
         { name: 'name', key: 'metaName' },
         { name: 'url', key: 'url' },
@@ -117,8 +119,8 @@ const LeftPanel = React.createClass({
         <HorizontalSelect
             className="w-100"
             options={[
-              { value: 'TREE', src: 'public/img/assets/tree-icon.svg' },
-              { value: 'DETAILS', faClass: 'fa-info-circle' },
+              { value: leftPanelTypes.TREE, src: 'public/img/assets/tree-icon.svg' },
+              { value: leftPanelTypes.DETAILS, faClass: 'fa-info-circle' },
             ]}
             activePanel={this.props.activePanel}
             onClick={(name) => { actions.changePanel(name, 'left'); }}
@@ -131,26 +133,26 @@ const LeftPanel = React.createClass({
   },
 });
 
+
+
 export default connect((state) => {
-  let currentPage;
-  if (state.currentPageId) {
-    currentPage = _.find(
-      state.pages,
-      page => page.id === state.currentPageId
-    );
-  }
-
-
+  /*
+     Next:
+       make sure new props from connect work with component.
+   */
 
   return {
-    activePanel: state.activeLeftPanel,
-    activeComponentId: state.activeComponentId,
-    hoveredComponentId: state.hoveredComponentId,
+    activePanel: state.get('activeLeftPanel'),
+    activeComponentId: state.get('activeComponentId'),
+    hoveredComponentId: state.get('hoveredComponentId'),
+    componentsContainer: state.get('componentsContainer'),
+    componentTreeId: state.getIn(['pages', state.get('currentPageId'), 'componentTreeId']),
     siteComponents: state.siteComponents,
-    pages: state.pages,
-    currentPage: currentPage,
-    currentPageId: state.currentPageId,
-    otherPossibleTreeViewDropSpots: state.otherPossibleTreeViewDropSpots,
-    selectedTreeViewDropSpot: state.selectedTreeViewDropSpot,
+    currentPageId: state.get('currentPageId'),
+    currentPage: state.getIn(['pages', state.get('currentPageId')])
+
+    // TD: figure out new droppoints
+    //otherPossibleTreeViewDropSpots: state.otherPossibleTreeViewDropSpots,
+    //selectedTreeViewDropSpot: state.selectedTreeViewDropSpot,
   }
 }, null, null, { pure: false })(LeftPanel);

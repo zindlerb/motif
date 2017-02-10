@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import $ from 'jquery';
+import Immutable from 'immutable';
 
-import { guid, Rect } from './utils';
+import { guid } from './utils';
 import {
   breakpointTypes,
   NONE,
@@ -16,6 +16,10 @@ const {
   ROOT
 } = componentTypes;
 
+const {
+  fromJS
+} = Immutable;
+
 export function createNewImageSpec(asset) {
   return {
     name: asset.name,
@@ -24,10 +28,10 @@ export function createNewImageSpec(asset) {
 }
 
 export function createComponentData(componentType, spec) {
-  return {
+  return fromJS({
     componentType,
     name: spec.name,
-    childIds: spec.childIds || [],
+    childIds: [],
     variantIds: [],
     masterId: spec.masterId,
     parentId: spec.parentId,
@@ -35,7 +39,7 @@ export function createComponentData(componentType, spec) {
     id: spec.id || guid(),
     states: spec.states || {},
     breakpoints: spec.breakpoints || {}
-  }
+  });
 }
 
 const defaultAttributes = {
@@ -71,7 +75,7 @@ export const text = createComponentData(TEXT, {
   name: 'Text',
   id: TEXT,
   defaultAttributes: Object.assign({}, defaultAttributes, {
-    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. In quis libero at libero dictum tempor. Cras ut odio erat. Fusce semper odio ac dignissim sollicitudin. Vivamus in tortor lobortis, bibendum lacus feugiat, vestibulum magna. Vivamus pellentesque mollis turpis, at consequat nisl tincidunt at. Nullam finibus cursus varius. Nam id consequat nunc, vitae accumsan metus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse fringilla sed lorem eleifend porta. Vivamus euismod, sapien at pretium convallis, elit libero auctor felis, id porttitor dui leo id ipsum. Etiam urna velit, ornare condimentum tincidunt quis, tincidunt a dolor. Morbi at ex hendrerit, vestibulum tellus eu, rhoncus est. In rutrum, diam dignissim condimentum tristique, ante odio rhoncus justo, quis maximus elit orci id orci.'
+    text: 'Text. Text. Text. I am some text.'
   })
 });
 
@@ -91,200 +95,326 @@ export const image = createComponentData(IMAGE, {
   })
 });
 
-export class SiteComponents {
-  constructor(components) {
-    this.components = components || {
-      [root.id]: root,
-      [container.id]: container,
-      [header.id]: header,
-      [text.id]: text,
-      [image.id]: image,
-    };
+export function ComponentsContainer(components) {
+  /*
+     Note:
 
-    // For testing
-    this._lastCreatedId;
+     this.components is an immutable value.
+     methods called on the ComponentsContainer instance
+     reassign this.components with a new immutable value.
+
+     There are private methods that operate on the this.components value.
+     This is verbose but I like the seperation. Otherwise I would need to
+     reassign this.components inside the methods that change this.components.
+     This would make calling other methods more confusing.
+   */
+
+  this.components = Immutable.Map({
+    [root.get('id')]: root,
+    [container.get('id')]: container,
+    [header.get('id')]: header,
+    [text.get('id')]: text,
+    [image.get('id')]: image,
+  });
+
+  if (components) {
+    this.components = Immutable.fromJS(components);
   }
 
-  // Mutations
-  // Component Map
+  // Reset on every render
+  this.updateTree;
+
+  // Reset on every dragEnd
+  // Set on dragStart
+  this.dropSpotCache;
+  this.otherPossibleTreeViewDropSpots;
+  this.selectedTreeViewDropSpot;
+}
+
+ComponentsContainer.prototype = {
+  // Public
+
+  //  Write
   createVariant(masterId, spec) {
-    let master = this.components[masterId];
-    let variant = createComponentData(
-      master.componentType,
-      Object.assign({ masterId }, spec)
-    );
+    const variantId = guid();
+    this.components = this._createVariant(this.components, variantId, masterId, spec);
+    return variantId;
+  },
 
-    master.variantIds.push(variant.id);
+  deleteComponent(deletedComponentId) {
+    this.components = this._deleteComponent(this.components, deletedComponentId);
+  },
 
-    this.components[variant.id] = variant;
-
-    _.forEach(variant.childIds, (childId) => {
-      this.components[childId].parentId = variant.id;
-    });
-
-    _.forEach(master.childIds, (childId) => {
-      this.addChild(variant.id, this.createVariant(childId).id);
-    });
-
-    this._lastCreatedId = variant.id;
-
-    return variant;
-  }
-
-  deleteComponent(componentId) {
-    let deletedComponent = this.components[componentId];
-    delete this.components[componentId];
-    let master = this.components[deletedComponent.masterId];
-
-    if (deletedComponent.parentId) {
-      _.remove(this.components[deletedComponent.parentId].childIds, (childId) => {
-         return childId === deletedComponent.id;
-      });
-    }
-
-    if (deletedComponent.masterId && master) {
-      _.remove(master.variantIds, (variantId) => {
-        return variantId === deletedComponent.id;
-      });
-    }
-
-    _.forEach(deletedComponent.variantIds, this.deleteComponent.bind(this));
-
-    return deletedComponent;
-  }
-
-  // Component (All these methods assume the component specified by an id has been created)
   addChild(parentId, childId, ind) {
-    // Makes the assumption that the child exists in the component map
-    let parent = this.components[parentId];
-
-    parent.variantIds.forEach((variantId) => {
-      this.addChild(variantId, childId, ind);
-    });
-
-    this.components[childId].parentId = parentId;
-    if (ind === undefined) {
-      parent.childIds.push(childId);
-    } else {
-      parent.childIds.splice(ind, 0, childId);
-    }
-  }
+    this.components = this._addChild(this.components, parentId, childId, ind);
+  },
 
   moveComponent(movedComponentId, newParentId, insertionIndex) {
-    // Delete from parent and remove from all variants of parent
-    let movedComponent = this.components[movedComponentId];
-    let parent = this.components[movedComponent.parentId];
-
-    _.remove(parent.childIds, (childId) => {
-      return childId === movedComponentId;
-    });
-
-    // Does the order of these statements matter?
-    movedComponent.variantIds.forEach(this.deleteComponent);
-    this.addChild(newParentId, movedComponentId, insertionIndex);
-  }
+    this.components = this._moveComponent(
+      this.components,
+      movedComponentId,
+      newParentId,
+      insertionIndex
+    );
+  },
 
   setAttribute(componentId, attributeName, newValue, attributeOptions) {
-    const component = this.components[componentId];
-    let attributes = component.defaultAttributes;
+    this.components = this._setAttribute(
+      this.components,
+      componentId,
+      attributeName,
+      newValue,
+      attributeOptions
+    )
+  },
 
-    if (attributeOptions) {
-      // TD: Clean!!
-      const { state, breakpoint } = attributeOptions;
-      let attributeType, attributeOption;
-      if (state !== NONE) {
-        attributeType = 'states';
-        attributeOption = state;
-      } else if (breakpoint !== NONE) {
-        attributeType = 'breakpoints';
-        attributeOption = breakpoint;
+  //  Read
+  getAttributes(componentId, attributeOptions) {
+    return this._getAttributes(this.components, componentId, attributeOptions);
+  },
+
+  getName(componentId) {
+    return this._getName(this.components, componentId);
+  },
+
+  walkChildren(componentId, func) {
+    this._walkChildren(this.components, componentId, func);
+  },
+
+  getRenderableProperties(componentId, attributeOptions) {
+    return this._getRenderableProperties(this.components, componentId, attributeOptions);
+  },
+
+  getRenderTree(componentId, context) {
+    return this._getRenderTree(this.components, componentId, context);
+  },
+
+  hydrateComponent(componentId) {
+    return this._hydrateComponent(this.components, componentId);
+  },
+
+  getIndex(componentId) {
+    return this._getIndex(this.components, componentId);
+  },
+
+  // Private
+  _createVariant(componentMap, variantId, masterId, spec) {
+    return componentMap.withMutations((components) => {
+      let master = components.get(masterId)
+                             .update('variantIds', function (variantIds) {
+                               return variantIds.push(variantId);
+                             });
+
+      let variant = createComponentData(
+        master.get('componentType'),
+        Object.assign({ masterId, id: variantId }, spec)
+      )
+
+      components.set(masterId, master)
+                .set(variantId, variant);
+
+      master.get('childIds').forEach((childId) => {
+        let childVariantId = guid();
+        this._createVariant(components, childVariantId, childId);
+        this._addChild(
+          components,
+          variantId,
+          childVariantId
+        );
+      });
+    });
+  },
+
+  _deleteComponent(componentMap, deletedComponentId) {
+    return componentMap.withMutations((components) => {
+      let deletedComponent = components.get(deletedComponentId);
+      let deletedComponentParent = components.get(deletedComponent.get('parentId'));
+      let deletedComponentMaster = components.get(deletedComponent.get('masterId'));
+      components.delete(deletedComponentId);
+
+      if (deletedComponentParent) {
+        components.set(
+          deletedComponentParent.get('id'),
+          deletedComponentParent.update('childIds', (childIds) => {
+            return childIds.filterNot((childId) => {
+              return childId === deletedComponentId;
+            });
+          })
+        )
       }
 
-      if (attributeType) {
-        if (!component[attributeType][attributeOption]) {
-          component[attributeType][attributeOption] = {};
+      if (deletedComponentMaster) {
+        components.set(
+          deletedComponentMaster.get('id'),
+          deletedComponentMaster.update('variantIds', (variantIds) => {
+            return variantIds.filterNot((variantId) => {
+              return variantId === deletedComponentId;
+            });
+          })
+        )
+      }
+
+      // TD: if master is deleted should all the children really be deleted?
+      // Should probably connect component to next nearest master
+      deletedComponent.get('variantIds').forEach((variantId) => {
+        this._deleteComponent(components, variantId);
+      });
+    });
+  },
+
+  // Component (All these methods assume the component specified by an id has been created)
+  _addChild(componentMap, parentId, childId, ind) {
+    return componentMap.withMutations((components) => {
+      components.get(parentId).get('variantIds').forEach((variantId) => {
+        let childVariantId = guid();
+        this._createVariant(components, childVariantId, childId);
+        this._addChild(
+          components,
+          variantId,
+          childVariantId,
+          ind
+        );
+      });
+
+      components.set(
+        childId,
+        components.get(childId).set('parentId', parentId)
+      );
+
+      components.set(
+        parentId,
+        components.get(parentId).update('childIds', (childIds) => {
+          if (ind === undefined) {
+            return childIds.push(childId);
+          } else {
+            return childIds.splice(ind, 0, childId);
+          }
+        })
+      );
+    });
+  },
+
+  _moveComponent(componentMap, movedComponentId, newParentId, insertionIndex) {
+    // Delete from parent and remove from all variants of parent
+    return componentMap.withMutations((components) => {
+      let movedComponent = components.get(movedComponentId);
+      let movedComponentParent = components.get(movedComponent.get('parentId'));
+
+      components.set(
+        movedComponentParent.get('id'),
+        movedComponentParent.update('childIds', (childIds) => {
+          return childIds.filterNot((childId) => {
+            return childId === movedComponentId;
+          });
+        })
+      );
+
+      // TD: test this. Does what I'm doing here make sense?
+      movedComponent.get('variantIds').forEach((variantId) => {
+        this._deleteComponent(components, variantId);
+      });
+
+      this._addChild(components, newParentId, movedComponentId, insertionIndex);
+    });
+  },
+
+  _setAttribute(componentMap, componentId, attributeName, newValue, attributeOptions) {
+    return componentMap.withMutations((components) => {
+      let component = components.get(componentId);
+
+      if (attributeOptions) {
+        const { state, breakpoint } = attributeOptions;
+        let attributeType, attributeOption;
+        if (state !== NONE) {
+          attributeType = 'states';
+          attributeOption = state;
+        } else if (breakpoint !== NONE) {
+          attributeType = 'breakpoints';
+          attributeOption = breakpoint;
         }
-        attributes = component[attributeType][attributeOption];
-      }
-    }
 
-    attributes[attributeName] = newValue;
-  }
+        if (attributeType) {
+          if (!component.getIn([attributeType, attributeOption])) {
+            component = component.setIn(
+              [attributeType, attributeOption],
+              Immutable.Map()
+            );
+          }
+
+          component = component.setIn(
+            [attributeType, attributeOption, attributeName],
+            newValue
+          );
+        }
+      } else {
+        component = component.setIn(['defaultAttributes', attributeName], newValue);
+      }
+
+      components.set(componentId, component);
+    });
+  },
 
   // Read
-  getAttributes(componentId, attributeOptions) {
-    let component = this.components[componentId];
+  _getAttributes(componentMap, componentId, attributeOptions) {
+    let component = componentMap.get(componentId);
+    const masterId = component.get('masterId');
     let masterAttrs = {};
+    let attributes;
 
-    let attributes = component.defaultAttributes;
-
-    if (component.masterId) {
-      masterAttrs = this.getAttributes(component.masterId, attributeOptions);
+    if (masterId) {
+      masterAttrs = this._getAttributes(
+        componentMap,
+        masterId,
+        attributeOptions
+      );
     }
 
     if (attributeOptions) {
       const { state, breakpoint } = attributeOptions;
 
-      if (state !== NONE) {
-        attributes = component.states[state];
-      } else if (breakpoint !== NONE) {
-        attributes = component.breakpoints[breakpoint];
+      if (state !== NONE &&
+          component.getIn(['states', state])) {
+        attributes = component.getIn(['states', state]).toJS();
+      } else if (breakpoint !== NONE &&
+                 component.getIn(['breakpoints', breakpoint])) {
+        attributes = component.getIn(['breakpoints', breakpoint]).toJS();
       }
+    } else {
+      attributes = component.get('defaultAttributes').toJS();
     }
 
     return Object.assign(
-      {},
       masterAttrs,
       attributes
     );
-  }
+  },
 
-  getName(componentId) {
-    let component = this.components[componentId];
-    let master = this.components[component.masterId];
-
-    if (!component.name) {
-      return master.name;
+  _getName(componentMap, componentId) {
+    let component = componentMap.get(componentId);
+    if (!component.has('name')) {
+      return componentMap.get(component.get('masterId')).get('name');
+    } else {
+      return component.get('name');
     }
+  },
 
-    return component.name;
-  }
-
-  getRect(componentId, viewType) {
-    // Node Types: treeView, componentView
-    let el = $('.' + viewType + '_' + componentId);
-
-    if (!el) {
-      return undefined;
-    }
-
-    return new Rect().fromElement(el);
-  }
-
-  walkChildren(componentId, func, ...rest) {
-    let ind, isChild;
-    let component = this.components[componentId];
+  _walkChildren(componentMap, componentId, func, ind, isChild) {
+    // Does not call callback on componentId this is called with.
+    let component = componentMap.get(componentId);
     let isCanceled = false;
-
-    // Used for recursion
-    if (rest.length) {
-      ind = rest[0];
-      isChild = rest[1];
-    }
 
     if (isChild) {
       func.call(this, component, ind, () => { isCanceled = true });
     }
 
     if (!isCanceled) {
-      component.childIds.forEach((childId, ind) => {
-        this.walkChildren(childId, func, ind, true);
+      component.get('childIds').forEach((childId, ind) => {
+        this._walkChildren(componentMap, childId, func, ind, true);
       });
     }
+  },
 
-  }
-
-  getRenderableProperties(componentId, attributeOptions) {
+  _getRenderableProperties(componentMap, componentId, attributeOptions) {
     let attrToCssLookup = {};
     let attrToHtmlPropertyLookup = {
       text: true,
@@ -292,10 +422,10 @@ export class SiteComponents {
     };
 
     // default attributes
-    let attributes = this.getAttributes(componentId);
+    let attributes = this._getAttributes(componentMap, componentId);
 
     if (attributeOptions.state !== NONE || attributeOptions.breakpoint !== NONE) {
-      Object.assign(attributes, this.getAttributes(componentId, attributeOptions));
+      Object.assign(attributes, this._getAttributes(componentMap, componentId, attributeOptions));
     }
 
     return _.reduce(
@@ -315,19 +445,14 @@ export class SiteComponents {
         sx: {}
       }
     );
-  }
+  },
 
-  getRenderTree(componentId, context, ...privateVars) {
-    /*
-       For future perf could store the changed node ids since last render
-       and mark components to not render.
-     */
-
+  _getRenderTree(componentMap, componentId, context, index) {
     /*
 
        context: {
-         states: { id of component and state} - only if not none
-         width
+       states: { id of component and state} - only if not none
+       width
        }
 
        component stuff with:
@@ -338,8 +463,7 @@ export class SiteComponents {
      */
 
     // TD: if I only take certain properties I can make this cheaper
-    let index = privateVars[0];
-    let componentClone = _.cloneDeep(this.components[componentId]);
+    let componentJs = componentMap.get(componentId).toJS();
     let breakpoint = NONE;
     let state = NONE;
     let defaultFont = 16; // TD: read from dom.
@@ -356,65 +480,71 @@ export class SiteComponents {
       }
     }
 
-    let { sx, htmlProperties } = this.getRenderableProperties(componentId, {
-      breakpoint,
-      state
-    });
+    let { sx, htmlProperties } = this._getRenderableProperties(
+      componentMap,
+      componentId,
+      {
+        breakpoint,
+        state
+      }
+    );
 
-    componentClone.sx = sx;
-    componentClone.htmlProperties = htmlProperties;
-    componentClone.index = index;
-    componentClone.name = this.getName(componentId);
+    componentJs.sx = sx;
+    componentJs.htmlProperties = htmlProperties;
+    componentJs.index = index;
+    componentJs.name = this._getName(componentMap, componentId);
 
-    componentClone.parent = _.cloneDeep(this.components[componentClone.parentId]);
-    componentClone.master = _.cloneDeep(this.components[componentClone.masterId]);
+    if (componentJs.parentId) {
+      componentJs.parent = componentMap.get(componentJs.parentId).toJS();
+    }
+
+    if (componentJs.masterId) {
+      componentJs.master = componentMap.get(componentJs.masterId).toJS();
+    }
 
     let children = [];
-    componentClone.childIds.forEach((id, ind) => {
-      children.push(this.getRenderTree(id, context, ind));
+    componentJs.childIds.forEach((id, ind) => {
+      children.push(this._getRenderTree(componentMap, id, context, ind));
     });
-    componentClone.children = children;
+    componentJs.children = children;
 
-    return componentClone;
-  }
+    return componentJs;
+  },
 
-  hydrateComponent(componentId) {
+  _hydrateComponent(componentMap, componentId) {
     // returns component with all ids replaced with references to the component
     /*
        adds props;
-         index
+       index
      */
-    let componentClone = _.cloneDeep(this.components[componentId]);
-    let parentComponent = this.components[componentClone.parentId];
+    let componentJs = componentMap.get(componentId).toJS();
+    componentJs.index = this._getIndex(componentMap, componentJs.id);
 
-    componentClone.index = _.indexOf(parentComponent.childIds, (childId) => {
-      return childId === componentClone.id;
+    componentJs.parent = componentMap.get(componentJs.parentId).toJS();
+    componentJs.master = componentMap.get(componentJs.masterId).toJS();
+    componentJs.children = [];
+    componentJs.variants = [];
+
+    componentJs.childIds.forEach((childId) => {
+      componentJs.children.push(componentMap.get(childId).toJs());
     });
 
-    componentClone.parent = _.cloneDeep(this.components[componentClone.parentId]);
-    componentClone.master = _.cloneDeep(this.components[componentClone.masterId]);
-    componentClone.children = [];
-    componentClone.variants = [];
-
-    componentClone.childIds.forEach((childId) => {
-      componentClone.children.push(this.components[childId]);
+    componentJs.variantIds.forEach((variantId) => {
+      componentJs.variants.push(componentMap.get(variantId).toJs());
     });
 
-    componentClone.variantIds.forEach((variantId) => {
-      componentClone.variants.push(this.components[variantId]);
+    return componentJs;
+  },
+
+  _getIndex(componentMap, componentId) {
+    let parent = componentMap.get(componentMap.getIn([componentId, 'parentId']));
+    let index;
+    parent.get('childIds').forEach((childId, childIndex) => {
+      if (childId === componentId) {
+        index = childIndex;
+      }
     });
 
-    return componentClone;
-  }
-
-  getIndex(componentId) {
-    let parent = this.getParentData(componentId);
-    return _.findIndex(parent.childIds, (childId) => {
-      return childId === componentId;
-    });
-  }
-
-  getParentData(componentId) {
-    return this.components[this.components[componentId].parentId];
+    return index;
   }
 }
