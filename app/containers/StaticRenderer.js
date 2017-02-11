@@ -1,4 +1,5 @@
 import React from 'react';
+import { createSelector } from 'reselect'
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import classnames from 'classnames';
@@ -360,11 +361,11 @@ const PagesPopup = React.createClass({
     }
   },
   render() {
-    const { pages, currentPage, actions } = this.props;
+    const { pages, currentPageId, currentPageName, actions } = this.props;
     const { isEditing, tempText } = this.state;
     let isActive;
     let pageComponents = pages.map((page) => {
-      isActive = page.id === currentPage.id;
+      isActive = page.id === currentPageId;
 
       if (isActive && isEditing) {
         return (
@@ -415,7 +416,7 @@ const PagesPopup = React.createClass({
             <i
                 className="fa fa-trash"
                 aria-hidden="true"
-                onClick={() => { actions.deletePage(currentPage.id) }}
+                onClick={() => { actions.deletePage(currentPageId) }}
             />
             <i
                 className="fa fa-pencil-square-o"
@@ -423,7 +424,7 @@ const PagesPopup = React.createClass({
                 onClick={() => {
                     this.setState({
                       isEditing: true,
-                      tempText: currentPage.name
+                      tempText: currentPageName
                     });
                   }}
             />
@@ -460,16 +461,13 @@ const StaticRenderer = React.createClass({
       componentTree,
       context,
       width,
-      currentPage,
+      currentPageId,
       actions,
+      currentPageName,
       pages
     } = this.props;
     let renderer;
-    let currentPageName = 'No Page'
-
-    if (currentPage) {
-      currentPageName = currentPage.name;
-    }
+    currentPageName = currentPageName || 'No Page';
 
     if (componentTree) {
       renderer = (
@@ -491,7 +489,8 @@ const StaticRenderer = React.createClass({
                 className="f6 pv1">
               <PagesPopup
                   pages={pages}
-                  currentPage={currentPage}
+                  currentPageId={currentPageId}
+                  currentPageName={currentPageName}
                   actions={actions}
               />
             </PopupSelect>
@@ -527,10 +526,23 @@ const StaticRenderer = React.createClass({
   },
 });
 
+const pageListSelector = createSelector(
+  [state => state.get('pages')],
+  (imPages) => {
+    let pages = [];
+    imPages.forEach((page) => {
+      pages.push({
+        id: page.get('id'),
+        name: page.get('name')
+      })
+    });
+
+    return pages;
+  }
+)
+
 export default connect(function (state) {
-  const { siteComponents, currentPageId } = state;
-  let componentTree, currentPage;
-  let currentPageId = state.get('currentPageId');
+  let componentTree, currentPageId = state.get('currentPageId');
 
   if (currentPageId) {
     let componentTreeId = state.getIn(['pages', currentPageId, 'componentTreeId']);
@@ -542,24 +554,17 @@ export default connect(function (state) {
     });
   }
 
-  let pages = [];
-  this.get('pages').forEach((page) => {
-    pages.push({
-      id: page.get('id'),
-      name: page.get('name')
-    })
-  });
-
   return {
     width: state.get('rendererWidth'),
     componentTree,
     activeView: state.get('activeView'),
-    pages: state.pages,
-    currentPage,
+    pages: pageListSelector(state),
+    currentPageId,
+    currentPageName: state.getIn(['pages', currentPageId, 'name']),
     context: {
-      hoveredComponentId: state.hoveredComponentId,
-      activeComponentId: state.activeComponentId,
-      selectedComponentViewDropSpot: state.selectedComponentViewDropSpot
+      hoveredComponentId: state.get('hoveredComponentId'),
+      activeComponentId: state.get('activeComponentId'),
+      selectedComponentViewDropSpot: state.get('selectedComponentViewDropSpot')
     }
   };
 }, null, null, { pure: false })(StaticRenderer);

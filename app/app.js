@@ -1,5 +1,3 @@
-// ES6 Component
-// Import React and ReactDOM
 import fs from 'fs';
 import { remote } from 'electron';
 import { DragDropContext } from 'react-dnd';
@@ -15,7 +13,6 @@ import { store, actions } from './stateManager';
 import OpenSiteModal from './containers/OpenSiteModal';
 import LeftPanel from './containers/LeftPanel';
 import StaticRenderer from './containers/StaticRenderer';
-import DropPointRenderer from './containers/DropPointRenderer';
 import ComponentMenu from './containers/ComponentMenu';
 import ViewChoiceDropdown from './components/ViewChoiceDropdown';
 import Attributes from './containers/Attributes';
@@ -111,7 +108,6 @@ const Editor = React.createClass({
           <div className="sidebar h-100 flex-none">
             <Attributes actions={actions} />
           </div>
-          <DropPointRenderer />
           <OpenSiteModal actions={actions} />
         </div>
       );
@@ -134,17 +130,9 @@ const Editor = React.createClass({
   },
 });
 
-/*
-   Top level inject just actions
-   All components connect from there.
-   Turn off pure for all.
- */
-
 const connector = connect(
   (state) => {
-    return {
-      currentMainView: state.currentMainView
-    }
+    return { currentMainView: state.get('currentMainView') };
   },
   (dispatch) => {
     return { actions: bindActionCreators(actions, dispatch) };

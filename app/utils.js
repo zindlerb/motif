@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import $ from 'jquery';
+import Immutable from 'immutable';
 import { remote } from 'electron';
 
 let dialog;
@@ -220,3 +221,13 @@ export function getComponentDomNode(componentId, viewType) {
 
   return el;
 }
+
+window.logger = function logger(...args) {
+  console.log.apply(null, args.map((arg) => {
+    if (Immutable.Iterable.isIterable(arg)) {
+      return arg.toJS();
+    } else {
+      return arg;
+    }
+  }));
+};

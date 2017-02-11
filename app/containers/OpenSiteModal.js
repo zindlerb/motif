@@ -67,7 +67,7 @@ const OpenSiteModal = React.createClass({
 export default connect(
   function (state) {
     return {
-      isOpen: !state.hasIn(['fileMetaData', filename]),
+      isOpen: !state.hasIn(['fileMetaData', 'filename']),
       recentSites: state.get('recentSites').toJS()
     }
   }

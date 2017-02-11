@@ -350,10 +350,8 @@ const reducerObj = Object.assign({
        TD: Revisit. This is more complicated
      */
 
-    throw 'fix';
-    Object.assign(state, serializer.deserialize(action.fileStr));
-
-    state.fileMetaData.filename = action.filename;
+    return state.merge(state, serializer.deserialize(action.fileStr))
+                .setIn(['fileMetaData', 'filename'], action.filename);
   },
 
   [CHANGE_MAIN_VIEW](state, action) {

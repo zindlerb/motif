@@ -69,9 +69,10 @@ const LeftPanel = React.createClass({
         <h2 className="suggestion">No Page Selected</h2>
       );
     } else if (activePanel === leftPanelTypes.TREE) {
-      body = (
-        <div>
-          <SidebarHeader text="Component Tree" />
+      let componentTreeElement;
+
+      if (componentTreeId) {
+        componentTreeElement = (
           <ComponentTree
               node={componentsContainer.getRenderTree(componentTreeId)}
               actions={this.props.actions}
@@ -82,6 +83,17 @@ const LeftPanel = React.createClass({
                 hoveredComponentId,
               }}
           />
+        );
+      } else {
+        componentTreeElement = (
+          <p>Please select a page</p>
+        );
+      }
+
+      body = (
+        <div>
+          <SidebarHeader text="Component Tree" />
+          { componentTreeElement }
         </div>
       );
     } else if (activePanel === leftPanelTypes.DETAILS) {
@@ -132,8 +144,6 @@ const LeftPanel = React.createClass({
     );
   },
 });
-
-
 
 export default connect((state) => {
   /*

@@ -58,6 +58,7 @@
     "react-redux": "^5.0.2",
     "redux": "^3.6.0",
     "redux-thunk": "^2.2.0",
+    "reselect": "^2.5.4",
     "updeep": "^1.0.0"
   },
   "jest": {

@@ -391,7 +391,7 @@ ComponentsContainer.prototype = {
 
   _getName(componentMap, componentId) {
     let component = componentMap.get(componentId);
-    if (!component.has('name')) {
+    if (!component.get('name')) {
       return componentMap.get(component.get('masterId')).get('name');
     } else {
       return component.get('name');
@@ -463,52 +463,56 @@ ComponentsContainer.prototype = {
      */
 
     // TD: if I only take certain properties I can make this cheaper
-    let componentJs = componentMap.get(componentId).toJS();
-    let breakpoint = NONE;
-    let state = NONE;
-    let defaultFont = 16; // TD: read from dom.
+    if (componentId) {
+      let componentJs = componentMap.get(componentId).toJS();
+      let breakpoint = NONE;
+      let state = NONE;
+      let defaultFont = 16; // TD: read from dom.
 
-    if (context) {
-      if (context.width > (30 * defaultFont) && context.width < (60 * defaultFont)) {
-        breakpoint = breakpointTypes.MEDIUM;
-      } if (context.width > (60 * defaultFont)) {
-        breakpoint = breakpointTypes.LARGE;
+      if (context) {
+        if (context.width > (30 * defaultFont) && context.width < (60 * defaultFont)) {
+          breakpoint = breakpointTypes.MEDIUM;
+        } if (context.width > (60 * defaultFont)) {
+          breakpoint = breakpointTypes.LARGE;
+        }
+
+        if (context.states[componentId]) {
+          state = context.states[componentId];
+        }
       }
 
-      if (context.states[componentId]) {
-        state = context.states[componentId];
+      let { sx, htmlProperties } = this._getRenderableProperties(
+        componentMap,
+        componentId,
+        {
+          breakpoint,
+          state
+        }
+      );
+
+      componentJs.sx = sx;
+      componentJs.htmlProperties = htmlProperties;
+      componentJs.index = index;
+      componentJs.name = this._getName(componentMap, componentId);
+
+      if (componentJs.parentId) {
+        componentJs.parent = componentMap.get(componentJs.parentId).toJS();
       }
-    }
 
-    let { sx, htmlProperties } = this._getRenderableProperties(
-      componentMap,
-      componentId,
-      {
-        breakpoint,
-        state
+      if (componentJs.masterId) {
+        componentJs.master = componentMap.get(componentJs.masterId).toJS();
       }
-    );
 
-    componentJs.sx = sx;
-    componentJs.htmlProperties = htmlProperties;
-    componentJs.index = index;
-    componentJs.name = this._getName(componentMap, componentId);
+      let children = [];
+      componentJs.childIds.forEach((id, ind) => {
+        children.push(this._getRenderTree(componentMap, id, context, ind));
+      });
+      componentJs.children = children;
 
-    if (componentJs.parentId) {
-      componentJs.parent = componentMap.get(componentJs.parentId).toJS();
+      return componentJs;
+    } else {
+      return;
     }
-
-    if (componentJs.masterId) {
-      componentJs.master = componentMap.get(componentJs.masterId).toJS();
-    }
-
-    let children = [];
-    componentJs.childIds.forEach((id, ind) => {
-      children.push(this._getRenderTree(componentMap, id, context, ind));
-    });
-    componentJs.children = children;
-
-    return componentJs;
   },
 
   _hydrateComponent(componentMap, componentId) {

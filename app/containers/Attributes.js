@@ -348,23 +348,30 @@ const Attributes = function (props) {
 }
 
 export default connect((state) => {
-  const componentsContainer = state.get('componentsContainer');
   const activeComponentId = state.get('activeComponentId');
-  const activeComponentState = state.get('activeComponentState');
-  const activeComponentBreakpoint = state.get('activeComponentBreakpoint');
 
-  return {
-    componentName: componentsContainer.getName(activeComponentId),
-    componentType: componentsContainer.getIn([
-      activeComponentId,
-      'componentType'
-    ]),
-    attributes: componentsContainer.getAttributes(activeComponentId, {
-      state: activeComponentState,
-      breakpoint: activeComponentBreakpoint,
-    }),
-    componentId: activeComponentId,
-    componentState: activeComponentState,
-    componentBreakpoint: activeComponentBreakpoint,
+  if (activeComponentId) {
+    const componentsContainer = state.get('componentsContainer');
+    const activeComponentState = state.get('activeComponentState');
+    const activeComponentBreakpoint = state.get('activeComponentBreakpoint');
+
+    return {
+      componentName: componentsContainer.getName(activeComponentId),
+      componentType: componentsContainer.getIn([
+        activeComponentId,
+        'componentType'
+      ]),
+      attributes: componentsContainer.getAttributes(activeComponentId, {
+        state: activeComponentState,
+        breakpoint: activeComponentBreakpoint,
+      }),
+      componentId: activeComponentId,
+      componentState: activeComponentState,
+      componentBreakpoint: activeComponentBreakpoint,
+    }
+  } else {
+    return {
+      componentId: activeComponentId
+    };
   }
 }, null, null, { pure: false })(Attributes);

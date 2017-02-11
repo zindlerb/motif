@@ -110,42 +110,54 @@ export const componentTreeActions = {
 export const componentTreeReducer = {
   [ADD_VARIANT](state, action) {
     let { componentId, parentComponentId, insertionIndex, spec } = action;
-    let siteComponents = state.siteComponents;
+    let componentsContainer = state.get('componentsContainer');
 
-    siteComponents.addChild(
+    componentsContainer.addChild(
       parentComponentId,
-      siteComponents.createVariant(componentId, spec).id,
+      componentsContainer.createVariant(componentId, spec),
       insertionIndex
     );
+
+    return state;
   },
 
   [MOVE_COMPONENT](state, action) {
-    let { componentId, parentComponentId, insertionIndex } = action;
-    let siteComponents = state.siteComponents;
+    state.get('componentsContainer').moveComponent(
+      action.componentId,
+      action.parentComponentId,
+      action.insertionIndex
+    );
 
-    siteComponents.moveComponent(componentId, parentComponentId, insertionIndex);
+    return state;
   },
 
   [DELETE_COMPONENT](state, action) {
     let { componentId } = action;
-    let { siteComponents, activeComponentId } = state;
+    state.get('componentsContainer').deleteComponent(componentId);
 
-    siteComponents.deleteComponent(componentId);
-
-    if (activeComponentId === componentId) {
-      state.activeComponentId = undefined;
-    }
+    return state.update('activeComponentId', (activeComponentId) => {
+      if (activeComponentId === componentId) {
+        return undefined;
+      } else {
+        return activeComponentId;
+      }
+    });
   },
 
   [SELECT_COMPONENT](state, action) {
-    state.activeComponentState = NONE;
-    state.activeComponentBreakpoint = NONE;
-    state.activeComponentId = action.componentId;
+    return state.merge({
+      activeComponentState: NONE,
+      activeComponentBreakpoint: NONE,
+      activeComponentId: action.componentId
+    });
   },
 
   [UPDATE_TREE_VIEW_DROP_SPOTS](state, action) {
+    // TD: fix
+    // where to put tree view dropspots?
+
     const { pos, draggedComponentId } = action;
-    const { siteComponents } = state;
+    const { componentsContainer } = state;
 
     const currentPage = _.find(state.pages, page => page.id === state.currentPageId);
     /* Get Tree In Between Points */
@@ -168,8 +180,8 @@ export const componentTreeReducer = {
        get component indexs -
        use them to compare to the
      */
-    const parentId = siteComponents.components[draggedComponentId].parentId;
-    const beforeComponentIndex = siteComponents.getIndex(draggedComponentId);
+    const parentId = componentsContainer.components[draggedComponentId].parentId;
+    const beforeComponentIndex = componentsContainer.getIndex(draggedComponentId);
     const afterComponentIndex = beforeComponentIndex + 1;
 
     function isDraggedComponent(node, ind) {
@@ -179,7 +191,7 @@ export const componentTreeReducer = {
       );
     }
 
-    siteComponents.walkChildren(componentTreeId, function (node, ind, cancel) {
+    componentsContainer.walkChildren(componentTreeId, function (node, ind, cancel) {
       // Before
       if (ind === 0) {
         insertionPoints.push({
@@ -221,42 +233,71 @@ export const componentTreeReducer = {
   },
 
   [RESET_TREE_VIEW_DROP_SPOTS](state) {
-    state.otherPossibleTreeViewDropSpots = undefined;
-    state.selectedTreeViewDropSpot = undefined;
+    return state.merge({
+      otherPossibleTreeViewDropSpots: undefined,
+      selectedTreeViewDropSpot: undefined
+    });
   },
 
   [CHANGE_COMPONENT_NAME](state, action) {
-    state.siteComponents.components[action.componentId].name = action.newName;
+    let componentsContainer = state.get('componentsContainer');
+    componentsContainer.components = componentsContainer.components.setIn(
+      [action.componentId, 'name'],
+      action.newName
+    );
+
+    return state;
   },
 
   [CREATE_COMPONENT_BLOCK](state, action) {
     const { componentId } = action;
-    const { siteComponents } = state;
+    const componentsContainer = state.get('componentsContainer');
 
-    let masterComponent = siteComponents.components[componentId];
-    masterComponent.name = 'New Component Block'
-    const oldParentId = masterComponent.parentId;
-    delete masterComponent.parentId;
-    /* Replace self with a variant */
-    const variant = siteComponents.createVariant(componentId, {
-      parentId: oldParentId
+    /*
+       need to:
+         - remove the parent of the new component block
+         - make variant of component block
+         - set parent to variants parent
+         - set child of parent to variant
+         - add variant id to component blocks
+     */
+
+    // fix bad undo!!!!
+    let newComponents = componentsContainer.components.withMutations((components) => {
+      const newBlockParentId = masterComponent.parentId;
+      components.merge(
+        newBlockId,
+        {
+          name: 'New Component'
+        }
+      )
+
+      delete masterComponent.parentId;
+      /* Replace self with a variant */
+      const variant = componentsContainer.createVariant(componentId, {
+        parentId: oldParentId
+      });
+
+      const parentComponent = componentsContainer.components[oldParentId];
+
+      parentComponent.childIds = parentComponent.childIds.map(function (childId) {
+        if (childId === componentId) {
+          return variant.id;
+        } else {
+          return childId;
+        }
+      });
     });
 
-    const parentComponent = siteComponents.components[oldParentId];
+    componentsContainer.components = newComponents;
 
-    parentComponent.childIds = parentComponent.childIds.map(function (childId) {
-      if (childId === componentId) {
-        return variant.id;
-      } else {
-        return childId;
-      }
+    return state.update('yourComponentBoxes', (yourComponentBoxes) => {
+      return yourComponentBoxes.push(componentId);
     });
-
-    state.componentBoxes.yours.push(componentId);
   },
 
   [SET_COMPONENT_ATTRIBUTE](state, action) {
-    state.siteComponents.setAttribute(
+    state.get('componentsContainer').setAttribute(
       action.componentId,
       action.attrKey,
       action.newAttrValue,
@@ -265,13 +306,15 @@ export const componentTreeReducer = {
         state: state.activeComponentState
       }
     )
+
+    return state;
   },
 
   [UNHOVER_COMPONENT](state) {
-    state.hoveredComponentId = undefined;
+    return state.set('hoveredComponentId', undefined);
   },
 
   [HOVER_COMPONENT](state, action) {
-    state.hoveredComponentId = action.componentId;
+    return state.set('hoveredComponentId', action.componentId);
   },
 };
