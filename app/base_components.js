@@ -357,6 +357,8 @@ ComponentsContainer.prototype = {
   // Read
   _getAttributes(componentMap, componentId, attributeOptions) {
     let component = componentMap.get(componentId);
+    const { state, breakpoint } = attributeOptions || { state: NONE, breakpoint: NONE };
+
     const masterId = component.get('masterId');
     let masterAttrs = {};
     let attributes;
@@ -369,16 +371,12 @@ ComponentsContainer.prototype = {
       );
     }
 
-    if (attributeOptions) {
-      const { state, breakpoint } = attributeOptions;
-
-      if (state !== NONE &&
-          component.getIn(['states', state])) {
-        attributes = component.getIn(['states', state]).toJS();
-      } else if (breakpoint !== NONE &&
-                 component.getIn(['breakpoints', breakpoint])) {
-        attributes = component.getIn(['breakpoints', breakpoint]).toJS();
-      }
+    if (state !== NONE &&
+        component.getIn(['states', state])) {
+      attributes = component.getIn(['states', state]).toJS();
+    } else if (breakpoint !== NONE &&
+               component.getIn(['breakpoints', breakpoint])) {
+      attributes = component.getIn(['breakpoints', breakpoint]).toJS();
     } else {
       attributes = component.get('defaultAttributes').toJS();
     }
@@ -511,7 +509,7 @@ ComponentsContainer.prototype = {
 
       return componentJs;
     } else {
-      return;
+      return null;
     }
   },
 

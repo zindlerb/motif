@@ -46,6 +46,11 @@ const Editor = React.createClass({
       }
     });
 
+    // TD:
+    // create menu from instances
+    // save redo instance on component
+    // enable and disable per-state
+
     const template = [
       {
         submenu: [
@@ -75,6 +80,23 @@ const Editor = React.createClass({
             label: 'Save As',
             click() {
               saveSiteAsDialog(actions);
+            }
+          }
+        ]
+      },
+      {
+        label: 'Edit',
+        submenu: [
+          {
+            label: 'Undo',
+            click() {
+              actions.undo();
+            }
+          },
+          {
+            label: 'Redo',
+            click() {
+              actions.redo()
             }
           }
         ]

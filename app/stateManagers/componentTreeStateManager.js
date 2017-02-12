@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import _ from 'lodash';
-import { minDistanceBetweenPointAndLine, Rect } from '../utils';
+import Immutable from 'immutable';
 import { componentTypes, NONE } from '../constants';
 
 const UNHOVER_COMPONENT = 'UNHOVER_COMPONENT';
@@ -19,8 +19,9 @@ const CHANGE_COMPONENT_NAME = 'CHANGE_COMPONENT_NAME';
 const CREATE_COMPONENT_BLOCK = 'CREATE_COMPONENT_BLOCK';
 const SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
 
-// test for optional argument
+const privateCache = {};
 
+// test for optional argument
 export const componentTreeActions = {
   moveComponent(componentId, parentComponentId, insertionIndex) {
     return {
@@ -52,19 +53,22 @@ export const componentTreeActions = {
     return {
       type: SELECT_COMPONENT,
       componentId,
+      _noUndo: true
     };
   },
 
   hoverComponent(componentId) {
     return {
       type: HOVER_COMPONENT,
-      componentId
+      componentId,
+      _noUndo: true
     }
   },
 
   unHoverComponent() {
     return {
-      type: UNHOVER_COMPONENT
+      type: UNHOVER_COMPONENT,
+      _noUndo: true
     }
   },
 
@@ -72,13 +76,15 @@ export const componentTreeActions = {
     return {
       type: UPDATE_TREE_VIEW_DROP_SPOTS,
       pos,
-      draggedComponentId
+      draggedComponentId,
+      _noUndo: true
     };
   },
 
   resetTreeViewDropSpots() {
     return {
       type: RESET_TREE_VIEW_DROP_SPOTS,
+      _noUndo: true
     };
   },
 
@@ -90,10 +96,10 @@ export const componentTreeActions = {
     };
   },
 
-  createComponentBlock(componentId) {
+  createComponentBlock(newBlockId) {
     return {
       type: CREATE_COMPONENT_BLOCK,
-      componentId
+      newBlockId
     };
   },
 
@@ -153,86 +159,117 @@ export const componentTreeReducer = {
   },
 
   [UPDATE_TREE_VIEW_DROP_SPOTS](state, action) {
-    // TD: fix
-    // where to put tree view dropspots?
-
     const { pos, draggedComponentId } = action;
-    const { componentsContainer } = state;
+    const componentsContainer = state.get('componentsContainer');
 
-    const currentPage = _.find(state.pages, page => page.id === state.currentPageId);
-    /* Get Tree In Between Points */
-    const componentTreeId = currentPage.componentTreeId;
-    const insertionPoints = [];
+    const componentTreeId = state.getIn([
+      'pages',
+      state.get('currentPageId'),
+      'componentTreeId'
+    ]);
 
-    function getPoints(nodeId, index) {
-      const { x, y, w } = new Rect($('.treeDropSpot_' + nodeId + '_' + index));
+    if (!privateCache.treeViewInsertionPoints) {
+      const insertionPoints = [];
+      const draggedComponentParentId = componentsContainer.components
+                                                          .getIn([draggedComponentId, 'parentId']);
+      const beforeComponentIndex = componentsContainer.getIndex(draggedComponentId);
+      const afterComponentIndex = beforeComponentIndex + 1;
 
-      return [
-        { x, y },
-        { x: x + w, y }
-      ]
-    }
+      function getInsertionPoint(nodeId, nodeIndex, parentId) {
+        let el;
+        if (!nodeId) {
+          el = $('.treeDropSpot_' + parentId + '_emptyChild');
+        } else {
+          el = $('.treeDropSpot_' + nodeId + '_' + nodeIndex);
+        }
 
-    /*
-       Need to add in a isDraggedComponent param to the insertion points
-       Then not render and not move if the param is present
+        const w = el.width();
+        const pos = el.offset();
 
-       get component indexs -
-       use them to compare to the
-     */
-    const parentId = componentsContainer.components[draggedComponentId].parentId;
-    const beforeComponentIndex = componentsContainer.getIndex(draggedComponentId);
-    const afterComponentIndex = beforeComponentIndex + 1;
-
-    function isDraggedComponent(node, ind) {
-      return (
-        node.parentId === parentId &&
-        (ind === beforeComponentIndex || ind === afterComponentIndex)
-      );
-    }
-
-    componentsContainer.walkChildren(componentTreeId, function (node, ind, cancel) {
-      // Before
-      if (ind === 0) {
-        insertionPoints.push({
-          insertionIndex: ind,
-          parentId: node.parentId,
-          points: getPoints(node.id, 0),
-          isDraggedComponent: isDraggedComponent(node, ind)
+        return Immutable.Map({
+          insertionIndex: nodeIndex,
+          parentId,
+          y: pos.top,
+          points: [
+            { x: pos.left, y: pos.top },
+            { x: pos.left + w, y: pos.top }
+          ],
+          isDraggedComponent: (
+            parentId === draggedComponentParentId &&
+            (nodeIndex === beforeComponentIndex || nodeIndex === afterComponentIndex)
+          )
         });
       }
 
-      // After
-      insertionPoints.push({
-        insertionIndex: ind + 1,
-        parentId: node.parentId,
-        points: getPoints(node.id, ind + 1),
-        isDraggedComponent: isDraggedComponent(node, ind + 1)
+      componentsContainer.walkChildren(componentTreeId, function (node, ind, cancel) {
+        // Before
+        let nodeParentId = node.get('parentId');
+        let nodeId = node.get('id');
+
+        if (ind === 0) {
+          insertionPoints.push(getInsertionPoint(nodeId, ind, nodeParentId));
+        }
+
+        // After
+        insertionPoints.push(getInsertionPoint(nodeId, ind + 1, nodeParentId));
+
+        if (node.get('id') === draggedComponentId) {
+          // Can't drag component inside itself
+          cancel();
+        } else if (node.get('componentType') === componentTypes.CONTAINER &&
+                   node.get('childIds').size === 0) {
+          // Inside
+          insertionPoints.push(getInsertionPoint(undefined, 0, nodeId));
+        }
       });
 
-      if (node.id === draggedComponentId) {
-        // Can't drag component inside itself
-        cancel();
-      } else if (node.componentType === componentTypes.CONTAINER &&
-                 node.childIds.length === 0) {
-        // Inside
-        insertionPoints.push({
-          insertionIndex: 0,
-          parentId: node.id,
-          points: getPoints(node.id, 'emptyChild')
-        });
+      privateCache.treeViewInsertionPoints = _.sortBy(insertionPoints, function (insertionPoint) {
+        return insertionPoint.get('y');
+      });
+    }
+
+    // Binary search to find 3 closest nodes
+    const insertionPoints = privateCache.treeViewInsertionPoints;
+    let left = 0, right = insertionPoints.length - 1;
+    let middle;
+    while (left < right) {
+      middle = Math.floor((right - left) / 2);
+      let point = insertionPoints[middle];
+
+      if (point.get('y') === pos.y) {
+        break;
+      } else if (pos.y < point.get('y')) {
+        right = middle - 1;
+      } else {
+        left = middle + 1;
       }
-    });
+    }
 
-    let sortedInsertionPoints = _.sortBy(insertionPoints, function (insertionPoint) {
-      return minDistanceBetweenPointAndLine(pos, insertionPoint.points);
-    }).slice(0, 3);
+    let minDist = Math.abs(pos.y - insertionPoints[middle].get('y'));
+    let closestIndex = [
+      middle - 1,
+      middle + 1
+    ].reduce((closestIndex, ind) => {
+      let dist = Math.abs(pos.y - insertionPoints[ind].get('y'))
+      if (dist < minDist) {
+        minDist = dist;
+        return ind;
+      } else {
+        return closestIndex;
+      }
+    }, middle);
 
-    state.otherPossibleTreeViewDropSpots = _.tail(sortedInsertionPoints);
-    state.selectedTreeViewDropSpot = _.first(sortedInsertionPoints);
+    return state.merge({
+      otherPossibleTreeViewDropSpots: Immutable.List([
+        insertionPoints[closestIndex - 1],
+        insertionPoints[closestIndex + 1],
+      ]),
+      selectedTreeViewDropSpot: insertionPoints[closestIndex]
+    })
   },
 
   [RESET_TREE_VIEW_DROP_SPOTS](state) {
+    delete privateCache.treeViewInsertionPoints;
     return state.merge({
       otherPossibleTreeViewDropSpots: undefined,
       selectedTreeViewDropSpot: undefined
@@ -250,49 +287,37 @@ export const componentTreeReducer = {
   },
 
   [CREATE_COMPONENT_BLOCK](state, action) {
-    const { componentId } = action;
+    const { newBlockId } = action;
     const componentsContainer = state.get('componentsContainer');
 
-    /*
-       need to:
-         - remove the parent of the new component block
-         - make variant of component block
-         - set parent to variants parent
-         - set child of parent to variant
-         - add variant id to component blocks
-     */
-
-    // fix bad undo!!!!
     let newComponents = componentsContainer.components.withMutations((components) => {
-      const newBlockParentId = masterComponent.parentId;
-      components.merge(
-        newBlockId,
-        {
-          name: 'New Component'
-        }
-      )
+      const newBlockParentId = components.getIn([newBlockId, 'parentId']);
+      components.mergeIn([newBlockId, 'name'],
+                         {
+                           name: 'New Component',
+                           parentId: undefined
+                         });
 
-      delete masterComponent.parentId;
       /* Replace self with a variant */
-      const variant = componentsContainer.createVariant(componentId, {
-        parentId: oldParentId
+      const variantId = components.createVariant(newBlockId, {
+        parentId: newBlockParentId
       });
 
-      const parentComponent = componentsContainer.components[oldParentId];
-
-      parentComponent.childIds = parentComponent.childIds.map(function (childId) {
-        if (childId === componentId) {
-          return variant.id;
-        } else {
-          return childId;
-        }
+      components.updateIn([newBlockParentId, 'childIds'], (childIds) => {
+        return childIds.map((childId) => {
+          if (childId === newBlockId) {
+            return variantId;
+          } else {
+            return childId;
+          }
+        });
       });
     });
 
     componentsContainer.components = newComponents;
 
     return state.update('yourComponentBoxes', (yourComponentBoxes) => {
-      return yourComponentBoxes.push(componentId);
+      return yourComponentBoxes.push(newBlockId);
     });
   },
 

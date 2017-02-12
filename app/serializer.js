@@ -24,7 +24,7 @@ function serializerFactory() {
   }
 
   function deserialize(jsonState) {
-    let stateData =  JSON.parse(jsonState);
+    let stateData = JSON.parse(jsonState);
     let componentsMap = stateData.componentsContainer;
     delete stateData.componentsContainer;
     let imState = Immutable.fromJS(stateData);

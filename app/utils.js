@@ -210,9 +210,9 @@ export function focusRefCallback(ref) {
   }
 }
 
-export function getComponentDomNode(componentId, viewType) {
+export function getComponentDomNode(componentId, nodeType) {
   // Node Types: treeView, componentView
-  const classStr = '.' + viewType + '_' + componentId;
+  const classStr = '.' + nodeType + '_' + componentId;
   let el = $(classStr);
 
   if (!el) {

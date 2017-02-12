@@ -1,4 +1,5 @@
 import React from 'react';
+import { createSelector } from 'reselect';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { remote } from 'electron';
@@ -134,11 +135,18 @@ const AssetsView = React.createClass({
   }
 });
 
+const assetsSelector = createSelector(
+  state => state.get('assets'),
+  (assets) => {
+    return _.toArray(assets.toJS());
+  }
+);
+
 export default connect(
   (state) => {
     return {
-      currentMainView: state.currentMainView,
-      assets: _.toArray(state.assets)
+      currentMainView: state.get('currentMainView'),
+      assets: assetsSelector(state)
     }
   },
   null,

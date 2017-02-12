@@ -8,46 +8,6 @@ import TextField from '../components/forms/TextField';
 import SidebarHeader from '../components/SidebarHeader';
 import ComponentTree from '../components/ComponentTree';
 
-/*
-function Pages() {
-  let {
-    pages,
-    currentPageId,
-  } = this.props;
-
-  const pageList = _.map(pages, (page, ind) => {
-    const isActive = page.id === currentPageId;
-    return (
-      <li
-          className={classnames({
-              highlighted: isActive,
-              'c-default': isActive,
-              'c-pointer': !isActive
-            }, 'pl2 pv1 page-item')}
-          onClick={() => this.props.actions.changePage(page.id)}
-          key={ind}
-      >
-        {page.name}
-      </li>);
-  });
-
-  return (
-    <div>
-      <div className="tc">
-        <h2 className="f4 mt3 mb2">Pages</h2>
-        <CartoonButton
-            text="New Page"
-            onClick={() => this.props.actions.addPage()}
-        />
-      </div>
-      <ul className="mt3">
-        {pageList}
-      </ul>
-    </div>
-  );
-}
-*/
-
 const LeftPanel = React.createClass({
   render() {
     let body;
@@ -157,12 +117,9 @@ export default connect((state) => {
     hoveredComponentId: state.get('hoveredComponentId'),
     componentsContainer: state.get('componentsContainer'),
     componentTreeId: state.getIn(['pages', state.get('currentPageId'), 'componentTreeId']),
-    siteComponents: state.siteComponents,
     currentPageId: state.get('currentPageId'),
-    currentPage: state.getIn(['pages', state.get('currentPageId')])
-
-    // TD: figure out new droppoints
-    //otherPossibleTreeViewDropSpots: state.otherPossibleTreeViewDropSpots,
-    //selectedTreeViewDropSpot: state.selectedTreeViewDropSpot,
+    currentPage: state.getIn(['pages', state.get('currentPageId')]),
+    otherPossibleTreeViewDropSpots: state.get('otherPossibleTreeViewDropSpots') && state.get('otherPossibleTreeViewDropSpots').toJS(),
+    selectedTreeViewDropSpot: state.get('selectedTreeViewDropSpot') && state.get('selectedTreeViewDropSpot').toJS(),
   }
 }, null, null, { pure: false })(LeftPanel);

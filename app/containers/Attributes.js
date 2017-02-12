@@ -357,7 +357,7 @@ export default connect((state) => {
 
     return {
       componentName: componentsContainer.getName(activeComponentId),
-      componentType: componentsContainer.getIn([
+      componentType: componentsContainer.components.getIn([
         activeComponentId,
         'componentType'
       ]),

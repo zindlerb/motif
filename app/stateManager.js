@@ -24,10 +24,12 @@ import {
   root
 } from './base_components';
 
+let undoStack = [];
+let redoStack = [];
+
 let initialState = Immutable.fromJS({
   siteName: 'Something',
   recentSites: [],
-
   ourComponentBoxes: [
     container.get('id'),
     header.get('id'),
@@ -63,9 +65,11 @@ let initialState = Immutable.fromJS({
 }).set('componentsContainer', new ComponentsContainer());
 
 /* Constants */
+const UNDO = 'UNDO';
+const REDO = 'REDO';
+
 const SET_PAGE_VALUE = 'SET_PAGE_VALUE';
 const DELETE_PAGE = 'DELETE_PAGE';
-const SELECT_BREAKPOINT = 'SELECT_BREAKPOINT';
 const UPDATE_ASSET_NAME = 'UPDATE_ASSET_NAME';
 
 const SET_ACTIVE_COMPONENT_STATE = 'SET_ACTIVE_COMPONENT_STATE';
@@ -91,6 +95,18 @@ const ADD_ASSET = 'ADD_ASSET';
 const SET_RENDERER_WIDTH = 'SET_RENDERER_WIDTH';
 
 export const actions = Object.assign({
+  undo() {
+    return {
+      type: UNDO,
+      _noUndo: true
+    }
+  },
+  redo() {
+    return {
+      type: REDO,
+      _noUndo: true
+    }
+  },
   updateAssetName(assetId, newName) {
     return {
       type: UPDATE_ASSET_NAME,
@@ -106,16 +122,19 @@ export const actions = Object.assign({
       newValue
     }
   },
+
   changeMainView(newView) {
     return {
       type: CHANGE_MAIN_VIEW,
-      newView
+      newView,
+      _noUndo: true
     }
   },
 
   siteLoadFailure() {
     return {
-      type: SITE_LOAD_FAILURE
+      type: SITE_LOAD_FAILURE,
+      _noUndo: true
     }
   },
 
@@ -123,7 +142,8 @@ export const actions = Object.assign({
     return {
       type: SITE_LOAD_SUCCESS,
       fileStr,
-      filename
+      filename,
+      _noUndo: true
     };
   },
 
@@ -134,11 +154,13 @@ export const actions = Object.assign({
         if (err) {
           dispatch({
             type: SITE_SAVE_FAILURE,
+            _noUndo: true
           });
         } else {
           dispatch({
             type: SITE_SAVE_SUCCESS,
-            filename
+            filename,
+            _noUndo: true
           });
         }
       });
@@ -163,24 +185,21 @@ export const actions = Object.assign({
     return {
       type: SET_ACTIVE_COMPONENT_STATE,
       newState,
+      _noUndo: true
     }
   },
   setActiveComponentBreakpoint(newBreakpoint) {
     return {
       type: SET_ACTIVE_COMPONENT_BREAKPOINT,
       newBreakpoint,
+      _noUndo: true
     }
   },
   setRendererWidth(newWidth) {
     return {
       type: SET_RENDERER_WIDTH,
-      newWidth
-    }
-  },
-  selectBreakpoint(newBreakpoint) {
-    return {
-      type: SELECT_BREAKPOINT,
-      newBreakpoint
+      newWidth,
+      _noUndo: true
     }
   },
   openMenu(componentId, componentX, componentY) {
@@ -188,18 +207,21 @@ export const actions = Object.assign({
       type: OPEN_MENU,
       componentId,
       componentX,
-      componentY
+      componentY,
+      _noUndo: true
     };
   },
   closeMenu() {
     return {
-      type: CLOSE_MENU
+      type: CLOSE_MENU,
+      _noUndo: true
     };
   },
   addAsset(filename) {
     return {
       type: ADD_ASSET,
-      filename
+      filename,
+      _noUndo: true
     }
   },
   changePanel(panelConst, panelSide) {
@@ -207,6 +229,7 @@ export const actions = Object.assign({
       type: CHANGE_PANEL,
       panelConst,
       panelSide,
+      _noUndo: true
     };
   },
   /* Pages */
@@ -219,12 +242,14 @@ export const actions = Object.assign({
     return {
       type: CHANGE_PAGE,
       pageId,
+      _noUndo: true
     };
   },
   selectView(viewName) {
     return {
       type: SELECT_VIEW,
       viewName,
+      _noUndo: true
     };
   },
   deletePage(pageId) {
@@ -235,7 +260,42 @@ export const actions = Object.assign({
   }
 }, componentTreeActions);
 
+function stateToUndoFormat(state) {
+  return state.withMutations((state) => {
+    state.updateIn(['componentsContainer'], (componentsContainer) => {
+      return componentsContainer.components;
+    });
+
+    // Fields unaffected by undo.
+    [
+      'menu'
+    ].forEach((field) => {
+      state.delete(field);
+    });
+  });
+}
+
+function undoFormatToState(undoFormatState, prevState) {
+  return prevState.merge(
+    undoFormatState.updateIn(['componentsContainer'], (components) => {
+      return new ComponentsContainer(components);
+    })
+  );
+}
+
 const reducerObj = Object.assign({
+  [UNDO](state) {
+    redoStack.push(stateToUndoFormat(state));
+    return undoFormatToState(undoStack.pop(), state);
+  },
+  [REDO](state) {
+    if (redoStack.length) {
+      undoStack.push(stateToUndoFormat(state));
+      return undoFormatToState(redoStack.pop(), state);
+    }
+
+    return state;
+  },
   [SET_PAGE_VALUE](state, action) {
     state.get('pages').get(state.get('currentPageId'));
     return state.updateIn(['pages', state.get('currentPageId')], (currentPage) => {
@@ -365,9 +425,17 @@ const reducerObj = Object.assign({
   }
 }, componentTreeReducer);
 
+// because componentsContainer is mutable there are issues
+
+
 function reducer(state, action) {
   //  console.log(action.type, action, state.toJS());
   if (reducerObj[action.type]) {
+    if (!action._noUndo) {
+      undoStack.push(stateToUndoFormat(state));
+      redoStack = [];
+    }
+
     return reducerObj[action.type](state, action);
   }
 
