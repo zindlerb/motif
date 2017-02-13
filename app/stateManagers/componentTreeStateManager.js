@@ -159,6 +159,9 @@ export const componentTreeReducer = {
   },
 
   [UPDATE_TREE_VIEW_DROP_SPOTS](state, action) {
+
+    // TD: fix strange freezing here
+
     const { pos, draggedComponentId } = action;
     const componentsContainer = state.get('componentsContainer');
 
@@ -232,9 +235,14 @@ export const componentTreeReducer = {
     const insertionPoints = privateCache.treeViewInsertionPoints;
     let left = 0, right = insertionPoints.length - 1;
     let middle;
+
+    // This does not terminate
+
     while (left < right) {
       middle = Math.floor((right - left) / 2);
       let point = insertionPoints[middle];
+
+      console.log(left, right);
 
       if (point.get('y') === pos.y) {
         break;
@@ -250,7 +258,7 @@ export const componentTreeReducer = {
       middle - 1,
       middle + 1
     ].reduce((closestIndex, ind) => {
-      let dist = Math.abs(pos.y - insertionPoints[ind].get('y'))
+      let dist = Math.abs(pos.y - insertionPoints[ind].get('y'));
       if (dist < minDist) {
         minDist = dist;
         return ind;
