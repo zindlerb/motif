@@ -1,14 +1,19 @@
 const electron = require('electron');
+const autoUpdater = require("electron-updater").autoUpdater;
+
+autoUpdater.logger = require("electron-log")
+autoUpdater.logger.transports.file.level = "info"
 
 const Menu = electron.Menu;
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
-
 const path = require('path')
 const url = require('url')
 const ipcMain = electron.ipcMain;
+
+const isDev = process.env.IS_DEV === "true";
 
 app.setName('Motif');
 // See: http://stackoverflow.com/questions/36123964/how-to-set-up-application-menu-in-electron
@@ -29,8 +34,10 @@ function createWindow () {
     slashes: true
   }))
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  if(isDev) {
+    // Open the DevTools.
+    mainWindow.webContents.openDevTools();
+  }
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -63,6 +70,8 @@ app.on('activate', function () {
   }
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
-require('electron-reload')(__dirname);
+if (isDev) {
+  // In this file you can include the rest of your app's specific main process
+  // code. You can also put them in separate files and require them here.
+  require('electron-reload')(__dirname);
+}

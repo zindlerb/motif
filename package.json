@@ -1,25 +1,30 @@
 {
-  "name": "electron-quick-start",
-  "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "name": "Motif",
+  "version": "0.0.1",
+  "description": "An app for building websites",
   "main": "main.js",
+  "build": {
+    "appId": "8791581257198582",
+    "mac": {
+      "category": "Office"
+    }
+  },
   "scripts": {
-    "start": "electron .",
+    "start": "export IS_DEV=\"true\" && electron .",
     "lint": "./node_modules/.bin/eslint app/*",
     "dev": "webpack -d --watch",
     "build": "webpack -p",
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "pack": "build --dir",
+      "dist": "build",
+      "release": "build"
   },
-  "repository": "https://github.com/electron/electron-quick-start",
+  "repository": "",
   "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
+    "websites"
   ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
+  "author": "Brian Zindler",
+  "license": "MIT",
   "devDependencies": {
     "babel-core": "^6.21.0",
     "babel-loader": "^6.2.10",
@@ -37,13 +42,15 @@
     "sass-loader": "^4.1.1",
     "style-loader": "^0.13.1",
     "stylelint-webpack-plugin": "^0.5.1",
-    "webpack": "^1.14.0"
-  },
-  "dependencies": {
-    "babelify": "^7.2.0",
-    "classnames": "^2.2.3",
+    "webpack": "^1.14.0",
     "electron": "^1.4.1",
     "electron-reload": "^1.0.3",
+    "babelify": "^7.2.0"
+  },
+  "dependencies": {
+    "classnames": "^2.2.3",
+    "electron-log": "^1.3.0",
+    "electron-updater": "^1.6.4",
     "fuzzy": "^0.1.3",
     "human-readable-ids": "^1.0.1",
     "immutable": "^3.8.1",
