@@ -1,6 +1,6 @@
 {
   "name": "Motif",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "An app for building websites",
   "main": "main.js",
   "build": {
@@ -15,11 +15,11 @@
     "dev": "webpack -d --watch",
     "build": "webpack -p",
     "test": "jest --watch",
-    "pack": "build --dir",
-      "dist": "build",
-      "release": "build"
+      "pack": "build --dir",
+      "release": "build",
+      "dist": "build"
   },
-  "repository": "",
+  "repository": "https://github.com/zindlerb/Motif",
   "keywords": [
     "websites"
   ],

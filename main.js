@@ -1,9 +1,5 @@
 const electron = require('electron');
 const autoUpdater = require("electron-updater").autoUpdater;
-
-autoUpdater.logger = require("electron-log")
-autoUpdater.logger.transports.file.level = "info"
-
 const Menu = electron.Menu;
 // Module to control application life.
 const app = electron.app
@@ -23,6 +19,15 @@ app.setName('Motif');
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
+function notify(title, message) {
+  let windows = BrowserWindowElectron.getAllWindows()
+  if (windows.length == 0) {
+    return
+  }
+
+  windows[0].webContents.send("notify", title, message)
+}
+
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({width: 800, height: 600})
@@ -37,6 +42,23 @@ function createWindow () {
   if(isDev) {
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
+  } else {
+    const log = require("electron-log")
+    log.transports.file.level = "info"
+    autoUpdater.logger = log
+
+    autoUpdater.on('updateAvailable', () => {
+      notify('no dash', arguments);
+    });
+
+    autoUpdater.on('update-available', () => {
+      notify('dash', arguments);
+    });
+
+    autoUpdater.signals.updateDownloaded(it => {
+      notify("A new update is ready to install", `Version ${it.version} is downloaded and will be automatically installed on Quit`)
+    });
+    autoUpdater.checkForUpdates();
   }
 
   // Emitted when the window is closed.
@@ -47,6 +69,8 @@ function createWindow () {
     mainWindow = null
   })
 }
+
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
