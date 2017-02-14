@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { remote, ipcRenderer } from 'electron';
+import { remote } from 'electron';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import mousetrap from 'mousetrap';
@@ -27,10 +27,6 @@ import {
 } from './constants';
 
 const { Menu } = remote;
-
-ipcRenderer.on("notify", (e, title, message) => {
-  alert(title + message);
-});
 
 const Editor = React.createClass({
   componentDidMount() {
@@ -112,6 +108,7 @@ const Editor = React.createClass({
   },
 
   render() {
+    console.log('APP RENDER');
     let view;
     let {
       actions,

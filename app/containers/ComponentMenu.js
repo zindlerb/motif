@@ -50,6 +50,7 @@ const ComponentMenu = React.createClass({
   },
 
   render() {
+    console.log('COMPONENT_MENU RENDER');
     let {
       componentIdMapByName,
       menu,

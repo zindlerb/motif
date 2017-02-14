@@ -1,6 +1,6 @@
 {
   "name": "Motif",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "description": "An app for building websites",
   "main": "main.js",
   "build": {

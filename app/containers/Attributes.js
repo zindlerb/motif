@@ -1,4 +1,5 @@
 import React from 'react';
+import Immutable from 'immutable';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
@@ -283,6 +284,8 @@ const Attributes = function (props) {
     actions,
   } = props;
 
+  console.log('ATTRIBUTES RENDER');
+
   let body, attributeFields = []
 
   if (componentId) {
@@ -347,31 +350,57 @@ const Attributes = function (props) {
   );
 }
 
-export default connect((state) => {
-  const activeComponentId = state.get('activeComponentId');
+export default connect(
+  (state) => {
+    const activeComponentId = state.get('activeComponentId');
 
-  if (activeComponentId) {
-    const componentsContainer = state.get('componentsContainer');
-    const activeComponentState = state.get('activeComponentState');
-    const activeComponentBreakpoint = state.get('activeComponentBreakpoint');
+    if (activeComponentId) {
+      const componentsContainer = state.get('componentsContainer');
+      const activeComponentState = state.get('activeComponentState');
+      const activeComponentBreakpoint = state.get('activeComponentBreakpoint');
 
-    return {
-      componentName: componentsContainer.getName(activeComponentId),
-      componentType: componentsContainer.components.getIn([
-        activeComponentId,
-        'componentType'
-      ]),
-      attributes: componentsContainer.getAttributes(activeComponentId, {
-        state: activeComponentState,
-        breakpoint: activeComponentBreakpoint,
-      }),
-      componentId: activeComponentId,
-      componentState: activeComponentState,
-      componentBreakpoint: activeComponentBreakpoint,
+      return {
+        componentName: componentsContainer.getName(activeComponentId),
+        componentType: componentsContainer.components.getIn([
+          activeComponentId,
+          'componentType'
+        ]),
+        attributes: componentsContainer.getAttributes(activeComponentId, {
+          state: activeComponentState,
+          breakpoint: activeComponentBreakpoint,
+        }),
+        componentId: activeComponentId,
+        componentState: activeComponentState,
+        componentBreakpoint: activeComponentBreakpoint,
+      }
+    } else {
+      return {
+        componentId: activeComponentId
+      };
     }
-  } else {
-    return {
-      componentId: activeComponentId
-    };
+  },
+  null,
+  null,
+  {
+    areStatesEqual: function (newState, oldState) {
+      function getComparisonData(state) {
+        return [
+          state.get('componentId'),
+          state.get('componentsContainer').components,
+          state.get('activeComponentState'),
+          state.get('activeComponentBreakpoint')
+        ];
+      }
+
+      const oldStateComparison = getComparisonData(oldState);
+      console.log(_.every(getComparisonData(newState), (val, ind) => {
+        console.log(ind, Immutable.is(val, oldStateComparison[ind]));
+        return Immutable.is(val, oldStateComparison[ind]);
+      }));
+      return _.every(getComparisonData(newState), (val, ind) => {
+        console.log(ind, Immutable.is(val, oldStateComparison[ind]));
+        return Immutable.is(val, oldStateComparison[ind]);
+      });
+    }
   }
-}, null, null, { pure: false })(Attributes);
+)(Attributes);

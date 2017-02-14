@@ -1,13 +1,10 @@
 const electron = require('electron');
-const autoUpdater = require("electron-updater").autoUpdater;
-const Menu = electron.Menu;
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 const path = require('path')
 const url = require('url')
-const ipcMain = electron.ipcMain;
 
 const isDev = process.env.IS_DEV === "true";
 
@@ -20,7 +17,7 @@ app.setName('Motif');
 let mainWindow
 
 function notify(title, message) {
-  let windows = BrowserWindowElectron.getAllWindows()
+  let windows = BrowserWindow.getAllWindows()
   if (windows.length == 0) {
     return
   }
@@ -30,36 +27,33 @@ function notify(title, message) {
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600})
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    show: false
+  });
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
-  }))
+  }));
 
-  if(isDev) {
-    // Open the DevTools.
-    mainWindow.webContents.openDevTools();
-  } else {
-    const log = require("electron-log")
-    log.transports.file.level = "info"
-    autoUpdater.logger = log
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
 
-    autoUpdater.on('updateAvailable', () => {
-      notify('no dash', arguments);
-    });
-
-    autoUpdater.on('update-available', () => {
-      notify('dash', arguments);
-    });
-
-    autoUpdater.signals.updateDownloaded(it => {
-      notify("A new update is ready to install", `Version ${it.version} is downloaded and will be automatically installed on Quit`)
-    });
-    autoUpdater.checkForUpdates();
-  }
+    if(isDev) {
+      // Open the DevTools.
+      mainWindow.webContents.openDevTools();
+    } else {
+      const log = require("electron-log");
+      const autoUpdater = require("electron-updater").autoUpdater;
+      log.transports.file.level = "info"
+      autoUpdater.logger = log
+      autoUpdater.checkForUpdates();
+    }
+  });
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {

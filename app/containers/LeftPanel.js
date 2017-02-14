@@ -10,6 +10,7 @@ import ComponentTree from '../components/ComponentTree';
 
 const LeftPanel = React.createClass({
   render() {
+    console.log('LEFT_PANEL Render');
     let body;
     let {
       actions,

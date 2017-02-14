@@ -192,7 +192,9 @@ export const componentTreeReducer = {
         return Immutable.Map({
           insertionIndex: nodeIndex,
           parentId,
-          y: pos.top,
+          getY: () => {
+            return el.offset().top;
+          },
           points: [
             { x: pos.left, y: pos.top },
             { x: pos.left + w, y: pos.top }
@@ -236,35 +238,43 @@ export const componentTreeReducer = {
     let left = 0, right = insertionPoints.length - 1;
     let middle;
 
-    // This does not terminate
+    // TD: remove check
+    let count = 0;
 
     while (left < right) {
-      middle = Math.floor((right - left) / 2);
+      middle = Math.floor((right + left) / 2);
       let point = insertionPoints[middle];
+      let pointY = point.get('getY')();
 
-      console.log(left, right);
-
-      if (point.get('y') === pos.y) {
+      if (pointY === pos.y) {
         break;
-      } else if (pos.y < point.get('y')) {
+      } else if (pos.y < pointY) {
         right = middle - 1;
       } else {
         left = middle + 1;
       }
+
+      if (count > 200) {
+        throw new Error(left + '_' + right);
+      }
+
+      count++
     }
 
-    let minDist = Math.abs(pos.y - insertionPoints[middle].get('y'));
+    let minDist = Math.abs(pos.y - insertionPoints[middle].get('getY')());
     let closestIndex = [
       middle - 1,
       middle + 1
     ].reduce((closestIndex, ind) => {
-      let dist = Math.abs(pos.y - insertionPoints[ind].get('y'));
-      if (dist < minDist) {
-        minDist = dist;
-        return ind;
-      } else {
-        return closestIndex;
+      if (insertionPoints[ind]) {
+        let dist = Math.abs(pos.y - insertionPoints[ind].get('getY')());
+        if (dist < minDist) {
+          minDist = dist;
+          return ind;
+        }
       }
+
+      return closestIndex;
     }, middle);
 
     return state.merge({

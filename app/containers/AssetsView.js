@@ -94,6 +94,8 @@ const AssetIcon = React.createClass({
 
 const AssetsView = React.createClass({
   render() {
+    console.log('ASSETS VIEW RENDER');
+
     const { actions, currentMainView, assets } = this.props;
     const icons = assets.map((asset) => {
       return <AssetIcon asset={asset} actions={actions} />
@@ -148,8 +150,5 @@ export default connect(
       currentMainView: state.get('currentMainView'),
       assets: assetsSelector(state)
     }
-  },
-  null,
-  null,
-  { pure: false }
+  }
 )(AssetsView);

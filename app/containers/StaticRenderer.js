@@ -456,6 +456,7 @@ const StaticRenderer = React.createClass({
   },
 
   render() {
+    console.log('STATIC RENDERER RENDER')
     let {
       activeView,
       componentTree,
