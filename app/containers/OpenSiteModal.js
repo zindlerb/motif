@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-
+import { createSelector } from 'reselect';
 import { saveSiteDialog, loadSiteDialog } from '../utils';
 import CartoonButton from '../components/CartoonButton';
 
@@ -65,11 +65,21 @@ const OpenSiteModal = React.createClass({
   }
 });
 
+const siteModalSelector = createSelector(
+  [
+    state => state.getIn(['fileMetaData', 'filename']),
+    state => state.get('recentSites')
+  ],
+  (filename, recentSites) => {
+    return {
+      isOpen: !filename,
+      recentSites: recentSites.toJS()
+    }
+  }
+)
+
 export default connect(
   function (state) {
-    return {
-      isOpen: !state.hasIn(['fileMetaData', 'filename']),
-      recentSites: state.get('recentSites').toJS()
-    }
+    return siteModalSelector(state);
   }
 )(OpenSiteModal);

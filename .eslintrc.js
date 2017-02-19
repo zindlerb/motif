@@ -30,6 +30,8 @@ module.exports = {
     "react/no-multi-comp": 0,
     "jsx-a11y/no-static-element-interactions": 0,
     "react/jsx-indent-props": 0,
+    "no-inner-declarations": 1,
+    "import/no-extraneous-dependencies": 1,
     // Remove later
     "jsx-a11y/img-has-alt": 0,
     "prefer-const": 0,

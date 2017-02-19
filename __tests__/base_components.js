@@ -6,6 +6,7 @@ var {
   header,
   image,
   ComponentsContainer,
+  defaultComponentsMap
   containerAttributes
 } = require('../app/base_components.js');
 var { stateTypes } = require('../app/constants.js');
@@ -18,7 +19,7 @@ describe('base components', () => {
 });
 
 describe('createVariant', () => {
-  let componentsContainer = new ComponentsContainer();
+  let componentsContainer = new ComponentsContainer(defaultComponentsMap);
 
   var cvId = componentsContainer.createVariant(container.get('id'));
   var hvId = componentsContainer.createVariant(header.get('id'), {
@@ -58,7 +59,7 @@ describe('createVariant', () => {
 
 
 describe('addChild', () => {
-  var compC = new ComponentsContainer();
+  var compC = new ComponentsContainer(defaultComponentsMap);
   var cvId = compC.createVariant(container.get('id'));
   var cvvId = compC.createVariant(cvId);
 
@@ -97,7 +98,7 @@ describe('addChild', () => {
  */
 
 describe('deleteComponent', () => {
-  var componentsContainer = new ComponentsContainer();
+  var componentsContainer = new ComponentsContainer(defaultComponentsMap);
   var badKidId = componentsContainer.createVariant(header.get('id'));
   var cvId = componentsContainer.createVariant(container.get('id'));
   var cvvId = componentsContainer.createVariant(cvId);
@@ -119,7 +120,7 @@ describe('deleteComponent', () => {
 });
 
 describe('moveComponent', () => {
-  var componentsContainer = new ComponentsContainer();
+  var componentsContainer = new ComponentsContainer(defaultComponentsMap);
 
   var cvId = componentsContainer.createVariant(container.get('id'));
   var cv2Id = componentsContainer.createVariant(container.get('id'));
@@ -141,7 +142,7 @@ describe('moveComponent', () => {
 });
 
 describe('getAllAttrs', () => {
-  var compC = new ComponentsContainer();
+  var compC = new ComponentsContainer(defaultComponentsMap);
   var hvId = compC.createVariant(header.get('id'), {
     defaultAttributes: {
       backgroundColor: 'red',
@@ -167,7 +168,7 @@ describe('getAllAttrs', () => {
 });
 
 describe('getRenderableProperties', () => {
-  var compC = new ComponentsContainer();
+  var compC = new ComponentsContainer(defaultComponentsMap);
   var cvId = compC.createVariant(container.get('id'));
   var hvId = compC.createVariant(header.get('id'), {
     defaultAttributes: {
@@ -205,7 +206,7 @@ describe('getRenderableProperties', () => {
 });
 
 describe('walkChildren', () => {
-  var compC = new ComponentsContainer();
+  var compC = new ComponentsContainer(defaultComponentsMap);
   var vcId = compC.createVariant(container.get('id'));
   var vc2Id = compC.createVariant(container.get('id'));
   var viId = compC.createVariant(image.get('id'));

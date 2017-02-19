@@ -21,7 +21,8 @@ import {
   header,
   text,
   image,
-  root
+  root,
+  defaultComponentsMap
 } from './base_components';
 
 let undoStack = [];
@@ -42,12 +43,15 @@ let initialState = Immutable.fromJS({
   currentPageId: undefined,
   activeComponentId: undefined,
   hoveredComponentId: undefined,
+
   activeView: 'MINIMAL',
   activeBreakpoint: 'NONE',
   activeLeftPanel: 'TREE',
   activeRightPanel: 'DETAILS',
   currentMainView: mainViewTypes.EDITOR,
   menu: { isOpen: false },
+
+  componentsMap: defaultComponentsMap,
 
   otherPossibleComponentViewDropSpots: undefined,
   selectedComponentViewDropSpot: undefined,
@@ -61,8 +65,9 @@ let initialState = Immutable.fromJS({
   // TD: dynamically set initial renderer width
   rendererWidth: 200,
 
-  fileMetaData: {}
-}).set('componentsContainer', new ComponentsContainer());
+  fileMetaData: {},
+  componentMap: defaultComponentsMap
+});
 
 /* Constants */
 const UNDO = 'UNDO';
@@ -262,10 +267,6 @@ export const actions = Object.assign({
 
 function stateToUndoFormat(state) {
   return state.withMutations((state) => {
-    state.updateIn(['componentsContainer'], (componentsContainer) => {
-      return componentsContainer.components;
-    });
-
     // Fields unaffected by undo.
     [
       'menu'
@@ -277,9 +278,7 @@ function stateToUndoFormat(state) {
 
 function undoFormatToState(undoFormatState, prevState) {
   return prevState.merge(
-    undoFormatState.updateIn(['componentsContainer'], (components) => {
-      return new ComponentsContainer(components);
-    })
+    undoFormatState
   );
 }
 
@@ -345,7 +344,7 @@ const reducerObj = Object.assign({
   },
 
   [ADD_NEW_PAGE](state) {
-    const componentsContainer = state.get('componentsContainer');
+    const componentsContainer = new ComponentsContainer(state.get('componentsMap'));
     const rvId = componentsContainer.createVariant(root.get('id'));
     const cvId = componentsContainer.createVariant(container.get('id'));
     componentsContainer.addChild(rvId, cvId);
@@ -360,7 +359,8 @@ const reducerObj = Object.assign({
     return state.set('currentPageId', newPageId)
                 .update('pages', (pages) => {
                   return pages.set(newPageId, newPage);
-                });
+                })
+                .set('componentsMap', componentsContainer.components);
   },
 
   [CHANGE_PANEL](state, action) {
@@ -424,9 +424,6 @@ const reducerObj = Object.assign({
     });
   }
 }, componentTreeReducer);
-
-// because componentsContainer is mutable there are issues
-
 
 function reducer(state, action) {
   //  console.log(action.type, action, state.toJS());

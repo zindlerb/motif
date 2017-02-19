@@ -8,8 +8,9 @@ import ReactDOM from 'react-dom';
 import classnames from 'classnames';
 import { connect, Provider } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { store, actions } from './stateManager';
+import { createSelector } from 'reselect';
 
+import { store, actions } from './stateManager';
 import OpenSiteModal from './containers/OpenSiteModal';
 import LeftPanel from './containers/LeftPanel';
 import StaticRenderer from './containers/StaticRenderer';
@@ -153,15 +154,18 @@ const Editor = React.createClass({
   },
 });
 
+const appSelector = createSelector(
+  state => state.get('currentMainView'),
+  (currentMainView) => { return { currentMainView } }
+)
+
 const connector = connect(
   (state) => {
-    return { currentMainView: state.get('currentMainView') };
+    return appSelector(state);
   },
   (dispatch) => {
     return { actions: bindActionCreators(actions, dispatch) };
-  },
-  null,
-  { pure: false }
+  }
 );
 const dndContext = DragDropContext(HTML5Backend)
 

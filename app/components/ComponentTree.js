@@ -132,7 +132,7 @@ const TreeItem = DragSource(
   {
     beginDrag(props) {
       let prevPoint = {};
-      const id = globalEventManager.addListener('drag', (e) => {
+      const id = globalEventManager.addListener('drag', _.debounce((e) => {
         if (e.clientX !== prevPoint.x
             && e.clientY !== prevPoint.y
             && (e.clientX && e.clientY)) {
@@ -149,7 +149,7 @@ const TreeItem = DragSource(
             props.node.id
           );
         }
-      }, 1);
+      }), 1);
       return { id };
     },
     endDrag(props, monitor) {

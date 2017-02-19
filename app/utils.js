@@ -216,11 +216,22 @@ export function getComponentDomNode(componentId, nodeType) {
   let el = $(classStr);
 
   if (!el) {
-    throw new Error('Class ' + classStr + ' Not found. With args ' + componentId + ' ' + viewType);
+    throw new Error('Class ' + classStr + ' Not found. With args ' + componentId + ' ' + nodeType);
   }
 
   return el;
 }
+
+export const createImmutableJSSelector = createSelectorCreator(
+  defaultMemoize,
+  (a, b) => {
+    if (Immutable.Iterable.isIterable(a) && Immutable.Iterable.isIterable(b)) {
+      return Immutable.is(a, b);
+    } else {
+      return a === b;
+    }
+  }
+)
 
 window.logger = function logger(...args) {
   console.log.apply(null, args.map((arg) => {

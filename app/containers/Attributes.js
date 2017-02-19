@@ -3,12 +3,12 @@ import Immutable from 'immutable';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
+import { ComponentsContainer } from '../base_components';
 import AttributeField from '../components/AttributeField';
 import DivToBottom from '../components/DivToBottom';
 import SidebarHeader from '../components/SidebarHeader';
 import CartoonButton from '../components/CartoonButton';
 import Dropdown from '../components/forms/Dropdown';
-
 import {
   fieldTypes,
   componentTypes,
@@ -355,17 +355,24 @@ export default connect(
     const activeComponentId = state.get('activeComponentId');
 
     if (activeComponentId) {
-      const componentsContainer = state.get('componentsContainer');
+      const componentsMap = state.get('componentsMap');
       const activeComponentState = state.get('activeComponentState');
       const activeComponentBreakpoint = state.get('activeComponentBreakpoint');
 
       return {
-        componentName: componentsContainer.getName(activeComponentId),
-        componentType: componentsContainer.components.getIn([
+        componentName: ComponentsContainer.getName(
+          componentsMap,
+          activeComponentId
+        ),
+        componentType: componentsMap.getIn([
           activeComponentId,
           'componentType'
         ]),
-        attributes: componentsContainer.getAttributes(activeComponentId, {
+        attributes: ComponentsContainer.getAttributes(
+          componentsMap,
+          activeComponentId,
+          componentsMap,
+          {
           state: activeComponentState,
           breakpoint: activeComponentBreakpoint,
         }),
@@ -382,24 +389,14 @@ export default connect(
   null,
   null,
   {
-    areStatesEqual: function (newState, oldState) {
-      function getComparisonData(state) {
-        return [
-          state.get('componentId'),
-          state.get('componentsContainer').components,
-          state.get('activeComponentState'),
-          state.get('activeComponentBreakpoint')
-        ];
-      }
-
-      const oldStateComparison = getComparisonData(oldState);
-      console.log(_.every(getComparisonData(newState), (val, ind) => {
-        console.log(ind, Immutable.is(val, oldStateComparison[ind]));
-        return Immutable.is(val, oldStateComparison[ind]);
-      }));
-      return _.every(getComparisonData(newState), (val, ind) => {
-        console.log(ind, Immutable.is(val, oldStateComparison[ind]));
-        return Immutable.is(val, oldStateComparison[ind]);
+    areStatesEqual(newState, oldState) {
+      return _.every([
+        'componentId',
+        'componentsMap',
+        'activeComponentState',
+        'activeComponentBreakpoint'
+      ], (key) => {
+        Immutable.is(newState.get(key), oldState.get('key'))
       });
     }
   }

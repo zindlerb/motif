@@ -7,6 +7,7 @@ import classnames from 'classnames';
 import dragManager from '../dragManager';
 import {
   attributeStateTypes,
+  ComponentsContainer
 } from '../base_components';
 import {
   componentTypes,
@@ -528,7 +529,7 @@ const StaticRenderer = React.createClass({
 });
 
 const pageListSelector = createSelector(
-  [state => state.get('pages')],
+  state => state.get('pages'),
   (imPages) => {
     let pages = [];
     imPages.forEach((page) => {
@@ -540,32 +541,61 @@ const pageListSelector = createSelector(
 
     return pages;
   }
+);
+
+const contextSelector = createSelector(
+  [
+    state => state.get('hoveredComponentId'),
+    state => state.get('activeComponentId'),
+    state => state.get('selectedComponentViewDropSpot')
+  ],
+  (hoveredComponentId, activeComponentId, selectedComponentViewDropSpot) => {
+    return {
+      hoveredComponentId,
+      activeComponentId,
+      selectedComponentViewDropSpot
+    }
+  }
+);
+
+// TD: clean up!!
+const staticRendererSelector = createSelector(
+  [
+    pageListSelector,
+    state => state.getIn(['pages', state.get('currentPageId')]),
+    state => state.get('componentsMap'),
+    state => state.get('rendererWidth'),
+    state => state.get('activeView'),
+    contextSelector
+  ],
+  (pages, currentPage, componentsMap, rendererWidth, activeView, context) => {
+    let componentTree;
+    if (currentPage) {
+      let componentTreeId = currentPage.get('componentTreeId');
+
+      componentTree = ComponentsContainer.getRenderTree(
+        componentsMap,
+        componentTreeId,
+        {
+          width: rendererWidth,
+          // TD: track and add states
+          states: {}
+        }
+      );
+    }
+
+    return {
+      width: rendererWidth,
+      componentTree,
+      activeView,
+      pages,
+      currentPageId: currentPage.get('id'),
+      currentPageName: currentPage.get('name'),
+      context
+    }
+  }
 )
 
 export default connect(function (state) {
-  let componentTree, currentPageId = state.get('currentPageId');
-
-  if (currentPageId) {
-    let componentTreeId = state.getIn(['pages', currentPageId, 'componentTreeId']);
-
-    componentTree = state.get('componentsContainer').getRenderTree(componentTreeId, {
-      width: state.get('rendererWidth'),
-      // TD: track and add states
-      states: {}
-    });
-  }
-
-  return {
-    width: state.get('rendererWidth'),
-    componentTree,
-    activeView: state.get('activeView'),
-    pages: pageListSelector(state),
-    currentPageId,
-    currentPageName: state.getIn(['pages', currentPageId, 'name']),
-    context: {
-      hoveredComponentId: state.get('hoveredComponentId'),
-      activeComponentId: state.get('activeComponentId'),
-      selectedComponentViewDropSpot: state.get('selectedComponentViewDropSpot')
-    }
-  };
-}, null, null, { pure: false })(StaticRenderer);
+  return staticRendererSelector(state);
+})(StaticRenderer);

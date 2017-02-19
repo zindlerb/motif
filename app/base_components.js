@@ -95,111 +95,28 @@ export const image = createComponentData(IMAGE, {
   })
 });
 
-export function ComponentsContainer(components) {
-  /*
-     Note:
+export const defaultComponentsMap = Immutable.Map({
+  [root.get('id')]: root,
+  [container.get('id')]: container,
+  [header.get('id')]: header,
+  [text.get('id')]: text,
+  [image.get('id')]: image,
+});
 
-     this.components is an immutable value.
-     methods called on the ComponentsContainer instance
-     reassign this.components with a new immutable value.
-
-     There are private methods that operate on the this.components value.
-     This is verbose but I like the seperation. Otherwise I would need to
-     reassign this.components inside the methods that change this.components.
-     This would make calling other methods more confusing.
-   */
-
-  this.components = Immutable.Map({
-    [root.get('id')]: root,
-    [container.get('id')]: container,
-    [header.get('id')]: header,
-    [text.get('id')]: text,
-    [image.get('id')]: image,
-  });
-
-  if (components) {
-    this.components = Immutable.fromJS(components);
+export class ComponentsContainer {
+  constructor(components) {
+    this.components = components;
   }
-
-  // Reset on every render
-  this.updateTree;
-
-  // Reset on every dragEnd
-  // Set on dragStart
-  this.dropSpotCache;
-  this.otherPossibleTreeViewDropSpots;
-  this.selectedTreeViewDropSpot;
-}
-
-ComponentsContainer.prototype = {
-  // Public
 
   //  Write
   createVariant(masterId, spec) {
     const variantId = guid();
-    this.components = this._createVariant(this.components, variantId, masterId, spec);
+    this.components = ComponentsContainer.createVariant(this.components, variantId, masterId, spec);
     return variantId;
-  },
+  }
 
-  deleteComponent(deletedComponentId) {
-    this.components = this._deleteComponent(this.components, deletedComponentId);
-  },
-
-  addChild(parentId, childId, ind) {
-    this.components = this._addChild(this.components, parentId, childId, ind);
-  },
-
-  moveComponent(movedComponentId, newParentId, insertionIndex) {
-    this.components = this._moveComponent(
-      this.components,
-      movedComponentId,
-      newParentId,
-      insertionIndex
-    );
-  },
-
-  setAttribute(componentId, attributeName, newValue, attributeOptions) {
-    this.components = this._setAttribute(
-      this.components,
-      componentId,
-      attributeName,
-      newValue,
-      attributeOptions
-    )
-  },
-
-  //  Read
-  getAttributes(componentId, attributeOptions) {
-    return this._getAttributes(this.components, componentId, attributeOptions);
-  },
-
-  getName(componentId) {
-    return this._getName(this.components, componentId);
-  },
-
-  walkChildren(componentId, func) {
-    this._walkChildren(this.components, componentId, func);
-  },
-
-  getRenderableProperties(componentId, attributeOptions) {
-    return this._getRenderableProperties(this.components, componentId, attributeOptions);
-  },
-
-  getRenderTree(componentId, context) {
-    return this._getRenderTree(this.components, componentId, context);
-  },
-
-  hydrateComponent(componentId) {
-    return this._hydrateComponent(this.components, componentId);
-  },
-
-  getIndex(componentId) {
-    return this._getIndex(this.components, componentId);
-  },
-
-  // Private
-  _createVariant(componentMap, variantId, masterId, spec) {
-    return componentMap.withMutations((components) => {
+  static createVariant(componentsMap, variantId, masterId, spec) {
+    return componentsMap.withMutations((components) => {
       let master = components.get(masterId)
                              .update('variantIds', function (variantIds) {
                                return variantIds.push(variantId);
@@ -215,18 +132,22 @@ ComponentsContainer.prototype = {
 
       master.get('childIds').forEach((childId) => {
         let childVariantId = guid();
-        this._createVariant(components, childVariantId, childId);
-        this._addChild(
+        ComponentsContainer.createVariant(components, childVariantId, childId);
+        ComponentsContainer.addChild(
           components,
           variantId,
           childVariantId
         );
       });
     });
-  },
+  }
 
-  _deleteComponent(componentMap, deletedComponentId) {
-    return componentMap.withMutations((components) => {
+  deleteComponent(deletedComponentId) {
+    this.components = ComponentsContainer.deleteComponent(this.components, deletedComponentId);
+  }
+
+  static deleteComponent(componentsMap, deletedComponentId) {
+    return componentsMap.withMutations((components) => {
       let deletedComponent = components.get(deletedComponentId);
       let deletedComponentParent = components.get(deletedComponent.get('parentId'));
       let deletedComponentMaster = components.get(deletedComponent.get('masterId'));
@@ -257,18 +178,21 @@ ComponentsContainer.prototype = {
       // TD: if master is deleted should all the children really be deleted?
       // Should probably connect component to next nearest master
       deletedComponent.get('variantIds').forEach((variantId) => {
-        this._deleteComponent(components, variantId);
+        ComponentsContainer.deleteComponent(components, variantId);
       });
     });
-  },
+  }
 
-  // Component (All these methods assume the component specified by an id has been created)
-  _addChild(componentMap, parentId, childId, ind) {
-    return componentMap.withMutations((components) => {
+  addChild(parentId, childId, ind) {
+    this.components = ComponentsContainer.addChild(this.components, parentId, childId, ind);
+  }
+
+  static addChild(componentsMap, parentId, childId, ind) {
+    return componentsMap.withMutations((components) => {
       components.get(parentId).get('variantIds').forEach((variantId) => {
         let childVariantId = guid();
-        this._createVariant(components, childVariantId, childId);
-        this._addChild(
+        ComponentsContainer.createVariant(components, childVariantId, childId);
+        ComponentsContainer.addChild(
           components,
           variantId,
           childVariantId,
@@ -292,11 +216,20 @@ ComponentsContainer.prototype = {
         })
       );
     });
-  },
+  }
 
-  _moveComponent(componentMap, movedComponentId, newParentId, insertionIndex) {
+  moveComponent(movedComponentId, newParentId, insertionIndex) {
+    this.components = ComponentsContainer.moveComponent(
+      this.components,
+      movedComponentId,
+      newParentId,
+      insertionIndex
+    );
+  }
+
+  static moveComponent(componentsMap, movedComponentId, newParentId, insertionIndex) {
     // Delete from parent and remove from all variants of parent
-    return componentMap.withMutations((components) => {
+    return componentsMap.withMutations((components) => {
       let movedComponent = components.get(movedComponentId);
       let movedComponentParent = components.get(movedComponent.get('parentId'));
 
@@ -309,17 +242,26 @@ ComponentsContainer.prototype = {
         })
       );
 
-      // TD: test this. Does what I'm doing here make sense?
       movedComponent.get('variantIds').forEach((variantId) => {
-        this._deleteComponent(components, variantId);
+        ComponentsContainer.deleteComponent(components, variantId);
       });
 
-      this._addChild(components, newParentId, movedComponentId, insertionIndex);
+      ComponentsContainer.addChild(components, newParentId, movedComponentId, insertionIndex);
     });
-  },
+  }
 
-  _setAttribute(componentMap, componentId, attributeName, newValue, attributeOptions) {
-    return componentMap.withMutations((components) => {
+  setAttribute(componentId, attributeName, newValue, attributeOptions) {
+    this.components = ComponentsContainer.setAttribute(
+      this.components,
+      componentId,
+      attributeName,
+      newValue,
+      attributeOptions
+    )
+  }
+
+  static setAttribute(componentsMap, componentId, attributeName, newValue, attributeOptions) {
+    return componentsMap.withMutations((components) => {
       let component = components.get(componentId);
 
       if (attributeOptions) {
@@ -352,11 +294,15 @@ ComponentsContainer.prototype = {
 
       components.set(componentId, component);
     });
-  },
+  }
 
-  // Read
-  _getAttributes(componentMap, componentId, attributeOptions) {
-    let component = componentMap.get(componentId);
+  //  Read
+  getAttributes(componentId, attributeOptions) {
+    return ComponentsContainer.getAttributes(this.components, componentId, attributeOptions);
+  }
+
+  static getAttributes(componentsMap, componentId, attributeOptions) {
+    let component = componentsMap.get(componentId);
     const { state, breakpoint } = attributeOptions || { state: NONE, breakpoint: NONE };
 
     const masterId = component.get('masterId');
@@ -364,8 +310,8 @@ ComponentsContainer.prototype = {
     let attributes;
 
     if (masterId) {
-      masterAttrs = this._getAttributes(
-        componentMap,
+      masterAttrs = ComponentsContainer.getAttributes(
+        componentsMap,
         masterId,
         attributeOptions
       );
@@ -385,34 +331,50 @@ ComponentsContainer.prototype = {
       masterAttrs,
       attributes
     );
-  },
+  }
 
-  _getName(componentMap, componentId) {
-    let component = componentMap.get(componentId);
+  getName(componentId) {
+    return ComponentsContainer.getName(this.components, componentId);
+  }
+
+  static getName(componentsMap, componentId) {
+    let component = componentsMap.get(componentId);
     if (!component.get('name')) {
-      return componentMap.get(component.get('masterId')).get('name');
+      return componentsMap.get(component.get('masterId')).get('name');
     } else {
       return component.get('name');
     }
-  },
+  }
 
-  _walkChildren(componentMap, componentId, func, ind, isChild) {
+  walkChildren(componentId, func) {
+    ComponentsContainer.walkChildren(this.components, componentId, func);
+  }
+
+  static walkChildren(componentsMap, componentId, func, ind, isChild) {
     // Does not call callback on componentId this is called with.
-    let component = componentMap.get(componentId);
+    let component = componentsMap.get(componentId);
     let isCanceled = false;
 
     if (isChild) {
-      func.call(this, component, ind, () => { isCanceled = true });
+      func.call(null, component, ind, () => { isCanceled = true });
     }
 
     if (!isCanceled) {
       component.get('childIds').forEach((childId, ind) => {
-        this._walkChildren(componentMap, childId, func, ind, true);
+        ComponentsContainer.walkChildren(componentsMap, childId, func, ind, true);
       });
     }
-  },
+  }
 
-  _getRenderableProperties(componentMap, componentId, attributeOptions) {
+  getRenderableProperties(componentId, attributeOptions) {
+    return ComponentsContainer.getRenderableProperties(
+      this.components,
+      componentId,
+      attributeOptions
+    );
+  }
+
+  static getRenderableProperties(componentsMap, componentId, attributeOptions) {
     let attrToCssLookup = {};
     let attrToHtmlPropertyLookup = {
       text: true,
@@ -420,10 +382,17 @@ ComponentsContainer.prototype = {
     };
 
     // default attributes
-    let attributes = this._getAttributes(componentMap, componentId);
+    let attributes = ComponentsContainer.getAttributes(componentsMap, componentId);
 
     if (attributeOptions.state !== NONE || attributeOptions.breakpoint !== NONE) {
-      Object.assign(attributes, this._getAttributes(componentMap, componentId, attributeOptions));
+      Object.assign(
+        attributes,
+        ComponentsContainer.getAttributes(
+          componentsMap,
+          componentId,
+          attributeOptions
+        )
+      );
     }
 
     return _.reduce(
@@ -443,9 +412,13 @@ ComponentsContainer.prototype = {
         sx: {}
       }
     );
-  },
+  }
 
-  _getRenderTree(componentMap, componentId, context, index) {
+  getRenderTree(componentId, context) {
+    return ComponentsContainer.getRenderTree(this.components, componentId, context);
+  }
+
+  static getRenderTree(componentsMap, componentId, context, index) {
     /*
 
        context: {
@@ -462,7 +435,7 @@ ComponentsContainer.prototype = {
 
     // TD: if I only take certain properties I can make this cheaper
     if (componentId) {
-      let componentJs = componentMap.get(componentId).toJS();
+      let componentJs = componentsMap.get(componentId).toJS();
       let breakpoint = NONE;
       let state = NONE;
       let defaultFont = 16; // TD: read from dom.
@@ -479,8 +452,8 @@ ComponentsContainer.prototype = {
         }
       }
 
-      let { sx, htmlProperties } = this._getRenderableProperties(
-        componentMap,
+      let { sx, htmlProperties } = ComponentsContainer.getRenderableProperties(
+        componentsMap,
         componentId,
         {
           breakpoint,
@@ -491,19 +464,19 @@ ComponentsContainer.prototype = {
       componentJs.sx = sx;
       componentJs.htmlProperties = htmlProperties;
       componentJs.index = index;
-      componentJs.name = this._getName(componentMap, componentId);
+      componentJs.name = ComponentsContainer.getName(componentsMap, componentId);
 
       if (componentJs.parentId) {
-        componentJs.parent = componentMap.get(componentJs.parentId).toJS();
+        componentJs.parent = componentsMap.get(componentJs.parentId).toJS();
       }
 
       if (componentJs.masterId) {
-        componentJs.master = componentMap.get(componentJs.masterId).toJS();
+        componentJs.master = componentsMap.get(componentJs.masterId).toJS();
       }
 
       let children = [];
       componentJs.childIds.forEach((id, ind) => {
-        children.push(this._getRenderTree(componentMap, id, context, ind));
+        children.push(ComponentsContainer.getRenderTree(componentsMap, id, context, ind));
       });
       componentJs.children = children;
 
@@ -511,35 +484,43 @@ ComponentsContainer.prototype = {
     } else {
       return null;
     }
-  },
+  }
 
-  _hydrateComponent(componentMap, componentId) {
+  hydrateComponent(componentId) {
+    return ComponentsContainer.hydrateComponent(this.components, componentId);
+  }
+
+  static hydrateComponent(componentsMap, componentId) {
     // returns component with all ids replaced with references to the component
     /*
        adds props;
        index
      */
-    let componentJs = componentMap.get(componentId).toJS();
-    componentJs.index = this._getIndex(componentMap, componentJs.id);
+    let componentJs = componentsMap.get(componentId).toJS();
+    componentJs.index = ComponentsContainer.getIndex(componentsMap, componentJs.id);
 
-    componentJs.parent = componentMap.get(componentJs.parentId).toJS();
-    componentJs.master = componentMap.get(componentJs.masterId).toJS();
+    componentJs.parent = componentsMap.get(componentJs.parentId).toJS();
+    componentJs.master = componentsMap.get(componentJs.masterId).toJS();
     componentJs.children = [];
     componentJs.variants = [];
 
     componentJs.childIds.forEach((childId) => {
-      componentJs.children.push(componentMap.get(childId).toJs());
+      componentJs.children.push(componentsMap.get(childId).toJs());
     });
 
     componentJs.variantIds.forEach((variantId) => {
-      componentJs.variants.push(componentMap.get(variantId).toJs());
+      componentJs.variants.push(componentsMap.get(variantId).toJs());
     });
 
     return componentJs;
-  },
+  }
 
-  _getIndex(componentMap, componentId) {
-    let parent = componentMap.get(componentMap.getIn([componentId, 'parentId']));
+  getIndex(componentId) {
+    return ComponentsContainer.getIndex(this.components, componentId);
+  }
+
+  static getIndex(componentsMap, componentId) {
+    let parent = componentsMap.get(componentsMap.getIn([componentId, 'parentId']));
     let index;
     parent.get('childIds').forEach((childId, childIndex) => {
       if (childId === componentId) {

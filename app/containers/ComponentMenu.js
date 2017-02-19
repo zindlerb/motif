@@ -1,11 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import { createSelector } from 'reselect';
 // import fuzzy from 'fuzzy';
 import { Rect, globalEventManager } from '../utils';
 
 import {
   createNewImageSpec,
+  ComponentsContainer,
   image
 } from '../base_components';
 
@@ -46,6 +48,12 @@ const ComponentMenu = React.createClass({
         searchString: '',
         openListItem: undefined,
       });
+    }
+  },
+
+  closeNestedMenus() {
+    if (this.state.openListItem) {
+      this.setState({ openListItem: undefined });
     }
   },
 
@@ -150,7 +158,7 @@ const ComponentMenu = React.createClass({
           <ul style={sx} className="component-menu">
             <li
                 key={'DELETE'}
-                onMouseEnter={() => { this.setState({ openListItem: undefined }) }}
+                onMouseEnter={this.closeNestedMenus}
                 onMouseUp={(e) => {
                     this.props.actions.deleteComponent(componentId);
                     this.props.actions.closeMenu();
@@ -161,7 +169,7 @@ const ComponentMenu = React.createClass({
             </li>
             <li
                 key={'MAKE_COMPONENT'}
-                onMouseEnter={() => { this.setState({ openListItem: undefined }) }}
+                onMouseEnter={this.closeNestedMenus}
                 onMouseUp={(e) => {
                     this.props.actions.createComponentBlock(componentId);
                     this.props.actions.closeMenu();
@@ -211,34 +219,47 @@ const ComponentMenu = React.createClass({
   }
 });
 
-export default connect(
-  // This could use the render tree...
-  function (state) {
-    const componentsContainer = state.get('componentsContainer');
+// TD: what is a good pattern to use component map data but not re-render based on its changes??
+const menuSelector = createSelector(
+  [
+    state => state.get('componentsMap'),
+    state => state.get('menu'),
+    state => state.get('ourComponentBoxes'),
+    state => state.get('yourComponentBoxes'),
+    state => state.get('assets')
+  ],
+  (componentsMap, menu, ourComponentBoxes, yourComponentBoxes, assets) => {
     let componentIdMapByName = {};
-    let menu = state.get('menu').toJS();
+    let menuJs = menu.toJS()
 
-    if (menu.isOpen) {
-      // TD: these cannot be recomputed during menu. Maybe cache on the menu object?
-      ['ourComponentBoxes', 'yourComponentBoxes'].forEach((componentBoxesKey) => {
-        state.get(componentBoxesKey).forEach((componentId) => {
-          let name = componentsContainer.getName(componentId);
-          componentIdMapByName[name] = componentId;
-        });
-      });
+    if (menuJs.isOpen) {
+      // TD: Add selector here
+      const makeComponentIdMap = (componentId) => {
+        let name = ComponentsContainer.getName(componentsMap, componentId);
+        componentIdMapByName[name] = componentId;
+      }
+
+      ourComponentBoxes.forEach(makeComponentIdMap);
+      yourComponentBoxes.forEach(makeComponentIdMap);
 
       return {
-        menu,
+        menu: menuJs,
         componentIdMapByName,
-        parentId: componentsContainer.components.getIn([
-          menu.componentId, 'parentId'
+        parentId: componentsMap.getIn([
+          menuJs.componentId, 'parentId'
         ]),
-        componentIndex: componentsContainer.getIndex(menu.componentId),
+        componentIndex: ComponentsContainer.getIndex(componentsMap, menuJs.componentId),
         // TD: EXPENSIVE! Remove.
-        assets: _.toArray(state.get('assets').toJS())
+        assets: _.toArray(assets.toJS())
       }
     } else {
-      return { menu };
+      return { menu: menuJs };
     }
+  }
+)
+
+export default connect(
+  function (state) {
+    return menuSelector(state);
   },
 )(ComponentMenu);

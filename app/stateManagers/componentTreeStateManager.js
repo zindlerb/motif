@@ -2,6 +2,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import Immutable from 'immutable';
 import { componentTypes, NONE } from '../constants';
+import { ComponentsContainer } from '../base_components';
 
 const UNHOVER_COMPONENT = 'UNHOVER_COMPONENT';
 const HOVER_COMPONENT = 'HOVER_COMPONENT';
@@ -116,38 +117,41 @@ export const componentTreeActions = {
 export const componentTreeReducer = {
   [ADD_VARIANT](state, action) {
     let { componentId, parentComponentId, insertionIndex, spec } = action;
-    let componentsContainer = state.get('componentsContainer');
+    let componentsContainer = new ComponentsContainer(state.get('componentsMap'));
+
+    const variantId = componentsContainer.createVariant(componentId, spec);
 
     componentsContainer.addChild(
       parentComponentId,
-      componentsContainer.createVariant(componentId, spec),
+      variantId,
       insertionIndex
     );
 
-    return state;
+    return state.set('componentsMap', componentsContainer.components);
   },
 
   [MOVE_COMPONENT](state, action) {
-    state.get('componentsContainer').moveComponent(
-      action.componentId,
-      action.parentComponentId,
-      action.insertionIndex
-    );
-
-    return state;
+    return state.set('componentsMap',
+                     ComponentsContainer.moveComponent(
+                       state.get('componentsMap'),
+                       action.componentId,
+                       action.parentComponentId,
+                       action.insertionIndex
+                     ));
   },
 
   [DELETE_COMPONENT](state, action) {
     let { componentId } = action;
-    state.get('componentsContainer').deleteComponent(componentId);
+    const componentsContainer = new ComponentsContainer(state.get('componentsMap'));
+    componentsContainer.deleteComponent(componentId);
 
-    return state.update('activeComponentId', (activeComponentId) => {
+    return state.updateIn(['activeComponentId'], (activeComponentId) => {
       if (activeComponentId === componentId) {
         return undefined;
       } else {
         return activeComponentId;
       }
-    });
+    }).set('componentsMap', componentsContainer.components);
   },
 
   [SELECT_COMPONENT](state, action) {
@@ -159,11 +163,8 @@ export const componentTreeReducer = {
   },
 
   [UPDATE_TREE_VIEW_DROP_SPOTS](state, action) {
-
-    // TD: fix strange freezing here
-
     const { pos, draggedComponentId } = action;
-    const componentsContainer = state.get('componentsContainer');
+    const componentsContainer = new ComponentsContainer(state.get('componentsMap'));
 
     const componentTreeId = state.getIn([
       'pages',
@@ -295,33 +296,27 @@ export const componentTreeReducer = {
   },
 
   [CHANGE_COMPONENT_NAME](state, action) {
-    let componentsContainer = state.get('componentsContainer');
-    componentsContainer.components = componentsContainer.components.setIn(
-      [action.componentId, 'name'],
+    return state.setIn(
+      ['componentsMap', action.componentId, 'name'],
       action.newName
     );
-
-    return state;
   },
 
   [CREATE_COMPONENT_BLOCK](state, action) {
     const { newBlockId } = action;
-    const componentsContainer = state.get('componentsContainer');
 
-    let newComponents = componentsContainer.components.withMutations((components) => {
-      const newBlockParentId = components.getIn([newBlockId, 'parentId']);
-      components.mergeIn([newBlockId, 'name'],
-                         {
-                           name: 'New Component',
-                           parentId: undefined
-                         });
+    const newComponentsMap = state.get('componentsMap').withMutations((componentsMap) => {
+      const componentsContainer = new ComponentsContainer(componentsMap);
+      const newBlockParentId = componentsMap.getIn([newBlockId, 'parentId']);
+      componentsMap.mergeIn(
+        [newBlockId, 'name'],
+        { name: 'New Component', parentId: undefined });
 
-      /* Replace self with a variant */
-      const variantId = components.createVariant(newBlockId, {
+      const variantId = componentsContainer.createVariant(newBlockId, {
         parentId: newBlockParentId
       });
 
-      components.updateIn([newBlockParentId, 'childIds'], (childIds) => {
+      componentsMap.updateIn([newBlockParentId, 'childIds'], (childIds) => {
         return childIds.map((childId) => {
           if (childId === newBlockId) {
             return variantId;
@@ -332,25 +327,25 @@ export const componentTreeReducer = {
       });
     });
 
-    componentsContainer.components = newComponents;
-
     return state.update('yourComponentBoxes', (yourComponentBoxes) => {
       return yourComponentBoxes.push(newBlockId);
-    });
+    }).set('componentsMap', newComponentsMap);
   },
 
   [SET_COMPONENT_ATTRIBUTE](state, action) {
-    state.get('componentsContainer').setAttribute(
-      action.componentId,
-      action.attrKey,
-      action.newAttrValue,
-      {
-        breakpoint: state.activeComponentBreakpoint,
-        state: state.activeComponentState
-      }
-    )
-
-    return state;
+    return state.update('componentsMap', (componentsMap) => {
+      const componentsContainer = new ComponentsContainer(componentsMap);
+      componentsContainer.setAttribute(
+        action.componentId,
+        action.attrKey,
+        action.newAttrValue,
+        {
+          breakpoint: state.activeComponentBreakpoint,
+          state: state.activeComponentState
+        }
+      )
+      return componentsContainer.components;
+    });
   },
 
   [UNHOVER_COMPONENT](state) {
