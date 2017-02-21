@@ -62,6 +62,9 @@ const ComponentTreeContainer = React.createClass({
     dragManager.start(e, {
       dragType: 'treeItem',
       onConsummate(e) {
+        const target = $(e.target);
+        const targetPos = target.position();
+
         this.setState({
           isDragging: true,
           shouldUpdate: true,
@@ -76,7 +79,7 @@ const ComponentTreeContainer = React.createClass({
         that.initializeDropSpots(
           node.id,
           node.parentId,
-
+          node.index
         );
       },
       onDrag(e) {
@@ -88,13 +91,12 @@ const ComponentTreeContainer = React.createClass({
         that.props.context.updateDropSpots(pos);
       },
       onEnd() {
-        const selectedTreeViewDropSpot = that.props.context.selectedTreeViewDropSpot;
         if (this.state.closestInsertionPoints &&
             this.state.closestInsertionPoints.length) {
           that.props.actions.moveComponent(
-            nodeId,
-            parentId,
-            nodeIndex,
+            node.id,
+            this.state.closestInsertionPoints[0].parentId,
+            this.state.closestInsertionPoints[0].insertionIndex,
           );
         }
 
@@ -267,7 +269,7 @@ const ComponentTreeContainer = React.createClass({
       shadowOffsetY,
       x,
       y,
-      nodeText
+      nodeText,
     } = this.state;
     let shadow;
 
@@ -278,6 +280,8 @@ const ComponentTreeContainer = React.createClass({
         <DragShadow>
           <TreeItem
               className="isHovered"
+              isDragging={isDragging}
+              shouldUpdate={shouldUpdate}
               width={width}
               shadowOffsetX={shadowOffsetX}
               shadowOffsetY={shadowOffsetY}
@@ -301,6 +305,7 @@ const ComponentTreeContainer = React.createClass({
               selectedTreeViewDropSpot: _.first(closestInsertionPoints),
               activeComponentId,
               hoveredComponentId,
+              beginDrag: this.beginDrag
             }}
         />
         { shadow }

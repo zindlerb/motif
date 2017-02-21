@@ -1,6 +1,5 @@
 import React from 'react';
 import _ from 'lodash';
-import $ from 'jquery';
 import classnames from 'classnames';
 
 import { wasRightButtonPressed } from '../utils';
@@ -131,21 +130,20 @@ const ComponentTree = React.createClass({
             onMouseUp={(e) => {
                 if (wasRightButtonPressed(e)) {
                   this.props.actions.openMenu(
-                    this.props.node.id,
+                    node.id,
                     e.clientX,
                     e.clientY
                   );
                 } else {
-                  this.props.actions.selectComponent(this.props.node.id);
+                  this.props.actions.selectComponent(node.id);
                 }
               }}
             onMouseDown={(e) => {
-                const target = $(e.target);
-                const targetPos = target.position();
-
-                this.props.context.beginDrag(e, node););
+                this.props.context.beginDrag(e, node);
               }}
-        />
+        >
+          {node.name}
+        </TreeItem>
         {children}
         {afterSpacer}
       </div>

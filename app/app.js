@@ -1,7 +1,5 @@
 import fs from 'fs';
 import { remote } from 'electron';
-import { DragDropContext } from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
 import mousetrap from 'mousetrap';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -168,8 +166,6 @@ const connector = connect(
     return { actions: bindActionCreators(actions, dispatch) };
   }
 );
-const dndContext = DragDropContext(HTML5Backend)
-
 const EditorWithDispatch = connector(Editor);
 
 ReactDOM.render(

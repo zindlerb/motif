@@ -13,7 +13,7 @@ const TreeItem = function (props) {
         onMouseEnter={props.onMouseEnter}
         onMouseLeave={props.onMouseLeave}
     >
-      {props.name}
+      {props.children}
     </span>
   );
 }
