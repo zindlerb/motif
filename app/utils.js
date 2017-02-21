@@ -2,6 +2,7 @@ import _ from 'lodash';
 import $ from 'jquery';
 import Immutable from 'immutable';
 import { remote } from 'electron';
+import { createSelectorCreator, defaultMemoize } from 'reselect';
 
 let dialog;
 if (remote) { //Hack for testing

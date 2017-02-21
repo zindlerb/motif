@@ -1,14 +1,38 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
+import $ from 'jquery';
+import _ from 'lodash';
 
-import { leftPanelTypes } from '../constants';
+import { leftPanelTypes, componentTypes } from '../constants';
+import dragManager from '../dragManager';
+import { guid } from '../utils';
 import HorizontalSelect from '../components/HorizontalSelect';
 import FormLabel from '../components/forms/FormLabel';
 import TextField from '../components/forms/TextField';
 import SidebarHeader from '../components/SidebarHeader';
 import ComponentTree from '../components/ComponentTree';
+import TreeItem from '../components/TreeItem';
 import { renderTreeSelector } from '../selectors';
+
+function DragShadow(props) {
+  const sx = {
+    opacity: 0.5,
+    position: 'absolute',
+    top: props.y - props.offsetY,
+    left: props.x - props.offsetX,
+    width: props.width,
+    zIndex: 3
+  };
+
+  return (
+    <div
+        className="c-grabbing"
+        style={sx}>
+      {props.children}
+    </div>
+  );
+}
 
 const ComponentTreeContainer = React.createClass({
   getInitialState() {
@@ -23,12 +47,61 @@ const ComponentTreeContainer = React.createClass({
     let isCanceled = false;
 
     if (isChild) {
-      func(renderTree, () => isCanceled = false);
+      func(renderTree, () => { isCanceled = true });
     }
 
     renderTree.children.forEach((child) => {
       if (!isCanceled) {
         this.walkRenderTree(child, func, true);
+      }
+    });
+  },
+
+  beginDrag(e, node) {
+    const that = this;
+    dragManager.start(e, {
+      dragType: 'treeItem',
+      onConsummate(e) {
+        this.setState({
+          isDragging: true,
+          shouldUpdate: true,
+          nodeText: node.name,
+          width: target.width(),
+          shadowOffsetX: e.clientX - targetPos.left,
+          shadowOffsetY: e.clientY - targetPos.top,
+          x: e.clientX,
+          y: e.clientY
+        });
+
+        that.initializeDropSpots(
+          node.id,
+          node.parentId,
+
+        );
+      },
+      onDrag(e) {
+        const pos = {
+          x: e.clientX,
+          y: e.clientY
+        };
+        that.setState(pos);
+        that.props.context.updateDropSpots(pos);
+      },
+      onEnd() {
+        const selectedTreeViewDropSpot = that.props.context.selectedTreeViewDropSpot;
+        if (this.state.closestInsertionPoints &&
+            this.state.closestInsertionPoints.length) {
+          that.props.actions.moveComponent(
+            nodeId,
+            parentId,
+            nodeIndex,
+          );
+        }
+
+        this.setState(_.keys(this.state).reduce((obj, key) => {
+          obj[key] = undefined;
+          return obj;
+        }, {}));
       }
     });
   },
@@ -39,8 +112,8 @@ const ComponentTreeContainer = React.createClass({
     draggedComponentIndex
   ) {
     let insertionPoints = [];
-    const beforeIndex = draggedComponentIndex;
-    const afterIndex = beforeIndex + 1;
+    const beforeComponentIndex = draggedComponentIndex;
+    const afterComponentIndex = beforeComponentIndex + 1;
 
     function getInsertionPoint(nodeId, nodeIndex, parentId) {
       let el;
@@ -109,6 +182,7 @@ const ComponentTreeContainer = React.createClass({
     const insertionPoints = this.state.insertionPointCache;
     let left = 0, right = insertionPoints.length - 1;
     let middle;
+    let shouldUpdate = true;
 
     // TD: remove check
     let count = 0;
@@ -150,7 +224,6 @@ const ComponentTreeContainer = React.createClass({
     }, middle);
 
     // Check if drop spots have changed
-
     const newClosestInsertionPoints = [
       closestIndex,
       closestIndex - 1,
@@ -163,24 +236,19 @@ const ComponentTreeContainer = React.createClass({
       return closestInsertionPoints;
     }, []);
 
-
-    if (!_.every(
-      this.state.closestInsertionPoints,
-      (stateInsertionPoint, ind) => {
-        return stateInsertionPoint.id === newClosestInsertionPoints.id;
-      }
-    )) {
-      this.setState({
-        closestInsertionPoints: newClosestInsertionPoints
-      })
+    if (this.state.closestInsertionPoints) {
+      shouldUpdate = !_.every(
+        this.state.closestInsertionPoints,
+        (stateInsertionPoint, ind) => {
+          return stateInsertionPoint.id === newClosestInsertionPoints[ind].id;
+        }
+      );
     }
-  },
 
-  resetDropSpots() {
-    this.setState({
-      insertionPointCache: undefined,
-      closestInsertionPoints: undefined
-    });
+    this.setState(Object.assign({
+      closestInsertionPoints: newClosestInsertionPoints,
+      shouldUpdate
+    }, pos));
   },
 
   render() {
@@ -192,8 +260,35 @@ const ComponentTreeContainer = React.createClass({
     } = this.props;
 
     const {
-      closestInsertionPoints
+      isDragging,
+      shouldUpdate,
+      width,
+      shadowOffsetX,
+      shadowOffsetY,
+      x,
+      y,
+      nodeText
     } = this.state;
+    let shadow;
+
+    const closestInsertionPoints = this.state.closestInsertionPoints || [];
+
+    if (isDragging) {
+      shadow = (
+        <DragShadow>
+          <TreeItem
+              className="isHovered"
+              width={width}
+              shadowOffsetX={shadowOffsetX}
+              shadowOffsetY={shadowOffsetY}
+              x={x}
+              y={y}
+          >
+            {nodeText}
+          </TreeItem>
+        </DragShadow>
+      );
+    }
 
     return (
       <div>
@@ -202,21 +297,21 @@ const ComponentTreeContainer = React.createClass({
             node={renderTree}
             actions={actions}
             context={{
-              otherPossibleTreeViewDropSpots: _.rest(closestInsertionPoints),
+              otherPossibleTreeViewDropSpots: _.tail(closestInsertionPoints),
               selectedTreeViewDropSpot: _.first(closestInsertionPoints),
               activeComponentId,
-              hoveredComponentId
+              hoveredComponentId,
             }}
         />
+        { shadow }
       </div>
     )
-
   }
 });
 
 const LeftPanel = React.createClass({
   render() {
-    console.log('LEFT_PANEL Render');
+    //console.log('LEFT_PANEL Render');
     let body;
     let {
       actions,
@@ -225,8 +320,6 @@ const LeftPanel = React.createClass({
       hoveredComponentId,
       renderTree,
       currentPage,
-      otherPossibleTreeViewDropSpots,
-      selectedTreeViewDropSpot
     } = this.props;
 
     if (!currentPage) {
@@ -235,19 +328,12 @@ const LeftPanel = React.createClass({
       );
     } else if (activePanel === leftPanelTypes.TREE) {
       body = (
-        <div>
-          <SidebarHeader text="Component Tree" />
-          <ComponentTree
-              node={renderTree}
-              actions={this.props.actions}
-              context={{
-                otherPossibleTreeViewDropSpots,
-                selectedTreeViewDropSpot,
-                activeComponentId,
-                hoveredComponentId,
-              }}
-          />
-        </div>
+        <ComponentTreeContainer
+            actions={actions}
+            renderTree={renderTree}
+            activeComponentId={activeComponentId}
+            hoveredComponentId={hoveredComponentId}
+        />
       );
     } else if (activePanel === leftPanelTypes.DETAILS) {
       const inputs = [
@@ -305,27 +391,17 @@ const leftPanelSelector = createSelector(
     state => state.get('hoveredComponentId'),
     renderTreeSelector,
     state => state.getIn(['pages', state.get('currentPageId')]),
-    state => state.get('otherPossibleTreeViewDropSpots'),
-    state => state.get('selectedTreeViewDropSpot'),
   ],
   (
     activePanel, activeComponentId,
     hoveredComponentId, renderTree, currentPage,
-    otherPossibleTreeViewDropSpots, selectedTreeViewDropSpot
   ) => {
-
-    console.log(activePanel, activeComponentId,
-                hoveredComponentId, renderTree, currentPage,
-                otherPossibleTreeViewDropSpots, selectedTreeViewDropSpot);
-
     return {
       activePanel,
       activeComponentId,
       hoveredComponentId,
       renderTree,
-      currentPage,
-      otherPossibleTreeViewDropSpots: otherPossibleTreeViewDropSpots && otherPossibleTreeViewDropSpots.toJS(),
-      selectedTreeViewDropSpot: selectedTreeViewDropSpot && selectedTreeViewDropSpot.toJS()
+      currentPage
     }
   }
 )

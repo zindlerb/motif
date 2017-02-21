@@ -45,7 +45,7 @@ $f7: .75rem;
   cursor: -webkit-grab;
 }
 
-.c-grabbing  * {
+.c-grabbing {
   cursor: -webkit-grabbing !important;
 }
 
@@ -179,18 +179,6 @@ body {
 /* View Modes */
 .static-view-border * {
   outline: 1px solid gray;
-}
-
-.static-view-detail * {
-
-}
-
-.detail {
-
-}
-
-.c-pointer {
-  cursor: pointer !important;
 }
 
 .list {

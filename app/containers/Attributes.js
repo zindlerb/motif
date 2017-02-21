@@ -284,7 +284,7 @@ const Attributes = function (props) {
     actions,
   } = props;
 
-  console.log('ATTRIBUTES RENDER');
+  //console.log('ATTRIBUTES RENDER');
 
   let body, attributeFields = []
 

@@ -15,7 +15,7 @@ function SiteItem(props) {
 
 const OpenSiteModal = React.createClass({
   render() {
-    console.log('OPEN SITE MODAL RENDER')
+    //console.log('OPEN SITE MODAL RENDER')
     let recentSitesBlock;
     const { recentSites } = this.props;
 

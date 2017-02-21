@@ -1,7 +1,4 @@
-import $ from 'jquery';
-import _ from 'lodash';
-import Immutable from 'immutable';
-import { componentTypes, NONE } from '../constants';
+import { NONE } from '../constants';
 import { ComponentsContainer } from '../base_components';
 
 const UNHOVER_COMPONENT = 'UNHOVER_COMPONENT';
@@ -13,14 +10,9 @@ const DELETE_COMPONENT = 'DELETE_COMPONENT';
 
 const SELECT_COMPONENT = 'SELECT_COMPONENT';
 
-const UPDATE_TREE_VIEW_DROP_SPOTS = 'UPDATE_TREE_VIEW_DROP_SPOTS';
-const RESET_TREE_VIEW_DROP_SPOTS = 'RESET_TREE_VIEW_DROP_SPOTS';
-
 const CHANGE_COMPONENT_NAME = 'CHANGE_COMPONENT_NAME';
 const CREATE_COMPONENT_BLOCK = 'CREATE_COMPONENT_BLOCK';
 const SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
-
-const privateCache = {};
 
 // test for optional argument
 export const componentTreeActions = {
@@ -71,22 +63,6 @@ export const componentTreeActions = {
       type: UNHOVER_COMPONENT,
       _noUndo: true
     }
-  },
-
-  updateTreeViewDropSpots(pos, draggedComponentId) {
-    return {
-      type: UPDATE_TREE_VIEW_DROP_SPOTS,
-      pos,
-      draggedComponentId,
-      _noUndo: true
-    };
-  },
-
-  resetTreeViewDropSpots() {
-    return {
-      type: RESET_TREE_VIEW_DROP_SPOTS,
-      _noUndo: true
-    };
   },
 
   changeComponentName(componentId, newName) {
@@ -159,139 +135,6 @@ export const componentTreeReducer = {
       activeComponentState: NONE,
       activeComponentBreakpoint: NONE,
       activeComponentId: action.componentId
-    });
-  },
-
-  [UPDATE_TREE_VIEW_DROP_SPOTS](state, action) {
-    const { pos, draggedComponentId } = action;
-    const componentsContainer = new ComponentsContainer(state.get('componentsMap'));
-
-    const componentTreeId = state.getIn([
-      'pages',
-      state.get('currentPageId'),
-      'componentTreeId'
-    ]);
-
-    if (!privateCache.treeViewInsertionPoints) {
-      const insertionPoints = [];
-      const draggedComponentParentId = componentsContainer.components
-                                                          .getIn([draggedComponentId, 'parentId']);
-      const beforeComponentIndex = componentsContainer.getIndex(draggedComponentId);
-      const afterComponentIndex = beforeComponentIndex + 1;
-
-      function getInsertionPoint(nodeId, nodeIndex, parentId) {
-        let el;
-        if (!nodeId) {
-          el = $('.treeDropSpot_' + parentId + '_emptyChild');
-        } else {
-          el = $('.treeDropSpot_' + nodeId + '_' + nodeIndex);
-        }
-
-        const w = el.width();
-        const pos = el.offset();
-
-        return Immutable.Map({
-          insertionIndex: nodeIndex,
-          parentId,
-          getY: () => {
-            return el.offset().top;
-          },
-          points: [
-            { x: pos.left, y: pos.top },
-            { x: pos.left + w, y: pos.top }
-          ],
-          isDraggedComponent: (
-            parentId === draggedComponentParentId &&
-            (nodeIndex === beforeComponentIndex || nodeIndex === afterComponentIndex)
-          )
-        });
-      }
-
-      componentsContainer.walkChildren(componentTreeId, function (node, ind, cancel) {
-        // Before
-        let nodeParentId = node.get('parentId');
-        let nodeId = node.get('id');
-
-        if (ind === 0) {
-          insertionPoints.push(getInsertionPoint(nodeId, ind, nodeParentId));
-        }
-
-        // After
-        insertionPoints.push(getInsertionPoint(nodeId, ind + 1, nodeParentId));
-
-        if (node.get('id') === draggedComponentId) {
-          // Can't drag component inside itself
-          cancel();
-        } else if (node.get('componentType') === componentTypes.CONTAINER &&
-                   node.get('childIds').size === 0) {
-          // Inside
-          insertionPoints.push(getInsertionPoint(undefined, 0, nodeId));
-        }
-      });
-
-      privateCache.treeViewInsertionPoints = _.sortBy(insertionPoints, function (insertionPoint) {
-        return insertionPoint.get('y');
-      });
-    }
-
-    // Binary search to find 3 closest nodes
-    const insertionPoints = privateCache.treeViewInsertionPoints;
-    let left = 0, right = insertionPoints.length - 1;
-    let middle;
-
-    // TD: remove check
-    let count = 0;
-
-    while (left < right) {
-      middle = Math.floor((right + left) / 2);
-      let point = insertionPoints[middle];
-      let pointY = point.get('getY')();
-
-      if (pointY === pos.y) {
-        break;
-      } else if (pos.y < pointY) {
-        right = middle - 1;
-      } else {
-        left = middle + 1;
-      }
-
-      if (count > 200) {
-        throw new Error(left + '_' + right);
-      }
-
-      count++
-    }
-
-    let minDist = Math.abs(pos.y - insertionPoints[middle].get('getY')());
-    let closestIndex = [
-      middle - 1,
-      middle + 1
-    ].reduce((closestIndex, ind) => {
-      if (insertionPoints[ind]) {
-        let dist = Math.abs(pos.y - insertionPoints[ind].get('getY')());
-        if (dist < minDist) {
-          minDist = dist;
-          return ind;
-        }
-      }
-
-      return closestIndex;
-    }, middle);
-
-    return state.merge({
-      otherPossibleTreeViewDropSpots: Immutable.List([
-        insertionPoints[closestIndex - 1],
-        insertionPoints[closestIndex + 1],
-      ]),
-      selectedTreeViewDropSpot: insertionPoints[closestIndex]
-    })
-  },
-
-  [RESET_TREE_VIEW_DROP_SPOTS](state) {
-    delete privateCache.treeViewInsertionPoints;
-    return state.merge({
-      otherPossibleTreeViewDropSpots: undefined,
-      selectedTreeViewDropSpot: undefined
     });
   },
 

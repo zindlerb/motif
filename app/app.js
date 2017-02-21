@@ -109,7 +109,7 @@ const Editor = React.createClass({
   },
 
   render() {
-    console.log('APP RENDER');
+    //console.log('APP RENDER');
     let view;
     let {
       actions,
@@ -145,6 +145,7 @@ const Editor = React.createClass({
       );
     }
 
+    // Drag over is to prevent a drag cancel on mouse up but I want to be able to drag anywhere
     return (
       <div className="h-100">
         { view }
@@ -169,7 +170,7 @@ const connector = connect(
 );
 const dndContext = DragDropContext(HTML5Backend)
 
-const EditorWithDispatch = dndContext(connector(Editor));
+const EditorWithDispatch = connector(Editor);
 
 ReactDOM.render(
   <Provider store={store}>
