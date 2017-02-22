@@ -1,12 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { createSelector } from 'reselect';
 import $ from 'jquery';
 import _ from 'lodash';
 
 import { leftPanelTypes, componentTypes } from '../constants';
 import dragManager from '../dragManager';
-import { guid } from '../utils';
+import { guid, createImmutableJSSelector } from '../utils';
 import HorizontalSelect from '../components/HorizontalSelect';
 import FormLabel from '../components/forms/FormLabel';
 import TextField from '../components/forms/TextField';
@@ -16,12 +15,14 @@ import TreeItem from '../components/TreeItem';
 import { renderTreeSelector } from '../selectors';
 
 function DragShadow(props) {
+  const padding = 100;
   const sx = {
     opacity: 0.5,
     position: 'absolute',
-    top: props.y - props.offsetY,
-    left: props.x - props.offsetX,
+    top: props.y - props.offsetY - padding,
+    left: props.x - props.offsetX - padding,
     width: props.width,
+    padding: 100,
     zIndex: 3
   };
 
@@ -57,21 +58,18 @@ const ComponentTreeContainer = React.createClass({
     });
   },
 
-  beginDrag(e, node) {
+  beginDrag(e, node, itemWidth, itemX, itemY) {
     const that = this;
     dragManager.start(e, {
       dragType: 'treeItem',
       onConsummate(e) {
-        const target = $(e.target);
-        const targetPos = target.position();
-
-        this.setState({
+        that.setState({
           isDragging: true,
           shouldUpdate: true,
           nodeText: node.name,
-          width: target.width(),
-          shadowOffsetX: e.clientX - targetPos.left,
-          shadowOffsetY: e.clientY - targetPos.top,
+          width: itemWidth,
+          shadowOffsetX: e.clientX - itemX,
+          shadowOffsetY: e.clientY - itemY,
           x: e.clientX,
           y: e.clientY
         });
@@ -88,19 +86,20 @@ const ComponentTreeContainer = React.createClass({
           y: e.clientY
         };
         that.setState(pos);
-        that.props.context.updateDropSpots(pos);
+        that.updateDropSpots(pos);
       },
       onEnd() {
-        if (this.state.closestInsertionPoints &&
-            this.state.closestInsertionPoints.length) {
+        const { closestInsertionPoints } = that.state;
+        if (closestInsertionPoints &&
+            closestInsertionPoints.length) {
           that.props.actions.moveComponent(
             node.id,
-            this.state.closestInsertionPoints[0].parentId,
-            this.state.closestInsertionPoints[0].insertionIndex,
+            closestInsertionPoints[0].parentId,
+            closestInsertionPoints[0].insertionIndex,
           );
         }
 
-        this.setState(_.keys(this.state).reduce((obj, key) => {
+        that.setState(_.keys(that.state).reduce((obj, key) => {
           obj[key] = undefined;
           return obj;
         }, {}));
@@ -189,7 +188,7 @@ const ComponentTreeContainer = React.createClass({
     // TD: remove check
     let count = 0;
 
-    while (left < right) {
+    while (left <= right) {
       middle = Math.floor((right + left) / 2);
       let point = insertionPoints[middle];
       let pointY = point.getY();
@@ -277,17 +276,14 @@ const ComponentTreeContainer = React.createClass({
 
     if (isDragging) {
       shadow = (
-        <DragShadow>
-          <TreeItem
-              className="isHovered"
-              isDragging={isDragging}
-              shouldUpdate={shouldUpdate}
-              width={width}
-              shadowOffsetX={shadowOffsetX}
-              shadowOffsetY={shadowOffsetY}
-              x={x}
-              y={y}
-          >
+        <DragShadow
+            width={width}
+            offsetX={shadowOffsetX}
+            offsetY={shadowOffsetY}
+            x={x}
+            y={y}
+        >
+          <TreeItem className="c-grabbing">
             {nodeText}
           </TreeItem>
         </DragShadow>
@@ -300,6 +296,8 @@ const ComponentTreeContainer = React.createClass({
         <ComponentTree
             node={renderTree}
             actions={actions}
+            isDragging={isDragging}
+            shouldUpdate={shouldUpdate}
             context={{
               otherPossibleTreeViewDropSpots: _.tail(closestInsertionPoints),
               selectedTreeViewDropSpot: _.first(closestInsertionPoints),
@@ -352,6 +350,7 @@ const LeftPanel = React.createClass({
         return (
           <FormLabel name={input.name}>
             <TextField
+                key={input.key}
                 value={currentPage.get(input.key)}
                 onSubmit={(value) => {
                     this.props.actions.setPageValue(input.key, value);
@@ -389,7 +388,7 @@ const LeftPanel = React.createClass({
   },
 });
 
-const leftPanelSelector = createSelector(
+const leftPanelSelector = createImmutableJSSelector(
   [
     state => state.get('activeLeftPanel'),
     state => state.get('activeComponentId'),
@@ -411,6 +410,4 @@ const leftPanelSelector = createSelector(
   }
 )
 
-export default connect((state) => {
-  return leftPanelSelector(state);
-})(LeftPanel);
+export default connect(leftPanelSelector)(LeftPanel);

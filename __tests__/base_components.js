@@ -1,12 +1,11 @@
 var _ = require('lodash');
-
 var {
   container,
   text,
   header,
   image,
   ComponentsContainer,
-  defaultComponentsMap
+  defaultComponentsMap,
   containerAttributes
 } = require('../app/base_components.js');
 var { stateTypes } = require('../app/constants.js');

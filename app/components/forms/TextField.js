@@ -14,6 +14,7 @@ const AutoComplete = React.createClass({
     let listItems = items.map((item) => {
       return (
         <li
+            key={item.value}
             onMouseUp={() => {
                 this.props.onSubmit(item.value, true);
               }}>
@@ -114,11 +115,10 @@ const TextField = React.createClass({
               ref={(el) => { this._el = el }}
               className="w-100"
               onMouseUp={e => e.stopPropagation()}
-
               onFocus={(e) => {
                   this.startEdit(e);
                 }}
-              onBlur={(e) => { this.submit(e.target.value); }}
+              onBlur={e => this.submit(e.target.value)}
               onChange={this.onChange}
               type="text"
               value={value}

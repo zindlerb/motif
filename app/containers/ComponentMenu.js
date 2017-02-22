@@ -1,9 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import { createSelector } from 'reselect';
-// import fuzzy from 'fuzzy';
-import { Rect, globalEventManager } from '../utils';
+
+import {
+  Rect,
+  globalEventManager,
+  createImmutableJSSelector
+} from '../utils';
 
 import {
   createNewImageSpec,
@@ -220,7 +223,7 @@ const ComponentMenu = React.createClass({
 });
 
 // TD: what is a good pattern to use component map data but not re-render based on its changes??
-const menuSelector = createSelector(
+const menuSelector = createImmutableJSSelector(
   [
     state => state.get('componentsMap'),
     state => state.get('menu'),
@@ -258,8 +261,4 @@ const menuSelector = createSelector(
   }
 )
 
-export default connect(
-  function (state) {
-    return menuSelector(state);
-  },
-)(ComponentMenu);
+export default connect(menuSelector)(ComponentMenu);

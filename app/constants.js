@@ -40,3 +40,5 @@ export const leftPanelTypes = {
   TREE: 'TREE',
   DETAILS: 'DETAILS'
 }
+
+export const SIDEBAR_WIDTH = 220;

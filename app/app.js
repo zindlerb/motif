@@ -6,7 +6,6 @@ import ReactDOM from 'react-dom';
 import classnames from 'classnames';
 import { connect, Provider } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { createSelector } from 'reselect';
 
 import { store, actions } from './stateManager';
 import OpenSiteModal from './containers/OpenSiteModal';
@@ -19,10 +18,12 @@ import AssetsView from './containers/AssetsView';
 import {
   saveSiteAsDialog,
   saveSiteDialog,
-  loadSiteDialog
+  loadSiteDialog,
+  createImmutableJSSelector
 } from './utils';
 import {
-  mainViewTypes
+  mainViewTypes,
+  SIDEBAR_WIDTH
 } from './constants';
 
 const { Menu } = remote;
@@ -117,7 +118,7 @@ const Editor = React.createClass({
     if (mainViewTypes.EDITOR === currentMainView) {
       view = (
         <div className={classnames('flex h-100')}>
-          <div className="sidebar flex-none h-100">
+          <div className="sidebar flex-none h-100" style={{ width: SIDEBAR_WIDTH }}>
             <LeftPanel actions={actions} />
           </div>
           <div className="flex-auto flex flex-column h-100 mh4 relative">
@@ -127,7 +128,7 @@ const Editor = React.createClass({
             />
             <StaticRenderer actions={actions} />
           </div>
-          <div className="sidebar h-100 flex-none">
+          <div className="sidebar h-100 flex-none" style={{ width: SIDEBAR_WIDTH }}>
             <Attributes actions={actions} />
           </div>
           <OpenSiteModal actions={actions} />
@@ -153,7 +154,7 @@ const Editor = React.createClass({
   },
 });
 
-const appSelector = createSelector(
+const appSelector = createImmutableJSSelector(
   state => state.get('currentMainView'),
   (currentMainView) => { return { currentMainView } }
 )

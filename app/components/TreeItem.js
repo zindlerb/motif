@@ -5,7 +5,7 @@ const TreeItem = function (props) {
   return (
     <span
         className={classnames(
-            'treeItem w-100 pv1 c-grab db',
+            'treeItem w-100 pv1 db',
             props.className,
           )}
         onMouseDown={props.onMouseDown}

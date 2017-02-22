@@ -1,4 +1,5 @@
 import React from 'react';
+import $ from 'jquery';
 import _ from 'lodash';
 import classnames from 'classnames';
 
@@ -76,9 +77,6 @@ const ComponentTree = React.createClass({
       hoveredComponentId
     } = context;
 
-    const treeItemIsActive = node.id === activeComponentId;
-    const treeItemIsHovered = node.id === hoveredComponentId;
-
     if (node.parent) {
       if (node.index === 0) {
         beforeSpacer = (
@@ -119,27 +117,41 @@ const ComponentTree = React.createClass({
       />
     );
 
+    const treeItemIsActive = node.id === activeComponentId;
+    const treeItemIsHovered = node.id === hoveredComponentId;
+
     return (
       <div>
         {beforeSpacer}
         <TreeItem
-            className={classnames({
+            className={classnames('c-grab', {
                 isActive: treeItemIsActive,
-                isHovered: treeItemIsHovered
+                isHovered: !treeItemIsActive && treeItemIsHovered
               })}
+            onMouseEnter={() => actions.hoverComponent(node.id)}
+            onMouseLeave={() => actions.unHoverComponent()}
             onMouseUp={(e) => {
                 if (wasRightButtonPressed(e)) {
-                  this.props.actions.openMenu(
+                  actions.openMenu(
                     node.id,
                     e.clientX,
                     e.clientY
                   );
                 } else {
-                  this.props.actions.selectComponent(node.id);
+                  actions.selectComponent(node.id);
                 }
               }}
             onMouseDown={(e) => {
-                this.props.context.beginDrag(e, node);
+                const target = $(e.target);
+                const targetPos = target.position();
+
+                context.beginDrag(
+                  e,
+                  node,
+                  target.width(),
+                  targetPos.left,
+                  targetPos.top
+                );
               }}
         >
           {node.name}

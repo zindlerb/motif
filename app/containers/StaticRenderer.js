@@ -1,8 +1,8 @@
 import React from 'react';
-import { createSelector } from 'reselect'
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import classnames from 'classnames';
+import $ from 'jquery';
 
 import dragManager from '../dragManager';
 import {
@@ -11,8 +11,9 @@ import {
 } from '../base_components';
 import {
   componentTypes,
+  SIDEBAR_WIDTH
 } from '../constants';
-import { focusRefCallback } from '../utils';
+import { focusRefCallback, createImmutableJSSelector } from '../utils';
 import HorizontalSelect from '../components/HorizontalSelect';
 import FormLabel from '../components/forms/FormLabel';
 import PopupSelect from '../components/PopupSelect';
@@ -193,14 +194,6 @@ const ImageClassReact = React.createClass({
   },
 });
 
-function makeClick(component) {
-  return function (e) {
-    this.props.actions.selectComponent(component.id);
-    this.props.actions.changePanel('ATTRIBUTES', 'right');
-    e.stopPropagation();
-  };
-}
-
 const MComponentDataRenderer = React.createClass({
   getInitialState() {
     return {
@@ -229,7 +222,7 @@ const MComponentDataRenderer = React.createClass({
   render() {
     /* TD: expand for custom components */
     let className, component;
-    let { context, mComponentData } = this.props;
+    let { context, mComponentData, actions } = this.props;
     let { hoveredComponentId, activeComponentId } = context;
     const { htmlProperties, sx, componentType } = mComponentData;
 
@@ -243,6 +236,12 @@ const MComponentDataRenderer = React.createClass({
       )
     };
 
+    const onClick = () => {
+      actions.selectComponent(mComponentData.id);
+      actions.changePanel('ATTRIBUTES', 'right');
+      e.stopPropagation();
+    }
+
     if (componentType === componentTypes.ROOT) {
       component = (
         <RootClassReact
@@ -254,9 +253,10 @@ const MComponentDataRenderer = React.createClass({
       component = (
         <ContainerClassReact
             className={className}
+            actions={this.props.actions}
             onMouseEnter={this.setHovered}
             onMouseLeave={this.resetHovered}
-            onClick={makeClick(mComponentData)}
+            onClick={onClick}
             {...this.props}
             htmlProperties={htmlProperties}
             sx={sx}
@@ -268,7 +268,7 @@ const MComponentDataRenderer = React.createClass({
             className={className}
             onMouseEnter={this.setHovered}
             onMouseLeave={this.resetHovered}
-            onClick={makeClick(mComponentData)}
+            onClick={onClick}
             {...this.props}
             htmlProperties={htmlProperties}
             sx={sx}
@@ -280,7 +280,7 @@ const MComponentDataRenderer = React.createClass({
             className={className}
             onMouseEnter={this.setHovered}
             onMouseLeave={this.resetHovered}
-            onClick={makeClick(mComponentData)}
+            onClick={onClick}
             {...this.props}
             htmlProperties={htmlProperties}
             sx={sx}
@@ -292,7 +292,7 @@ const MComponentDataRenderer = React.createClass({
             className={className}
             onMouseEnter={this.setHovered}
             onMouseLeave={this.resetHovered}
-            onClick={makeClick(mComponentData)}
+            onClick={onClick}
             {...this.props}
             htmlProperties={htmlProperties}
             sx={sx}
@@ -304,55 +304,79 @@ const MComponentDataRenderer = React.createClass({
   }
 });
 
-function DragHandle(props) {
-  let height = 60;
-  let width = 20;
-  let left;
-  let src;
-
-  if (props.direction === 'left') {
-    left = -width;
-    src = 'public/img/assets/left-handle.svg';
-  } else if (props.direction === 'right') {
-    left = '100%';
-    src = 'public/img/assets/right-handle.svg';
-  }
-
-  let style = {
-    height,
-    width,
-    left
-  }
-
-  function dragStart(e) {
+const DragHandle = React.createClass({
+  getInitialState() {
+    return {};
+  },
+  dragStart(e) {
     let diff;
+    const {
+      direction,
+      rendererWidth,
+      actions
+    } = this.props;
     // add a drag manager for listening and unlistening to events
     dragManager.start(e, {
       dragType: 'resize',
       initialX: e.clientX,
-      initialWidth: props.width,
+      initialWidth: rendererWidth,
       onDrag(e) {
-        if (props.direction === 'left') {
+        if (direction === 'left') {
           diff = (e.clientX - this.initialX);
         } else {
           diff = (this.initialX - e.clientX);
         }
 
-        props.actions.setRendererWidth(this.initialWidth - (diff * 2));
+        this.newWidth = this.initialWidth - (diff * 2);
+
+        if (this.newWidth > 30 &&
+            this.newWidth < ($(window).width() - (SIDEBAR_WIDTH * 2) - 80)) {
+          actions.setRendererWidth(this.newWidth);
+        }
+      },
+      onEnd: () => {
+        this.setState({ isDragging: false });
       }
     });
-  }
 
-  return (
-    <img
-        onDragStart={e => e.preventDefault()}
-        className="drag-handle"
-        style={style}
-        onMouseDown={dragStart}
-        src={src}
-    />
-  );
-}
+    this.setState({ isDragging: true });
+  },
+  render() {
+    let height = 60;
+    let width = 20;
+    let left;
+    let src;
+    const {
+      direction,
+    } = this.props;
+
+    if (direction === 'left') {
+      left = -width;
+      src = 'public/img/assets/left-handle.svg';
+    } else if (direction === 'right') {
+      left = '100%';
+      src = 'public/img/assets/right-handle.svg';
+    }
+
+    let style = {
+      height,
+      width,
+      left
+    }
+
+    return (
+      <img
+          draggable={false}
+          className={classnames(
+              'drag-handle',
+              this.state.isDragging ? 'c-grabbing' : 'c-grab')}
+          style={style}
+          onMouseDown={this.dragStart}
+          src={src}
+      />
+    );
+  }
+});
 
 const PagesPopup = React.createClass({
   getInitialState() {
@@ -370,7 +394,7 @@ const PagesPopup = React.createClass({
 
       if (isActive && isEditing) {
         return (
-          <li>
+          <li key={page.id}>
             <input
                 value={tempText}
                 ref={focusRefCallback}
@@ -476,6 +500,7 @@ const StaticRenderer = React.createClass({
         <MComponentDataRenderer
             actions={this.props.actions}
             mComponentData={componentTree}
+            actions={actions}
             context={context}
             isMouseInRenderer={this.state.isMouseInRenderer}
         />
@@ -520,15 +545,15 @@ const StaticRenderer = React.createClass({
               })}
         >
           {renderer}
-          <DragHandle direction="left" width={width} actions={actions} />
-          <DragHandle direction="right" width={width} actions={actions} />
+          <DragHandle direction="left" rendererWidth={width} actions={actions} />
+          <DragHandle direction="right" rendererWidth={width} actions={actions} />
         </div>
       </div>
     );
   },
 });
 
-const pageListSelector = createSelector(
+const pageListSelector = createImmutableJSSelector(
   state => state.get('pages'),
   (imPages) => {
     let pages = [];
@@ -543,7 +568,7 @@ const pageListSelector = createSelector(
   }
 );
 
-const contextSelector = createSelector(
+const contextSelector = createImmutableJSSelector(
   [
     state => state.get('hoveredComponentId'),
     state => state.get('activeComponentId'),
@@ -559,7 +584,7 @@ const contextSelector = createSelector(
 );
 
 // TD: clean up!!
-const staticRendererSelector = createSelector(
+const staticRendererSelector = createImmutableJSSelector(
   [
     pageListSelector,
     state => state.getIn(['pages', state.get('currentPageId')]),

@@ -263,36 +263,34 @@ export class ComponentsContainer {
   static setAttribute(componentsMap, componentId, attributeName, newValue, attributeOptions) {
     return componentsMap.withMutations((components) => {
       let component = components.get(componentId);
+      const { state, breakpoint } = attributeOptions || {};
+      let attributeType, attributeOption;
 
-      if (attributeOptions) {
-        const { state, breakpoint } = attributeOptions;
-        let attributeType, attributeOption;
-        if (state !== NONE) {
-          attributeType = 'states';
-          attributeOption = state;
-        } else if (breakpoint !== NONE) {
-          attributeType = 'breakpoints';
-          attributeOption = breakpoint;
-        }
+      if (state !== NONE) {
+        attributeType = 'states';
+        attributeOption = state;
+      } else if (breakpoint !== NONE) {
+        attributeType = 'breakpoints';
+        attributeOption = breakpoint;
+      }
 
-        if (attributeType) {
-          if (!component.getIn([attributeType, attributeOption])) {
-            component = component.setIn(
-              [attributeType, attributeOption],
-              Immutable.Map()
-            );
-          }
-
+      if (attributeType) {
+        if (!component.getIn([attributeType, attributeOption])) {
           component = component.setIn(
-            [attributeType, attributeOption, attributeName],
-            newValue
+            [attributeType, attributeOption],
+            Immutable.Map()
           );
         }
+
+        component = component.setIn(
+          [attributeType, attributeOption, attributeName],
+          newValue
+        );
       } else {
         component = component.setIn(['defaultAttributes', attributeName], newValue);
       }
 
-      components.set(componentId, component);
+      return components.set(componentId, component);
     });
   }
 

@@ -1,9 +1,9 @@
 import React from 'react';
-import { createSelector } from 'reselect';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { remote } from 'electron';
 
+import { createImmutableJSSelector } from '../utils';
 import ViewChoiceDropdown from '../components/ViewChoiceDropdown';
 import CartoonButton from '../components/CartoonButton';
 
@@ -137,18 +137,17 @@ const AssetsView = React.createClass({
   }
 });
 
-const assetsSelector = createSelector(
-  state => state.get('assets'),
-  (assets) => {
-    return _.toArray(assets.toJS());
+const assetsSelector = createImmutableJSSelector(
+  [
+    state => state.get('assets'),
+    state => state.get('currentMainView')
+  ],
+  (assets, currentMainView) => {
+    return {
+      currentMainView,
+      assets: _.toArray(assets.toJS())
+    }
   }
 );
 
-export default connect(
-  (state) => {
-    return {
-      currentMainView: state.get('currentMainView'),
-      assets: assetsSelector(state)
-    }
-  }
-)(AssetsView);
+export default connect(assetsSelector)(AssetsView);

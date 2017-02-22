@@ -1,7 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { createSelector } from 'reselect';
-import { saveSiteDialog, loadSiteDialog } from '../utils';
+
+import {
+  saveSiteDialog,
+  loadSiteDialog,
+  createImmutableJSSelector
+} from '../utils';
 import CartoonButton from '../components/CartoonButton';
 
 function SiteItem(props) {
@@ -65,7 +69,7 @@ const OpenSiteModal = React.createClass({
   }
 });
 
-const siteModalSelector = createSelector(
+const siteModalSelector = createImmutableJSSelector(
   [
     state => state.getIn(['fileMetaData', 'filename']),
     state => state.get('recentSites')

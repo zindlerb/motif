@@ -1,5 +1,4 @@
 import React from 'react';
-import Immutable from 'immutable';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
@@ -9,6 +8,7 @@ import DivToBottom from '../components/DivToBottom';
 import SidebarHeader from '../components/SidebarHeader';
 import CartoonButton from '../components/CartoonButton';
 import Dropdown from '../components/forms/Dropdown';
+import { createImmutableJSSelector } from '../utils';
 import {
   fieldTypes,
   componentTypes,
@@ -350,54 +350,41 @@ const Attributes = function (props) {
   );
 }
 
-export default connect(
-  (state) => {
-    const activeComponentId = state.get('activeComponentId');
-
-    if (activeComponentId) {
-      const componentsMap = state.get('componentsMap');
-      const activeComponentState = state.get('activeComponentState');
-      const activeComponentBreakpoint = state.get('activeComponentBreakpoint');
-
-      return {
-        componentName: ComponentsContainer.getName(
-          componentsMap,
-          activeComponentId
-        ),
-        componentType: componentsMap.getIn([
-          activeComponentId,
-          'componentType'
-        ]),
-        attributes: ComponentsContainer.getAttributes(
-          componentsMap,
-          activeComponentId,
-          componentsMap,
-          {
-          state: activeComponentState,
-          breakpoint: activeComponentBreakpoint,
-        }),
-        componentId: activeComponentId,
-        componentState: activeComponentState,
-        componentBreakpoint: activeComponentBreakpoint,
-      }
-    } else {
-      return {
-        componentId: activeComponentId
-      };
-    }
-  },
-  null,
-  null,
-  {
-    areStatesEqual(newState, oldState) {
-      return _.every([
-        'componentId',
-        'componentsMap',
-        'activeComponentState',
-        'activeComponentBreakpoint'
-      ], (key) => {
-        Immutable.is(newState.get(key), oldState.get('key'))
-      });
-    }
+const attributesSelector = createImmutableJSSelector(
+  [
+    state => state.get('componentsMap'),
+    state => state.get('activeComponentId'),
+    state => state.get('activeComponentState'),
+    state => state.get('activeComponentBreakpoint'),
+  ],
+  (componentsMap, activeComponentId,
+   activeComponentState, activeComponentBreakpoint) => {
+     if (activeComponentId) {
+       return {
+         componentName: ComponentsContainer.getName(
+           componentsMap,
+           activeComponentId
+         ),
+         componentType: componentsMap.getIn([
+           activeComponentId,
+           'componentType'
+         ]),
+         attributes: ComponentsContainer.getAttributes(
+           componentsMap,
+           activeComponentId,
+           componentsMap,
+           {
+             state: activeComponentState,
+             breakpoint: activeComponentBreakpoint,
+           }),
+         componentId: activeComponentId,
+         componentState: activeComponentState,
+         componentBreakpoint: activeComponentBreakpoint,
+       }
+     } else {
+       return {};
+     }
   }
-)(Attributes);
+)
+
+export default connect(attributesSelector)(Attributes);

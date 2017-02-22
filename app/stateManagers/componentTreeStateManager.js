@@ -152,8 +152,9 @@ export const componentTreeReducer = {
       const componentsContainer = new ComponentsContainer(componentsMap);
       const newBlockParentId = componentsMap.getIn([newBlockId, 'parentId']);
       componentsMap.mergeIn(
-        [newBlockId, 'name'],
-        { name: 'New Component', parentId: undefined });
+        [newBlockId],
+        { name: 'New Component', parentId: undefined }
+      );
 
       const variantId = componentsContainer.createVariant(newBlockId, {
         parentId: newBlockParentId
@@ -177,17 +178,16 @@ export const componentTreeReducer = {
 
   [SET_COMPONENT_ATTRIBUTE](state, action) {
     return state.update('componentsMap', (componentsMap) => {
-      const componentsContainer = new ComponentsContainer(componentsMap);
-      componentsContainer.setAttribute(
+      return ComponentsContainer.setAttribute(
+        componentsMap,
         action.componentId,
         action.attrKey,
         action.newAttrValue,
         {
-          breakpoint: state.activeComponentBreakpoint,
-          state: state.activeComponentState
+          breakpoint: state.get('activeComponentBreakpoint'),
+          state: state.get('activeComponentState')
         }
-      )
-      return componentsContainer.components;
+      );
     });
   },
 

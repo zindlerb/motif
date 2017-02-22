@@ -119,10 +119,9 @@ export const actions = Object.assign({
       assetId
     }
   },
-  setPageValue(pageId, key, newValue) {
+  setPageValue(key, newValue) {
     return {
       type: SET_PAGE_VALUE,
-      pageId,
       key,
       newValue
     }
@@ -296,7 +295,6 @@ const reducerObj = Object.assign({
     return state;
   },
   [SET_PAGE_VALUE](state, action) {
-    state.get('pages').get(state.get('currentPageId'));
     return state.updateIn(['pages', state.get('currentPageId')], (currentPage) => {
       return currentPage.set(action.key, action.newValue);
     });
@@ -330,15 +328,14 @@ const reducerObj = Object.assign({
     // TD: need to remove all the components from site components
     return state.update('pages', (pages) => {
       return pages.delete(action.pageId);
-    }).update('currentPageId', (currentPageId) => {
-      if (currentPageId === action.pageId) {
-        if (state.pages.length) {
-          return state.getIn(['pages', 0, 'id']);
-        } else {
-          return undefined;
-        }
+    }).update((state) => {
+      if (state.get('currentPageId') === action.pageId) {
+        return state.set(
+          'currentPageId',
+          state.get('pages').keys().next().value
+        );
       } else {
-        return currentPageId;
+        return state;
       }
     });
   },

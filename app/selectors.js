@@ -1,7 +1,7 @@
-import { createSelector } from 'reselect';
 import { ComponentsContainer } from './base_components';
+import { createImmutableJSSelector } from './utils';
 
-export const renderTreeSelector = createSelector(
+export const renderTreeSelector = createImmutableJSSelector(
   [
     state => state.getIn(['pages', state.get('currentPageId'), 'componentTreeId']),
     state => state.get('componentsMap'),

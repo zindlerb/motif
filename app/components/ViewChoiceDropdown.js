@@ -13,6 +13,7 @@ function ChoiceViewPopup(props) {
   ].map(function (itemData) {
     return (
       <li
+          key={itemData.text}
           className={classnames({
               highlighted: itemData.value === props.mainView
             })}
