@@ -100,6 +100,14 @@ body * {
   background-color: white;
   border-right: 1px solid $border;
   border-left: 1px solid $border;
+
+  &.left {
+    box-shadow: 1px 0px 5px #cacaca;
+  }
+
+  &.right {
+    box-shadow: -1px 0px 5px #cacaca;
+  }
 }
 
 i {
@@ -113,7 +121,6 @@ body {
 
 /* COMPONENTS */
 .horizontal-select {
-  display: inline-flex;
   border-bottom: 1px solid $border;
   background-color: white;
 
@@ -188,8 +195,6 @@ body {
   position: absolute;
   right: 8px;
 }
-
-
 
 .cartoon-button {
   &.medium {
@@ -287,6 +292,16 @@ body {
   overflow: auto;
 }
 
+/* TD: combine with modal card */
+.card {
+  padding: $spacing-large;
+  height: 85%;
+  background-color: white;
+  border-radius: 24px;
+  border: 1px solid #888888;
+  box-shadow: 1px 1px 5px #888888;
+}
+
 .modal-card {
   left: 50%;
   top: 30%;
@@ -312,13 +327,28 @@ body {
 }
 
 .asset-icon {
-  width: 100px;
+  $image-size: 100px;
+  position: relative;
+  width: $image-size;
   margin: $spacing-medium;
-}
 
-.asset-icon:hover {
   img {
-    opacity: .5;
+    width: $image-size;
+    height: $image-size;
+  }
+
+  i {
+    cursor: pointer;
+  }
+
+  .asset-edit-bar {
+    $asset-bar-height: 20px;
+    position: absolute;
+    height: $asset-bar-height;
+    top: $image-size - $asset-bar-height;
+    opacity: .85;
+    background-color: #E4E4E4;
+    width: 100%;
   }
 }
 
@@ -387,4 +417,12 @@ body {
 -webkit-transition: margin-top .5s, border-width .5s;
 transition: margin-top .5s, border-width .5s;
  */
+}
+
+.hint {
+  color: #A2A2A2;
+}
+
+.state-dropdown {
+  width: 6rem;
 }

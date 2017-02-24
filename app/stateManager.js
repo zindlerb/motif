@@ -48,7 +48,7 @@ let initialState = Immutable.fromJS({
   activeBreakpoint: 'NONE',
   activeLeftPanel: 'TREE',
   activeRightPanel: 'DETAILS',
-  currentMainView: mainViewTypes.EDITOR,
+  currentMainView: mainViewTypes.ASSETS,
   menu: { isOpen: false },
 
   componentsMap: defaultComponentsMap,
@@ -65,7 +65,7 @@ let initialState = Immutable.fromJS({
   // TD: dynamically set initial renderer width
   rendererWidth: 200,
 
-  fileMetaData: {},
+  fileMetadata: {},
   componentMap: defaultComponentsMap
 });
 
@@ -75,7 +75,6 @@ const REDO = 'REDO';
 
 const SET_PAGE_VALUE = 'SET_PAGE_VALUE';
 const DELETE_PAGE = 'DELETE_PAGE';
-const UPDATE_ASSET_NAME = 'UPDATE_ASSET_NAME';
 
 const SET_ACTIVE_COMPONENT_STATE = 'SET_ACTIVE_COMPONENT_STATE';
 const SET_ACTIVE_COMPONENT_BREAKPOINT = 'SET_ACTIVE_COMPONENT_BREAKPOINT';
@@ -97,7 +96,22 @@ const CLOSE_MENU = 'CLOSE_MENU';
 const CHANGE_MAIN_VIEW = 'CHANGE_MAIN_VIEW';
 
 const ADD_ASSET = 'ADD_ASSET';
+const UPDATE_ASSET_NAME = 'UPDATE_ASSET_NAME';
+const DELETE_ASSET = 'DELETE_ASSET';
+
 const SET_RENDERER_WIDTH = 'SET_RENDERER_WIDTH';
+
+function writeSiteFile(dirname, state, cb) {
+  fs.writeFile(
+    path.join(dirname, 'site.json'),
+    serializer.serialize(state),
+    (err) => {
+      if (cb) {
+        cb(err);
+      }
+    }
+  );
+}
 
 export const actions = Object.assign({
   undo() {
@@ -106,12 +120,28 @@ export const actions = Object.assign({
       _noUndo: true
     }
   },
+
   redo() {
     return {
       type: REDO,
       _noUndo: true
     }
   },
+
+  deleteAsset(assetId) {
+    return (dispatch, getState) => {
+      const assetPath = getState().getIn(['assets', assetId, 'src']);
+      fs.unlink(assetPath, (err) => {
+        if (!err) {
+          dispatch({
+            type: DELETE_ASSET,
+            assetId
+          })
+        }
+      })
+    }
+  },
+
   updateAssetName(assetId, newName) {
     return {
       type: UPDATE_ASSET_NAME,
@@ -119,6 +149,7 @@ export const actions = Object.assign({
       assetId
     }
   },
+
   setPageValue(key, newValue) {
     return {
       type: SET_PAGE_VALUE,
@@ -135,51 +166,64 @@ export const actions = Object.assign({
     }
   },
 
-  siteLoadFailure() {
-    return {
-      type: SITE_LOAD_FAILURE,
-      _noUndo: true
+  saveSite(dirname) {
+    // TD: clean this mess
+    function finished(err, dispatch) {
+      if (err) {
+        dispatch({
+          type: SITE_SAVE_FAILURE,
+          _noUndo: true
+        });
+      } else {
+        dispatch({
+          type: SITE_SAVE_SUCCESS,
+          dirname,
+          _noUndo: true
+        });
+      }
     }
-  },
 
-  siteLoadSuccess(filename, fileStr) {
-    return {
-      type: SITE_LOAD_SUCCESS,
-      fileStr,
-      filename,
-      _noUndo: true
-    };
-  },
-
-  saveSite(filename) {
     return function (dispatch, getState) {
       dispatch({ type: SITE_SAVE_ATTEMPT });
-      return fs.writeFile(filename, serializer.serialize(getState()), function (err) {
-        if (err) {
-          dispatch({
-            type: SITE_SAVE_FAILURE,
-            _noUndo: true
+
+      if (!dirname) {
+        dirname = getState().getIn(['fileMetadata', 'dirname']);
+      }
+
+      fs.access(dirname, (err) => {
+        if (err && err.code === "ENOENT") {
+          return fs.mkdir(dirname, () => {
+            writeSiteFile(dirname, getState(), (err) => {
+              fs.mkdir(path.join(dirname, 'assets'), (err) => {
+                finished(err, dispatch);
+              });
+            });
           });
         } else {
-          dispatch({
-            type: SITE_SAVE_SUCCESS,
-            filename,
-            _noUndo: true
+          writeSiteFile(dirname, getState(), (err) => {
+            finished(err, dispatch);
           });
         }
       });
     }
   },
 
-  loadSite(filename) {
-    return function (dispatch) {
+  loadSite(dirname) {
+    return (dispatch) => {
       dispatch({ type: SITE_LOAD_ATTEMPT });
-
-      return fs.readFile(filename, 'utf8', function (err, file) {
+      return fs.readFile(path.join(dirname, 'site.json'), 'utf8', (err, fileStr) => {
         if (err) {
-          this.siteLoadFailure();
+          dispatch({
+            type: SITE_LOAD_FAILURE,
+            _noUndo: true
+          })
         } else {
-          this.siteLoadSuccess(filename, file);
+          dispatch({
+            type: SITE_LOAD_SUCCESS,
+            fileStr,
+            dirname,
+            _noUndo: true
+          });
         }
       });
     }
@@ -222,10 +266,27 @@ export const actions = Object.assign({
     };
   },
   addAsset(filename) {
-    return {
-      type: ADD_ASSET,
-      filename,
-      _noUndo: true
+    return (dispatch, getState) => {
+      fs.readFile(filename, (err, file) => {
+        const assetPath = path.join(
+          getState().getIn(['fileMetadata', 'dirname']),
+          'assets',
+          path.basename(filename)
+        );
+
+        console.log('assetPath', assetPath);
+
+        fs.writeFile(assetPath, file, (err) => {
+          console.log('err', err);
+          if (!err) {
+            dispatch({
+              type: ADD_ASSET,
+              assetPath,
+              _noUndo: true
+            })
+          }
+        })
+      });
     }
   },
   changePanel(panelConst, panelSide) {
@@ -373,12 +434,12 @@ const reducerObj = Object.assign({
   },
 
   [ADD_ASSET](state, action) {
-    const { filename } = action;
+    const { assetPath } = action;
     const id = guid();
     return state.update('assets', (assets) => {
       return assets.set(id, Immutable.Map({
-        src: filename,
-        name: path.parse(filename).name,
+        src: assetPath,
+        name: path.basename(assetPath),
         id
       }));
     });
@@ -397,18 +458,15 @@ const reducerObj = Object.assign({
   },
 
   [SITE_SAVE_SUCCESS](state, action) {
-    return state.update('fileMetaData', (fileMetaData) => {
-      return fileMetaData.set('filename', action.filename);
-    });
+    return state.setIn(['fileMetadata', 'dirname'], action.dirname);
   },
 
   [SITE_LOAD_SUCCESS](state, action) {
     /*
-       TD: Revisit. This is more complicated
+       TD: Add recent sites
      */
-
     return state.merge(state, serializer.deserialize(action.fileStr))
-                .setIn(['fileMetaData', 'filename'], action.filename);
+                .setIn(['fileMetadata', 'dirname'], action.dirname);
   },
 
   [CHANGE_MAIN_VIEW](state, action) {
@@ -419,6 +477,13 @@ const reducerObj = Object.assign({
     return state.update('assets', (assets) => {
       return assets.setIn([action.assetId, 'name'], action.newName);
     });
+  },
+  [DELETE_ASSET](state, action) {
+    // TD: figure out the idiomatic way to do this.
+    // This is very hacky. But changes to assets must be atomic...
+    const newState = state.deleteIn(['assets', action.assetId]);
+    writeSiteFile(newState.getIn(['fileMetadata', 'dirname']), newState);
+    return newState;
   }
 }, componentTreeReducer);
 

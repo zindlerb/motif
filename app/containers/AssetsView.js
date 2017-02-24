@@ -6,109 +6,103 @@ import { remote } from 'electron';
 import { createImmutableJSSelector } from '../utils';
 import ViewChoiceDropdown from '../components/ViewChoiceDropdown';
 import CartoonButton from '../components/CartoonButton';
+import TextField from '../components/forms/TextField';
 
 let dialog = remote.dialog;
-
-const EditableText = React.createClass({
-  getInitialState() {
-    return {
-      tempText: '',
-      isEditing: false
-    }
-  },
-
-  render() {
-    const {
-      onSubmit,
-      value,
-    } = this.props;
-
-    const {
-      isEditing,
-      tempText,
-    } = this.state;
-
-    if (isEditing) {
-      return (
-        <input
-            focused={true}
-            ref={(ref) => {
-                if (ref && document.activeElement !== ref) {
-                  ref.focus();
-                }
-              }}
-            className="w-100"
-            type="text"
-            value={tempText}
-            onChange={e => this.setState({
-                tempText: e.target.value
-              })}
-            onBlur={(e) => {
-                onSubmit(e.target.value);
-                this.setState({ isEditing: false });
-              }}
-        />
-      );
-    } else {
-      return (
-        <div
-            className="editable-text"
-            onClick={() => {
-                this.setState({
-                  isEditing: true,
-                  tempText: value
-                });
-              }}>
-          {value}
-        </div>
-      );
-    }
-  }
-});
 
 const AssetIcon = React.createClass({
   getInitialState() {
     return {
-      isHovering: false
+      isHovering: false,
+      isEditing: false
     }
   },
   render() {
-    const width = 100;
     const { asset, actions } = this.props;
+    const { isEditing, isHovering } = this.state;
     const { name, src } = asset;
+    let editBar, input;
+
+    if (this.state.isHovering) {
+      editBar = (
+        <div className="asset-edit-bar">
+          <i
+              className="fa fa-pencil-square-o ml2 v-mid"
+              onClick={() => {
+                  this.setState({ isEditing: true });
+                }}
+          />
+          <i
+              className="fa fa-trash ml2 v-mid"
+              onClick={() => {
+                  this.props.actions.deleteAsset(asset.id);
+                }}
+          />
+        </div>
+      );
+    }
+
+    if (isEditing) {
+      input = (
+        <TextField
+            submit={(value) => actions.updateAssetName(asset.id, value) }
+            value={ asset.name }
+        />
+      );
+    } else {
+      input = <span>{name}</span>;
+    }
+
     return (
       <div
-          style={{ width }}
-          className="asset-icon">
-        <img style={{ width, height: 100 }} src={src} />
-        <EditableText
-            value={name}
-            onSubmit={(value) => {
-                actions.updateAssetName(asset.id, value)
-              }}
-        />
+          className="asset-icon"
+          onMouseEnter={() => { this.setState({ isHovering: true }) }}
+          onMouseLeave={() => { this.setState({ isHovering: false }) }}
+      >
+        <img src={src} />
+        { input }
+        { editBar }
       </div>
     );
   }
 });
+
+/*
+
+   <EditableText
+   value=
+   onSubmit={(value) => {
+   actions.updateAssetName(asset.id, value)
+   }}
+   />
+
+*/
 
 const AssetsView = React.createClass({
   render() {
     //console.log('ASSETS VIEW RENDER');
 
     const { actions, currentMainView, assets } = this.props;
-    const icons = assets.map((asset) => {
+    let icons = assets.map((asset) => {
       return <AssetIcon asset={asset} actions={actions} />
     });
 
+    if (icons.length === 0) {
+      icons = (
+        <div className="mt6 tc w-100">
+          <span className="f3 hint">No assets. Click import to add some.</span>
+        </div>
+      );
+    }
+
     return (
-      <div>
+      <div className="h-100">
         <ViewChoiceDropdown
             mainView={currentMainView}
             actions={actions}
         />
-        <div className="mh6">
-          <h1 className="dib">Images</h1>
+        <div className="mh5 card">
+          <h1 className="dib ma0">Images</h1>
           <CartoonButton
               className="v-mid mh2 mb2"
               text="Import"

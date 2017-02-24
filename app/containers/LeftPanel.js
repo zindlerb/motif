@@ -9,7 +9,6 @@ import { guid, createImmutableJSSelector } from '../utils';
 import HorizontalSelect from '../components/HorizontalSelect';
 import FormLabel from '../components/forms/FormLabel';
 import TextField from '../components/forms/TextField';
-import SidebarHeader from '../components/SidebarHeader';
 import ComponentTree from '../components/ComponentTree';
 import TreeItem from '../components/TreeItem';
 import { renderTreeSelector } from '../selectors';
@@ -38,8 +37,9 @@ function DragShadow(props) {
 const ComponentTreeContainer = React.createClass({
   getInitialState() {
     return {
-      insertionPointCache: undefined,
-      closestInsertionPoints: undefined
+      isDragging: false,
+      dragData: {},
+      hasOpenedMenu: false
     }
   },
 
@@ -65,13 +65,15 @@ const ComponentTreeContainer = React.createClass({
       onConsummate(e) {
         that.setState({
           isDragging: true,
-          shouldUpdate: true,
-          nodeText: node.name,
-          width: itemWidth,
-          shadowOffsetX: e.clientX - itemX,
-          shadowOffsetY: e.clientY - itemY,
-          x: e.clientX,
-          y: e.clientY
+          dragData: {
+            shouldUpdate: true,
+            nodeText: node.name,
+            width: itemWidth,
+            shadowOffsetX: e.clientX - itemX,
+            shadowOffsetY: e.clientY - itemY,
+            x: e.clientX,
+            y: e.clientY
+          }
         });
 
         that.initializeDropSpots(
@@ -85,7 +87,6 @@ const ComponentTreeContainer = React.createClass({
           x: e.clientX,
           y: e.clientY
         };
-        that.setState(pos);
         that.updateDropSpots(pos);
       },
       onEnd() {
@@ -99,10 +100,10 @@ const ComponentTreeContainer = React.createClass({
           );
         }
 
-        that.setState(_.keys(that.state).reduce((obj, key) => {
-          obj[key] = undefined;
-          return obj;
-        }, {}));
+        that.setState({
+          isDragging: false,
+          dragData: {}
+        })
       }
     });
   },
@@ -173,14 +174,19 @@ const ComponentTreeContainer = React.createClass({
     });
 
     this.setState({
-      draggedComponentId,
-      insertionPointCache: insertionPoints
+      dragData: Object.assign(
+        this.state.dragData,
+        {
+          draggedComponentId,
+          insertionPointCache: insertionPoints
+        }
+      )
     });
   },
 
   updateDropSpots(pos) {
     // Binary search to find 3 closest nodes
-    const insertionPoints = this.state.insertionPointCache;
+    const insertionPoints = this.state.dragData.insertionPointCache;
     let left = 0, right = insertionPoints.length - 1;
     let middle;
     let shouldUpdate = true;
@@ -237,7 +243,7 @@ const ComponentTreeContainer = React.createClass({
       return closestInsertionPoints;
     }, []);
 
-    if (this.state.closestInsertionPoints) {
+    if (this.state.dragData.closestInsertionPoints) {
       shouldUpdate = !_.every(
         this.state.closestInsertionPoints,
         (stateInsertionPoint, ind) => {
@@ -246,10 +252,17 @@ const ComponentTreeContainer = React.createClass({
       );
     }
 
-    this.setState(Object.assign({
-      closestInsertionPoints: newClosestInsertionPoints,
-      shouldUpdate
-    }, pos));
+    this.setState({
+      dragData: Object.assign(
+        this.state.dragData,
+        {
+          closestInsertionPoints: newClosestInsertionPoints,
+          shouldUpdate,
+          x: pos.x,
+          y: pos.y
+        }
+      )
+    });
   },
 
   render() {
@@ -262,6 +275,11 @@ const ComponentTreeContainer = React.createClass({
 
     const {
       isDragging,
+      hasOpenedMenu,
+      dragData
+    } = this.state;
+
+    const {
       shouldUpdate,
       width,
       shadowOffsetX,
@@ -269,8 +287,9 @@ const ComponentTreeContainer = React.createClass({
       x,
       y,
       nodeText,
-    } = this.state;
-    let shadow;
+    } = dragData
+
+    let shadow, hintText;
 
     const closestInsertionPoints = this.state.closestInsertionPoints || [];
 
@@ -290,9 +309,13 @@ const ComponentTreeContainer = React.createClass({
       );
     }
 
+    if (!hasOpenedMenu) {
+      hintText = <span className="hint f7 ml2 mt2 dib">Right click components for menu</span>;
+    }
+
     return (
       <div>
-        <SidebarHeader text="Component Tree" />
+        { hintText }
         <ComponentTree
             node={renderTree}
             actions={actions}
@@ -363,7 +386,6 @@ const LeftPanel = React.createClass({
 
       body = (
         <div>
-          <SidebarHeader text="Page Settings" />
           { inputs }
         </div>
       );
@@ -374,8 +396,8 @@ const LeftPanel = React.createClass({
         <HorizontalSelect
             className="w-100"
             options={[
-              { value: leftPanelTypes.TREE, src: 'public/img/assets/tree-icon.svg' },
-              { value: leftPanelTypes.DETAILS, faClass: 'fa-info-circle' },
+              { value: leftPanelTypes.TREE, text: 'Tree' },
+              { value: leftPanelTypes.DETAILS, text: 'Page Settings' },
             ]}
             activePanel={this.props.activePanel}
             onClick={(name) => { actions.changePanel(name, 'left'); }}

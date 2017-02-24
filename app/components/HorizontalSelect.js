@@ -26,14 +26,20 @@ export default function HorizontalSelect(props) {
     } else if (option.src) {
       content = <img src={option.src} className="img" />;
     } else {
-      content = <span className="f6">{option.text}</span>;
+      content = (
+        <span
+            className="f6">
+          {option.text}
+        </span>
+      );
     }
 
     return (
       <div
-          className={classnames('flex-auto tc pv1 ph2 h-100 c-pointer', {
+          className={classnames('tc pv2 ph2 h-100 c-pointer fl', {
               highlighted: option.value === props.activePanel,
             })}
+          style={{ width: (100 / props.options.length) + '%' }}
           onMouseUp={headerClick}
           key={ind}
       >
@@ -44,7 +50,7 @@ export default function HorizontalSelect(props) {
 
   return (
     <div
-      className={classnames('horizontal-select justify-around align-center', {
+      className={classnames('cf horizontal-select', {
         border: props.hasBorder,
       }, props.className)}
     >

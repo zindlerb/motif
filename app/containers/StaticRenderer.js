@@ -522,17 +522,6 @@ const StaticRenderer = React.createClass({
               />
             </PopupSelect>
           </FormLabel>
-          <FormLabel name="View">
-            <HorizontalSelect
-                onClick={(name) => { this.props.actions.selectView(name); }}
-                hasBorder
-                activePanel={activeView}
-                options={[
-                  { text: 'Minimal', value: 'MINIMAL' },
-                  { text: 'Dense', value: 'DENSE' }
-                ]}
-            />
-          </FormLabel>
         </div>
         <div
             onMouseEnter={this.mouseEnter}

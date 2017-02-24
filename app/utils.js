@@ -155,42 +155,30 @@ class GlobalEventManager {
 
 export const globalEventManager = new GlobalEventManager();
 
-export function saveSiteDialog(actions) {
-  dialog.showSaveDialog({
-    title: 'Save Site',
-    filters: [
-      {
-        name: 'motif file',
-        extensions: ['json']
-      }
-    ]
-  }, (filename) => {
-    actions.saveSite(filename);
-  });
-}
-
 export function saveSiteAsDialog(actions) {
   dialog.showSaveDialog({
     title: 'Save Site As',
     filters: [
       {
-        name: 'motif file',
-        extensions: ['json']
+        name: 'Motif Site Name',
+        extensions: ['*']
       }
     ]
   }, (filename) => {
-    actions.saveSite(filename);
+    if (filename) {
+      actions.saveSite(filename);
+    }
   });
 }
 
 export function loadSiteDialog(actions) {
   dialog.showOpenDialog({
     title: 'Select a site to edit',
-    properties: ['openFile'],
+    properties: ['openDirectory'],
     filters: [
       {
-        name: 'motif file',
-        extensions: ['json']
+        name: 'Open Site',
+        extensions: ['*']
       }
     ]
   }, (filenames) => {

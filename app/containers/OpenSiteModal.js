@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import {
-  saveSiteDialog,
+  saveSiteAsDialog,
   loadSiteDialog,
   createImmutableJSSelector
 } from '../utils';
@@ -49,7 +49,7 @@ const OpenSiteModal = React.createClass({
             <div className="tc">
               <CartoonButton
                   text="New"
-                  onClick={() => saveSiteDialog(this.props.actions)}
+                  onClick={() => saveSiteAsDialog(this.props.actions)}
                   size="medium"
               />
               <CartoonButton
@@ -71,12 +71,12 @@ const OpenSiteModal = React.createClass({
 
 const siteModalSelector = createImmutableJSSelector(
   [
-    state => state.getIn(['fileMetaData', 'filename']),
+    state => state.getIn(['fileMetadata', 'dirname']),
     state => state.get('recentSites')
   ],
-  (filename, recentSites) => {
+  (dirname, recentSites) => {
     return {
-      isOpen: !filename,
+      isOpen: !dirname,
       recentSites: recentSites.toJS()
     }
   }

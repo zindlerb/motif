@@ -303,20 +303,26 @@ const Attributes = function (props) {
 
     body = (
       <div className="ph2">
-        <div className="tc mb3 mt2">
-          <span>Name: {componentName}</span>
-          <CartoonButton
-              onClick={() => {
-                  props.actions.createComponentBlock(componentId);
-                }}
-              text="Make Component"
-          />
-          <CartoonButton
-              onClick={() => { props.actions.syncComponent(componentId); }}
-              text="Sync"
-          />
-          <span>State:</span>
+        <div className="mb3 mt2">
+          <div className="tc">
+            <span className="mv2 dib f5">{componentName}</span>
+          </div>
+          <div className="mb3 tc">
+            <CartoonButton
+                className="mr1"
+                onClick={() => {
+                    props.actions.createComponentBlock(componentId);
+                  }}
+                text="Make Component"
+            />
+            <CartoonButton
+                onClick={() => { props.actions.syncComponent(componentId); }}
+                text="Sync"
+            />
+          </div>
+          <span className="mb2 dib">State:</span>
           <Dropdown
+              className="state-dropdown fr"
               choices={[
                 { text: 'None', value: NONE },
                 { text: 'Hover', value: stateTypes.HOVER }
@@ -325,8 +331,9 @@ const Attributes = function (props) {
                   props.actions.setActiveComponentState(val);
                 }}
               value={componentState} />
-          <span>Breakpoint:</span>
+          <span className="dib">Breakpoint:</span>
           <Dropdown
+              className="state-dropdown fr"
               choices={[
                 { text: 'None', value: NONE },
                 { text: 'Medium (30em - 60em)', value: breakpointTypes.MEDIUM },
@@ -340,11 +347,16 @@ const Attributes = function (props) {
         {attributeFields}
       </div>
     );
+  } else {
+    body = (
+      <div className="mt6 tc">
+        <span className="hint f7 dib">Select a Component</span>
+      </div>
+    );
   }
 
   return (
     <DivToBottom className="overflow-auto">
-      <SidebarHeader text="Attributes" />
       {body}
     </DivToBottom>
   );

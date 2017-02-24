@@ -17,7 +17,6 @@ import Attributes from './containers/Attributes';
 import AssetsView from './containers/AssetsView';
 import {
   saveSiteAsDialog,
-  saveSiteDialog,
   loadSiteDialog,
   createImmutableJSSelector
 } from './utils';
@@ -37,19 +36,15 @@ const Editor = React.createClass({
       }
     }, 'keyup');
 
-    const reloadFilename = '/Users/brianzindler/Documents/reload.json';
-    fs.readFile(reloadFilename, 'utf8', (err, file) => {
-      if (err) {
-        console.warn('Reload File Not Found');
+    const reloadDirname = '/Users/brianzindler/Documents/reload';
+
+    fs.access(reloadDirname, (err) => {
+      if (!err) {
+        actions.loadSite(reloadDirname);
       } else {
-        actions.siteLoadSuccess(reloadFilename, file);
+        console.warn('No reload dir found');
       }
     });
-
-    // TD:
-    // create menu from instances
-    // save redo instance on component
-    // enable and disable per-state
 
     const template = [
       {
@@ -72,8 +67,9 @@ const Editor = React.createClass({
           },
           {
             label: 'Save',
-            click() {
-              saveSiteDialog(actions);
+            click: () => {
+              console.log(this.props.dirname);
+              actions.saveSite(this.props.dirname);
             }
           },
           {
@@ -118,7 +114,7 @@ const Editor = React.createClass({
     if (mainViewTypes.EDITOR === currentMainView) {
       view = (
         <div className={classnames('flex h-100')}>
-          <div className="sidebar flex-none h-100" style={{ width: SIDEBAR_WIDTH }}>
+          <div className="sidebar left flex-none h-100" style={{ width: SIDEBAR_WIDTH }}>
             <LeftPanel actions={actions} />
           </div>
           <div className="flex-auto flex flex-column h-100 mh4 relative">
@@ -128,7 +124,7 @@ const Editor = React.createClass({
             />
             <StaticRenderer actions={actions} />
           </div>
-          <div className="sidebar h-100 flex-none" style={{ width: SIDEBAR_WIDTH }}>
+          <div className="sidebar right h-100 flex-none" style={{ width: SIDEBAR_WIDTH }}>
             <Attributes actions={actions} />
           </div>
           <OpenSiteModal actions={actions} />
@@ -155,8 +151,16 @@ const Editor = React.createClass({
 });
 
 const appSelector = createImmutableJSSelector(
-  state => state.get('currentMainView'),
-  (currentMainView) => { return { currentMainView } }
+  [
+    state => state.get('currentMainView'),
+    state => {
+      console.log(state.toJS());
+      return state.getIn(['fileMetadata', 'dirname'])
+    }
+  ],
+  (currentMainView, dirname) => {
+    return { currentMainView, dirname }
+  }
 )
 
 const connector = connect(
