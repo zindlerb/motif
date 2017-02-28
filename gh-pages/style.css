@@ -13,23 +13,31 @@ body {
   border-radius: 6px;
   color: #454545;
   cursor: pointer;
+  text-decoration: none;
+}
+
+a:hover {
+  opacity: .75;
 }
 
 .body-container {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
+  flex-wrap: wrap-reverse;
 }
 
 .text-container {
 
 }
 
+.image-container {
+  max-width: 400px;
+  max-height: 266px;
+}
+
 .screenshot {
   box-shadow: 2px 2px 5px #888888;
 }
-
-/* breakpoint order */
 
 .bullets {
   padding-left: 32px;
@@ -37,4 +45,5 @@ body {
 
 .fa-github {
   font-size: 24px;
+  color: black;
 }
