@@ -231,3 +231,15 @@ window.logger = function logger(...args) {
     }
   }));
 };
+
+export function escapeHtml(str) {
+  // From: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
+  var div = document.createElement('div');
+  div.appendChild(document.createTextNode(str));
+  return div.innerHTML;
+}
+
+export function camelToDash(str) {
+  // http://stackoverflow.com/questions/8955533/javascript-jquery-split-camelcase-string-and-add-hyphen-rather-than-space
+  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+}

@@ -45,7 +45,11 @@ const AssetIcon = React.createClass({
     if (isEditing) {
       input = (
         <TextField
-            submit={(value) => actions.updateAssetName(asset.id, value) }
+            onSubmit={(value) => {
+                console.log('submit');
+                this.setState({ isEditing: false });
+                actions.updateAssetName(asset.id, value);
+              }}
             value={ asset.name }
         />
       );

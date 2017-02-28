@@ -1,0 +1,40 @@
+body {
+  font-family: 'Fira Sans', sans-serif;
+}
+
+.title {
+  font-family: 'Playfair Display', serif;
+}
+
+.btn {
+  padding: 8px;
+  border: 1px solid #A9EAFF;
+  background-color: #F7FDFF;
+  border-radius: 6px;
+  color: #454545;
+  cursor: pointer;
+}
+
+.body-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.text-container {
+
+}
+
+.screenshot {
+  box-shadow: 2px 2px 5px #888888;
+}
+
+/* breakpoint order */
+
+.bullets {
+  padding-left: 32px;
+}
+
+.fa-github {
+  font-size: 24px;
+}

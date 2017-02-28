@@ -378,92 +378,6 @@ const DragHandle = React.createClass({
   }
 });
 
-const PagesPopup = React.createClass({
-  getInitialState() {
-    return {
-      isEditing: false,
-      tempText: ''
-    }
-  },
-  render() {
-    const { pages, currentPageId, currentPageName, actions } = this.props;
-    const { isEditing, tempText } = this.state;
-    let isActive;
-    let pageComponents = pages.map((page) => {
-      isActive = page.id === currentPageId;
-
-      if (isActive && isEditing) {
-        return (
-          <li key={page.id}>
-            <input
-                value={tempText}
-                ref={focusRefCallback}
-                onChange={(e) => { this.setState({ tempText: e.target.value }) }}
-                onBlur={(e) => {
-                    this.setState({ isEditing: false, tempText: '' });
-                    actions.setPageValue(page.id, 'name', e.target.value);
-                  }}
-            />
-          </li>
-        );
-      } else {
-        return (
-          <li
-              className={classnames({ highlighted: isActive })}
-              onClick={() => { actions.changePage(page.id) }}
-          >
-            {page.name}
-          </li>
-        );
-      }
-    });
-
-    if (pageComponents.length === 0) {
-      pageComponents.push(
-        <li className="suggestion">Please Add a page</li>
-      );
-    }
-
-    return (
-      <div>
-        <div
-            style={{
-              top: this.props.y,
-              left: this.props.x
-            }}
-            className="popup tl fixed w5">
-          <div className="ph3">
-            <i
-                className="fa fa-plus"
-                aria-hidden="true"
-                onClick={() => { actions.addPage() }}
-            />
-            <i
-                className="fa fa-trash"
-                aria-hidden="true"
-                onClick={() => { actions.deletePage(currentPageId) }}
-            />
-            <i
-                className="fa fa-pencil-square-o"
-                aria-hidden="true"
-                onClick={() => {
-                    this.setState({
-                      isEditing: true,
-                      tempText: currentPageName
-                    });
-                  }}
-            />
-          </div>
-          <ul>
-            {pageComponents}
-          </ul>
-        </div>
-        <UpArrow y={this.props.y} x={this.props.x} />
-      </div>
-    );
-  }
-})
-
 
 const StaticRenderer = React.createClass({
   getInitialState() {
@@ -482,24 +396,25 @@ const StaticRenderer = React.createClass({
 
   render() {
     //console.log('STATIC RENDERER RENDER')
+    // TD: componentTree to renderTree
     let {
       activeView,
-      componentTree,
+      renderTree,
       context,
       width,
       currentPageId,
-      actions,
       currentPageName,
-      pages
+      pages,
+      actions
     } = this.props;
     let renderer;
     currentPageName = currentPageName || 'No Page';
 
-    if (componentTree) {
+    if (renderTree) {
       renderer = (
         <MComponentDataRenderer
             actions={this.props.actions}
-            mComponentData={componentTree}
+            mComponentData={renderTree}
             actions={actions}
             context={context}
             isMouseInRenderer={this.state.isMouseInRenderer}
@@ -508,35 +423,16 @@ const StaticRenderer = React.createClass({
     }
 
     return (
-      <div className="flex flex-auto flex-column">
-        <div className="mb2 flex justify-center">
-          <FormLabel className="mh2" name="Page">
-            <PopupSelect
-                value={currentPageName}
-                className="f6 pv1">
-              <PagesPopup
-                  pages={pages}
-                  currentPageId={currentPageId}
-                  currentPageName={currentPageName}
-                  actions={actions}
-              />
-            </PopupSelect>
-          </FormLabel>
-        </div>
-        <div
-            onMouseEnter={this.mouseEnter}
-            onMouseLeave={this.mouseLeave}
-            onMouseMove={this.mouseove}
-            style={{ width }}
-            className={classnames('renderer-container flex-auto m-auto relative', {
-                'static-view-border': activeView === 'BORDER',
-                'static-view-detail': activeView === 'DETAIL',
-              })}
-        >
-          {renderer}
-          <DragHandle direction="left" rendererWidth={width} actions={actions} />
-          <DragHandle direction="right" rendererWidth={width} actions={actions} />
-        </div>
+      <div
+          onMouseEnter={this.mouseEnter}
+          onMouseLeave={this.mouseLeave}
+          onMouseMove={this.mouseove}
+          style={{ width }}
+          className={classnames('renderer-container flex-auto m-auto relative static-view-border')}
+      >
+        {renderer}
+        <DragHandle direction="left" rendererWidth={width} actions={actions} />
+        <DragHandle direction="right" rendererWidth={width} actions={actions} />
       </div>
     );
   },

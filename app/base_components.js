@@ -1,9 +1,10 @@
 import _ from 'lodash';
 import Immutable from 'immutable';
 
-import { guid } from './utils';
+import { guid, camelToDash } from './utils';
 import {
   breakpointTypes,
+  stateTypes,
   NONE,
   componentTypes
 } from './constants';
@@ -527,5 +528,92 @@ export class ComponentsContainer {
     });
 
     return index;
+  }
+
+  // All user inputs must be escaped
+  getHtml(componentId) {
+    return ComponentsContainer.getHtml(this.components, componentId);
+  }
+
+  static getHtml(componentsMap, componentId) {
+    // TD: this is total bloat. reduce the amount to bloat.
+    // A simple optimization would be having all components share a class.
+    const component = componentsMap.get(componentId);
+    const id = component.get('id');
+    const componentType = component.get('componentType');
+    const attributes = ComponentsContainer.getAttributes(componentsMap, id);
+
+    if (componentType === componentTypes.CONTAINER || componentType === componentTypes.ROOT) {
+      const childStr = component.get('childIds').reduce((childStr, childId) => {
+        return childStr + ComponentsContainer.getHtml(componentsMap, childId);
+      }, '');
+      return `<div class="${id}">${childStr}</div>`;
+    } else if (componentType === componentTypes.HEADER) {
+      // TD: add in user param for h num
+      return `<h1 class="${id}">${attributes.text}</h1>`;
+    } else if (componentType === componentTypes.TEXT) {
+      return `<p class="${id}">${attributes.text}</p>`;
+    } else if (componentType === componentTypes.IMAGE) {
+      // need to use attr getter
+      return `<img class="${id}" src="${attributes.src}" />`;
+    }
+  }
+
+  getCss(componentId) {
+    return ComponentsContainer.getCss(this.components, componentId);
+  }
+
+  static getCss(componentsMap, componentId) {
+    // iterate all state and breakpoint types
+
+    function attributesToString(attrs) {
+      return _.reduce(attrs, (str, attrVal, attrKey) => {
+        return str + camelToDash(attrKey) + ': ' + attrVal + ';\n';
+      }, '');
+    }
+
+    const selectors = [];
+
+    const defaultBody = attributesToString(
+      ComponentsContainer.getAttributes(componentsMap, componentId)
+    );
+
+    if (defaultBody.length) {
+      selectors.push(`.${componentId} { ${defaultBody} } `);
+    }
+
+    const breakpointMediumBody = attributesToString(
+      ComponentsContainer.getAttributes(
+        componentsMap,
+        componentId,
+        { breakpoint: breakpointTypes.MEDIUM }
+      )
+    );
+
+    if (breakpointMediumBody.length) {
+      selectors.push(`@media only screen and (min-device-width : 30rem) and (max-device-width : 60rem) { .${componentId} { ${breakpointMediumBody} } }`);
+    }
+
+    const breakpointLargeBody = attributesToString(
+      ComponentsContainer.getAttributes(
+        componentsMap,
+        componentId,
+        { breakpoint: breakpointTypes.LARGE }
+      )
+    );
+
+    if (breakpointLargeBody.length) {
+      selectors.push(`@media only screen and (min-device-width : 60rem) and (max-device-width : 60rem) { .${componentId} { ${breakpointLargeBody} } }`);
+    }
+
+    const hoverBody = attributesToString(
+      ComponentsContainer.getAttributes(componentsMap, componentId, { state: stateTypes.HOVER })
+    );
+
+    if (hoverBody.length) {
+      selectors.push(`.${componentId}:hover { ${hoverBody} } `);
+    }
+
+    return selectors.join('\n');
   }
 }

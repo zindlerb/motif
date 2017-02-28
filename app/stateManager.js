@@ -99,6 +99,8 @@ const ADD_ASSET = 'ADD_ASSET';
 const UPDATE_ASSET_NAME = 'UPDATE_ASSET_NAME';
 const DELETE_ASSET = 'DELETE_ASSET';
 
+const EXPORT_SITE = 'EXPORT_SITE';
+
 const SET_RENDERER_WIDTH = 'SET_RENDERER_WIDTH';
 
 function writeSiteFile(dirname, state, cb) {
@@ -125,6 +127,17 @@ export const actions = Object.assign({
     return {
       type: REDO,
       _noUndo: true
+    }
+  },
+
+  exportSite(newSitePath) {
+    return (dispatch, getState) => {
+      fs.mkdir(newSitePath, () => {
+        const state = getState();
+        state.get('pages').forEach((pageMap, pageId) => {
+          pageMap.get('componentTreeId')
+        });
+      });
     }
   },
 

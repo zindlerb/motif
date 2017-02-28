@@ -1,4 +1,5 @@
 var _ = require('lodash');
+var $ = require('jquery');
 var {
   container,
   text,
@@ -234,5 +235,23 @@ describe('walkChildren', () => {
   it('gets the correct indexes', () => {
     expect(walkedChildren[vc2Id].ind).toBe(2);
     expect(walkedChildren[vhId].ind).toBe(0);
+  });
+});
+
+describe('getHtml', () => {
+  var compC = new ComponentsContainer(defaultComponentsMap);
+  var vcId = compC.createVariant(container.get('id'));
+  var vc2Id = compC.createVariant(container.get('id'));
+  var viId = compC.createVariant(image.get('id'));
+  var vtId = compC.createVariant(text.get('id'));
+
+  compC.addChild(vcId, vc2Id);
+  compC.addChild(vcId, viId);
+  compC.addChild(vc2Id, vtId);
+
+  const htmlStr = compC.getHtml(vcId);
+
+  it('sets the correct class', () => {
+    expect($($.parseHTML(htmlStr)[0]).attr('class')).toBe(vcId);
   });
 });

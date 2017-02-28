@@ -9,4 +9,19 @@ export const renderTreeSelector = createImmutableJSSelector(
   (componentTreeId, componentsMap) => {
     return ComponentsContainer.getRenderTree(componentsMap, componentTreeId);
   }
-)
+);
+
+export const contextSelector = createImmutableJSSelector(
+  [
+    state => state.get('hoveredComponentId'),
+    state => state.get('activeComponentId'),
+    state => state.get('selectedComponentViewDropSpot')
+  ],
+  (hoveredComponentId, activeComponentId, selectedComponentViewDropSpot) => {
+    return {
+      hoveredComponentId,
+      activeComponentId,
+      selectedComponentViewDropSpot
+    }
+  }
+);

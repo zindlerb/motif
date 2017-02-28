@@ -27,7 +27,7 @@ import {
 
 const { Menu } = remote;
 
-const Editor = React.createClass({
+const App = React.createClass({
   componentDidMount() {
     const { actions } = this.props;
     mousetrap.bind(['backspace', 'del'], () => {
@@ -68,7 +68,6 @@ const Editor = React.createClass({
           {
             label: 'Save',
             click: () => {
-              console.log(this.props.dirname);
               actions.saveSite(this.props.dirname);
             }
           },
@@ -76,6 +75,24 @@ const Editor = React.createClass({
             label: 'Save As',
             click() {
               saveSiteAsDialog(actions);
+            }
+          },
+          {
+            label: 'Export',
+            click() {
+              dialog.showSaveDialog({
+                title: 'Export site as',
+                filters: [
+                  {
+                    name: 'Site Name',
+                    extensions: ['*']
+                  }
+                ]
+              }, (filename) => {
+                if (filename) {
+                  actions.exportSite(filename);
+                }
+              });
             }
           }
         ]
@@ -107,75 +124,38 @@ const Editor = React.createClass({
     //console.log('APP RENDER');
     let view;
     let {
-      actions,
-      currentMainView
+      currentMainView,
+      actions
     } = this.props;
 
     if (mainViewTypes.EDITOR === currentMainView) {
-      view = (
-        <div className={classnames('flex h-100')}>
-          <div className="sidebar left flex-none h-100" style={{ width: SIDEBAR_WIDTH }}>
-            <LeftPanel actions={actions} />
-          </div>
-          <div className="flex-auto flex flex-column h-100 mh4 relative">
-            <ViewChoiceDropdown
-                mainView={currentMainView}
-                actions={actions}
-            />
-            <StaticRenderer actions={actions} />
-          </div>
-          <div className="sidebar right h-100 flex-none" style={{ width: SIDEBAR_WIDTH }}>
-            <Attributes actions={actions} />
-          </div>
-          <OpenSiteModal actions={actions} />
-        </div>
-      );
+      view = <EditorView actions={actions} />;
     } else if (mainViewTypes.ASSETS === currentMainView) {
-      view = <AssetsView actions={actions} />
+      view = <AssetsView actions={actions} />;
     } else if (mainViewTypes.COMPONENTS === currentMainView) {
-      view = (
-        <div>
-          COMPONENTS
-        </div>
-      );
+      view = <ComponentsView actions={actions} />;
     }
 
-    // Drag over is to prevent a drag cancel on mouse up but I want to be able to drag anywhere
     return (
       <div className="h-100">
         { view }
-        <ComponentMenu actions={actions} />
       </div>
     );
   },
 });
 
-const appSelector = createImmutableJSSelector(
-  [
-    state => state.get('currentMainView'),
-    state => {
-      console.log(state.toJS());
-      return state.getIn(['fileMetadata', 'dirname'])
-    }
-  ],
-  (currentMainView, dirname) => {
-    return { currentMainView, dirname }
-  }
-)
-
-const connector = connect(
+const ConnectedApp = connect(
   (state) => {
-    return appSelector(state);
+    return { currentMainView: state.get('currentMainView') };
   },
   (dispatch) => {
-    return { actions: bindActionCreators(actions, dispatch) };
+    return { actions: bindActionCreators(actions, dispatch) }
   }
-);
-const EditorWithDispatch = connector(Editor);
+)(App);
 
 ReactDOM.render(
   <Provider store={store}>
-    <EditorWithDispatch />
+    <ConnectedApp />
   </Provider>,
   document.getElementById('content'),
 );
