@@ -48,16 +48,10 @@ let initialState = Immutable.fromJS({
   activeBreakpoint: 'NONE',
   activeLeftPanel: 'TREE',
   activeRightPanel: 'DETAILS',
-  currentMainView: mainViewTypes.ASSETS,
+  currentMainView: mainViewTypes.EDITOR,
   menu: { isOpen: false },
 
   componentsMap: defaultComponentsMap,
-
-  otherPossibleComponentViewDropSpots: undefined,
-  selectedComponentViewDropSpot: undefined,
-
-  selectedTreeViewDropSpot: undefined,
-  otherPossibleTreeViewDropSpots: undefined,
 
   activeComponentBreakpoint: NONE,
   activeComponentState: NONE,
@@ -134,7 +128,7 @@ export const actions = Object.assign({
     return (dispatch, getState) => {
       fs.mkdir(newSitePath, () => {
         const state = getState();
-        state.get('pages').forEach((pageMap, pageId) => {
+        state.get('pages').forEach((pageMap) => {
           pageMap.get('componentTreeId')
         });
       });
@@ -287,10 +281,7 @@ export const actions = Object.assign({
           path.basename(filename)
         );
 
-        console.log('assetPath', assetPath);
-
         fs.writeFile(assetPath, file, (err) => {
-          console.log('err', err);
           if (!err) {
             dispatch({
               type: ADD_ASSET,

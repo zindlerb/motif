@@ -3,18 +3,13 @@ import { remote } from 'electron';
 import mousetrap from 'mousetrap';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import classnames from 'classnames';
 import { connect, Provider } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import { store, actions } from './stateManager';
-import OpenSiteModal from './containers/OpenSiteModal';
-import LeftPanel from './containers/LeftPanel';
-import StaticRenderer from './containers/StaticRenderer';
-import ComponentMenu from './containers/ComponentMenu';
-import ViewChoiceDropdown from './components/ViewChoiceDropdown';
-import Attributes from './containers/Attributes';
 import AssetsView from './containers/AssetsView';
+import EditorView from './containers/EditorView';
+import ComponentsView from './containers/ComponentsView';
 import {
   saveSiteAsDialog,
   loadSiteDialog,
@@ -22,10 +17,9 @@ import {
 } from './utils';
 import {
   mainViewTypes,
-  SIDEBAR_WIDTH
 } from './constants';
 
-const { Menu } = remote;
+const { Menu, dialog } = remote;
 
 const App = React.createClass({
   componentDidMount() {
@@ -129,7 +123,7 @@ const App = React.createClass({
     } = this.props;
 
     if (mainViewTypes.EDITOR === currentMainView) {
-      view = <EditorView actions={actions} />;
+      view = <EditorView actions={actions} currentMainView={currentMainView} />;
     } else if (mainViewTypes.ASSETS === currentMainView) {
       view = <AssetsView actions={actions} />;
     } else if (mainViewTypes.COMPONENTS === currentMainView) {
@@ -144,10 +138,15 @@ const App = React.createClass({
   },
 });
 
+const appSelector = createImmutableJSSelector(
+  state => state.get('currentMainView'),
+  (currentMainView) => {
+    return { currentMainView };
+  }
+)
+
 const ConnectedApp = connect(
-  (state) => {
-    return { currentMainView: state.get('currentMainView') };
-  },
+  appSelector,
   (dispatch) => {
     return { actions: bindActionCreators(actions, dispatch) }
   }

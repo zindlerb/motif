@@ -50,7 +50,7 @@
 	'use strict';
 	
 	__webpack_require__(/*! ./app.js */ 1);
-	__webpack_require__(/*! ../public/scss/main.scss */ 459);
+	__webpack_require__(/*! ../public/scss/main.scss */ 469);
 
 /***/ },
 /* 1 */
@@ -79,51 +79,32 @@
 	
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 	
-	var _classnames = __webpack_require__(/*! classnames */ 162);
+	var _reactRedux = __webpack_require__(/*! react-redux */ 162);
 	
-	var _classnames2 = _interopRequireDefault(_classnames);
+	var _redux = __webpack_require__(/*! redux */ 173);
 	
-	var _reactRedux = __webpack_require__(/*! react-redux */ 163);
+	var _stateManager = __webpack_require__(/*! ./stateManager */ 200);
 	
-	var _redux = __webpack_require__(/*! redux */ 174);
-	
-	var _stateManager = __webpack_require__(/*! ./stateManager */ 201);
-	
-	var _OpenSiteModal = __webpack_require__(/*! ./containers/OpenSiteModal */ 202);
-	
-	var _OpenSiteModal2 = _interopRequireDefault(_OpenSiteModal);
-	
-	var _LeftPanel = __webpack_require__(/*! ./containers/LeftPanel */ 209);
-	
-	var _LeftPanel2 = _interopRequireDefault(_LeftPanel);
-	
-	var _StaticRenderer = __webpack_require__(/*! ./containers/StaticRenderer */ 219);
-	
-	var _StaticRenderer2 = _interopRequireDefault(_StaticRenderer);
-	
-	var _ComponentMenu = __webpack_require__(/*! ./containers/ComponentMenu */ 222);
-	
-	var _ComponentMenu2 = _interopRequireDefault(_ComponentMenu);
-	
-	var _ViewChoiceDropdown = __webpack_require__(/*! ./components/ViewChoiceDropdown */ 223);
-	
-	var _ViewChoiceDropdown2 = _interopRequireDefault(_ViewChoiceDropdown);
-	
-	var _Attributes = __webpack_require__(/*! ./containers/Attributes */ 224);
-	
-	var _Attributes2 = _interopRequireDefault(_Attributes);
-	
-	var _AssetsView = __webpack_require__(/*! ./containers/AssetsView */ 458);
+	var _AssetsView = __webpack_require__(/*! ./containers/AssetsView */ 221);
 	
 	var _AssetsView2 = _interopRequireDefault(_AssetsView);
 	
-	var _utils = __webpack_require__(/*! ./utils */ 203);
+	var _EditorView = __webpack_require__(/*! ./containers/EditorView */ 224);
 	
-	var _constants = __webpack_require__(/*! ./constants */ 210);
+	var _EditorView2 = _interopRequireDefault(_EditorView);
+	
+	var _ComponentsView = __webpack_require__(/*! ./containers/ComponentsView */ 473);
+	
+	var _ComponentsView2 = _interopRequireDefault(_ComponentsView);
+	
+	var _utils = __webpack_require__(/*! ./utils */ 214);
+	
+	var _constants = __webpack_require__(/*! ./constants */ 212);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var Menu = _electron.remote.Menu;
+	var Menu = _electron.remote.Menu,
+	    dialog = _electron.remote.dialog;
 	
 	
 	var App = _react2.default.createClass({
@@ -214,11 +195,11 @@
 	
 	
 	    if (_constants.mainViewTypes.EDITOR === currentMainView) {
-	      view = _react2.default.createElement(EditorView, { actions: actions });
+	      view = _react2.default.createElement(_EditorView2.default, { actions: actions, currentMainView: currentMainView });
 	    } else if (_constants.mainViewTypes.ASSETS === currentMainView) {
 	      view = _react2.default.createElement(_AssetsView2.default, { actions: actions });
 	    } else if (_constants.mainViewTypes.COMPONENTS === currentMainView) {
-	      view = _react2.default.createElement(ComponentsView, { actions: actions });
+	      view = _react2.default.createElement(_ComponentsView2.default, { actions: actions });
 	    }
 	
 	    return _react2.default.createElement(
@@ -229,9 +210,13 @@
 	  }
 	});
 	
-	var ConnectedApp = (0, _reactRedux.connect)(function (state) {
-	  return { currentMainView: state.get('currentMainView') };
-	}, function (dispatch) {
+	var appSelector = (0, _utils.createImmutableJSSelector)(function (state) {
+	  return state.get('currentMainView');
+	}, function (currentMainView) {
+	  return { currentMainView: currentMainView };
+	});
+	
+	var ConnectedApp = (0, _reactRedux.connect)(appSelector, function (dispatch) {
 	  return { actions: (0, _redux.bindActionCreators)(_stateManager.actions, dispatch) };
 	})(App);
 	
@@ -21224,63 +21209,6 @@
 
 /***/ },
 /* 162 */
-/*!*******************************!*\
-  !*** ./~/classnames/index.js ***!
-  \*******************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	  Copyright (c) 2016 Jed Watson.
-	  Licensed under the MIT License (MIT), see
-	  http://jedwatson.github.io/classnames
-	*/
-	/* global define */
-	
-	(function () {
-		'use strict';
-	
-		var hasOwn = {}.hasOwnProperty;
-	
-		function classNames () {
-			var classes = [];
-	
-			for (var i = 0; i < arguments.length; i++) {
-				var arg = arguments[i];
-				if (!arg) continue;
-	
-				var argType = typeof arg;
-	
-				if (argType === 'string' || argType === 'number') {
-					classes.push(arg);
-				} else if (Array.isArray(arg)) {
-					classes.push(classNames.apply(null, arg));
-				} else if (argType === 'object') {
-					for (var key in arg) {
-						if (hasOwn.call(arg, key) && arg[key]) {
-							classes.push(key);
-						}
-					}
-				}
-			}
-	
-			return classes.join(' ');
-		}
-	
-		if (typeof module !== 'undefined' && module.exports) {
-			module.exports = classNames;
-		} else if (true) {
-			// register as 'classnames', consistent with npm package name
-			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
-				return classNames;
-			}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-		} else {
-			window.classNames = classNames;
-		}
-	}());
-
-
-/***/ },
-/* 163 */
 /*!************************************!*\
   !*** ./~/react-redux/lib/index.js ***!
   \************************************/
@@ -21291,15 +21219,15 @@
 	exports.__esModule = true;
 	exports.connect = exports.connectAdvanced = exports.Provider = undefined;
 	
-	var _Provider = __webpack_require__(/*! ./components/Provider */ 164);
+	var _Provider = __webpack_require__(/*! ./components/Provider */ 163);
 	
 	var _Provider2 = _interopRequireDefault(_Provider);
 	
-	var _connectAdvanced = __webpack_require__(/*! ./components/connectAdvanced */ 168);
+	var _connectAdvanced = __webpack_require__(/*! ./components/connectAdvanced */ 166);
 	
 	var _connectAdvanced2 = _interopRequireDefault(_connectAdvanced);
 	
-	var _connect = __webpack_require__(/*! ./connect/connect */ 171);
+	var _connect = __webpack_require__(/*! ./connect/connect */ 170);
 	
 	var _connect2 = _interopRequireDefault(_connect);
 	
@@ -21310,7 +21238,7 @@
 	exports.connect = _connect2.default;
 
 /***/ },
-/* 164 */
+/* 163 */
 /*!**************************************************!*\
   !*** ./~/react-redux/lib/components/Provider.js ***!
   \**************************************************/
@@ -21323,15 +21251,9 @@
 	
 	var _react = __webpack_require__(/*! react */ 5);
 	
-	var _Subscription = __webpack_require__(/*! ../utils/Subscription */ 165);
+	var _PropTypes = __webpack_require__(/*! ../utils/PropTypes */ 164);
 	
-	var _Subscription2 = _interopRequireDefault(_Subscription);
-	
-	var _storeShape = __webpack_require__(/*! ../utils/storeShape */ 166);
-	
-	var _storeShape2 = _interopRequireDefault(_storeShape);
-	
-	var _warning = __webpack_require__(/*! ../utils/warning */ 167);
+	var _warning = __webpack_require__(/*! ../utils/warning */ 165);
 	
 	var _warning2 = _interopRequireDefault(_warning);
 	
@@ -21392,137 +21314,44 @@
 	}
 	
 	Provider.propTypes = {
-	  store: _storeShape2.default.isRequired,
+	  store: _PropTypes.storeShape.isRequired,
 	  children: _react.PropTypes.element.isRequired
 	};
 	Provider.childContextTypes = {
-	  store: _storeShape2.default.isRequired,
-	  storeSubscription: _react.PropTypes.instanceOf(_Subscription2.default)
+	  store: _PropTypes.storeShape.isRequired,
+	  storeSubscription: _PropTypes.subscriptionShape
 	};
 	Provider.displayName = 'Provider';
 
 /***/ },
-/* 165 */
-/*!*************************************************!*\
-  !*** ./~/react-redux/lib/utils/Subscription.js ***!
-  \*************************************************/
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	exports.__esModule = true;
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	// encapsulates the subscription logic for connecting a component to the redux store, as
-	// well as nesting subscriptions of descendant components, so that we can ensure the
-	// ancestor components re-render before descendants
-	
-	var CLEARED = null;
-	var nullListeners = {
-	  notify: function notify() {}
-	};
-	
-	function createListenerCollection() {
-	  // the current/next pattern is copied from redux's createStore code.
-	  // TODO: refactor+expose that code to be reusable here?
-	  var current = [];
-	  var next = [];
-	
-	  return {
-	    clear: function clear() {
-	      next = CLEARED;
-	      current = CLEARED;
-	    },
-	    notify: function notify() {
-	      var listeners = current = next;
-	      for (var i = 0; i < listeners.length; i++) {
-	        listeners[i]();
-	      }
-	    },
-	    subscribe: function subscribe(listener) {
-	      var isSubscribed = true;
-	      if (next === current) next = current.slice();
-	      next.push(listener);
-	
-	      return function unsubscribe() {
-	        if (!isSubscribed || current === CLEARED) return;
-	        isSubscribed = false;
-	
-	        if (next === current) next = current.slice();
-	        next.splice(next.indexOf(listener), 1);
-	      };
-	    }
-	  };
-	}
-	
-	var Subscription = function () {
-	  function Subscription(store, parentSub) {
-	    _classCallCheck(this, Subscription);
-	
-	    this.store = store;
-	    this.parentSub = parentSub;
-	    this.unsubscribe = null;
-	    this.listeners = nullListeners;
-	  }
-	
-	  Subscription.prototype.addNestedSub = function addNestedSub(listener) {
-	    this.trySubscribe();
-	    return this.listeners.subscribe(listener);
-	  };
-	
-	  Subscription.prototype.notifyNestedSubs = function notifyNestedSubs() {
-	    this.listeners.notify();
-	  };
-	
-	  Subscription.prototype.isSubscribed = function isSubscribed() {
-	    return Boolean(this.unsubscribe);
-	  };
-	
-	  Subscription.prototype.trySubscribe = function trySubscribe() {
-	    if (!this.unsubscribe) {
-	      // this.onStateChange is set by connectAdvanced.initSubscription()
-	      this.unsubscribe = this.parentSub ? this.parentSub.addNestedSub(this.onStateChange) : this.store.subscribe(this.onStateChange);
-	
-	      this.listeners = createListenerCollection();
-	    }
-	  };
-	
-	  Subscription.prototype.tryUnsubscribe = function tryUnsubscribe() {
-	    if (this.unsubscribe) {
-	      this.unsubscribe();
-	      this.unsubscribe = null;
-	      this.listeners.clear();
-	      this.listeners = nullListeners;
-	    }
-	  };
-	
-	  return Subscription;
-	}();
-	
-	exports.default = Subscription;
-
-/***/ },
-/* 166 */
-/*!***********************************************!*\
-  !*** ./~/react-redux/lib/utils/storeShape.js ***!
-  \***********************************************/
+/* 164 */
+/*!**********************************************!*\
+  !*** ./~/react-redux/lib/utils/PropTypes.js ***!
+  \**********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	exports.__esModule = true;
+	exports.storeShape = exports.subscriptionShape = undefined;
 	
 	var _react = __webpack_require__(/*! react */ 5);
 	
-	exports.default = _react.PropTypes.shape({
+	var subscriptionShape = exports.subscriptionShape = _react.PropTypes.shape({
+	  trySubscribe: _react.PropTypes.func.isRequired,
+	  tryUnsubscribe: _react.PropTypes.func.isRequired,
+	  notifyNestedSubs: _react.PropTypes.func.isRequired,
+	  isSubscribed: _react.PropTypes.func.isRequired
+	});
+	
+	var storeShape = exports.storeShape = _react.PropTypes.shape({
 	  subscribe: _react.PropTypes.func.isRequired,
 	  dispatch: _react.PropTypes.func.isRequired,
 	  getState: _react.PropTypes.func.isRequired
 	});
 
 /***/ },
-/* 167 */
+/* 165 */
 /*!********************************************!*\
   !*** ./~/react-redux/lib/utils/warning.js ***!
   \********************************************/
@@ -21555,7 +21384,7 @@
 	}
 
 /***/ },
-/* 168 */
+/* 166 */
 /*!*********************************************************!*\
   !*** ./~/react-redux/lib/components/connectAdvanced.js ***!
   \*********************************************************/
@@ -21569,23 +21398,21 @@
 	
 	exports.default = connectAdvanced;
 	
-	var _hoistNonReactStatics = __webpack_require__(/*! hoist-non-react-statics */ 169);
+	var _hoistNonReactStatics = __webpack_require__(/*! hoist-non-react-statics */ 167);
 	
 	var _hoistNonReactStatics2 = _interopRequireDefault(_hoistNonReactStatics);
 	
-	var _invariant = __webpack_require__(/*! invariant */ 170);
+	var _invariant = __webpack_require__(/*! invariant */ 168);
 	
 	var _invariant2 = _interopRequireDefault(_invariant);
 	
 	var _react = __webpack_require__(/*! react */ 5);
 	
-	var _Subscription = __webpack_require__(/*! ../utils/Subscription */ 165);
+	var _Subscription = __webpack_require__(/*! ../utils/Subscription */ 169);
 	
 	var _Subscription2 = _interopRequireDefault(_Subscription);
 	
-	var _storeShape = __webpack_require__(/*! ../utils/storeShape */ 166);
-	
-	var _storeShape2 = _interopRequireDefault(_storeShape);
+	var _PropTypes = __webpack_require__(/*! ../utils/PropTypes */ 164);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -21598,6 +21425,29 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 	
 	var hotReloadingVersion = 0;
+	var dummyState = {};
+	function noop() {}
+	function makeSelectorStateful(sourceSelector, store) {
+	  // wrap the selector in an object that tracks its results between runs.
+	  var selector = {
+	    run: function runComponentSelector(props) {
+	      try {
+	        var nextProps = sourceSelector(store.getState(), props);
+	        if (nextProps !== selector.props || selector.error) {
+	          selector.shouldComponentUpdate = true;
+	          selector.props = nextProps;
+	          selector.error = null;
+	        }
+	      } catch (error) {
+	        selector.shouldComponentUpdate = true;
+	        selector.error = error;
+	      }
+	    }
+	  };
+	
+	  return selector;
+	}
+	
 	function connectAdvanced(
 	/*
 	  selectorFactory is a func that is responsible for returning the selector function used to
@@ -21636,11 +21486,11 @@
 	  var subscriptionKey = storeKey + 'Subscription';
 	  var version = hotReloadingVersion++;
 	
-	  var contextTypes = (_contextTypes = {}, _contextTypes[storeKey] = _storeShape2.default, _contextTypes[subscriptionKey] = _react.PropTypes.instanceOf(_Subscription2.default), _contextTypes);
-	  var childContextTypes = (_childContextTypes = {}, _childContextTypes[subscriptionKey] = _react.PropTypes.instanceOf(_Subscription2.default), _childContextTypes);
+	  var contextTypes = (_contextTypes = {}, _contextTypes[storeKey] = _PropTypes.storeShape, _contextTypes[subscriptionKey] = _PropTypes.subscriptionShape, _contextTypes);
+	  var childContextTypes = (_childContextTypes = {}, _childContextTypes[subscriptionKey] = _PropTypes.subscriptionShape, _childContextTypes);
 	
 	  return function wrapWithConnect(WrappedComponent) {
-	    (0, _invariant2.default)(typeof WrappedComponent == 'function', 'You must pass a component to the function returned by ' + ('connect. Instead received ' + WrappedComponent));
+	    (0, _invariant2.default)(typeof WrappedComponent == 'function', 'You must pass a component to the function returned by ' + ('connect. Instead received ' + JSON.stringify(WrappedComponent)));
 	
 	    var wrappedComponentName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
 	
@@ -21669,16 +21519,11 @@
 	        _this.version = version;
 	        _this.state = {};
 	        _this.renderCount = 0;
-	        _this.store = _this.props[storeKey] || _this.context[storeKey];
-	        _this.parentSub = props[subscriptionKey] || context[subscriptionKey];
-	
+	        _this.store = props[storeKey] || context[storeKey];
+	        _this.propsMode = Boolean(props[storeKey]);
 	        _this.setWrappedInstance = _this.setWrappedInstance.bind(_this);
 	
-	        (0, _invariant2.default)(_this.store, 'Could not find "' + storeKey + '" in either the context or ' + ('props of "' + displayName + '". ') + 'Either wrap the root component in a <Provider>, ' + ('or explicitly pass "' + storeKey + '" as a prop to "' + displayName + '".'));
-	
-	        // make sure `getState` is properly bound in order to avoid breaking
-	        // custom store implementations that rely on the store's context
-	        _this.getState = _this.store.getState.bind(_this.store);
+	        (0, _invariant2.default)(_this.store, 'Could not find "' + storeKey + '" in either the context or props of ' + ('"' + displayName + '". Either wrap the root component in a <Provider>, ') + ('or explicitly pass "' + storeKey + '" as a prop to "' + displayName + '".'));
 	
 	        _this.initSelector();
 	        _this.initSubscription();
@@ -21688,7 +21533,12 @@
 	      Connect.prototype.getChildContext = function getChildContext() {
 	        var _ref2;
 	
-	        return _ref2 = {}, _ref2[subscriptionKey] = this.subscription || this.parentSub, _ref2;
+	        // If this component received store from props, its subscription should be transparent
+	        // to any descendants receiving store+subscription from context; it passes along
+	        // subscription passed to it. Otherwise, it shadows the parent subscription, which allows
+	        // Connect to control ordering of notifications to flow top-down.
+	        var subscription = this.propsMode ? null : this.subscription;
+	        return _ref2 = {}, _ref2[subscriptionKey] = subscription || this.context[subscriptionKey], _ref2;
 	      };
 	
 	      Connect.prototype.componentDidMount = function componentDidMount() {
@@ -21715,12 +21565,11 @@
 	
 	      Connect.prototype.componentWillUnmount = function componentWillUnmount() {
 	        if (this.subscription) this.subscription.tryUnsubscribe();
-	        // these are just to guard against extra memory leakage if a parent element doesn't
-	        // dereference this instance properly, such as an async callback that never finishes
 	        this.subscription = null;
+	        this.notifyNestedSubs = noop;
 	        this.store = null;
-	        this.parentSub = null;
-	        this.selector.run = function () {};
+	        this.selector.run = noop;
+	        this.selector.shouldComponentUpdate = false;
 	      };
 	
 	      Connect.prototype.getWrappedInstance = function getWrappedInstance() {
@@ -21733,55 +21582,47 @@
 	      };
 	
 	      Connect.prototype.initSelector = function initSelector() {
-	        var dispatch = this.store.dispatch;
-	        var getState = this.getState;
-	
-	        var sourceSelector = selectorFactory(dispatch, selectorFactoryOptions);
-	
-	        // wrap the selector in an object that tracks its results between runs
-	        var selector = this.selector = {
-	          shouldComponentUpdate: true,
-	          props: sourceSelector(getState(), this.props),
-	          run: function runComponentSelector(props) {
-	            try {
-	              var nextProps = sourceSelector(getState(), props);
-	              if (selector.error || nextProps !== selector.props) {
-	                selector.shouldComponentUpdate = true;
-	                selector.props = nextProps;
-	                selector.error = null;
-	              }
-	            } catch (error) {
-	              selector.shouldComponentUpdate = true;
-	              selector.error = error;
-	            }
-	          }
-	        };
+	        var sourceSelector = selectorFactory(this.store.dispatch, selectorFactoryOptions);
+	        this.selector = makeSelectorStateful(sourceSelector, this.store);
+	        this.selector.run(this.props);
 	      };
 	
 	      Connect.prototype.initSubscription = function initSubscription() {
-	        var _this2 = this;
+	        if (!shouldHandleStateChanges) return;
 	
-	        if (shouldHandleStateChanges) {
-	          (function () {
-	            var subscription = _this2.subscription = new _Subscription2.default(_this2.store, _this2.parentSub);
-	            var dummyState = {};
+	        // parentSub's source should match where store came from: props vs. context. A component
+	        // connected to the store via props shouldn't use subscription from context, or vice versa.
+	        var parentSub = (this.propsMode ? this.props : this.context)[subscriptionKey];
+	        this.subscription = new _Subscription2.default(this.store, parentSub, this.onStateChange.bind(this));
 	
-	            subscription.onStateChange = function onStateChange() {
-	              this.selector.run(this.props);
+	        // `notifyNestedSubs` is duplicated to handle the case where the component is  unmounted in
+	        // the middle of the notification loop, where `this.subscription` will then be null. An
+	        // extra null check every change can be avoided by copying the method onto `this` and then
+	        // replacing it with a no-op on unmount. This can probably be avoided if Subscription's
+	        // listeners logic is changed to not call listeners that have been unsubscribed in the
+	        // middle of the notification loop.
+	        this.notifyNestedSubs = this.subscription.notifyNestedSubs.bind(this.subscription);
+	      };
 	
-	              if (!this.selector.shouldComponentUpdate) {
-	                subscription.notifyNestedSubs();
-	              } else {
-	                this.componentDidUpdate = function componentDidUpdate() {
-	                  this.componentDidUpdate = undefined;
-	                  subscription.notifyNestedSubs();
-	                };
+	      Connect.prototype.onStateChange = function onStateChange() {
+	        this.selector.run(this.props);
 	
-	                this.setState(dummyState);
-	              }
-	            }.bind(_this2);
-	          })();
+	        if (!this.selector.shouldComponentUpdate) {
+	          this.notifyNestedSubs();
+	        } else {
+	          this.componentDidUpdate = this.notifyNestedSubsOnComponentDidUpdate;
+	          this.setState(dummyState);
 	        }
+	      };
+	
+	      Connect.prototype.notifyNestedSubsOnComponentDidUpdate = function notifyNestedSubsOnComponentDidUpdate() {
+	        // `componentDidUpdate` is conditionally implemented when `onStateChange` determines it
+	        // needs to notify nested subs. Once called, it unimplements itself until further state
+	        // changes occur. Doing it this way vs having a permanent `componentDidMount` that does
+	        // a boolean check every time avoids an extra method call most of the time, resulting
+	        // in some perf boost.
+	        this.componentDidUpdate = undefined;
+	        this.notifyNestedSubs();
 	      };
 	
 	      Connect.prototype.isSubscribed = function isSubscribed() {
@@ -21789,7 +21630,7 @@
 	      };
 	
 	      Connect.prototype.addExtraProps = function addExtraProps(props) {
-	        if (!withRef && !renderCountProp) return props;
+	        if (!withRef && !renderCountProp && !(this.propsMode && this.subscription)) return props;
 	        // make a shallow copy so that fields added don't leak to the original selector.
 	        // this is especially important for 'ref' since that's a reference back to the component
 	        // instance. a singleton memoized selector would then be holding a reference to the
@@ -21797,6 +21638,7 @@
 	        var withExtras = _extends({}, props);
 	        if (withRef) withExtras.ref = this.setWrappedInstance;
 	        if (renderCountProp) withExtras[renderCountProp] = this.renderCount++;
+	        if (this.propsMode && this.subscription) withExtras[subscriptionKey] = this.subscription;
 	        return withExtras;
 	      };
 	
@@ -21839,7 +21681,7 @@
 	}
 
 /***/ },
-/* 169 */
+/* 167 */
 /*!********************************************!*\
   !*** ./~/hoist-non-react-statics/index.js ***!
   \********************************************/
@@ -21898,7 +21740,7 @@
 
 
 /***/ },
-/* 170 */
+/* 168 */
 /*!**********************************!*\
   !*** ./~/invariant/invariant.js ***!
   \**********************************/
@@ -21960,7 +21802,108 @@
 
 
 /***/ },
-/* 171 */
+/* 169 */
+/*!*************************************************!*\
+  !*** ./~/react-redux/lib/utils/Subscription.js ***!
+  \*************************************************/
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	exports.__esModule = true;
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	// encapsulates the subscription logic for connecting a component to the redux store, as
+	// well as nesting subscriptions of descendant components, so that we can ensure the
+	// ancestor components re-render before descendants
+	
+	var CLEARED = null;
+	var nullListeners = {
+	  notify: function notify() {}
+	};
+	
+	function createListenerCollection() {
+	  // the current/next pattern is copied from redux's createStore code.
+	  // TODO: refactor+expose that code to be reusable here?
+	  var current = [];
+	  var next = [];
+	
+	  return {
+	    clear: function clear() {
+	      next = CLEARED;
+	      current = CLEARED;
+	    },
+	    notify: function notify() {
+	      var listeners = current = next;
+	      for (var i = 0; i < listeners.length; i++) {
+	        listeners[i]();
+	      }
+	    },
+	    subscribe: function subscribe(listener) {
+	      var isSubscribed = true;
+	      if (next === current) next = current.slice();
+	      next.push(listener);
+	
+	      return function unsubscribe() {
+	        if (!isSubscribed || current === CLEARED) return;
+	        isSubscribed = false;
+	
+	        if (next === current) next = current.slice();
+	        next.splice(next.indexOf(listener), 1);
+	      };
+	    }
+	  };
+	}
+	
+	var Subscription = function () {
+	  function Subscription(store, parentSub, onStateChange) {
+	    _classCallCheck(this, Subscription);
+	
+	    this.store = store;
+	    this.parentSub = parentSub;
+	    this.onStateChange = onStateChange;
+	    this.unsubscribe = null;
+	    this.listeners = nullListeners;
+	  }
+	
+	  Subscription.prototype.addNestedSub = function addNestedSub(listener) {
+	    this.trySubscribe();
+	    return this.listeners.subscribe(listener);
+	  };
+	
+	  Subscription.prototype.notifyNestedSubs = function notifyNestedSubs() {
+	    this.listeners.notify();
+	  };
+	
+	  Subscription.prototype.isSubscribed = function isSubscribed() {
+	    return Boolean(this.unsubscribe);
+	  };
+	
+	  Subscription.prototype.trySubscribe = function trySubscribe() {
+	    if (!this.unsubscribe) {
+	      this.unsubscribe = this.parentSub ? this.parentSub.addNestedSub(this.onStateChange) : this.store.subscribe(this.onStateChange);
+	
+	      this.listeners = createListenerCollection();
+	    }
+	  };
+	
+	  Subscription.prototype.tryUnsubscribe = function tryUnsubscribe() {
+	    if (this.unsubscribe) {
+	      this.unsubscribe();
+	      this.unsubscribe = null;
+	      this.listeners.clear();
+	      this.listeners = nullListeners;
+	    }
+	  };
+	
+	  return Subscription;
+	}();
+	
+	exports.default = Subscription;
+
+/***/ },
+/* 170 */
 /*!**********************************************!*\
   !*** ./~/react-redux/lib/connect/connect.js ***!
   \**********************************************/
@@ -21974,27 +21917,27 @@
 	
 	exports.createConnect = createConnect;
 	
-	var _connectAdvanced = __webpack_require__(/*! ../components/connectAdvanced */ 168);
+	var _connectAdvanced = __webpack_require__(/*! ../components/connectAdvanced */ 166);
 	
 	var _connectAdvanced2 = _interopRequireDefault(_connectAdvanced);
 	
-	var _shallowEqual = __webpack_require__(/*! ../utils/shallowEqual */ 172);
+	var _shallowEqual = __webpack_require__(/*! ../utils/shallowEqual */ 171);
 	
 	var _shallowEqual2 = _interopRequireDefault(_shallowEqual);
 	
-	var _mapDispatchToProps = __webpack_require__(/*! ./mapDispatchToProps */ 173);
+	var _mapDispatchToProps = __webpack_require__(/*! ./mapDispatchToProps */ 172);
 	
 	var _mapDispatchToProps2 = _interopRequireDefault(_mapDispatchToProps);
 	
-	var _mapStateToProps = __webpack_require__(/*! ./mapStateToProps */ 197);
+	var _mapStateToProps = __webpack_require__(/*! ./mapStateToProps */ 196);
 	
 	var _mapStateToProps2 = _interopRequireDefault(_mapStateToProps);
 	
-	var _mergeProps = __webpack_require__(/*! ./mergeProps */ 198);
+	var _mergeProps = __webpack_require__(/*! ./mergeProps */ 197);
 	
 	var _mergeProps2 = _interopRequireDefault(_mergeProps);
 	
-	var _selectorFactory = __webpack_require__(/*! ./selectorFactory */ 199);
+	var _selectorFactory = __webpack_require__(/*! ./selectorFactory */ 198);
 	
 	var _selectorFactory2 = _interopRequireDefault(_selectorFactory);
 	
@@ -22096,38 +22039,49 @@
 	exports.default = createConnect();
 
 /***/ },
-/* 172 */
+/* 171 */
 /*!*************************************************!*\
   !*** ./~/react-redux/lib/utils/shallowEqual.js ***!
   \*************************************************/
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	exports.__esModule = true;
 	exports.default = shallowEqual;
 	var hasOwn = Object.prototype.hasOwnProperty;
 	
-	function shallowEqual(a, b) {
-	  if (a === b) return true;
+	function is(x, y) {
+	  if (x === y) {
+	    return x !== 0 || y !== 0 || 1 / x === 1 / y;
+	  } else {
+	    return x !== x && y !== y;
+	  }
+	}
 	
-	  var countA = 0;
-	  var countB = 0;
+	function shallowEqual(objA, objB) {
+	  if (is(objA, objB)) return true;
 	
-	  for (var key in a) {
-	    if (hasOwn.call(a, key) && a[key] !== b[key]) return false;
-	    countA++;
+	  if (typeof objA !== 'object' || objA === null || typeof objB !== 'object' || objB === null) {
+	    return false;
 	  }
 	
-	  for (var _key in b) {
-	    if (hasOwn.call(b, _key)) countB++;
+	  var keysA = Object.keys(objA);
+	  var keysB = Object.keys(objB);
+	
+	  if (keysA.length !== keysB.length) return false;
+	
+	  for (var i = 0; i < keysA.length; i++) {
+	    if (!hasOwn.call(objB, keysA[i]) || !is(objA[keysA[i]], objB[keysA[i]])) {
+	      return false;
+	    }
 	  }
 	
-	  return countA === countB;
+	  return true;
 	}
 
 /***/ },
-/* 173 */
+/* 172 */
 /*!*********************************************************!*\
   !*** ./~/react-redux/lib/connect/mapDispatchToProps.js ***!
   \*********************************************************/
@@ -22140,9 +22094,9 @@
 	exports.whenMapDispatchToPropsIsMissing = whenMapDispatchToPropsIsMissing;
 	exports.whenMapDispatchToPropsIsObject = whenMapDispatchToPropsIsObject;
 	
-	var _redux = __webpack_require__(/*! redux */ 174);
+	var _redux = __webpack_require__(/*! redux */ 173);
 	
-	var _wrapMapToProps = __webpack_require__(/*! ./wrapMapToProps */ 195);
+	var _wrapMapToProps = __webpack_require__(/*! ./wrapMapToProps */ 194);
 	
 	function whenMapDispatchToPropsIsFunction(mapDispatchToProps) {
 	  return typeof mapDispatchToProps === 'function' ? (0, _wrapMapToProps.wrapMapToPropsFunc)(mapDispatchToProps, 'mapDispatchToProps') : undefined;
@@ -22163,7 +22117,7 @@
 	exports.default = [whenMapDispatchToPropsIsFunction, whenMapDispatchToPropsIsMissing, whenMapDispatchToPropsIsObject];
 
 /***/ },
-/* 174 */
+/* 173 */
 /*!******************************!*\
   !*** ./~/redux/lib/index.js ***!
   \******************************/
@@ -22174,27 +22128,27 @@
 	exports.__esModule = true;
 	exports.compose = exports.applyMiddleware = exports.bindActionCreators = exports.combineReducers = exports.createStore = undefined;
 	
-	var _createStore = __webpack_require__(/*! ./createStore */ 175);
+	var _createStore = __webpack_require__(/*! ./createStore */ 174);
 	
 	var _createStore2 = _interopRequireDefault(_createStore);
 	
-	var _combineReducers = __webpack_require__(/*! ./combineReducers */ 190);
+	var _combineReducers = __webpack_require__(/*! ./combineReducers */ 189);
 	
 	var _combineReducers2 = _interopRequireDefault(_combineReducers);
 	
-	var _bindActionCreators = __webpack_require__(/*! ./bindActionCreators */ 192);
+	var _bindActionCreators = __webpack_require__(/*! ./bindActionCreators */ 191);
 	
 	var _bindActionCreators2 = _interopRequireDefault(_bindActionCreators);
 	
-	var _applyMiddleware = __webpack_require__(/*! ./applyMiddleware */ 193);
+	var _applyMiddleware = __webpack_require__(/*! ./applyMiddleware */ 192);
 	
 	var _applyMiddleware2 = _interopRequireDefault(_applyMiddleware);
 	
-	var _compose = __webpack_require__(/*! ./compose */ 194);
+	var _compose = __webpack_require__(/*! ./compose */ 193);
 	
 	var _compose2 = _interopRequireDefault(_compose);
 	
-	var _warning = __webpack_require__(/*! ./utils/warning */ 191);
+	var _warning = __webpack_require__(/*! ./utils/warning */ 190);
 	
 	var _warning2 = _interopRequireDefault(_warning);
 	
@@ -22217,7 +22171,7 @@
 	exports.compose = _compose2['default'];
 
 /***/ },
-/* 175 */
+/* 174 */
 /*!************************************!*\
   !*** ./~/redux/lib/createStore.js ***!
   \************************************/
@@ -22229,11 +22183,11 @@
 	exports.ActionTypes = undefined;
 	exports['default'] = createStore;
 	
-	var _isPlainObject = __webpack_require__(/*! lodash/isPlainObject */ 176);
+	var _isPlainObject = __webpack_require__(/*! lodash/isPlainObject */ 175);
 	
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 	
-	var _symbolObservable = __webpack_require__(/*! symbol-observable */ 186);
+	var _symbolObservable = __webpack_require__(/*! symbol-observable */ 185);
 	
 	var _symbolObservable2 = _interopRequireDefault(_symbolObservable);
 	
@@ -22486,15 +22440,15 @@
 	}
 
 /***/ },
-/* 176 */
+/* 175 */
 /*!***********************************!*\
   !*** ./~/lodash/isPlainObject.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(/*! ./_baseGetTag */ 177),
-	    getPrototype = __webpack_require__(/*! ./_getPrototype */ 183),
-	    isObjectLike = __webpack_require__(/*! ./isObjectLike */ 185);
+	var baseGetTag = __webpack_require__(/*! ./_baseGetTag */ 176),
+	    getPrototype = __webpack_require__(/*! ./_getPrototype */ 182),
+	    isObjectLike = __webpack_require__(/*! ./isObjectLike */ 184);
 	
 	/** `Object#toString` result references. */
 	var objectTag = '[object Object]';
@@ -22557,15 +22511,15 @@
 
 
 /***/ },
-/* 177 */
+/* 176 */
 /*!*********************************!*\
   !*** ./~/lodash/_baseGetTag.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(/*! ./_Symbol */ 178),
-	    getRawTag = __webpack_require__(/*! ./_getRawTag */ 181),
-	    objectToString = __webpack_require__(/*! ./_objectToString */ 182);
+	var Symbol = __webpack_require__(/*! ./_Symbol */ 177),
+	    getRawTag = __webpack_require__(/*! ./_getRawTag */ 180),
+	    objectToString = __webpack_require__(/*! ./_objectToString */ 181);
 	
 	/** `Object#toString` result references. */
 	var nullTag = '[object Null]',
@@ -22594,13 +22548,13 @@
 
 
 /***/ },
-/* 178 */
+/* 177 */
 /*!*****************************!*\
   !*** ./~/lodash/_Symbol.js ***!
   \*****************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(/*! ./_root */ 179);
+	var root = __webpack_require__(/*! ./_root */ 178);
 	
 	/** Built-in value references. */
 	var Symbol = root.Symbol;
@@ -22609,13 +22563,13 @@
 
 
 /***/ },
-/* 179 */
+/* 178 */
 /*!***************************!*\
   !*** ./~/lodash/_root.js ***!
   \***************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var freeGlobal = __webpack_require__(/*! ./_freeGlobal */ 180);
+	var freeGlobal = __webpack_require__(/*! ./_freeGlobal */ 179);
 	
 	/** Detect free variable `self`. */
 	var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -22627,7 +22581,7 @@
 
 
 /***/ },
-/* 180 */
+/* 179 */
 /*!*********************************!*\
   !*** ./~/lodash/_freeGlobal.js ***!
   \*********************************/
@@ -22640,13 +22594,13 @@
 
 
 /***/ },
-/* 181 */
+/* 180 */
 /*!********************************!*\
   !*** ./~/lodash/_getRawTag.js ***!
   \********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(/*! ./_Symbol */ 178);
+	var Symbol = __webpack_require__(/*! ./_Symbol */ 177);
 	
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -22695,7 +22649,7 @@
 
 
 /***/ },
-/* 182 */
+/* 181 */
 /*!*************************************!*\
   !*** ./~/lodash/_objectToString.js ***!
   \*************************************/
@@ -22726,13 +22680,13 @@
 
 
 /***/ },
-/* 183 */
+/* 182 */
 /*!***********************************!*\
   !*** ./~/lodash/_getPrototype.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var overArg = __webpack_require__(/*! ./_overArg */ 184);
+	var overArg = __webpack_require__(/*! ./_overArg */ 183);
 	
 	/** Built-in value references. */
 	var getPrototype = overArg(Object.getPrototypeOf, Object);
@@ -22741,7 +22695,7 @@
 
 
 /***/ },
-/* 184 */
+/* 183 */
 /*!******************************!*\
   !*** ./~/lodash/_overArg.js ***!
   \******************************/
@@ -22765,7 +22719,7 @@
 
 
 /***/ },
-/* 185 */
+/* 184 */
 /*!**********************************!*\
   !*** ./~/lodash/isObjectLike.js ***!
   \**********************************/
@@ -22803,17 +22757,17 @@
 
 
 /***/ },
-/* 186 */
+/* 185 */
 /*!**************************************!*\
   !*** ./~/symbol-observable/index.js ***!
   \**************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(/*! ./lib/index */ 187);
+	module.exports = __webpack_require__(/*! ./lib/index */ 186);
 
 
 /***/ },
-/* 187 */
+/* 186 */
 /*!******************************************!*\
   !*** ./~/symbol-observable/lib/index.js ***!
   \******************************************/
@@ -22825,7 +22779,7 @@
 	  value: true
 	});
 	
-	var _ponyfill = __webpack_require__(/*! ./ponyfill */ 189);
+	var _ponyfill = __webpack_require__(/*! ./ponyfill */ 188);
 	
 	var _ponyfill2 = _interopRequireDefault(_ponyfill);
 	
@@ -22848,10 +22802,10 @@
 	
 	var result = (0, _ponyfill2['default'])(root);
 	exports['default'] = result;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../webpack/buildin/module.js */ 188)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../webpack/buildin/module.js */ 187)(module)))
 
 /***/ },
-/* 188 */
+/* 187 */
 /*!***********************************!*\
   !*** (webpack)/buildin/module.js ***!
   \***********************************/
@@ -22870,7 +22824,7 @@
 
 
 /***/ },
-/* 189 */
+/* 188 */
 /*!*********************************************!*\
   !*** ./~/symbol-observable/lib/ponyfill.js ***!
   \*********************************************/
@@ -22901,7 +22855,7 @@
 	};
 
 /***/ },
-/* 190 */
+/* 189 */
 /*!****************************************!*\
   !*** ./~/redux/lib/combineReducers.js ***!
   \****************************************/
@@ -22912,13 +22866,13 @@
 	exports.__esModule = true;
 	exports['default'] = combineReducers;
 	
-	var _createStore = __webpack_require__(/*! ./createStore */ 175);
+	var _createStore = __webpack_require__(/*! ./createStore */ 174);
 	
-	var _isPlainObject = __webpack_require__(/*! lodash/isPlainObject */ 176);
+	var _isPlainObject = __webpack_require__(/*! lodash/isPlainObject */ 175);
 	
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 	
-	var _warning = __webpack_require__(/*! ./utils/warning */ 191);
+	var _warning = __webpack_require__(/*! ./utils/warning */ 190);
 	
 	var _warning2 = _interopRequireDefault(_warning);
 	
@@ -23051,7 +23005,7 @@
 	}
 
 /***/ },
-/* 191 */
+/* 190 */
 /*!**************************************!*\
   !*** ./~/redux/lib/utils/warning.js ***!
   \**************************************/
@@ -23084,7 +23038,7 @@
 	}
 
 /***/ },
-/* 192 */
+/* 191 */
 /*!*******************************************!*\
   !*** ./~/redux/lib/bindActionCreators.js ***!
   \*******************************************/
@@ -23143,7 +23097,7 @@
 	}
 
 /***/ },
-/* 193 */
+/* 192 */
 /*!****************************************!*\
   !*** ./~/redux/lib/applyMiddleware.js ***!
   \****************************************/
@@ -23157,7 +23111,7 @@
 	
 	exports['default'] = applyMiddleware;
 	
-	var _compose = __webpack_require__(/*! ./compose */ 194);
+	var _compose = __webpack_require__(/*! ./compose */ 193);
 	
 	var _compose2 = _interopRequireDefault(_compose);
 	
@@ -23209,7 +23163,7 @@
 	}
 
 /***/ },
-/* 194 */
+/* 193 */
 /*!********************************!*\
   !*** ./~/redux/lib/compose.js ***!
   \********************************/
@@ -23255,7 +23209,7 @@
 	}
 
 /***/ },
-/* 195 */
+/* 194 */
 /*!*****************************************************!*\
   !*** ./~/react-redux/lib/connect/wrapMapToProps.js ***!
   \*****************************************************/
@@ -23268,7 +23222,7 @@
 	exports.getDependsOnOwnProps = getDependsOnOwnProps;
 	exports.wrapMapToPropsFunc = wrapMapToPropsFunc;
 	
-	var _verifyPlainObject = __webpack_require__(/*! ../utils/verifyPlainObject */ 196);
+	var _verifyPlainObject = __webpack_require__(/*! ../utils/verifyPlainObject */ 195);
 	
 	var _verifyPlainObject2 = _interopRequireDefault(_verifyPlainObject);
 	
@@ -23317,10 +23271,12 @@
 	      return proxy.dependsOnOwnProps ? proxy.mapToProps(stateOrDispatch, ownProps) : proxy.mapToProps(stateOrDispatch);
 	    };
 	
-	    proxy.dependsOnOwnProps = getDependsOnOwnProps(mapToProps);
+	    // allow detectFactoryAndVerify to get ownProps
+	    proxy.dependsOnOwnProps = true;
 	
 	    proxy.mapToProps = function detectFactoryAndVerify(stateOrDispatch, ownProps) {
 	      proxy.mapToProps = mapToProps;
+	      proxy.dependsOnOwnProps = getDependsOnOwnProps(mapToProps);
 	      var props = proxy(stateOrDispatch, ownProps);
 	
 	      if (typeof props === 'function') {
@@ -23339,7 +23295,7 @@
 	}
 
 /***/ },
-/* 196 */
+/* 195 */
 /*!******************************************************!*\
   !*** ./~/react-redux/lib/utils/verifyPlainObject.js ***!
   \******************************************************/
@@ -23350,11 +23306,11 @@
 	exports.__esModule = true;
 	exports.default = verifyPlainObject;
 	
-	var _isPlainObject = __webpack_require__(/*! lodash/isPlainObject */ 176);
+	var _isPlainObject = __webpack_require__(/*! lodash/isPlainObject */ 175);
 	
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 	
-	var _warning = __webpack_require__(/*! ./warning */ 167);
+	var _warning = __webpack_require__(/*! ./warning */ 165);
 	
 	var _warning2 = _interopRequireDefault(_warning);
 	
@@ -23367,7 +23323,7 @@
 	}
 
 /***/ },
-/* 197 */
+/* 196 */
 /*!******************************************************!*\
   !*** ./~/react-redux/lib/connect/mapStateToProps.js ***!
   \******************************************************/
@@ -23379,7 +23335,7 @@
 	exports.whenMapStateToPropsIsFunction = whenMapStateToPropsIsFunction;
 	exports.whenMapStateToPropsIsMissing = whenMapStateToPropsIsMissing;
 	
-	var _wrapMapToProps = __webpack_require__(/*! ./wrapMapToProps */ 195);
+	var _wrapMapToProps = __webpack_require__(/*! ./wrapMapToProps */ 194);
 	
 	function whenMapStateToPropsIsFunction(mapStateToProps) {
 	  return typeof mapStateToProps === 'function' ? (0, _wrapMapToProps.wrapMapToPropsFunc)(mapStateToProps, 'mapStateToProps') : undefined;
@@ -23394,7 +23350,7 @@
 	exports.default = [whenMapStateToPropsIsFunction, whenMapStateToPropsIsMissing];
 
 /***/ },
-/* 198 */
+/* 197 */
 /*!*************************************************!*\
   !*** ./~/react-redux/lib/connect/mergeProps.js ***!
   \*************************************************/
@@ -23411,7 +23367,7 @@
 	exports.whenMergePropsIsFunction = whenMergePropsIsFunction;
 	exports.whenMergePropsIsOmitted = whenMergePropsIsOmitted;
 	
-	var _verifyPlainObject = __webpack_require__(/*! ../utils/verifyPlainObject */ 196);
+	var _verifyPlainObject = __webpack_require__(/*! ../utils/verifyPlainObject */ 195);
 	
 	var _verifyPlainObject2 = _interopRequireDefault(_verifyPlainObject);
 	
@@ -23460,7 +23416,7 @@
 	exports.default = [whenMergePropsIsFunction, whenMergePropsIsOmitted];
 
 /***/ },
-/* 199 */
+/* 198 */
 /*!******************************************************!*\
   !*** ./~/react-redux/lib/connect/selectorFactory.js ***!
   \******************************************************/
@@ -23473,7 +23429,7 @@
 	exports.pureFinalPropsSelectorFactory = pureFinalPropsSelectorFactory;
 	exports.default = finalPropsSelectorFactory;
 	
-	var _verifySubselectors = __webpack_require__(/*! ./verifySubselectors */ 200);
+	var _verifySubselectors = __webpack_require__(/*! ./verifySubselectors */ 199);
 	
 	var _verifySubselectors2 = _interopRequireDefault(_verifySubselectors);
 	
@@ -23581,7 +23537,7 @@
 	}
 
 /***/ },
-/* 200 */
+/* 199 */
 /*!*********************************************************!*\
   !*** ./~/react-redux/lib/connect/verifySubselectors.js ***!
   \*********************************************************/
@@ -23592,7 +23548,7 @@
 	exports.__esModule = true;
 	exports.default = verifySubselectors;
 	
-	var _warning = __webpack_require__(/*! ../utils/warning */ 167);
+	var _warning = __webpack_require__(/*! ../utils/warning */ 165);
 	
 	var _warning2 = _interopRequireDefault(_warning);
 	
@@ -23615,7 +23571,7 @@
 	}
 
 /***/ },
-/* 201 */
+/* 200 */
 /*!*****************************!*\
   !*** ./app/stateManager.js ***!
   \*****************************/
@@ -23632,19 +23588,19 @@
 	
 	exports.getNewStore = getNewStore;
 	
-	var _immutable = __webpack_require__(/*! immutable */ 206);
+	var _immutable = __webpack_require__(/*! immutable */ 201);
 	
 	var _immutable2 = _interopRequireDefault(_immutable);
 	
-	var _humanReadableIds = __webpack_require__(/*! human-readable-ids */ 463);
+	var _humanReadableIds = __webpack_require__(/*! human-readable-ids */ 202);
 	
-	var _path = __webpack_require__(/*! path */ 468);
+	var _path = __webpack_require__(/*! path */ 207);
 	
 	var _path2 = _interopRequireDefault(_path);
 	
-	var _redux = __webpack_require__(/*! redux */ 174);
+	var _redux = __webpack_require__(/*! redux */ 173);
 	
-	var _reduxThunk = __webpack_require__(/*! redux-thunk */ 469);
+	var _reduxThunk = __webpack_require__(/*! redux-thunk */ 208);
 	
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 	
@@ -23652,17 +23608,17 @@
 	
 	var _fs2 = _interopRequireDefault(_fs);
 	
-	var _serializer = __webpack_require__(/*! ./serializer */ 470);
+	var _serializer = __webpack_require__(/*! ./serializer */ 209);
 	
 	var _serializer2 = _interopRequireDefault(_serializer);
 	
-	var _componentTreeStateManager = __webpack_require__(/*! ./stateManagers/componentTreeStateManager */ 471);
+	var _componentTreeStateManager = __webpack_require__(/*! ./stateManagers/componentTreeStateManager */ 211);
 	
-	var _utils = __webpack_require__(/*! ./utils */ 203);
+	var _utils = __webpack_require__(/*! ./utils */ 214);
 	
-	var _constants = __webpack_require__(/*! ./constants */ 210);
+	var _constants = __webpack_require__(/*! ./constants */ 212);
 	
-	var _base_components = __webpack_require__(/*! ./base_components */ 218);
+	var _base_components = __webpack_require__(/*! ./base_components */ 213);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -23686,16 +23642,10 @@
 	  activeBreakpoint: 'NONE',
 	  activeLeftPanel: 'TREE',
 	  activeRightPanel: 'DETAILS',
-	  currentMainView: _constants.mainViewTypes.ASSETS,
+	  currentMainView: _constants.mainViewTypes.EDITOR,
 	  menu: { isOpen: false },
 	
 	  componentsMap: _base_components.defaultComponentsMap,
-	
-	  otherPossibleComponentViewDropSpots: undefined,
-	  selectedComponentViewDropSpot: undefined,
-	
-	  selectedTreeViewDropSpot: undefined,
-	  otherPossibleTreeViewDropSpots: undefined,
 	
 	  activeComponentBreakpoint: _constants.NONE,
 	  activeComponentState: _constants.NONE,
@@ -23766,7 +23716,7 @@
 	    return function (dispatch, getState) {
 	      _fs2.default.mkdir(newSitePath, function () {
 	        var state = getState();
-	        state.get('pages').forEach(function (pageMap, pageId) {
+	        state.get('pages').forEach(function (pageMap) {
 	          pageMap.get('componentTreeId');
 	        });
 	      });
@@ -23908,10 +23858,7 @@
 	      _fs2.default.readFile(filename, function (err, file) {
 	        var assetPath = _path2.default.join(getState().getIn(['fileMetadata', 'dirname']), 'assets', _path2.default.basename(filename));
 	
-	        console.log('assetPath', assetPath);
-	
 	        _fs2.default.writeFile(assetPath, file, function (err) {
-	          console.log('err', err);
 	          if (!err) {
 	            dispatch({
 	              type: ADD_ASSET,
@@ -24105,133 +24052,5177 @@
 	var store = exports.store = getNewStore();
 
 /***/ },
-/* 202 */
-/*!*****************************************!*\
-  !*** ./app/containers/OpenSiteModal.js ***!
-  \*****************************************/
+/* 201 */
+/*!***************************************!*\
+  !*** ./~/immutable/dist/immutable.js ***!
+  \***************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/**
+	 *  Copyright (c) 2014-2015, Facebook, Inc.
+	 *  All rights reserved.
+	 *
+	 *  This source code is licensed under the BSD-style license found in the
+	 *  LICENSE file in the root directory of this source tree. An additional grant
+	 *  of patent rights can be found in the PATENTS file in the same directory.
+	 */
 	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
+	(function (global, factory) {
+	   true ? module.exports = factory() :
+	  typeof define === 'function' && define.amd ? define(factory) :
+	  (global.Immutable = factory());
+	}(this, function () { 'use strict';var SLICE$0 = Array.prototype.slice;
 	
-	var _react = __webpack_require__(/*! react */ 5);
+	  function createClass(ctor, superClass) {
+	    if (superClass) {
+	      ctor.prototype = Object.create(superClass.prototype);
+	    }
+	    ctor.prototype.constructor = ctor;
+	  }
 	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _reactRedux = __webpack_require__(/*! react-redux */ 163);
-	
-	var _utils = __webpack_require__(/*! ../utils */ 203);
-	
-	var _CartoonButton = __webpack_require__(/*! ../components/CartoonButton */ 208);
-	
-	var _CartoonButton2 = _interopRequireDefault(_CartoonButton);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function SiteItem(props) {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: 'site-item', onClick: props.onClick },
-	    _react2.default.createElement('i', { className: 'fa fa-files-o', 'aria-hidden': 'true' }),
-	    props.name
-	  );
-	}
-	
-	var OpenSiteModal = _react2.default.createClass({
-	  displayName: 'OpenSiteModal',
-	  render: function render() {
-	    var _this = this;
-	
-	    //console.log('OPEN SITE MODAL RENDER')
-	    var recentSitesBlock = void 0;
-	    var recentSites = this.props.recentSites;
+	  function Iterable(value) {
+	      return isIterable(value) ? value : Seq(value);
+	    }
 	
 	
-	    if (recentSites.length) {
-	      var recentSiteItems = recentSites.map(function (recentSite) {
-	        return _react2.default.createElement(SiteItem, {
-	          name: recentSite.name,
-	          onClick: function onClick() {
-	            return _this.props.actions.loadSite(recentSite.path);
+	  createClass(KeyedIterable, Iterable);
+	    function KeyedIterable(value) {
+	      return isKeyed(value) ? value : KeyedSeq(value);
+	    }
+	
+	
+	  createClass(IndexedIterable, Iterable);
+	    function IndexedIterable(value) {
+	      return isIndexed(value) ? value : IndexedSeq(value);
+	    }
+	
+	
+	  createClass(SetIterable, Iterable);
+	    function SetIterable(value) {
+	      return isIterable(value) && !isAssociative(value) ? value : SetSeq(value);
+	    }
+	
+	
+	
+	  function isIterable(maybeIterable) {
+	    return !!(maybeIterable && maybeIterable[IS_ITERABLE_SENTINEL]);
+	  }
+	
+	  function isKeyed(maybeKeyed) {
+	    return !!(maybeKeyed && maybeKeyed[IS_KEYED_SENTINEL]);
+	  }
+	
+	  function isIndexed(maybeIndexed) {
+	    return !!(maybeIndexed && maybeIndexed[IS_INDEXED_SENTINEL]);
+	  }
+	
+	  function isAssociative(maybeAssociative) {
+	    return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
+	  }
+	
+	  function isOrdered(maybeOrdered) {
+	    return !!(maybeOrdered && maybeOrdered[IS_ORDERED_SENTINEL]);
+	  }
+	
+	  Iterable.isIterable = isIterable;
+	  Iterable.isKeyed = isKeyed;
+	  Iterable.isIndexed = isIndexed;
+	  Iterable.isAssociative = isAssociative;
+	  Iterable.isOrdered = isOrdered;
+	
+	  Iterable.Keyed = KeyedIterable;
+	  Iterable.Indexed = IndexedIterable;
+	  Iterable.Set = SetIterable;
+	
+	
+	  var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
+	  var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
+	  var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
+	  var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
+	
+	  // Used for setting prototype methods that IE8 chokes on.
+	  var DELETE = 'delete';
+	
+	  // Constants describing the size of trie nodes.
+	  var SHIFT = 5; // Resulted in best performance after ______?
+	  var SIZE = 1 << SHIFT;
+	  var MASK = SIZE - 1;
+	
+	  // A consistent shared value representing "not set" which equals nothing other
+	  // than itself, and nothing that could be provided externally.
+	  var NOT_SET = {};
+	
+	  // Boolean references, Rough equivalent of `bool &`.
+	  var CHANGE_LENGTH = { value: false };
+	  var DID_ALTER = { value: false };
+	
+	  function MakeRef(ref) {
+	    ref.value = false;
+	    return ref;
+	  }
+	
+	  function SetRef(ref) {
+	    ref && (ref.value = true);
+	  }
+	
+	  // A function which returns a value representing an "owner" for transient writes
+	  // to tries. The return value will only ever equal itself, and will not equal
+	  // the return of any subsequent call of this function.
+	  function OwnerID() {}
+	
+	  // http://jsperf.com/copy-array-inline
+	  function arrCopy(arr, offset) {
+	    offset = offset || 0;
+	    var len = Math.max(0, arr.length - offset);
+	    var newArr = new Array(len);
+	    for (var ii = 0; ii < len; ii++) {
+	      newArr[ii] = arr[ii + offset];
+	    }
+	    return newArr;
+	  }
+	
+	  function ensureSize(iter) {
+	    if (iter.size === undefined) {
+	      iter.size = iter.__iterate(returnTrue);
+	    }
+	    return iter.size;
+	  }
+	
+	  function wrapIndex(iter, index) {
+	    // This implements "is array index" which the ECMAString spec defines as:
+	    //
+	    //     A String property name P is an array index if and only if
+	    //     ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal
+	    //     to 2^32−1.
+	    //
+	    // http://www.ecma-international.org/ecma-262/6.0/#sec-array-exotic-objects
+	    if (typeof index !== 'number') {
+	      var uint32Index = index >>> 0; // N >>> 0 is shorthand for ToUint32
+	      if ('' + uint32Index !== index || uint32Index === 4294967295) {
+	        return NaN;
+	      }
+	      index = uint32Index;
+	    }
+	    return index < 0 ? ensureSize(iter) + index : index;
+	  }
+	
+	  function returnTrue() {
+	    return true;
+	  }
+	
+	  function wholeSlice(begin, end, size) {
+	    return (begin === 0 || (size !== undefined && begin <= -size)) &&
+	      (end === undefined || (size !== undefined && end >= size));
+	  }
+	
+	  function resolveBegin(begin, size) {
+	    return resolveIndex(begin, size, 0);
+	  }
+	
+	  function resolveEnd(end, size) {
+	    return resolveIndex(end, size, size);
+	  }
+	
+	  function resolveIndex(index, size, defaultIndex) {
+	    return index === undefined ?
+	      defaultIndex :
+	      index < 0 ?
+	        Math.max(0, size + index) :
+	        size === undefined ?
+	          index :
+	          Math.min(size, index);
+	  }
+	
+	  /* global Symbol */
+	
+	  var ITERATE_KEYS = 0;
+	  var ITERATE_VALUES = 1;
+	  var ITERATE_ENTRIES = 2;
+	
+	  var REAL_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
+	  var FAUX_ITERATOR_SYMBOL = '@@iterator';
+	
+	  var ITERATOR_SYMBOL = REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
+	
+	
+	  function Iterator(next) {
+	      this.next = next;
+	    }
+	
+	    Iterator.prototype.toString = function() {
+	      return '[Iterator]';
+	    };
+	
+	
+	  Iterator.KEYS = ITERATE_KEYS;
+	  Iterator.VALUES = ITERATE_VALUES;
+	  Iterator.ENTRIES = ITERATE_ENTRIES;
+	
+	  Iterator.prototype.inspect =
+	  Iterator.prototype.toSource = function () { return this.toString(); }
+	  Iterator.prototype[ITERATOR_SYMBOL] = function () {
+	    return this;
+	  };
+	
+	
+	  function iteratorValue(type, k, v, iteratorResult) {
+	    var value = type === 0 ? k : type === 1 ? v : [k, v];
+	    iteratorResult ? (iteratorResult.value = value) : (iteratorResult = {
+	      value: value, done: false
+	    });
+	    return iteratorResult;
+	  }
+	
+	  function iteratorDone() {
+	    return { value: undefined, done: true };
+	  }
+	
+	  function hasIterator(maybeIterable) {
+	    return !!getIteratorFn(maybeIterable);
+	  }
+	
+	  function isIterator(maybeIterator) {
+	    return maybeIterator && typeof maybeIterator.next === 'function';
+	  }
+	
+	  function getIterator(iterable) {
+	    var iteratorFn = getIteratorFn(iterable);
+	    return iteratorFn && iteratorFn.call(iterable);
+	  }
+	
+	  function getIteratorFn(iterable) {
+	    var iteratorFn = iterable && (
+	      (REAL_ITERATOR_SYMBOL && iterable[REAL_ITERATOR_SYMBOL]) ||
+	      iterable[FAUX_ITERATOR_SYMBOL]
+	    );
+	    if (typeof iteratorFn === 'function') {
+	      return iteratorFn;
+	    }
+	  }
+	
+	  function isArrayLike(value) {
+	    return value && typeof value.length === 'number';
+	  }
+	
+	  createClass(Seq, Iterable);
+	    function Seq(value) {
+	      return value === null || value === undefined ? emptySequence() :
+	        isIterable(value) ? value.toSeq() : seqFromValue(value);
+	    }
+	
+	    Seq.of = function(/*...values*/) {
+	      return Seq(arguments);
+	    };
+	
+	    Seq.prototype.toSeq = function() {
+	      return this;
+	    };
+	
+	    Seq.prototype.toString = function() {
+	      return this.__toString('Seq {', '}');
+	    };
+	
+	    Seq.prototype.cacheResult = function() {
+	      if (!this._cache && this.__iterateUncached) {
+	        this._cache = this.entrySeq().toArray();
+	        this.size = this._cache.length;
+	      }
+	      return this;
+	    };
+	
+	    // abstract __iterateUncached(fn, reverse)
+	
+	    Seq.prototype.__iterate = function(fn, reverse) {
+	      return seqIterate(this, fn, reverse, true);
+	    };
+	
+	    // abstract __iteratorUncached(type, reverse)
+	
+	    Seq.prototype.__iterator = function(type, reverse) {
+	      return seqIterator(this, type, reverse, true);
+	    };
+	
+	
+	
+	  createClass(KeyedSeq, Seq);
+	    function KeyedSeq(value) {
+	      return value === null || value === undefined ?
+	        emptySequence().toKeyedSeq() :
+	        isIterable(value) ?
+	          (isKeyed(value) ? value.toSeq() : value.fromEntrySeq()) :
+	          keyedSeqFromValue(value);
+	    }
+	
+	    KeyedSeq.prototype.toKeyedSeq = function() {
+	      return this;
+	    };
+	
+	
+	
+	  createClass(IndexedSeq, Seq);
+	    function IndexedSeq(value) {
+	      return value === null || value === undefined ? emptySequence() :
+	        !isIterable(value) ? indexedSeqFromValue(value) :
+	        isKeyed(value) ? value.entrySeq() : value.toIndexedSeq();
+	    }
+	
+	    IndexedSeq.of = function(/*...values*/) {
+	      return IndexedSeq(arguments);
+	    };
+	
+	    IndexedSeq.prototype.toIndexedSeq = function() {
+	      return this;
+	    };
+	
+	    IndexedSeq.prototype.toString = function() {
+	      return this.__toString('Seq [', ']');
+	    };
+	
+	    IndexedSeq.prototype.__iterate = function(fn, reverse) {
+	      return seqIterate(this, fn, reverse, false);
+	    };
+	
+	    IndexedSeq.prototype.__iterator = function(type, reverse) {
+	      return seqIterator(this, type, reverse, false);
+	    };
+	
+	
+	
+	  createClass(SetSeq, Seq);
+	    function SetSeq(value) {
+	      return (
+	        value === null || value === undefined ? emptySequence() :
+	        !isIterable(value) ? indexedSeqFromValue(value) :
+	        isKeyed(value) ? value.entrySeq() : value
+	      ).toSetSeq();
+	    }
+	
+	    SetSeq.of = function(/*...values*/) {
+	      return SetSeq(arguments);
+	    };
+	
+	    SetSeq.prototype.toSetSeq = function() {
+	      return this;
+	    };
+	
+	
+	
+	  Seq.isSeq = isSeq;
+	  Seq.Keyed = KeyedSeq;
+	  Seq.Set = SetSeq;
+	  Seq.Indexed = IndexedSeq;
+	
+	  var IS_SEQ_SENTINEL = '@@__IMMUTABLE_SEQ__@@';
+	
+	  Seq.prototype[IS_SEQ_SENTINEL] = true;
+	
+	
+	
+	  createClass(ArraySeq, IndexedSeq);
+	    function ArraySeq(array) {
+	      this._array = array;
+	      this.size = array.length;
+	    }
+	
+	    ArraySeq.prototype.get = function(index, notSetValue) {
+	      return this.has(index) ? this._array[wrapIndex(this, index)] : notSetValue;
+	    };
+	
+	    ArraySeq.prototype.__iterate = function(fn, reverse) {
+	      var array = this._array;
+	      var maxIndex = array.length - 1;
+	      for (var ii = 0; ii <= maxIndex; ii++) {
+	        if (fn(array[reverse ? maxIndex - ii : ii], ii, this) === false) {
+	          return ii + 1;
+	        }
+	      }
+	      return ii;
+	    };
+	
+	    ArraySeq.prototype.__iterator = function(type, reverse) {
+	      var array = this._array;
+	      var maxIndex = array.length - 1;
+	      var ii = 0;
+	      return new Iterator(function() 
+	        {return ii > maxIndex ?
+	          iteratorDone() :
+	          iteratorValue(type, ii, array[reverse ? maxIndex - ii++ : ii++])}
+	      );
+	    };
+	
+	
+	
+	  createClass(ObjectSeq, KeyedSeq);
+	    function ObjectSeq(object) {
+	      var keys = Object.keys(object);
+	      this._object = object;
+	      this._keys = keys;
+	      this.size = keys.length;
+	    }
+	
+	    ObjectSeq.prototype.get = function(key, notSetValue) {
+	      if (notSetValue !== undefined && !this.has(key)) {
+	        return notSetValue;
+	      }
+	      return this._object[key];
+	    };
+	
+	    ObjectSeq.prototype.has = function(key) {
+	      return this._object.hasOwnProperty(key);
+	    };
+	
+	    ObjectSeq.prototype.__iterate = function(fn, reverse) {
+	      var object = this._object;
+	      var keys = this._keys;
+	      var maxIndex = keys.length - 1;
+	      for (var ii = 0; ii <= maxIndex; ii++) {
+	        var key = keys[reverse ? maxIndex - ii : ii];
+	        if (fn(object[key], key, this) === false) {
+	          return ii + 1;
+	        }
+	      }
+	      return ii;
+	    };
+	
+	    ObjectSeq.prototype.__iterator = function(type, reverse) {
+	      var object = this._object;
+	      var keys = this._keys;
+	      var maxIndex = keys.length - 1;
+	      var ii = 0;
+	      return new Iterator(function()  {
+	        var key = keys[reverse ? maxIndex - ii : ii];
+	        return ii++ > maxIndex ?
+	          iteratorDone() :
+	          iteratorValue(type, key, object[key]);
+	      });
+	    };
+	
+	  ObjectSeq.prototype[IS_ORDERED_SENTINEL] = true;
+	
+	
+	  createClass(IterableSeq, IndexedSeq);
+	    function IterableSeq(iterable) {
+	      this._iterable = iterable;
+	      this.size = iterable.length || iterable.size;
+	    }
+	
+	    IterableSeq.prototype.__iterateUncached = function(fn, reverse) {
+	      if (reverse) {
+	        return this.cacheResult().__iterate(fn, reverse);
+	      }
+	      var iterable = this._iterable;
+	      var iterator = getIterator(iterable);
+	      var iterations = 0;
+	      if (isIterator(iterator)) {
+	        var step;
+	        while (!(step = iterator.next()).done) {
+	          if (fn(step.value, iterations++, this) === false) {
+	            break;
+	          }
+	        }
+	      }
+	      return iterations;
+	    };
+	
+	    IterableSeq.prototype.__iteratorUncached = function(type, reverse) {
+	      if (reverse) {
+	        return this.cacheResult().__iterator(type, reverse);
+	      }
+	      var iterable = this._iterable;
+	      var iterator = getIterator(iterable);
+	      if (!isIterator(iterator)) {
+	        return new Iterator(iteratorDone);
+	      }
+	      var iterations = 0;
+	      return new Iterator(function()  {
+	        var step = iterator.next();
+	        return step.done ? step : iteratorValue(type, iterations++, step.value);
+	      });
+	    };
+	
+	
+	
+	  createClass(IteratorSeq, IndexedSeq);
+	    function IteratorSeq(iterator) {
+	      this._iterator = iterator;
+	      this._iteratorCache = [];
+	    }
+	
+	    IteratorSeq.prototype.__iterateUncached = function(fn, reverse) {
+	      if (reverse) {
+	        return this.cacheResult().__iterate(fn, reverse);
+	      }
+	      var iterator = this._iterator;
+	      var cache = this._iteratorCache;
+	      var iterations = 0;
+	      while (iterations < cache.length) {
+	        if (fn(cache[iterations], iterations++, this) === false) {
+	          return iterations;
+	        }
+	      }
+	      var step;
+	      while (!(step = iterator.next()).done) {
+	        var val = step.value;
+	        cache[iterations] = val;
+	        if (fn(val, iterations++, this) === false) {
+	          break;
+	        }
+	      }
+	      return iterations;
+	    };
+	
+	    IteratorSeq.prototype.__iteratorUncached = function(type, reverse) {
+	      if (reverse) {
+	        return this.cacheResult().__iterator(type, reverse);
+	      }
+	      var iterator = this._iterator;
+	      var cache = this._iteratorCache;
+	      var iterations = 0;
+	      return new Iterator(function()  {
+	        if (iterations >= cache.length) {
+	          var step = iterator.next();
+	          if (step.done) {
+	            return step;
+	          }
+	          cache[iterations] = step.value;
+	        }
+	        return iteratorValue(type, iterations, cache[iterations++]);
+	      });
+	    };
+	
+	
+	
+	
+	  // # pragma Helper functions
+	
+	  function isSeq(maybeSeq) {
+	    return !!(maybeSeq && maybeSeq[IS_SEQ_SENTINEL]);
+	  }
+	
+	  var EMPTY_SEQ;
+	
+	  function emptySequence() {
+	    return EMPTY_SEQ || (EMPTY_SEQ = new ArraySeq([]));
+	  }
+	
+	  function keyedSeqFromValue(value) {
+	    var seq =
+	      Array.isArray(value) ? new ArraySeq(value).fromEntrySeq() :
+	      isIterator(value) ? new IteratorSeq(value).fromEntrySeq() :
+	      hasIterator(value) ? new IterableSeq(value).fromEntrySeq() :
+	      typeof value === 'object' ? new ObjectSeq(value) :
+	      undefined;
+	    if (!seq) {
+	      throw new TypeError(
+	        'Expected Array or iterable object of [k, v] entries, '+
+	        'or keyed object: ' + value
+	      );
+	    }
+	    return seq;
+	  }
+	
+	  function indexedSeqFromValue(value) {
+	    var seq = maybeIndexedSeqFromValue(value);
+	    if (!seq) {
+	      throw new TypeError(
+	        'Expected Array or iterable object of values: ' + value
+	      );
+	    }
+	    return seq;
+	  }
+	
+	  function seqFromValue(value) {
+	    var seq = maybeIndexedSeqFromValue(value) ||
+	      (typeof value === 'object' && new ObjectSeq(value));
+	    if (!seq) {
+	      throw new TypeError(
+	        'Expected Array or iterable object of values, or keyed object: ' + value
+	      );
+	    }
+	    return seq;
+	  }
+	
+	  function maybeIndexedSeqFromValue(value) {
+	    return (
+	      isArrayLike(value) ? new ArraySeq(value) :
+	      isIterator(value) ? new IteratorSeq(value) :
+	      hasIterator(value) ? new IterableSeq(value) :
+	      undefined
+	    );
+	  }
+	
+	  function seqIterate(seq, fn, reverse, useKeys) {
+	    var cache = seq._cache;
+	    if (cache) {
+	      var maxIndex = cache.length - 1;
+	      for (var ii = 0; ii <= maxIndex; ii++) {
+	        var entry = cache[reverse ? maxIndex - ii : ii];
+	        if (fn(entry[1], useKeys ? entry[0] : ii, seq) === false) {
+	          return ii + 1;
+	        }
+	      }
+	      return ii;
+	    }
+	    return seq.__iterateUncached(fn, reverse);
+	  }
+	
+	  function seqIterator(seq, type, reverse, useKeys) {
+	    var cache = seq._cache;
+	    if (cache) {
+	      var maxIndex = cache.length - 1;
+	      var ii = 0;
+	      return new Iterator(function()  {
+	        var entry = cache[reverse ? maxIndex - ii : ii];
+	        return ii++ > maxIndex ?
+	          iteratorDone() :
+	          iteratorValue(type, useKeys ? entry[0] : ii - 1, entry[1]);
+	      });
+	    }
+	    return seq.__iteratorUncached(type, reverse);
+	  }
+	
+	  function fromJS(json, converter) {
+	    return converter ?
+	      fromJSWith(converter, json, '', {'': json}) :
+	      fromJSDefault(json);
+	  }
+	
+	  function fromJSWith(converter, json, key, parentJSON) {
+	    if (Array.isArray(json)) {
+	      return converter.call(parentJSON, key, IndexedSeq(json).map(function(v, k)  {return fromJSWith(converter, v, k, json)}));
+	    }
+	    if (isPlainObj(json)) {
+	      return converter.call(parentJSON, key, KeyedSeq(json).map(function(v, k)  {return fromJSWith(converter, v, k, json)}));
+	    }
+	    return json;
+	  }
+	
+	  function fromJSDefault(json) {
+	    if (Array.isArray(json)) {
+	      return IndexedSeq(json).map(fromJSDefault).toList();
+	    }
+	    if (isPlainObj(json)) {
+	      return KeyedSeq(json).map(fromJSDefault).toMap();
+	    }
+	    return json;
+	  }
+	
+	  function isPlainObj(value) {
+	    return value && (value.constructor === Object || value.constructor === undefined);
+	  }
+	
+	  /**
+	   * An extension of the "same-value" algorithm as [described for use by ES6 Map
+	   * and Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#Key_equality)
+	   *
+	   * NaN is considered the same as NaN, however -0 and 0 are considered the same
+	   * value, which is different from the algorithm described by
+	   * [`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is).
+	   *
+	   * This is extended further to allow Objects to describe the values they
+	   * represent, by way of `valueOf` or `equals` (and `hashCode`).
+	   *
+	   * Note: because of this extension, the key equality of Immutable.Map and the
+	   * value equality of Immutable.Set will differ from ES6 Map and Set.
+	   *
+	   * ### Defining custom values
+	   *
+	   * The easiest way to describe the value an object represents is by implementing
+	   * `valueOf`. For example, `Date` represents a value by returning a unix
+	   * timestamp for `valueOf`:
+	   *
+	   *     var date1 = new Date(1234567890000); // Fri Feb 13 2009 ...
+	   *     var date2 = new Date(1234567890000);
+	   *     date1.valueOf(); // 1234567890000
+	   *     assert( date1 !== date2 );
+	   *     assert( Immutable.is( date1, date2 ) );
+	   *
+	   * Note: overriding `valueOf` may have other implications if you use this object
+	   * where JavaScript expects a primitive, such as implicit string coercion.
+	   *
+	   * For more complex types, especially collections, implementing `valueOf` may
+	   * not be performant. An alternative is to implement `equals` and `hashCode`.
+	   *
+	   * `equals` takes another object, presumably of similar type, and returns true
+	   * if the it is equal. Equality is symmetrical, so the same result should be
+	   * returned if this and the argument are flipped.
+	   *
+	   *     assert( a.equals(b) === b.equals(a) );
+	   *
+	   * `hashCode` returns a 32bit integer number representing the object which will
+	   * be used to determine how to store the value object in a Map or Set. You must
+	   * provide both or neither methods, one must not exist without the other.
+	   *
+	   * Also, an important relationship between these methods must be upheld: if two
+	   * values are equal, they *must* return the same hashCode. If the values are not
+	   * equal, they might have the same hashCode; this is called a hash collision,
+	   * and while undesirable for performance reasons, it is acceptable.
+	   *
+	   *     if (a.equals(b)) {
+	   *       assert( a.hashCode() === b.hashCode() );
+	   *     }
+	   *
+	   * All Immutable collections implement `equals` and `hashCode`.
+	   *
+	   */
+	  function is(valueA, valueB) {
+	    if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
+	      return true;
+	    }
+	    if (!valueA || !valueB) {
+	      return false;
+	    }
+	    if (typeof valueA.valueOf === 'function' &&
+	        typeof valueB.valueOf === 'function') {
+	      valueA = valueA.valueOf();
+	      valueB = valueB.valueOf();
+	      if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
+	        return true;
+	      }
+	      if (!valueA || !valueB) {
+	        return false;
+	      }
+	    }
+	    if (typeof valueA.equals === 'function' &&
+	        typeof valueB.equals === 'function' &&
+	        valueA.equals(valueB)) {
+	      return true;
+	    }
+	    return false;
+	  }
+	
+	  function deepEqual(a, b) {
+	    if (a === b) {
+	      return true;
+	    }
+	
+	    if (
+	      !isIterable(b) ||
+	      a.size !== undefined && b.size !== undefined && a.size !== b.size ||
+	      a.__hash !== undefined && b.__hash !== undefined && a.__hash !== b.__hash ||
+	      isKeyed(a) !== isKeyed(b) ||
+	      isIndexed(a) !== isIndexed(b) ||
+	      isOrdered(a) !== isOrdered(b)
+	    ) {
+	      return false;
+	    }
+	
+	    if (a.size === 0 && b.size === 0) {
+	      return true;
+	    }
+	
+	    var notAssociative = !isAssociative(a);
+	
+	    if (isOrdered(a)) {
+	      var entries = a.entries();
+	      return b.every(function(v, k)  {
+	        var entry = entries.next().value;
+	        return entry && is(entry[1], v) && (notAssociative || is(entry[0], k));
+	      }) && entries.next().done;
+	    }
+	
+	    var flipped = false;
+	
+	    if (a.size === undefined) {
+	      if (b.size === undefined) {
+	        if (typeof a.cacheResult === 'function') {
+	          a.cacheResult();
+	        }
+	      } else {
+	        flipped = true;
+	        var _ = a;
+	        a = b;
+	        b = _;
+	      }
+	    }
+	
+	    var allEqual = true;
+	    var bSize = b.__iterate(function(v, k)  {
+	      if (notAssociative ? !a.has(v) :
+	          flipped ? !is(v, a.get(k, NOT_SET)) : !is(a.get(k, NOT_SET), v)) {
+	        allEqual = false;
+	        return false;
+	      }
+	    });
+	
+	    return allEqual && a.size === bSize;
+	  }
+	
+	  createClass(Repeat, IndexedSeq);
+	
+	    function Repeat(value, times) {
+	      if (!(this instanceof Repeat)) {
+	        return new Repeat(value, times);
+	      }
+	      this._value = value;
+	      this.size = times === undefined ? Infinity : Math.max(0, times);
+	      if (this.size === 0) {
+	        if (EMPTY_REPEAT) {
+	          return EMPTY_REPEAT;
+	        }
+	        EMPTY_REPEAT = this;
+	      }
+	    }
+	
+	    Repeat.prototype.toString = function() {
+	      if (this.size === 0) {
+	        return 'Repeat []';
+	      }
+	      return 'Repeat [ ' + this._value + ' ' + this.size + ' times ]';
+	    };
+	
+	    Repeat.prototype.get = function(index, notSetValue) {
+	      return this.has(index) ? this._value : notSetValue;
+	    };
+	
+	    Repeat.prototype.includes = function(searchValue) {
+	      return is(this._value, searchValue);
+	    };
+	
+	    Repeat.prototype.slice = function(begin, end) {
+	      var size = this.size;
+	      return wholeSlice(begin, end, size) ? this :
+	        new Repeat(this._value, resolveEnd(end, size) - resolveBegin(begin, size));
+	    };
+	
+	    Repeat.prototype.reverse = function() {
+	      return this;
+	    };
+	
+	    Repeat.prototype.indexOf = function(searchValue) {
+	      if (is(this._value, searchValue)) {
+	        return 0;
+	      }
+	      return -1;
+	    };
+	
+	    Repeat.prototype.lastIndexOf = function(searchValue) {
+	      if (is(this._value, searchValue)) {
+	        return this.size;
+	      }
+	      return -1;
+	    };
+	
+	    Repeat.prototype.__iterate = function(fn, reverse) {
+	      for (var ii = 0; ii < this.size; ii++) {
+	        if (fn(this._value, ii, this) === false) {
+	          return ii + 1;
+	        }
+	      }
+	      return ii;
+	    };
+	
+	    Repeat.prototype.__iterator = function(type, reverse) {var this$0 = this;
+	      var ii = 0;
+	      return new Iterator(function() 
+	        {return ii < this$0.size ? iteratorValue(type, ii++, this$0._value) : iteratorDone()}
+	      );
+	    };
+	
+	    Repeat.prototype.equals = function(other) {
+	      return other instanceof Repeat ?
+	        is(this._value, other._value) :
+	        deepEqual(other);
+	    };
+	
+	
+	  var EMPTY_REPEAT;
+	
+	  function invariant(condition, error) {
+	    if (!condition) throw new Error(error);
+	  }
+	
+	  createClass(Range, IndexedSeq);
+	
+	    function Range(start, end, step) {
+	      if (!(this instanceof Range)) {
+	        return new Range(start, end, step);
+	      }
+	      invariant(step !== 0, 'Cannot step a Range by 0');
+	      start = start || 0;
+	      if (end === undefined) {
+	        end = Infinity;
+	      }
+	      step = step === undefined ? 1 : Math.abs(step);
+	      if (end < start) {
+	        step = -step;
+	      }
+	      this._start = start;
+	      this._end = end;
+	      this._step = step;
+	      this.size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
+	      if (this.size === 0) {
+	        if (EMPTY_RANGE) {
+	          return EMPTY_RANGE;
+	        }
+	        EMPTY_RANGE = this;
+	      }
+	    }
+	
+	    Range.prototype.toString = function() {
+	      if (this.size === 0) {
+	        return 'Range []';
+	      }
+	      return 'Range [ ' +
+	        this._start + '...' + this._end +
+	        (this._step !== 1 ? ' by ' + this._step : '') +
+	      ' ]';
+	    };
+	
+	    Range.prototype.get = function(index, notSetValue) {
+	      return this.has(index) ?
+	        this._start + wrapIndex(this, index) * this._step :
+	        notSetValue;
+	    };
+	
+	    Range.prototype.includes = function(searchValue) {
+	      var possibleIndex = (searchValue - this._start) / this._step;
+	      return possibleIndex >= 0 &&
+	        possibleIndex < this.size &&
+	        possibleIndex === Math.floor(possibleIndex);
+	    };
+	
+	    Range.prototype.slice = function(begin, end) {
+	      if (wholeSlice(begin, end, this.size)) {
+	        return this;
+	      }
+	      begin = resolveBegin(begin, this.size);
+	      end = resolveEnd(end, this.size);
+	      if (end <= begin) {
+	        return new Range(0, 0);
+	      }
+	      return new Range(this.get(begin, this._end), this.get(end, this._end), this._step);
+	    };
+	
+	    Range.prototype.indexOf = function(searchValue) {
+	      var offsetValue = searchValue - this._start;
+	      if (offsetValue % this._step === 0) {
+	        var index = offsetValue / this._step;
+	        if (index >= 0 && index < this.size) {
+	          return index
+	        }
+	      }
+	      return -1;
+	    };
+	
+	    Range.prototype.lastIndexOf = function(searchValue) {
+	      return this.indexOf(searchValue);
+	    };
+	
+	    Range.prototype.__iterate = function(fn, reverse) {
+	      var maxIndex = this.size - 1;
+	      var step = this._step;
+	      var value = reverse ? this._start + maxIndex * step : this._start;
+	      for (var ii = 0; ii <= maxIndex; ii++) {
+	        if (fn(value, ii, this) === false) {
+	          return ii + 1;
+	        }
+	        value += reverse ? -step : step;
+	      }
+	      return ii;
+	    };
+	
+	    Range.prototype.__iterator = function(type, reverse) {
+	      var maxIndex = this.size - 1;
+	      var step = this._step;
+	      var value = reverse ? this._start + maxIndex * step : this._start;
+	      var ii = 0;
+	      return new Iterator(function()  {
+	        var v = value;
+	        value += reverse ? -step : step;
+	        return ii > maxIndex ? iteratorDone() : iteratorValue(type, ii++, v);
+	      });
+	    };
+	
+	    Range.prototype.equals = function(other) {
+	      return other instanceof Range ?
+	        this._start === other._start &&
+	        this._end === other._end &&
+	        this._step === other._step :
+	        deepEqual(this, other);
+	    };
+	
+	
+	  var EMPTY_RANGE;
+	
+	  createClass(Collection, Iterable);
+	    function Collection() {
+	      throw TypeError('Abstract');
+	    }
+	
+	
+	  createClass(KeyedCollection, Collection);function KeyedCollection() {}
+	
+	  createClass(IndexedCollection, Collection);function IndexedCollection() {}
+	
+	  createClass(SetCollection, Collection);function SetCollection() {}
+	
+	
+	  Collection.Keyed = KeyedCollection;
+	  Collection.Indexed = IndexedCollection;
+	  Collection.Set = SetCollection;
+	
+	  var imul =
+	    typeof Math.imul === 'function' && Math.imul(0xffffffff, 2) === -2 ?
+	    Math.imul :
+	    function imul(a, b) {
+	      a = a | 0; // int
+	      b = b | 0; // int
+	      var c = a & 0xffff;
+	      var d = b & 0xffff;
+	      // Shift by 0 fixes the sign on the high part.
+	      return (c * d) + ((((a >>> 16) * d + c * (b >>> 16)) << 16) >>> 0) | 0; // int
+	    };
+	
+	  // v8 has an optimization for storing 31-bit signed numbers.
+	  // Values which have either 00 or 11 as the high order bits qualify.
+	  // This function drops the highest order bit in a signed number, maintaining
+	  // the sign bit.
+	  function smi(i32) {
+	    return ((i32 >>> 1) & 0x40000000) | (i32 & 0xBFFFFFFF);
+	  }
+	
+	  function hash(o) {
+	    if (o === false || o === null || o === undefined) {
+	      return 0;
+	    }
+	    if (typeof o.valueOf === 'function') {
+	      o = o.valueOf();
+	      if (o === false || o === null || o === undefined) {
+	        return 0;
+	      }
+	    }
+	    if (o === true) {
+	      return 1;
+	    }
+	    var type = typeof o;
+	    if (type === 'number') {
+	      if (o !== o || o === Infinity) {
+	        return 0;
+	      }
+	      var h = o | 0;
+	      if (h !== o) {
+	        h ^= o * 0xFFFFFFFF;
+	      }
+	      while (o > 0xFFFFFFFF) {
+	        o /= 0xFFFFFFFF;
+	        h ^= o;
+	      }
+	      return smi(h);
+	    }
+	    if (type === 'string') {
+	      return o.length > STRING_HASH_CACHE_MIN_STRLEN ? cachedHashString(o) : hashString(o);
+	    }
+	    if (typeof o.hashCode === 'function') {
+	      return o.hashCode();
+	    }
+	    if (type === 'object') {
+	      return hashJSObj(o);
+	    }
+	    if (typeof o.toString === 'function') {
+	      return hashString(o.toString());
+	    }
+	    throw new Error('Value type ' + type + ' cannot be hashed.');
+	  }
+	
+	  function cachedHashString(string) {
+	    var hash = stringHashCache[string];
+	    if (hash === undefined) {
+	      hash = hashString(string);
+	      if (STRING_HASH_CACHE_SIZE === STRING_HASH_CACHE_MAX_SIZE) {
+	        STRING_HASH_CACHE_SIZE = 0;
+	        stringHashCache = {};
+	      }
+	      STRING_HASH_CACHE_SIZE++;
+	      stringHashCache[string] = hash;
+	    }
+	    return hash;
+	  }
+	
+	  // http://jsperf.com/hashing-strings
+	  function hashString(string) {
+	    // This is the hash from JVM
+	    // The hash code for a string is computed as
+	    // s[0] * 31 ^ (n - 1) + s[1] * 31 ^ (n - 2) + ... + s[n - 1],
+	    // where s[i] is the ith character of the string and n is the length of
+	    // the string. We "mod" the result to make it between 0 (inclusive) and 2^31
+	    // (exclusive) by dropping high bits.
+	    var hash = 0;
+	    for (var ii = 0; ii < string.length; ii++) {
+	      hash = 31 * hash + string.charCodeAt(ii) | 0;
+	    }
+	    return smi(hash);
+	  }
+	
+	  function hashJSObj(obj) {
+	    var hash;
+	    if (usingWeakMap) {
+	      hash = weakMap.get(obj);
+	      if (hash !== undefined) {
+	        return hash;
+	      }
+	    }
+	
+	    hash = obj[UID_HASH_KEY];
+	    if (hash !== undefined) {
+	      return hash;
+	    }
+	
+	    if (!canDefineProperty) {
+	      hash = obj.propertyIsEnumerable && obj.propertyIsEnumerable[UID_HASH_KEY];
+	      if (hash !== undefined) {
+	        return hash;
+	      }
+	
+	      hash = getIENodeHash(obj);
+	      if (hash !== undefined) {
+	        return hash;
+	      }
+	    }
+	
+	    hash = ++objHashUID;
+	    if (objHashUID & 0x40000000) {
+	      objHashUID = 0;
+	    }
+	
+	    if (usingWeakMap) {
+	      weakMap.set(obj, hash);
+	    } else if (isExtensible !== undefined && isExtensible(obj) === false) {
+	      throw new Error('Non-extensible objects are not allowed as keys.');
+	    } else if (canDefineProperty) {
+	      Object.defineProperty(obj, UID_HASH_KEY, {
+	        'enumerable': false,
+	        'configurable': false,
+	        'writable': false,
+	        'value': hash
+	      });
+	    } else if (obj.propertyIsEnumerable !== undefined &&
+	               obj.propertyIsEnumerable === obj.constructor.prototype.propertyIsEnumerable) {
+	      // Since we can't define a non-enumerable property on the object
+	      // we'll hijack one of the less-used non-enumerable properties to
+	      // save our hash on it. Since this is a function it will not show up in
+	      // `JSON.stringify` which is what we want.
+	      obj.propertyIsEnumerable = function() {
+	        return this.constructor.prototype.propertyIsEnumerable.apply(this, arguments);
+	      };
+	      obj.propertyIsEnumerable[UID_HASH_KEY] = hash;
+	    } else if (obj.nodeType !== undefined) {
+	      // At this point we couldn't get the IE `uniqueID` to use as a hash
+	      // and we couldn't use a non-enumerable property to exploit the
+	      // dontEnum bug so we simply add the `UID_HASH_KEY` on the node
+	      // itself.
+	      obj[UID_HASH_KEY] = hash;
+	    } else {
+	      throw new Error('Unable to set a non-enumerable property on object.');
+	    }
+	
+	    return hash;
+	  }
+	
+	  // Get references to ES5 object methods.
+	  var isExtensible = Object.isExtensible;
+	
+	  // True if Object.defineProperty works as expected. IE8 fails this test.
+	  var canDefineProperty = (function() {
+	    try {
+	      Object.defineProperty({}, '@', {});
+	      return true;
+	    } catch (e) {
+	      return false;
+	    }
+	  }());
+	
+	  // IE has a `uniqueID` property on DOM nodes. We can construct the hash from it
+	  // and avoid memory leaks from the IE cloneNode bug.
+	  function getIENodeHash(node) {
+	    if (node && node.nodeType > 0) {
+	      switch (node.nodeType) {
+	        case 1: // Element
+	          return node.uniqueID;
+	        case 9: // Document
+	          return node.documentElement && node.documentElement.uniqueID;
+	      }
+	    }
+	  }
+	
+	  // If possible, use a WeakMap.
+	  var usingWeakMap = typeof WeakMap === 'function';
+	  var weakMap;
+	  if (usingWeakMap) {
+	    weakMap = new WeakMap();
+	  }
+	
+	  var objHashUID = 0;
+	
+	  var UID_HASH_KEY = '__immutablehash__';
+	  if (typeof Symbol === 'function') {
+	    UID_HASH_KEY = Symbol(UID_HASH_KEY);
+	  }
+	
+	  var STRING_HASH_CACHE_MIN_STRLEN = 16;
+	  var STRING_HASH_CACHE_MAX_SIZE = 255;
+	  var STRING_HASH_CACHE_SIZE = 0;
+	  var stringHashCache = {};
+	
+	  function assertNotInfinite(size) {
+	    invariant(
+	      size !== Infinity,
+	      'Cannot perform this action with an infinite size.'
+	    );
+	  }
+	
+	  createClass(Map, KeyedCollection);
+	
+	    // @pragma Construction
+	
+	    function Map(value) {
+	      return value === null || value === undefined ? emptyMap() :
+	        isMap(value) && !isOrdered(value) ? value :
+	        emptyMap().withMutations(function(map ) {
+	          var iter = KeyedIterable(value);
+	          assertNotInfinite(iter.size);
+	          iter.forEach(function(v, k)  {return map.set(k, v)});
+	        });
+	    }
+	
+	    Map.of = function() {var keyValues = SLICE$0.call(arguments, 0);
+	      return emptyMap().withMutations(function(map ) {
+	        for (var i = 0; i < keyValues.length; i += 2) {
+	          if (i + 1 >= keyValues.length) {
+	            throw new Error('Missing value for key: ' + keyValues[i]);
+	          }
+	          map.set(keyValues[i], keyValues[i + 1]);
+	        }
+	      });
+	    };
+	
+	    Map.prototype.toString = function() {
+	      return this.__toString('Map {', '}');
+	    };
+	
+	    // @pragma Access
+	
+	    Map.prototype.get = function(k, notSetValue) {
+	      return this._root ?
+	        this._root.get(0, undefined, k, notSetValue) :
+	        notSetValue;
+	    };
+	
+	    // @pragma Modification
+	
+	    Map.prototype.set = function(k, v) {
+	      return updateMap(this, k, v);
+	    };
+	
+	    Map.prototype.setIn = function(keyPath, v) {
+	      return this.updateIn(keyPath, NOT_SET, function()  {return v});
+	    };
+	
+	    Map.prototype.remove = function(k) {
+	      return updateMap(this, k, NOT_SET);
+	    };
+	
+	    Map.prototype.deleteIn = function(keyPath) {
+	      return this.updateIn(keyPath, function()  {return NOT_SET});
+	    };
+	
+	    Map.prototype.update = function(k, notSetValue, updater) {
+	      return arguments.length === 1 ?
+	        k(this) :
+	        this.updateIn([k], notSetValue, updater);
+	    };
+	
+	    Map.prototype.updateIn = function(keyPath, notSetValue, updater) {
+	      if (!updater) {
+	        updater = notSetValue;
+	        notSetValue = undefined;
+	      }
+	      var updatedValue = updateInDeepMap(
+	        this,
+	        forceIterator(keyPath),
+	        notSetValue,
+	        updater
+	      );
+	      return updatedValue === NOT_SET ? undefined : updatedValue;
+	    };
+	
+	    Map.prototype.clear = function() {
+	      if (this.size === 0) {
+	        return this;
+	      }
+	      if (this.__ownerID) {
+	        this.size = 0;
+	        this._root = null;
+	        this.__hash = undefined;
+	        this.__altered = true;
+	        return this;
+	      }
+	      return emptyMap();
+	    };
+	
+	    // @pragma Composition
+	
+	    Map.prototype.merge = function(/*...iters*/) {
+	      return mergeIntoMapWith(this, undefined, arguments);
+	    };
+	
+	    Map.prototype.mergeWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
+	      return mergeIntoMapWith(this, merger, iters);
+	    };
+	
+	    Map.prototype.mergeIn = function(keyPath) {var iters = SLICE$0.call(arguments, 1);
+	      return this.updateIn(
+	        keyPath,
+	        emptyMap(),
+	        function(m ) {return typeof m.merge === 'function' ?
+	          m.merge.apply(m, iters) :
+	          iters[iters.length - 1]}
+	      );
+	    };
+	
+	    Map.prototype.mergeDeep = function(/*...iters*/) {
+	      return mergeIntoMapWith(this, deepMerger, arguments);
+	    };
+	
+	    Map.prototype.mergeDeepWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
+	      return mergeIntoMapWith(this, deepMergerWith(merger), iters);
+	    };
+	
+	    Map.prototype.mergeDeepIn = function(keyPath) {var iters = SLICE$0.call(arguments, 1);
+	      return this.updateIn(
+	        keyPath,
+	        emptyMap(),
+	        function(m ) {return typeof m.mergeDeep === 'function' ?
+	          m.mergeDeep.apply(m, iters) :
+	          iters[iters.length - 1]}
+	      );
+	    };
+	
+	    Map.prototype.sort = function(comparator) {
+	      // Late binding
+	      return OrderedMap(sortFactory(this, comparator));
+	    };
+	
+	    Map.prototype.sortBy = function(mapper, comparator) {
+	      // Late binding
+	      return OrderedMap(sortFactory(this, comparator, mapper));
+	    };
+	
+	    // @pragma Mutability
+	
+	    Map.prototype.withMutations = function(fn) {
+	      var mutable = this.asMutable();
+	      fn(mutable);
+	      return mutable.wasAltered() ? mutable.__ensureOwner(this.__ownerID) : this;
+	    };
+	
+	    Map.prototype.asMutable = function() {
+	      return this.__ownerID ? this : this.__ensureOwner(new OwnerID());
+	    };
+	
+	    Map.prototype.asImmutable = function() {
+	      return this.__ensureOwner();
+	    };
+	
+	    Map.prototype.wasAltered = function() {
+	      return this.__altered;
+	    };
+	
+	    Map.prototype.__iterator = function(type, reverse) {
+	      return new MapIterator(this, type, reverse);
+	    };
+	
+	    Map.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+	      var iterations = 0;
+	      this._root && this._root.iterate(function(entry ) {
+	        iterations++;
+	        return fn(entry[1], entry[0], this$0);
+	      }, reverse);
+	      return iterations;
+	    };
+	
+	    Map.prototype.__ensureOwner = function(ownerID) {
+	      if (ownerID === this.__ownerID) {
+	        return this;
+	      }
+	      if (!ownerID) {
+	        this.__ownerID = ownerID;
+	        this.__altered = false;
+	        return this;
+	      }
+	      return makeMap(this.size, this._root, ownerID, this.__hash);
+	    };
+	
+	
+	  function isMap(maybeMap) {
+	    return !!(maybeMap && maybeMap[IS_MAP_SENTINEL]);
+	  }
+	
+	  Map.isMap = isMap;
+	
+	  var IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
+	
+	  var MapPrototype = Map.prototype;
+	  MapPrototype[IS_MAP_SENTINEL] = true;
+	  MapPrototype[DELETE] = MapPrototype.remove;
+	  MapPrototype.removeIn = MapPrototype.deleteIn;
+	
+	
+	  // #pragma Trie Nodes
+	
+	
+	
+	    function ArrayMapNode(ownerID, entries) {
+	      this.ownerID = ownerID;
+	      this.entries = entries;
+	    }
+	
+	    ArrayMapNode.prototype.get = function(shift, keyHash, key, notSetValue) {
+	      var entries = this.entries;
+	      for (var ii = 0, len = entries.length; ii < len; ii++) {
+	        if (is(key, entries[ii][0])) {
+	          return entries[ii][1];
+	        }
+	      }
+	      return notSetValue;
+	    };
+	
+	    ArrayMapNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+	      var removed = value === NOT_SET;
+	
+	      var entries = this.entries;
+	      var idx = 0;
+	      for (var len = entries.length; idx < len; idx++) {
+	        if (is(key, entries[idx][0])) {
+	          break;
+	        }
+	      }
+	      var exists = idx < len;
+	
+	      if (exists ? entries[idx][1] === value : removed) {
+	        return this;
+	      }
+	
+	      SetRef(didAlter);
+	      (removed || !exists) && SetRef(didChangeSize);
+	
+	      if (removed && entries.length === 1) {
+	        return; // undefined
+	      }
+	
+	      if (!exists && !removed && entries.length >= MAX_ARRAY_MAP_SIZE) {
+	        return createNodes(ownerID, entries, key, value);
+	      }
+	
+	      var isEditable = ownerID && ownerID === this.ownerID;
+	      var newEntries = isEditable ? entries : arrCopy(entries);
+	
+	      if (exists) {
+	        if (removed) {
+	          idx === len - 1 ? newEntries.pop() : (newEntries[idx] = newEntries.pop());
+	        } else {
+	          newEntries[idx] = [key, value];
+	        }
+	      } else {
+	        newEntries.push([key, value]);
+	      }
+	
+	      if (isEditable) {
+	        this.entries = newEntries;
+	        return this;
+	      }
+	
+	      return new ArrayMapNode(ownerID, newEntries);
+	    };
+	
+	
+	
+	
+	    function BitmapIndexedNode(ownerID, bitmap, nodes) {
+	      this.ownerID = ownerID;
+	      this.bitmap = bitmap;
+	      this.nodes = nodes;
+	    }
+	
+	    BitmapIndexedNode.prototype.get = function(shift, keyHash, key, notSetValue) {
+	      if (keyHash === undefined) {
+	        keyHash = hash(key);
+	      }
+	      var bit = (1 << ((shift === 0 ? keyHash : keyHash >>> shift) & MASK));
+	      var bitmap = this.bitmap;
+	      return (bitmap & bit) === 0 ? notSetValue :
+	        this.nodes[popCount(bitmap & (bit - 1))].get(shift + SHIFT, keyHash, key, notSetValue);
+	    };
+	
+	    BitmapIndexedNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+	      if (keyHash === undefined) {
+	        keyHash = hash(key);
+	      }
+	      var keyHashFrag = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
+	      var bit = 1 << keyHashFrag;
+	      var bitmap = this.bitmap;
+	      var exists = (bitmap & bit) !== 0;
+	
+	      if (!exists && value === NOT_SET) {
+	        return this;
+	      }
+	
+	      var idx = popCount(bitmap & (bit - 1));
+	      var nodes = this.nodes;
+	      var node = exists ? nodes[idx] : undefined;
+	      var newNode = updateNode(node, ownerID, shift + SHIFT, keyHash, key, value, didChangeSize, didAlter);
+	
+	      if (newNode === node) {
+	        return this;
+	      }
+	
+	      if (!exists && newNode && nodes.length >= MAX_BITMAP_INDEXED_SIZE) {
+	        return expandNodes(ownerID, nodes, bitmap, keyHashFrag, newNode);
+	      }
+	
+	      if (exists && !newNode && nodes.length === 2 && isLeafNode(nodes[idx ^ 1])) {
+	        return nodes[idx ^ 1];
+	      }
+	
+	      if (exists && newNode && nodes.length === 1 && isLeafNode(newNode)) {
+	        return newNode;
+	      }
+	
+	      var isEditable = ownerID && ownerID === this.ownerID;
+	      var newBitmap = exists ? newNode ? bitmap : bitmap ^ bit : bitmap | bit;
+	      var newNodes = exists ? newNode ?
+	        setIn(nodes, idx, newNode, isEditable) :
+	        spliceOut(nodes, idx, isEditable) :
+	        spliceIn(nodes, idx, newNode, isEditable);
+	
+	      if (isEditable) {
+	        this.bitmap = newBitmap;
+	        this.nodes = newNodes;
+	        return this;
+	      }
+	
+	      return new BitmapIndexedNode(ownerID, newBitmap, newNodes);
+	    };
+	
+	
+	
+	
+	    function HashArrayMapNode(ownerID, count, nodes) {
+	      this.ownerID = ownerID;
+	      this.count = count;
+	      this.nodes = nodes;
+	    }
+	
+	    HashArrayMapNode.prototype.get = function(shift, keyHash, key, notSetValue) {
+	      if (keyHash === undefined) {
+	        keyHash = hash(key);
+	      }
+	      var idx = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
+	      var node = this.nodes[idx];
+	      return node ? node.get(shift + SHIFT, keyHash, key, notSetValue) : notSetValue;
+	    };
+	
+	    HashArrayMapNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+	      if (keyHash === undefined) {
+	        keyHash = hash(key);
+	      }
+	      var idx = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
+	      var removed = value === NOT_SET;
+	      var nodes = this.nodes;
+	      var node = nodes[idx];
+	
+	      if (removed && !node) {
+	        return this;
+	      }
+	
+	      var newNode = updateNode(node, ownerID, shift + SHIFT, keyHash, key, value, didChangeSize, didAlter);
+	      if (newNode === node) {
+	        return this;
+	      }
+	
+	      var newCount = this.count;
+	      if (!node) {
+	        newCount++;
+	      } else if (!newNode) {
+	        newCount--;
+	        if (newCount < MIN_HASH_ARRAY_MAP_SIZE) {
+	          return packNodes(ownerID, nodes, newCount, idx);
+	        }
+	      }
+	
+	      var isEditable = ownerID && ownerID === this.ownerID;
+	      var newNodes = setIn(nodes, idx, newNode, isEditable);
+	
+	      if (isEditable) {
+	        this.count = newCount;
+	        this.nodes = newNodes;
+	        return this;
+	      }
+	
+	      return new HashArrayMapNode(ownerID, newCount, newNodes);
+	    };
+	
+	
+	
+	
+	    function HashCollisionNode(ownerID, keyHash, entries) {
+	      this.ownerID = ownerID;
+	      this.keyHash = keyHash;
+	      this.entries = entries;
+	    }
+	
+	    HashCollisionNode.prototype.get = function(shift, keyHash, key, notSetValue) {
+	      var entries = this.entries;
+	      for (var ii = 0, len = entries.length; ii < len; ii++) {
+	        if (is(key, entries[ii][0])) {
+	          return entries[ii][1];
+	        }
+	      }
+	      return notSetValue;
+	    };
+	
+	    HashCollisionNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+	      if (keyHash === undefined) {
+	        keyHash = hash(key);
+	      }
+	
+	      var removed = value === NOT_SET;
+	
+	      if (keyHash !== this.keyHash) {
+	        if (removed) {
+	          return this;
+	        }
+	        SetRef(didAlter);
+	        SetRef(didChangeSize);
+	        return mergeIntoNode(this, ownerID, shift, keyHash, [key, value]);
+	      }
+	
+	      var entries = this.entries;
+	      var idx = 0;
+	      for (var len = entries.length; idx < len; idx++) {
+	        if (is(key, entries[idx][0])) {
+	          break;
+	        }
+	      }
+	      var exists = idx < len;
+	
+	      if (exists ? entries[idx][1] === value : removed) {
+	        return this;
+	      }
+	
+	      SetRef(didAlter);
+	      (removed || !exists) && SetRef(didChangeSize);
+	
+	      if (removed && len === 2) {
+	        return new ValueNode(ownerID, this.keyHash, entries[idx ^ 1]);
+	      }
+	
+	      var isEditable = ownerID && ownerID === this.ownerID;
+	      var newEntries = isEditable ? entries : arrCopy(entries);
+	
+	      if (exists) {
+	        if (removed) {
+	          idx === len - 1 ? newEntries.pop() : (newEntries[idx] = newEntries.pop());
+	        } else {
+	          newEntries[idx] = [key, value];
+	        }
+	      } else {
+	        newEntries.push([key, value]);
+	      }
+	
+	      if (isEditable) {
+	        this.entries = newEntries;
+	        return this;
+	      }
+	
+	      return new HashCollisionNode(ownerID, this.keyHash, newEntries);
+	    };
+	
+	
+	
+	
+	    function ValueNode(ownerID, keyHash, entry) {
+	      this.ownerID = ownerID;
+	      this.keyHash = keyHash;
+	      this.entry = entry;
+	    }
+	
+	    ValueNode.prototype.get = function(shift, keyHash, key, notSetValue) {
+	      return is(key, this.entry[0]) ? this.entry[1] : notSetValue;
+	    };
+	
+	    ValueNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+	      var removed = value === NOT_SET;
+	      var keyMatch = is(key, this.entry[0]);
+	      if (keyMatch ? value === this.entry[1] : removed) {
+	        return this;
+	      }
+	
+	      SetRef(didAlter);
+	
+	      if (removed) {
+	        SetRef(didChangeSize);
+	        return; // undefined
+	      }
+	
+	      if (keyMatch) {
+	        if (ownerID && ownerID === this.ownerID) {
+	          this.entry[1] = value;
+	          return this;
+	        }
+	        return new ValueNode(ownerID, this.keyHash, [key, value]);
+	      }
+	
+	      SetRef(didChangeSize);
+	      return mergeIntoNode(this, ownerID, shift, hash(key), [key, value]);
+	    };
+	
+	
+	
+	  // #pragma Iterators
+	
+	  ArrayMapNode.prototype.iterate =
+	  HashCollisionNode.prototype.iterate = function (fn, reverse) {
+	    var entries = this.entries;
+	    for (var ii = 0, maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
+	      if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
+	        return false;
+	      }
+	    }
+	  }
+	
+	  BitmapIndexedNode.prototype.iterate =
+	  HashArrayMapNode.prototype.iterate = function (fn, reverse) {
+	    var nodes = this.nodes;
+	    for (var ii = 0, maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
+	      var node = nodes[reverse ? maxIndex - ii : ii];
+	      if (node && node.iterate(fn, reverse) === false) {
+	        return false;
+	      }
+	    }
+	  }
+	
+	  ValueNode.prototype.iterate = function (fn, reverse) {
+	    return fn(this.entry);
+	  }
+	
+	  createClass(MapIterator, Iterator);
+	
+	    function MapIterator(map, type, reverse) {
+	      this._type = type;
+	      this._reverse = reverse;
+	      this._stack = map._root && mapIteratorFrame(map._root);
+	    }
+	
+	    MapIterator.prototype.next = function() {
+	      var type = this._type;
+	      var stack = this._stack;
+	      while (stack) {
+	        var node = stack.node;
+	        var index = stack.index++;
+	        var maxIndex;
+	        if (node.entry) {
+	          if (index === 0) {
+	            return mapIteratorValue(type, node.entry);
+	          }
+	        } else if (node.entries) {
+	          maxIndex = node.entries.length - 1;
+	          if (index <= maxIndex) {
+	            return mapIteratorValue(type, node.entries[this._reverse ? maxIndex - index : index]);
+	          }
+	        } else {
+	          maxIndex = node.nodes.length - 1;
+	          if (index <= maxIndex) {
+	            var subNode = node.nodes[this._reverse ? maxIndex - index : index];
+	            if (subNode) {
+	              if (subNode.entry) {
+	                return mapIteratorValue(type, subNode.entry);
+	              }
+	              stack = this._stack = mapIteratorFrame(subNode, stack);
+	            }
+	            continue;
+	          }
+	        }
+	        stack = this._stack = this._stack.__prev;
+	      }
+	      return iteratorDone();
+	    };
+	
+	
+	  function mapIteratorValue(type, entry) {
+	    return iteratorValue(type, entry[0], entry[1]);
+	  }
+	
+	  function mapIteratorFrame(node, prev) {
+	    return {
+	      node: node,
+	      index: 0,
+	      __prev: prev
+	    };
+	  }
+	
+	  function makeMap(size, root, ownerID, hash) {
+	    var map = Object.create(MapPrototype);
+	    map.size = size;
+	    map._root = root;
+	    map.__ownerID = ownerID;
+	    map.__hash = hash;
+	    map.__altered = false;
+	    return map;
+	  }
+	
+	  var EMPTY_MAP;
+	  function emptyMap() {
+	    return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
+	  }
+	
+	  function updateMap(map, k, v) {
+	    var newRoot;
+	    var newSize;
+	    if (!map._root) {
+	      if (v === NOT_SET) {
+	        return map;
+	      }
+	      newSize = 1;
+	      newRoot = new ArrayMapNode(map.__ownerID, [[k, v]]);
+	    } else {
+	      var didChangeSize = MakeRef(CHANGE_LENGTH);
+	      var didAlter = MakeRef(DID_ALTER);
+	      newRoot = updateNode(map._root, map.__ownerID, 0, undefined, k, v, didChangeSize, didAlter);
+	      if (!didAlter.value) {
+	        return map;
+	      }
+	      newSize = map.size + (didChangeSize.value ? v === NOT_SET ? -1 : 1 : 0);
+	    }
+	    if (map.__ownerID) {
+	      map.size = newSize;
+	      map._root = newRoot;
+	      map.__hash = undefined;
+	      map.__altered = true;
+	      return map;
+	    }
+	    return newRoot ? makeMap(newSize, newRoot) : emptyMap();
+	  }
+	
+	  function updateNode(node, ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+	    if (!node) {
+	      if (value === NOT_SET) {
+	        return node;
+	      }
+	      SetRef(didAlter);
+	      SetRef(didChangeSize);
+	      return new ValueNode(ownerID, keyHash, [key, value]);
+	    }
+	    return node.update(ownerID, shift, keyHash, key, value, didChangeSize, didAlter);
+	  }
+	
+	  function isLeafNode(node) {
+	    return node.constructor === ValueNode || node.constructor === HashCollisionNode;
+	  }
+	
+	  function mergeIntoNode(node, ownerID, shift, keyHash, entry) {
+	    if (node.keyHash === keyHash) {
+	      return new HashCollisionNode(ownerID, keyHash, [node.entry, entry]);
+	    }
+	
+	    var idx1 = (shift === 0 ? node.keyHash : node.keyHash >>> shift) & MASK;
+	    var idx2 = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
+	
+	    var newNode;
+	    var nodes = idx1 === idx2 ?
+	      [mergeIntoNode(node, ownerID, shift + SHIFT, keyHash, entry)] :
+	      ((newNode = new ValueNode(ownerID, keyHash, entry)), idx1 < idx2 ? [node, newNode] : [newNode, node]);
+	
+	    return new BitmapIndexedNode(ownerID, (1 << idx1) | (1 << idx2), nodes);
+	  }
+	
+	  function createNodes(ownerID, entries, key, value) {
+	    if (!ownerID) {
+	      ownerID = new OwnerID();
+	    }
+	    var node = new ValueNode(ownerID, hash(key), [key, value]);
+	    for (var ii = 0; ii < entries.length; ii++) {
+	      var entry = entries[ii];
+	      node = node.update(ownerID, 0, undefined, entry[0], entry[1]);
+	    }
+	    return node;
+	  }
+	
+	  function packNodes(ownerID, nodes, count, excluding) {
+	    var bitmap = 0;
+	    var packedII = 0;
+	    var packedNodes = new Array(count);
+	    for (var ii = 0, bit = 1, len = nodes.length; ii < len; ii++, bit <<= 1) {
+	      var node = nodes[ii];
+	      if (node !== undefined && ii !== excluding) {
+	        bitmap |= bit;
+	        packedNodes[packedII++] = node;
+	      }
+	    }
+	    return new BitmapIndexedNode(ownerID, bitmap, packedNodes);
+	  }
+	
+	  function expandNodes(ownerID, nodes, bitmap, including, node) {
+	    var count = 0;
+	    var expandedNodes = new Array(SIZE);
+	    for (var ii = 0; bitmap !== 0; ii++, bitmap >>>= 1) {
+	      expandedNodes[ii] = bitmap & 1 ? nodes[count++] : undefined;
+	    }
+	    expandedNodes[including] = node;
+	    return new HashArrayMapNode(ownerID, count + 1, expandedNodes);
+	  }
+	
+	  function mergeIntoMapWith(map, merger, iterables) {
+	    var iters = [];
+	    for (var ii = 0; ii < iterables.length; ii++) {
+	      var value = iterables[ii];
+	      var iter = KeyedIterable(value);
+	      if (!isIterable(value)) {
+	        iter = iter.map(function(v ) {return fromJS(v)});
+	      }
+	      iters.push(iter);
+	    }
+	    return mergeIntoCollectionWith(map, merger, iters);
+	  }
+	
+	  function deepMerger(existing, value, key) {
+	    return existing && existing.mergeDeep && isIterable(value) ?
+	      existing.mergeDeep(value) :
+	      is(existing, value) ? existing : value;
+	  }
+	
+	  function deepMergerWith(merger) {
+	    return function(existing, value, key)  {
+	      if (existing && existing.mergeDeepWith && isIterable(value)) {
+	        return existing.mergeDeepWith(merger, value);
+	      }
+	      var nextValue = merger(existing, value, key);
+	      return is(existing, nextValue) ? existing : nextValue;
+	    };
+	  }
+	
+	  function mergeIntoCollectionWith(collection, merger, iters) {
+	    iters = iters.filter(function(x ) {return x.size !== 0});
+	    if (iters.length === 0) {
+	      return collection;
+	    }
+	    if (collection.size === 0 && !collection.__ownerID && iters.length === 1) {
+	      return collection.constructor(iters[0]);
+	    }
+	    return collection.withMutations(function(collection ) {
+	      var mergeIntoMap = merger ?
+	        function(value, key)  {
+	          collection.update(key, NOT_SET, function(existing )
+	            {return existing === NOT_SET ? value : merger(existing, value, key)}
+	          );
+	        } :
+	        function(value, key)  {
+	          collection.set(key, value);
+	        }
+	      for (var ii = 0; ii < iters.length; ii++) {
+	        iters[ii].forEach(mergeIntoMap);
+	      }
+	    });
+	  }
+	
+	  function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
+	    var isNotSet = existing === NOT_SET;
+	    var step = keyPathIter.next();
+	    if (step.done) {
+	      var existingValue = isNotSet ? notSetValue : existing;
+	      var newValue = updater(existingValue);
+	      return newValue === existingValue ? existing : newValue;
+	    }
+	    invariant(
+	      isNotSet || (existing && existing.set),
+	      'invalid keyPath'
+	    );
+	    var key = step.value;
+	    var nextExisting = isNotSet ? NOT_SET : existing.get(key, NOT_SET);
+	    var nextUpdated = updateInDeepMap(
+	      nextExisting,
+	      keyPathIter,
+	      notSetValue,
+	      updater
+	    );
+	    return nextUpdated === nextExisting ? existing :
+	      nextUpdated === NOT_SET ? existing.remove(key) :
+	      (isNotSet ? emptyMap() : existing).set(key, nextUpdated);
+	  }
+	
+	  function popCount(x) {
+	    x = x - ((x >> 1) & 0x55555555);
+	    x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
+	    x = (x + (x >> 4)) & 0x0f0f0f0f;
+	    x = x + (x >> 8);
+	    x = x + (x >> 16);
+	    return x & 0x7f;
+	  }
+	
+	  function setIn(array, idx, val, canEdit) {
+	    var newArray = canEdit ? array : arrCopy(array);
+	    newArray[idx] = val;
+	    return newArray;
+	  }
+	
+	  function spliceIn(array, idx, val, canEdit) {
+	    var newLen = array.length + 1;
+	    if (canEdit && idx + 1 === newLen) {
+	      array[idx] = val;
+	      return array;
+	    }
+	    var newArray = new Array(newLen);
+	    var after = 0;
+	    for (var ii = 0; ii < newLen; ii++) {
+	      if (ii === idx) {
+	        newArray[ii] = val;
+	        after = -1;
+	      } else {
+	        newArray[ii] = array[ii + after];
+	      }
+	    }
+	    return newArray;
+	  }
+	
+	  function spliceOut(array, idx, canEdit) {
+	    var newLen = array.length - 1;
+	    if (canEdit && idx === newLen) {
+	      array.pop();
+	      return array;
+	    }
+	    var newArray = new Array(newLen);
+	    var after = 0;
+	    for (var ii = 0; ii < newLen; ii++) {
+	      if (ii === idx) {
+	        after = 1;
+	      }
+	      newArray[ii] = array[ii + after];
+	    }
+	    return newArray;
+	  }
+	
+	  var MAX_ARRAY_MAP_SIZE = SIZE / 4;
+	  var MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
+	  var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;
+	
+	  createClass(List, IndexedCollection);
+	
+	    // @pragma Construction
+	
+	    function List(value) {
+	      var empty = emptyList();
+	      if (value === null || value === undefined) {
+	        return empty;
+	      }
+	      if (isList(value)) {
+	        return value;
+	      }
+	      var iter = IndexedIterable(value);
+	      var size = iter.size;
+	      if (size === 0) {
+	        return empty;
+	      }
+	      assertNotInfinite(size);
+	      if (size > 0 && size < SIZE) {
+	        return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
+	      }
+	      return empty.withMutations(function(list ) {
+	        list.setSize(size);
+	        iter.forEach(function(v, i)  {return list.set(i, v)});
+	      });
+	    }
+	
+	    List.of = function(/*...values*/) {
+	      return this(arguments);
+	    };
+	
+	    List.prototype.toString = function() {
+	      return this.__toString('List [', ']');
+	    };
+	
+	    // @pragma Access
+	
+	    List.prototype.get = function(index, notSetValue) {
+	      index = wrapIndex(this, index);
+	      if (index >= 0 && index < this.size) {
+	        index += this._origin;
+	        var node = listNodeFor(this, index);
+	        return node && node.array[index & MASK];
+	      }
+	      return notSetValue;
+	    };
+	
+	    // @pragma Modification
+	
+	    List.prototype.set = function(index, value) {
+	      return updateList(this, index, value);
+	    };
+	
+	    List.prototype.remove = function(index) {
+	      return !this.has(index) ? this :
+	        index === 0 ? this.shift() :
+	        index === this.size - 1 ? this.pop() :
+	        this.splice(index, 1);
+	    };
+	
+	    List.prototype.insert = function(index, value) {
+	      return this.splice(index, 0, value);
+	    };
+	
+	    List.prototype.clear = function() {
+	      if (this.size === 0) {
+	        return this;
+	      }
+	      if (this.__ownerID) {
+	        this.size = this._origin = this._capacity = 0;
+	        this._level = SHIFT;
+	        this._root = this._tail = null;
+	        this.__hash = undefined;
+	        this.__altered = true;
+	        return this;
+	      }
+	      return emptyList();
+	    };
+	
+	    List.prototype.push = function(/*...values*/) {
+	      var values = arguments;
+	      var oldSize = this.size;
+	      return this.withMutations(function(list ) {
+	        setListBounds(list, 0, oldSize + values.length);
+	        for (var ii = 0; ii < values.length; ii++) {
+	          list.set(oldSize + ii, values[ii]);
+	        }
+	      });
+	    };
+	
+	    List.prototype.pop = function() {
+	      return setListBounds(this, 0, -1);
+	    };
+	
+	    List.prototype.unshift = function(/*...values*/) {
+	      var values = arguments;
+	      return this.withMutations(function(list ) {
+	        setListBounds(list, -values.length);
+	        for (var ii = 0; ii < values.length; ii++) {
+	          list.set(ii, values[ii]);
+	        }
+	      });
+	    };
+	
+	    List.prototype.shift = function() {
+	      return setListBounds(this, 1);
+	    };
+	
+	    // @pragma Composition
+	
+	    List.prototype.merge = function(/*...iters*/) {
+	      return mergeIntoListWith(this, undefined, arguments);
+	    };
+	
+	    List.prototype.mergeWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
+	      return mergeIntoListWith(this, merger, iters);
+	    };
+	
+	    List.prototype.mergeDeep = function(/*...iters*/) {
+	      return mergeIntoListWith(this, deepMerger, arguments);
+	    };
+	
+	    List.prototype.mergeDeepWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
+	      return mergeIntoListWith(this, deepMergerWith(merger), iters);
+	    };
+	
+	    List.prototype.setSize = function(size) {
+	      return setListBounds(this, 0, size);
+	    };
+	
+	    // @pragma Iteration
+	
+	    List.prototype.slice = function(begin, end) {
+	      var size = this.size;
+	      if (wholeSlice(begin, end, size)) {
+	        return this;
+	      }
+	      return setListBounds(
+	        this,
+	        resolveBegin(begin, size),
+	        resolveEnd(end, size)
+	      );
+	    };
+	
+	    List.prototype.__iterator = function(type, reverse) {
+	      var index = 0;
+	      var values = iterateList(this, reverse);
+	      return new Iterator(function()  {
+	        var value = values();
+	        return value === DONE ?
+	          iteratorDone() :
+	          iteratorValue(type, index++, value);
+	      });
+	    };
+	
+	    List.prototype.__iterate = function(fn, reverse) {
+	      var index = 0;
+	      var values = iterateList(this, reverse);
+	      var value;
+	      while ((value = values()) !== DONE) {
+	        if (fn(value, index++, this) === false) {
+	          break;
+	        }
+	      }
+	      return index;
+	    };
+	
+	    List.prototype.__ensureOwner = function(ownerID) {
+	      if (ownerID === this.__ownerID) {
+	        return this;
+	      }
+	      if (!ownerID) {
+	        this.__ownerID = ownerID;
+	        return this;
+	      }
+	      return makeList(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
+	    };
+	
+	
+	  function isList(maybeList) {
+	    return !!(maybeList && maybeList[IS_LIST_SENTINEL]);
+	  }
+	
+	  List.isList = isList;
+	
+	  var IS_LIST_SENTINEL = '@@__IMMUTABLE_LIST__@@';
+	
+	  var ListPrototype = List.prototype;
+	  ListPrototype[IS_LIST_SENTINEL] = true;
+	  ListPrototype[DELETE] = ListPrototype.remove;
+	  ListPrototype.setIn = MapPrototype.setIn;
+	  ListPrototype.deleteIn =
+	  ListPrototype.removeIn = MapPrototype.removeIn;
+	  ListPrototype.update = MapPrototype.update;
+	  ListPrototype.updateIn = MapPrototype.updateIn;
+	  ListPrototype.mergeIn = MapPrototype.mergeIn;
+	  ListPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
+	  ListPrototype.withMutations = MapPrototype.withMutations;
+	  ListPrototype.asMutable = MapPrototype.asMutable;
+	  ListPrototype.asImmutable = MapPrototype.asImmutable;
+	  ListPrototype.wasAltered = MapPrototype.wasAltered;
+	
+	
+	
+	    function VNode(array, ownerID) {
+	      this.array = array;
+	      this.ownerID = ownerID;
+	    }
+	
+	    // TODO: seems like these methods are very similar
+	
+	    VNode.prototype.removeBefore = function(ownerID, level, index) {
+	      if (index === level ? 1 << level : 0 || this.array.length === 0) {
+	        return this;
+	      }
+	      var originIndex = (index >>> level) & MASK;
+	      if (originIndex >= this.array.length) {
+	        return new VNode([], ownerID);
+	      }
+	      var removingFirst = originIndex === 0;
+	      var newChild;
+	      if (level > 0) {
+	        var oldChild = this.array[originIndex];
+	        newChild = oldChild && oldChild.removeBefore(ownerID, level - SHIFT, index);
+	        if (newChild === oldChild && removingFirst) {
+	          return this;
+	        }
+	      }
+	      if (removingFirst && !newChild) {
+	        return this;
+	      }
+	      var editable = editableVNode(this, ownerID);
+	      if (!removingFirst) {
+	        for (var ii = 0; ii < originIndex; ii++) {
+	          editable.array[ii] = undefined;
+	        }
+	      }
+	      if (newChild) {
+	        editable.array[originIndex] = newChild;
+	      }
+	      return editable;
+	    };
+	
+	    VNode.prototype.removeAfter = function(ownerID, level, index) {
+	      if (index === (level ? 1 << level : 0) || this.array.length === 0) {
+	        return this;
+	      }
+	      var sizeIndex = ((index - 1) >>> level) & MASK;
+	      if (sizeIndex >= this.array.length) {
+	        return this;
+	      }
+	
+	      var newChild;
+	      if (level > 0) {
+	        var oldChild = this.array[sizeIndex];
+	        newChild = oldChild && oldChild.removeAfter(ownerID, level - SHIFT, index);
+	        if (newChild === oldChild && sizeIndex === this.array.length - 1) {
+	          return this;
+	        }
+	      }
+	
+	      var editable = editableVNode(this, ownerID);
+	      editable.array.splice(sizeIndex + 1);
+	      if (newChild) {
+	        editable.array[sizeIndex] = newChild;
+	      }
+	      return editable;
+	    };
+	
+	
+	
+	  var DONE = {};
+	
+	  function iterateList(list, reverse) {
+	    var left = list._origin;
+	    var right = list._capacity;
+	    var tailPos = getTailOffset(right);
+	    var tail = list._tail;
+	
+	    return iterateNodeOrLeaf(list._root, list._level, 0);
+	
+	    function iterateNodeOrLeaf(node, level, offset) {
+	      return level === 0 ?
+	        iterateLeaf(node, offset) :
+	        iterateNode(node, level, offset);
+	    }
+	
+	    function iterateLeaf(node, offset) {
+	      var array = offset === tailPos ? tail && tail.array : node && node.array;
+	      var from = offset > left ? 0 : left - offset;
+	      var to = right - offset;
+	      if (to > SIZE) {
+	        to = SIZE;
+	      }
+	      return function()  {
+	        if (from === to) {
+	          return DONE;
+	        }
+	        var idx = reverse ? --to : from++;
+	        return array && array[idx];
+	      };
+	    }
+	
+	    function iterateNode(node, level, offset) {
+	      var values;
+	      var array = node && node.array;
+	      var from = offset > left ? 0 : (left - offset) >> level;
+	      var to = ((right - offset) >> level) + 1;
+	      if (to > SIZE) {
+	        to = SIZE;
+	      }
+	      return function()  {
+	        do {
+	          if (values) {
+	            var value = values();
+	            if (value !== DONE) {
+	              return value;
+	            }
+	            values = null;
+	          }
+	          if (from === to) {
+	            return DONE;
+	          }
+	          var idx = reverse ? --to : from++;
+	          values = iterateNodeOrLeaf(
+	            array && array[idx], level - SHIFT, offset + (idx << level)
+	          );
+	        } while (true);
+	      };
+	    }
+	  }
+	
+	  function makeList(origin, capacity, level, root, tail, ownerID, hash) {
+	    var list = Object.create(ListPrototype);
+	    list.size = capacity - origin;
+	    list._origin = origin;
+	    list._capacity = capacity;
+	    list._level = level;
+	    list._root = root;
+	    list._tail = tail;
+	    list.__ownerID = ownerID;
+	    list.__hash = hash;
+	    list.__altered = false;
+	    return list;
+	  }
+	
+	  var EMPTY_LIST;
+	  function emptyList() {
+	    return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
+	  }
+	
+	  function updateList(list, index, value) {
+	    index = wrapIndex(list, index);
+	
+	    if (index !== index) {
+	      return list;
+	    }
+	
+	    if (index >= list.size || index < 0) {
+	      return list.withMutations(function(list ) {
+	        index < 0 ?
+	          setListBounds(list, index).set(0, value) :
+	          setListBounds(list, 0, index + 1).set(index, value)
+	      });
+	    }
+	
+	    index += list._origin;
+	
+	    var newTail = list._tail;
+	    var newRoot = list._root;
+	    var didAlter = MakeRef(DID_ALTER);
+	    if (index >= getTailOffset(list._capacity)) {
+	      newTail = updateVNode(newTail, list.__ownerID, 0, index, value, didAlter);
+	    } else {
+	      newRoot = updateVNode(newRoot, list.__ownerID, list._level, index, value, didAlter);
+	    }
+	
+	    if (!didAlter.value) {
+	      return list;
+	    }
+	
+	    if (list.__ownerID) {
+	      list._root = newRoot;
+	      list._tail = newTail;
+	      list.__hash = undefined;
+	      list.__altered = true;
+	      return list;
+	    }
+	    return makeList(list._origin, list._capacity, list._level, newRoot, newTail);
+	  }
+	
+	  function updateVNode(node, ownerID, level, index, value, didAlter) {
+	    var idx = (index >>> level) & MASK;
+	    var nodeHas = node && idx < node.array.length;
+	    if (!nodeHas && value === undefined) {
+	      return node;
+	    }
+	
+	    var newNode;
+	
+	    if (level > 0) {
+	      var lowerNode = node && node.array[idx];
+	      var newLowerNode = updateVNode(lowerNode, ownerID, level - SHIFT, index, value, didAlter);
+	      if (newLowerNode === lowerNode) {
+	        return node;
+	      }
+	      newNode = editableVNode(node, ownerID);
+	      newNode.array[idx] = newLowerNode;
+	      return newNode;
+	    }
+	
+	    if (nodeHas && node.array[idx] === value) {
+	      return node;
+	    }
+	
+	    SetRef(didAlter);
+	
+	    newNode = editableVNode(node, ownerID);
+	    if (value === undefined && idx === newNode.array.length - 1) {
+	      newNode.array.pop();
+	    } else {
+	      newNode.array[idx] = value;
+	    }
+	    return newNode;
+	  }
+	
+	  function editableVNode(node, ownerID) {
+	    if (ownerID && node && ownerID === node.ownerID) {
+	      return node;
+	    }
+	    return new VNode(node ? node.array.slice() : [], ownerID);
+	  }
+	
+	  function listNodeFor(list, rawIndex) {
+	    if (rawIndex >= getTailOffset(list._capacity)) {
+	      return list._tail;
+	    }
+	    if (rawIndex < 1 << (list._level + SHIFT)) {
+	      var node = list._root;
+	      var level = list._level;
+	      while (node && level > 0) {
+	        node = node.array[(rawIndex >>> level) & MASK];
+	        level -= SHIFT;
+	      }
+	      return node;
+	    }
+	  }
+	
+	  function setListBounds(list, begin, end) {
+	    // Sanitize begin & end using this shorthand for ToInt32(argument)
+	    // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
+	    if (begin !== undefined) {
+	      begin = begin | 0;
+	    }
+	    if (end !== undefined) {
+	      end = end | 0;
+	    }
+	    var owner = list.__ownerID || new OwnerID();
+	    var oldOrigin = list._origin;
+	    var oldCapacity = list._capacity;
+	    var newOrigin = oldOrigin + begin;
+	    var newCapacity = end === undefined ? oldCapacity : end < 0 ? oldCapacity + end : oldOrigin + end;
+	    if (newOrigin === oldOrigin && newCapacity === oldCapacity) {
+	      return list;
+	    }
+	
+	    // If it's going to end after it starts, it's empty.
+	    if (newOrigin >= newCapacity) {
+	      return list.clear();
+	    }
+	
+	    var newLevel = list._level;
+	    var newRoot = list._root;
+	
+	    // New origin might need creating a higher root.
+	    var offsetShift = 0;
+	    while (newOrigin + offsetShift < 0) {
+	      newRoot = new VNode(newRoot && newRoot.array.length ? [undefined, newRoot] : [], owner);
+	      newLevel += SHIFT;
+	      offsetShift += 1 << newLevel;
+	    }
+	    if (offsetShift) {
+	      newOrigin += offsetShift;
+	      oldOrigin += offsetShift;
+	      newCapacity += offsetShift;
+	      oldCapacity += offsetShift;
+	    }
+	
+	    var oldTailOffset = getTailOffset(oldCapacity);
+	    var newTailOffset = getTailOffset(newCapacity);
+	
+	    // New size might need creating a higher root.
+	    while (newTailOffset >= 1 << (newLevel + SHIFT)) {
+	      newRoot = new VNode(newRoot && newRoot.array.length ? [newRoot] : [], owner);
+	      newLevel += SHIFT;
+	    }
+	
+	    // Locate or create the new tail.
+	    var oldTail = list._tail;
+	    var newTail = newTailOffset < oldTailOffset ?
+	      listNodeFor(list, newCapacity - 1) :
+	      newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
+	
+	    // Merge Tail into tree.
+	    if (oldTail && newTailOffset > oldTailOffset && newOrigin < oldCapacity && oldTail.array.length) {
+	      newRoot = editableVNode(newRoot, owner);
+	      var node = newRoot;
+	      for (var level = newLevel; level > SHIFT; level -= SHIFT) {
+	        var idx = (oldTailOffset >>> level) & MASK;
+	        node = node.array[idx] = editableVNode(node.array[idx], owner);
+	      }
+	      node.array[(oldTailOffset >>> SHIFT) & MASK] = oldTail;
+	    }
+	
+	    // If the size has been reduced, there's a chance the tail needs to be trimmed.
+	    if (newCapacity < oldCapacity) {
+	      newTail = newTail && newTail.removeAfter(owner, 0, newCapacity);
+	    }
+	
+	    // If the new origin is within the tail, then we do not need a root.
+	    if (newOrigin >= newTailOffset) {
+	      newOrigin -= newTailOffset;
+	      newCapacity -= newTailOffset;
+	      newLevel = SHIFT;
+	      newRoot = null;
+	      newTail = newTail && newTail.removeBefore(owner, 0, newOrigin);
+	
+	    // Otherwise, if the root has been trimmed, garbage collect.
+	    } else if (newOrigin > oldOrigin || newTailOffset < oldTailOffset) {
+	      offsetShift = 0;
+	
+	      // Identify the new top root node of the subtree of the old root.
+	      while (newRoot) {
+	        var beginIndex = (newOrigin >>> newLevel) & MASK;
+	        if (beginIndex !== (newTailOffset >>> newLevel) & MASK) {
+	          break;
+	        }
+	        if (beginIndex) {
+	          offsetShift += (1 << newLevel) * beginIndex;
+	        }
+	        newLevel -= SHIFT;
+	        newRoot = newRoot.array[beginIndex];
+	      }
+	
+	      // Trim the new sides of the new root.
+	      if (newRoot && newOrigin > oldOrigin) {
+	        newRoot = newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
+	      }
+	      if (newRoot && newTailOffset < oldTailOffset) {
+	        newRoot = newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
+	      }
+	      if (offsetShift) {
+	        newOrigin -= offsetShift;
+	        newCapacity -= offsetShift;
+	      }
+	    }
+	
+	    if (list.__ownerID) {
+	      list.size = newCapacity - newOrigin;
+	      list._origin = newOrigin;
+	      list._capacity = newCapacity;
+	      list._level = newLevel;
+	      list._root = newRoot;
+	      list._tail = newTail;
+	      list.__hash = undefined;
+	      list.__altered = true;
+	      return list;
+	    }
+	    return makeList(newOrigin, newCapacity, newLevel, newRoot, newTail);
+	  }
+	
+	  function mergeIntoListWith(list, merger, iterables) {
+	    var iters = [];
+	    var maxSize = 0;
+	    for (var ii = 0; ii < iterables.length; ii++) {
+	      var value = iterables[ii];
+	      var iter = IndexedIterable(value);
+	      if (iter.size > maxSize) {
+	        maxSize = iter.size;
+	      }
+	      if (!isIterable(value)) {
+	        iter = iter.map(function(v ) {return fromJS(v)});
+	      }
+	      iters.push(iter);
+	    }
+	    if (maxSize > list.size) {
+	      list = list.setSize(maxSize);
+	    }
+	    return mergeIntoCollectionWith(list, merger, iters);
+	  }
+	
+	  function getTailOffset(size) {
+	    return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
+	  }
+	
+	  createClass(OrderedMap, Map);
+	
+	    // @pragma Construction
+	
+	    function OrderedMap(value) {
+	      return value === null || value === undefined ? emptyOrderedMap() :
+	        isOrderedMap(value) ? value :
+	        emptyOrderedMap().withMutations(function(map ) {
+	          var iter = KeyedIterable(value);
+	          assertNotInfinite(iter.size);
+	          iter.forEach(function(v, k)  {return map.set(k, v)});
+	        });
+	    }
+	
+	    OrderedMap.of = function(/*...values*/) {
+	      return this(arguments);
+	    };
+	
+	    OrderedMap.prototype.toString = function() {
+	      return this.__toString('OrderedMap {', '}');
+	    };
+	
+	    // @pragma Access
+	
+	    OrderedMap.prototype.get = function(k, notSetValue) {
+	      var index = this._map.get(k);
+	      return index !== undefined ? this._list.get(index)[1] : notSetValue;
+	    };
+	
+	    // @pragma Modification
+	
+	    OrderedMap.prototype.clear = function() {
+	      if (this.size === 0) {
+	        return this;
+	      }
+	      if (this.__ownerID) {
+	        this.size = 0;
+	        this._map.clear();
+	        this._list.clear();
+	        return this;
+	      }
+	      return emptyOrderedMap();
+	    };
+	
+	    OrderedMap.prototype.set = function(k, v) {
+	      return updateOrderedMap(this, k, v);
+	    };
+	
+	    OrderedMap.prototype.remove = function(k) {
+	      return updateOrderedMap(this, k, NOT_SET);
+	    };
+	
+	    OrderedMap.prototype.wasAltered = function() {
+	      return this._map.wasAltered() || this._list.wasAltered();
+	    };
+	
+	    OrderedMap.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+	      return this._list.__iterate(
+	        function(entry ) {return entry && fn(entry[1], entry[0], this$0)},
+	        reverse
+	      );
+	    };
+	
+	    OrderedMap.prototype.__iterator = function(type, reverse) {
+	      return this._list.fromEntrySeq().__iterator(type, reverse);
+	    };
+	
+	    OrderedMap.prototype.__ensureOwner = function(ownerID) {
+	      if (ownerID === this.__ownerID) {
+	        return this;
+	      }
+	      var newMap = this._map.__ensureOwner(ownerID);
+	      var newList = this._list.__ensureOwner(ownerID);
+	      if (!ownerID) {
+	        this.__ownerID = ownerID;
+	        this._map = newMap;
+	        this._list = newList;
+	        return this;
+	      }
+	      return makeOrderedMap(newMap, newList, ownerID, this.__hash);
+	    };
+	
+	
+	  function isOrderedMap(maybeOrderedMap) {
+	    return isMap(maybeOrderedMap) && isOrdered(maybeOrderedMap);
+	  }
+	
+	  OrderedMap.isOrderedMap = isOrderedMap;
+	
+	  OrderedMap.prototype[IS_ORDERED_SENTINEL] = true;
+	  OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
+	
+	
+	
+	  function makeOrderedMap(map, list, ownerID, hash) {
+	    var omap = Object.create(OrderedMap.prototype);
+	    omap.size = map ? map.size : 0;
+	    omap._map = map;
+	    omap._list = list;
+	    omap.__ownerID = ownerID;
+	    omap.__hash = hash;
+	    return omap;
+	  }
+	
+	  var EMPTY_ORDERED_MAP;
+	  function emptyOrderedMap() {
+	    return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
+	  }
+	
+	  function updateOrderedMap(omap, k, v) {
+	    var map = omap._map;
+	    var list = omap._list;
+	    var i = map.get(k);
+	    var has = i !== undefined;
+	    var newMap;
+	    var newList;
+	    if (v === NOT_SET) { // removed
+	      if (!has) {
+	        return omap;
+	      }
+	      if (list.size >= SIZE && list.size >= map.size * 2) {
+	        newList = list.filter(function(entry, idx)  {return entry !== undefined && i !== idx});
+	        newMap = newList.toKeyedSeq().map(function(entry ) {return entry[0]}).flip().toMap();
+	        if (omap.__ownerID) {
+	          newMap.__ownerID = newList.__ownerID = omap.__ownerID;
+	        }
+	      } else {
+	        newMap = map.remove(k);
+	        newList = i === list.size - 1 ? list.pop() : list.set(i, undefined);
+	      }
+	    } else {
+	      if (has) {
+	        if (v === list.get(i)[1]) {
+	          return omap;
+	        }
+	        newMap = map;
+	        newList = list.set(i, [k, v]);
+	      } else {
+	        newMap = map.set(k, list.size);
+	        newList = list.set(list.size, [k, v]);
+	      }
+	    }
+	    if (omap.__ownerID) {
+	      omap.size = newMap.size;
+	      omap._map = newMap;
+	      omap._list = newList;
+	      omap.__hash = undefined;
+	      return omap;
+	    }
+	    return makeOrderedMap(newMap, newList);
+	  }
+	
+	  createClass(ToKeyedSequence, KeyedSeq);
+	    function ToKeyedSequence(indexed, useKeys) {
+	      this._iter = indexed;
+	      this._useKeys = useKeys;
+	      this.size = indexed.size;
+	    }
+	
+	    ToKeyedSequence.prototype.get = function(key, notSetValue) {
+	      return this._iter.get(key, notSetValue);
+	    };
+	
+	    ToKeyedSequence.prototype.has = function(key) {
+	      return this._iter.has(key);
+	    };
+	
+	    ToKeyedSequence.prototype.valueSeq = function() {
+	      return this._iter.valueSeq();
+	    };
+	
+	    ToKeyedSequence.prototype.reverse = function() {var this$0 = this;
+	      var reversedSequence = reverseFactory(this, true);
+	      if (!this._useKeys) {
+	        reversedSequence.valueSeq = function()  {return this$0._iter.toSeq().reverse()};
+	      }
+	      return reversedSequence;
+	    };
+	
+	    ToKeyedSequence.prototype.map = function(mapper, context) {var this$0 = this;
+	      var mappedSequence = mapFactory(this, mapper, context);
+	      if (!this._useKeys) {
+	        mappedSequence.valueSeq = function()  {return this$0._iter.toSeq().map(mapper, context)};
+	      }
+	      return mappedSequence;
+	    };
+	
+	    ToKeyedSequence.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+	      var ii;
+	      return this._iter.__iterate(
+	        this._useKeys ?
+	          function(v, k)  {return fn(v, k, this$0)} :
+	          ((ii = reverse ? resolveSize(this) : 0),
+	            function(v ) {return fn(v, reverse ? --ii : ii++, this$0)}),
+	        reverse
+	      );
+	    };
+	
+	    ToKeyedSequence.prototype.__iterator = function(type, reverse) {
+	      if (this._useKeys) {
+	        return this._iter.__iterator(type, reverse);
+	      }
+	      var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+	      var ii = reverse ? resolveSize(this) : 0;
+	      return new Iterator(function()  {
+	        var step = iterator.next();
+	        return step.done ? step :
+	          iteratorValue(type, reverse ? --ii : ii++, step.value, step);
+	      });
+	    };
+	
+	  ToKeyedSequence.prototype[IS_ORDERED_SENTINEL] = true;
+	
+	
+	  createClass(ToIndexedSequence, IndexedSeq);
+	    function ToIndexedSequence(iter) {
+	      this._iter = iter;
+	      this.size = iter.size;
+	    }
+	
+	    ToIndexedSequence.prototype.includes = function(value) {
+	      return this._iter.includes(value);
+	    };
+	
+	    ToIndexedSequence.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+	      var iterations = 0;
+	      return this._iter.__iterate(function(v ) {return fn(v, iterations++, this$0)}, reverse);
+	    };
+	
+	    ToIndexedSequence.prototype.__iterator = function(type, reverse) {
+	      var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+	      var iterations = 0;
+	      return new Iterator(function()  {
+	        var step = iterator.next();
+	        return step.done ? step :
+	          iteratorValue(type, iterations++, step.value, step)
+	      });
+	    };
+	
+	
+	
+	  createClass(ToSetSequence, SetSeq);
+	    function ToSetSequence(iter) {
+	      this._iter = iter;
+	      this.size = iter.size;
+	    }
+	
+	    ToSetSequence.prototype.has = function(key) {
+	      return this._iter.includes(key);
+	    };
+	
+	    ToSetSequence.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+	      return this._iter.__iterate(function(v ) {return fn(v, v, this$0)}, reverse);
+	    };
+	
+	    ToSetSequence.prototype.__iterator = function(type, reverse) {
+	      var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+	      return new Iterator(function()  {
+	        var step = iterator.next();
+	        return step.done ? step :
+	          iteratorValue(type, step.value, step.value, step);
+	      });
+	    };
+	
+	
+	
+	  createClass(FromEntriesSequence, KeyedSeq);
+	    function FromEntriesSequence(entries) {
+	      this._iter = entries;
+	      this.size = entries.size;
+	    }
+	
+	    FromEntriesSequence.prototype.entrySeq = function() {
+	      return this._iter.toSeq();
+	    };
+	
+	    FromEntriesSequence.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+	      return this._iter.__iterate(function(entry ) {
+	        // Check if entry exists first so array access doesn't throw for holes
+	        // in the parent iteration.
+	        if (entry) {
+	          validateEntry(entry);
+	          var indexedIterable = isIterable(entry);
+	          return fn(
+	            indexedIterable ? entry.get(1) : entry[1],
+	            indexedIterable ? entry.get(0) : entry[0],
+	            this$0
+	          );
+	        }
+	      }, reverse);
+	    };
+	
+	    FromEntriesSequence.prototype.__iterator = function(type, reverse) {
+	      var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+	      return new Iterator(function()  {
+	        while (true) {
+	          var step = iterator.next();
+	          if (step.done) {
+	            return step;
+	          }
+	          var entry = step.value;
+	          // Check if entry exists first so array access doesn't throw for holes
+	          // in the parent iteration.
+	          if (entry) {
+	            validateEntry(entry);
+	            var indexedIterable = isIterable(entry);
+	            return iteratorValue(
+	              type,
+	              indexedIterable ? entry.get(0) : entry[0],
+	              indexedIterable ? entry.get(1) : entry[1],
+	              step
+	            );
+	          }
+	        }
+	      });
+	    };
+	
+	
+	  ToIndexedSequence.prototype.cacheResult =
+	  ToKeyedSequence.prototype.cacheResult =
+	  ToSetSequence.prototype.cacheResult =
+	  FromEntriesSequence.prototype.cacheResult =
+	    cacheResultThrough;
+	
+	
+	  function flipFactory(iterable) {
+	    var flipSequence = makeSequence(iterable);
+	    flipSequence._iter = iterable;
+	    flipSequence.size = iterable.size;
+	    flipSequence.flip = function()  {return iterable};
+	    flipSequence.reverse = function () {
+	      var reversedSequence = iterable.reverse.apply(this); // super.reverse()
+	      reversedSequence.flip = function()  {return iterable.reverse()};
+	      return reversedSequence;
+	    };
+	    flipSequence.has = function(key ) {return iterable.includes(key)};
+	    flipSequence.includes = function(key ) {return iterable.has(key)};
+	    flipSequence.cacheResult = cacheResultThrough;
+	    flipSequence.__iterateUncached = function (fn, reverse) {var this$0 = this;
+	      return iterable.__iterate(function(v, k)  {return fn(k, v, this$0) !== false}, reverse);
+	    }
+	    flipSequence.__iteratorUncached = function(type, reverse) {
+	      if (type === ITERATE_ENTRIES) {
+	        var iterator = iterable.__iterator(type, reverse);
+	        return new Iterator(function()  {
+	          var step = iterator.next();
+	          if (!step.done) {
+	            var k = step.value[0];
+	            step.value[0] = step.value[1];
+	            step.value[1] = k;
+	          }
+	          return step;
+	        });
+	      }
+	      return iterable.__iterator(
+	        type === ITERATE_VALUES ? ITERATE_KEYS : ITERATE_VALUES,
+	        reverse
+	      );
+	    }
+	    return flipSequence;
+	  }
+	
+	
+	  function mapFactory(iterable, mapper, context) {
+	    var mappedSequence = makeSequence(iterable);
+	    mappedSequence.size = iterable.size;
+	    mappedSequence.has = function(key ) {return iterable.has(key)};
+	    mappedSequence.get = function(key, notSetValue)  {
+	      var v = iterable.get(key, NOT_SET);
+	      return v === NOT_SET ?
+	        notSetValue :
+	        mapper.call(context, v, key, iterable);
+	    };
+	    mappedSequence.__iterateUncached = function (fn, reverse) {var this$0 = this;
+	      return iterable.__iterate(
+	        function(v, k, c)  {return fn(mapper.call(context, v, k, c), k, this$0) !== false},
+	        reverse
+	      );
+	    }
+	    mappedSequence.__iteratorUncached = function (type, reverse) {
+	      var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
+	      return new Iterator(function()  {
+	        var step = iterator.next();
+	        if (step.done) {
+	          return step;
+	        }
+	        var entry = step.value;
+	        var key = entry[0];
+	        return iteratorValue(
+	          type,
+	          key,
+	          mapper.call(context, entry[1], key, iterable),
+	          step
+	        );
+	      });
+	    }
+	    return mappedSequence;
+	  }
+	
+	
+	  function reverseFactory(iterable, useKeys) {
+	    var reversedSequence = makeSequence(iterable);
+	    reversedSequence._iter = iterable;
+	    reversedSequence.size = iterable.size;
+	    reversedSequence.reverse = function()  {return iterable};
+	    if (iterable.flip) {
+	      reversedSequence.flip = function () {
+	        var flipSequence = flipFactory(iterable);
+	        flipSequence.reverse = function()  {return iterable.flip()};
+	        return flipSequence;
+	      };
+	    }
+	    reversedSequence.get = function(key, notSetValue) 
+	      {return iterable.get(useKeys ? key : -1 - key, notSetValue)};
+	    reversedSequence.has = function(key )
+	      {return iterable.has(useKeys ? key : -1 - key)};
+	    reversedSequence.includes = function(value ) {return iterable.includes(value)};
+	    reversedSequence.cacheResult = cacheResultThrough;
+	    reversedSequence.__iterate = function (fn, reverse) {var this$0 = this;
+	      return iterable.__iterate(function(v, k)  {return fn(v, k, this$0)}, !reverse);
+	    };
+	    reversedSequence.__iterator =
+	      function(type, reverse)  {return iterable.__iterator(type, !reverse)};
+	    return reversedSequence;
+	  }
+	
+	
+	  function filterFactory(iterable, predicate, context, useKeys) {
+	    var filterSequence = makeSequence(iterable);
+	    if (useKeys) {
+	      filterSequence.has = function(key ) {
+	        var v = iterable.get(key, NOT_SET);
+	        return v !== NOT_SET && !!predicate.call(context, v, key, iterable);
+	      };
+	      filterSequence.get = function(key, notSetValue)  {
+	        var v = iterable.get(key, NOT_SET);
+	        return v !== NOT_SET && predicate.call(context, v, key, iterable) ?
+	          v : notSetValue;
+	      };
+	    }
+	    filterSequence.__iterateUncached = function (fn, reverse) {var this$0 = this;
+	      var iterations = 0;
+	      iterable.__iterate(function(v, k, c)  {
+	        if (predicate.call(context, v, k, c)) {
+	          iterations++;
+	          return fn(v, useKeys ? k : iterations - 1, this$0);
+	        }
+	      }, reverse);
+	      return iterations;
+	    };
+	    filterSequence.__iteratorUncached = function (type, reverse) {
+	      var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
+	      var iterations = 0;
+	      return new Iterator(function()  {
+	        while (true) {
+	          var step = iterator.next();
+	          if (step.done) {
+	            return step;
+	          }
+	          var entry = step.value;
+	          var key = entry[0];
+	          var value = entry[1];
+	          if (predicate.call(context, value, key, iterable)) {
+	            return iteratorValue(type, useKeys ? key : iterations++, value, step);
+	          }
+	        }
+	      });
+	    }
+	    return filterSequence;
+	  }
+	
+	
+	  function countByFactory(iterable, grouper, context) {
+	    var groups = Map().asMutable();
+	    iterable.__iterate(function(v, k)  {
+	      groups.update(
+	        grouper.call(context, v, k, iterable),
+	        0,
+	        function(a ) {return a + 1}
+	      );
+	    });
+	    return groups.asImmutable();
+	  }
+	
+	
+	  function groupByFactory(iterable, grouper, context) {
+	    var isKeyedIter = isKeyed(iterable);
+	    var groups = (isOrdered(iterable) ? OrderedMap() : Map()).asMutable();
+	    iterable.__iterate(function(v, k)  {
+	      groups.update(
+	        grouper.call(context, v, k, iterable),
+	        function(a ) {return (a = a || [], a.push(isKeyedIter ? [k, v] : v), a)}
+	      );
+	    });
+	    var coerce = iterableClass(iterable);
+	    return groups.map(function(arr ) {return reify(iterable, coerce(arr))});
+	  }
+	
+	
+	  function sliceFactory(iterable, begin, end, useKeys) {
+	    var originalSize = iterable.size;
+	
+	    // Sanitize begin & end using this shorthand for ToInt32(argument)
+	    // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
+	    if (begin !== undefined) {
+	      begin = begin | 0;
+	    }
+	    if (end !== undefined) {
+	      if (end === Infinity) {
+	        end = originalSize;
+	      } else {
+	        end = end | 0;
+	      }
+	    }
+	
+	    if (wholeSlice(begin, end, originalSize)) {
+	      return iterable;
+	    }
+	
+	    var resolvedBegin = resolveBegin(begin, originalSize);
+	    var resolvedEnd = resolveEnd(end, originalSize);
+	
+	    // begin or end will be NaN if they were provided as negative numbers and
+	    // this iterable's size is unknown. In that case, cache first so there is
+	    // a known size and these do not resolve to NaN.
+	    if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
+	      return sliceFactory(iterable.toSeq().cacheResult(), begin, end, useKeys);
+	    }
+	
+	    // Note: resolvedEnd is undefined when the original sequence's length is
+	    // unknown and this slice did not supply an end and should contain all
+	    // elements after resolvedBegin.
+	    // In that case, resolvedSize will be NaN and sliceSize will remain undefined.
+	    var resolvedSize = resolvedEnd - resolvedBegin;
+	    var sliceSize;
+	    if (resolvedSize === resolvedSize) {
+	      sliceSize = resolvedSize < 0 ? 0 : resolvedSize;
+	    }
+	
+	    var sliceSeq = makeSequence(iterable);
+	
+	    // If iterable.size is undefined, the size of the realized sliceSeq is
+	    // unknown at this point unless the number of items to slice is 0
+	    sliceSeq.size = sliceSize === 0 ? sliceSize : iterable.size && sliceSize || undefined;
+	
+	    if (!useKeys && isSeq(iterable) && sliceSize >= 0) {
+	      sliceSeq.get = function (index, notSetValue) {
+	        index = wrapIndex(this, index);
+	        return index >= 0 && index < sliceSize ?
+	          iterable.get(index + resolvedBegin, notSetValue) :
+	          notSetValue;
+	      }
+	    }
+	
+	    sliceSeq.__iterateUncached = function(fn, reverse) {var this$0 = this;
+	      if (sliceSize === 0) {
+	        return 0;
+	      }
+	      if (reverse) {
+	        return this.cacheResult().__iterate(fn, reverse);
+	      }
+	      var skipped = 0;
+	      var isSkipping = true;
+	      var iterations = 0;
+	      iterable.__iterate(function(v, k)  {
+	        if (!(isSkipping && (isSkipping = skipped++ < resolvedBegin))) {
+	          iterations++;
+	          return fn(v, useKeys ? k : iterations - 1, this$0) !== false &&
+	                 iterations !== sliceSize;
+	        }
+	      });
+	      return iterations;
+	    };
+	
+	    sliceSeq.__iteratorUncached = function(type, reverse) {
+	      if (sliceSize !== 0 && reverse) {
+	        return this.cacheResult().__iterator(type, reverse);
+	      }
+	      // Don't bother instantiating parent iterator if taking 0.
+	      var iterator = sliceSize !== 0 && iterable.__iterator(type, reverse);
+	      var skipped = 0;
+	      var iterations = 0;
+	      return new Iterator(function()  {
+	        while (skipped++ < resolvedBegin) {
+	          iterator.next();
+	        }
+	        if (++iterations > sliceSize) {
+	          return iteratorDone();
+	        }
+	        var step = iterator.next();
+	        if (useKeys || type === ITERATE_VALUES) {
+	          return step;
+	        } else if (type === ITERATE_KEYS) {
+	          return iteratorValue(type, iterations - 1, undefined, step);
+	        } else {
+	          return iteratorValue(type, iterations - 1, step.value[1], step);
+	        }
+	      });
+	    }
+	
+	    return sliceSeq;
+	  }
+	
+	
+	  function takeWhileFactory(iterable, predicate, context) {
+	    var takeSequence = makeSequence(iterable);
+	    takeSequence.__iterateUncached = function(fn, reverse) {var this$0 = this;
+	      if (reverse) {
+	        return this.cacheResult().__iterate(fn, reverse);
+	      }
+	      var iterations = 0;
+	      iterable.__iterate(function(v, k, c) 
+	        {return predicate.call(context, v, k, c) && ++iterations && fn(v, k, this$0)}
+	      );
+	      return iterations;
+	    };
+	    takeSequence.__iteratorUncached = function(type, reverse) {var this$0 = this;
+	      if (reverse) {
+	        return this.cacheResult().__iterator(type, reverse);
+	      }
+	      var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
+	      var iterating = true;
+	      return new Iterator(function()  {
+	        if (!iterating) {
+	          return iteratorDone();
+	        }
+	        var step = iterator.next();
+	        if (step.done) {
+	          return step;
+	        }
+	        var entry = step.value;
+	        var k = entry[0];
+	        var v = entry[1];
+	        if (!predicate.call(context, v, k, this$0)) {
+	          iterating = false;
+	          return iteratorDone();
+	        }
+	        return type === ITERATE_ENTRIES ? step :
+	          iteratorValue(type, k, v, step);
+	      });
+	    };
+	    return takeSequence;
+	  }
+	
+	
+	  function skipWhileFactory(iterable, predicate, context, useKeys) {
+	    var skipSequence = makeSequence(iterable);
+	    skipSequence.__iterateUncached = function (fn, reverse) {var this$0 = this;
+	      if (reverse) {
+	        return this.cacheResult().__iterate(fn, reverse);
+	      }
+	      var isSkipping = true;
+	      var iterations = 0;
+	      iterable.__iterate(function(v, k, c)  {
+	        if (!(isSkipping && (isSkipping = predicate.call(context, v, k, c)))) {
+	          iterations++;
+	          return fn(v, useKeys ? k : iterations - 1, this$0);
+	        }
+	      });
+	      return iterations;
+	    };
+	    skipSequence.__iteratorUncached = function(type, reverse) {var this$0 = this;
+	      if (reverse) {
+	        return this.cacheResult().__iterator(type, reverse);
+	      }
+	      var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
+	      var skipping = true;
+	      var iterations = 0;
+	      return new Iterator(function()  {
+	        var step, k, v;
+	        do {
+	          step = iterator.next();
+	          if (step.done) {
+	            if (useKeys || type === ITERATE_VALUES) {
+	              return step;
+	            } else if (type === ITERATE_KEYS) {
+	              return iteratorValue(type, iterations++, undefined, step);
+	            } else {
+	              return iteratorValue(type, iterations++, step.value[1], step);
+	            }
+	          }
+	          var entry = step.value;
+	          k = entry[0];
+	          v = entry[1];
+	          skipping && (skipping = predicate.call(context, v, k, this$0));
+	        } while (skipping);
+	        return type === ITERATE_ENTRIES ? step :
+	          iteratorValue(type, k, v, step);
+	      });
+	    };
+	    return skipSequence;
+	  }
+	
+	
+	  function concatFactory(iterable, values) {
+	    var isKeyedIterable = isKeyed(iterable);
+	    var iters = [iterable].concat(values).map(function(v ) {
+	      if (!isIterable(v)) {
+	        v = isKeyedIterable ?
+	          keyedSeqFromValue(v) :
+	          indexedSeqFromValue(Array.isArray(v) ? v : [v]);
+	      } else if (isKeyedIterable) {
+	        v = KeyedIterable(v);
+	      }
+	      return v;
+	    }).filter(function(v ) {return v.size !== 0});
+	
+	    if (iters.length === 0) {
+	      return iterable;
+	    }
+	
+	    if (iters.length === 1) {
+	      var singleton = iters[0];
+	      if (singleton === iterable ||
+	          isKeyedIterable && isKeyed(singleton) ||
+	          isIndexed(iterable) && isIndexed(singleton)) {
+	        return singleton;
+	      }
+	    }
+	
+	    var concatSeq = new ArraySeq(iters);
+	    if (isKeyedIterable) {
+	      concatSeq = concatSeq.toKeyedSeq();
+	    } else if (!isIndexed(iterable)) {
+	      concatSeq = concatSeq.toSetSeq();
+	    }
+	    concatSeq = concatSeq.flatten(true);
+	    concatSeq.size = iters.reduce(
+	      function(sum, seq)  {
+	        if (sum !== undefined) {
+	          var size = seq.size;
+	          if (size !== undefined) {
+	            return sum + size;
+	          }
+	        }
+	      },
+	      0
+	    );
+	    return concatSeq;
+	  }
+	
+	
+	  function flattenFactory(iterable, depth, useKeys) {
+	    var flatSequence = makeSequence(iterable);
+	    flatSequence.__iterateUncached = function(fn, reverse) {
+	      var iterations = 0;
+	      var stopped = false;
+	      function flatDeep(iter, currentDepth) {var this$0 = this;
+	        iter.__iterate(function(v, k)  {
+	          if ((!depth || currentDepth < depth) && isIterable(v)) {
+	            flatDeep(v, currentDepth + 1);
+	          } else if (fn(v, useKeys ? k : iterations++, this$0) === false) {
+	            stopped = true;
+	          }
+	          return !stopped;
+	        }, reverse);
+	      }
+	      flatDeep(iterable, 0);
+	      return iterations;
+	    }
+	    flatSequence.__iteratorUncached = function(type, reverse) {
+	      var iterator = iterable.__iterator(type, reverse);
+	      var stack = [];
+	      var iterations = 0;
+	      return new Iterator(function()  {
+	        while (iterator) {
+	          var step = iterator.next();
+	          if (step.done !== false) {
+	            iterator = stack.pop();
+	            continue;
+	          }
+	          var v = step.value;
+	          if (type === ITERATE_ENTRIES) {
+	            v = v[1];
+	          }
+	          if ((!depth || stack.length < depth) && isIterable(v)) {
+	            stack.push(iterator);
+	            iterator = v.__iterator(type, reverse);
+	          } else {
+	            return useKeys ? step : iteratorValue(type, iterations++, v, step);
+	          }
+	        }
+	        return iteratorDone();
+	      });
+	    }
+	    return flatSequence;
+	  }
+	
+	
+	  function flatMapFactory(iterable, mapper, context) {
+	    var coerce = iterableClass(iterable);
+	    return iterable.toSeq().map(
+	      function(v, k)  {return coerce(mapper.call(context, v, k, iterable))}
+	    ).flatten(true);
+	  }
+	
+	
+	  function interposeFactory(iterable, separator) {
+	    var interposedSequence = makeSequence(iterable);
+	    interposedSequence.size = iterable.size && iterable.size * 2 -1;
+	    interposedSequence.__iterateUncached = function(fn, reverse) {var this$0 = this;
+	      var iterations = 0;
+	      iterable.__iterate(function(v, k) 
+	        {return (!iterations || fn(separator, iterations++, this$0) !== false) &&
+	        fn(v, iterations++, this$0) !== false},
+	        reverse
+	      );
+	      return iterations;
+	    };
+	    interposedSequence.__iteratorUncached = function(type, reverse) {
+	      var iterator = iterable.__iterator(ITERATE_VALUES, reverse);
+	      var iterations = 0;
+	      var step;
+	      return new Iterator(function()  {
+	        if (!step || iterations % 2) {
+	          step = iterator.next();
+	          if (step.done) {
+	            return step;
+	          }
+	        }
+	        return iterations % 2 ?
+	          iteratorValue(type, iterations++, separator) :
+	          iteratorValue(type, iterations++, step.value, step);
+	      });
+	    };
+	    return interposedSequence;
+	  }
+	
+	
+	  function sortFactory(iterable, comparator, mapper) {
+	    if (!comparator) {
+	      comparator = defaultComparator;
+	    }
+	    var isKeyedIterable = isKeyed(iterable);
+	    var index = 0;
+	    var entries = iterable.toSeq().map(
+	      function(v, k)  {return [k, v, index++, mapper ? mapper(v, k, iterable) : v]}
+	    ).toArray();
+	    entries.sort(function(a, b)  {return comparator(a[3], b[3]) || a[2] - b[2]}).forEach(
+	      isKeyedIterable ?
+	      function(v, i)  { entries[i].length = 2; } :
+	      function(v, i)  { entries[i] = v[1]; }
+	    );
+	    return isKeyedIterable ? KeyedSeq(entries) :
+	      isIndexed(iterable) ? IndexedSeq(entries) :
+	      SetSeq(entries);
+	  }
+	
+	
+	  function maxFactory(iterable, comparator, mapper) {
+	    if (!comparator) {
+	      comparator = defaultComparator;
+	    }
+	    if (mapper) {
+	      var entry = iterable.toSeq()
+	        .map(function(v, k)  {return [v, mapper(v, k, iterable)]})
+	        .reduce(function(a, b)  {return maxCompare(comparator, a[1], b[1]) ? b : a});
+	      return entry && entry[0];
+	    } else {
+	      return iterable.reduce(function(a, b)  {return maxCompare(comparator, a, b) ? b : a});
+	    }
+	  }
+	
+	  function maxCompare(comparator, a, b) {
+	    var comp = comparator(b, a);
+	    // b is considered the new max if the comparator declares them equal, but
+	    // they are not equal and b is in fact a nullish value.
+	    return (comp === 0 && b !== a && (b === undefined || b === null || b !== b)) || comp > 0;
+	  }
+	
+	
+	  function zipWithFactory(keyIter, zipper, iters) {
+	    var zipSequence = makeSequence(keyIter);
+	    zipSequence.size = new ArraySeq(iters).map(function(i ) {return i.size}).min();
+	    // Note: this a generic base implementation of __iterate in terms of
+	    // __iterator which may be more generically useful in the future.
+	    zipSequence.__iterate = function(fn, reverse) {
+	      /* generic:
+	      var iterator = this.__iterator(ITERATE_ENTRIES, reverse);
+	      var step;
+	      var iterations = 0;
+	      while (!(step = iterator.next()).done) {
+	        iterations++;
+	        if (fn(step.value[1], step.value[0], this) === false) {
+	          break;
+	        }
+	      }
+	      return iterations;
+	      */
+	      // indexed:
+	      var iterator = this.__iterator(ITERATE_VALUES, reverse);
+	      var step;
+	      var iterations = 0;
+	      while (!(step = iterator.next()).done) {
+	        if (fn(step.value, iterations++, this) === false) {
+	          break;
+	        }
+	      }
+	      return iterations;
+	    };
+	    zipSequence.__iteratorUncached = function(type, reverse) {
+	      var iterators = iters.map(function(i )
+	        {return (i = Iterable(i), getIterator(reverse ? i.reverse() : i))}
+	      );
+	      var iterations = 0;
+	      var isDone = false;
+	      return new Iterator(function()  {
+	        var steps;
+	        if (!isDone) {
+	          steps = iterators.map(function(i ) {return i.next()});
+	          isDone = steps.some(function(s ) {return s.done});
+	        }
+	        if (isDone) {
+	          return iteratorDone();
+	        }
+	        return iteratorValue(
+	          type,
+	          iterations++,
+	          zipper.apply(null, steps.map(function(s ) {return s.value}))
+	        );
+	      });
+	    };
+	    return zipSequence
+	  }
+	
+	
+	  // #pragma Helper Functions
+	
+	  function reify(iter, seq) {
+	    return isSeq(iter) ? seq : iter.constructor(seq);
+	  }
+	
+	  function validateEntry(entry) {
+	    if (entry !== Object(entry)) {
+	      throw new TypeError('Expected [K, V] tuple: ' + entry);
+	    }
+	  }
+	
+	  function resolveSize(iter) {
+	    assertNotInfinite(iter.size);
+	    return ensureSize(iter);
+	  }
+	
+	  function iterableClass(iterable) {
+	    return isKeyed(iterable) ? KeyedIterable :
+	      isIndexed(iterable) ? IndexedIterable :
+	      SetIterable;
+	  }
+	
+	  function makeSequence(iterable) {
+	    return Object.create(
+	      (
+	        isKeyed(iterable) ? KeyedSeq :
+	        isIndexed(iterable) ? IndexedSeq :
+	        SetSeq
+	      ).prototype
+	    );
+	  }
+	
+	  function cacheResultThrough() {
+	    if (this._iter.cacheResult) {
+	      this._iter.cacheResult();
+	      this.size = this._iter.size;
+	      return this;
+	    } else {
+	      return Seq.prototype.cacheResult.call(this);
+	    }
+	  }
+	
+	  function defaultComparator(a, b) {
+	    return a > b ? 1 : a < b ? -1 : 0;
+	  }
+	
+	  function forceIterator(keyPath) {
+	    var iter = getIterator(keyPath);
+	    if (!iter) {
+	      // Array might not be iterable in this environment, so we need a fallback
+	      // to our wrapped type.
+	      if (!isArrayLike(keyPath)) {
+	        throw new TypeError('Expected iterable or array-like: ' + keyPath);
+	      }
+	      iter = getIterator(Iterable(keyPath));
+	    }
+	    return iter;
+	  }
+	
+	  createClass(Record, KeyedCollection);
+	
+	    function Record(defaultValues, name) {
+	      var hasInitialized;
+	
+	      var RecordType = function Record(values) {
+	        if (values instanceof RecordType) {
+	          return values;
+	        }
+	        if (!(this instanceof RecordType)) {
+	          return new RecordType(values);
+	        }
+	        if (!hasInitialized) {
+	          hasInitialized = true;
+	          var keys = Object.keys(defaultValues);
+	          setProps(RecordTypePrototype, keys);
+	          RecordTypePrototype.size = keys.length;
+	          RecordTypePrototype._name = name;
+	          RecordTypePrototype._keys = keys;
+	          RecordTypePrototype._defaultValues = defaultValues;
+	        }
+	        this._map = Map(values);
+	      };
+	
+	      var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
+	      RecordTypePrototype.constructor = RecordType;
+	
+	      return RecordType;
+	    }
+	
+	    Record.prototype.toString = function() {
+	      return this.__toString(recordName(this) + ' {', '}');
+	    };
+	
+	    // @pragma Access
+	
+	    Record.prototype.has = function(k) {
+	      return this._defaultValues.hasOwnProperty(k);
+	    };
+	
+	    Record.prototype.get = function(k, notSetValue) {
+	      if (!this.has(k)) {
+	        return notSetValue;
+	      }
+	      var defaultVal = this._defaultValues[k];
+	      return this._map ? this._map.get(k, defaultVal) : defaultVal;
+	    };
+	
+	    // @pragma Modification
+	
+	    Record.prototype.clear = function() {
+	      if (this.__ownerID) {
+	        this._map && this._map.clear();
+	        return this;
+	      }
+	      var RecordType = this.constructor;
+	      return RecordType._empty || (RecordType._empty = makeRecord(this, emptyMap()));
+	    };
+	
+	    Record.prototype.set = function(k, v) {
+	      if (!this.has(k)) {
+	        throw new Error('Cannot set unknown key "' + k + '" on ' + recordName(this));
+	      }
+	      if (this._map && !this._map.has(k)) {
+	        var defaultVal = this._defaultValues[k];
+	        if (v === defaultVal) {
+	          return this;
+	        }
+	      }
+	      var newMap = this._map && this._map.set(k, v);
+	      if (this.__ownerID || newMap === this._map) {
+	        return this;
+	      }
+	      return makeRecord(this, newMap);
+	    };
+	
+	    Record.prototype.remove = function(k) {
+	      if (!this.has(k)) {
+	        return this;
+	      }
+	      var newMap = this._map && this._map.remove(k);
+	      if (this.__ownerID || newMap === this._map) {
+	        return this;
+	      }
+	      return makeRecord(this, newMap);
+	    };
+	
+	    Record.prototype.wasAltered = function() {
+	      return this._map.wasAltered();
+	    };
+	
+	    Record.prototype.__iterator = function(type, reverse) {var this$0 = this;
+	      return KeyedIterable(this._defaultValues).map(function(_, k)  {return this$0.get(k)}).__iterator(type, reverse);
+	    };
+	
+	    Record.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+	      return KeyedIterable(this._defaultValues).map(function(_, k)  {return this$0.get(k)}).__iterate(fn, reverse);
+	    };
+	
+	    Record.prototype.__ensureOwner = function(ownerID) {
+	      if (ownerID === this.__ownerID) {
+	        return this;
+	      }
+	      var newMap = this._map && this._map.__ensureOwner(ownerID);
+	      if (!ownerID) {
+	        this.__ownerID = ownerID;
+	        this._map = newMap;
+	        return this;
+	      }
+	      return makeRecord(this, newMap, ownerID);
+	    };
+	
+	
+	  var RecordPrototype = Record.prototype;
+	  RecordPrototype[DELETE] = RecordPrototype.remove;
+	  RecordPrototype.deleteIn =
+	  RecordPrototype.removeIn = MapPrototype.removeIn;
+	  RecordPrototype.merge = MapPrototype.merge;
+	  RecordPrototype.mergeWith = MapPrototype.mergeWith;
+	  RecordPrototype.mergeIn = MapPrototype.mergeIn;
+	  RecordPrototype.mergeDeep = MapPrototype.mergeDeep;
+	  RecordPrototype.mergeDeepWith = MapPrototype.mergeDeepWith;
+	  RecordPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
+	  RecordPrototype.setIn = MapPrototype.setIn;
+	  RecordPrototype.update = MapPrototype.update;
+	  RecordPrototype.updateIn = MapPrototype.updateIn;
+	  RecordPrototype.withMutations = MapPrototype.withMutations;
+	  RecordPrototype.asMutable = MapPrototype.asMutable;
+	  RecordPrototype.asImmutable = MapPrototype.asImmutable;
+	
+	
+	  function makeRecord(likeRecord, map, ownerID) {
+	    var record = Object.create(Object.getPrototypeOf(likeRecord));
+	    record._map = map;
+	    record.__ownerID = ownerID;
+	    return record;
+	  }
+	
+	  function recordName(record) {
+	    return record._name || record.constructor.name || 'Record';
+	  }
+	
+	  function setProps(prototype, names) {
+	    try {
+	      names.forEach(setProp.bind(undefined, prototype));
+	    } catch (error) {
+	      // Object.defineProperty failed. Probably IE8.
+	    }
+	  }
+	
+	  function setProp(prototype, name) {
+	    Object.defineProperty(prototype, name, {
+	      get: function() {
+	        return this.get(name);
+	      },
+	      set: function(value) {
+	        invariant(this.__ownerID, 'Cannot set on an immutable record.');
+	        this.set(name, value);
+	      }
+	    });
+	  }
+	
+	  createClass(Set, SetCollection);
+	
+	    // @pragma Construction
+	
+	    function Set(value) {
+	      return value === null || value === undefined ? emptySet() :
+	        isSet(value) && !isOrdered(value) ? value :
+	        emptySet().withMutations(function(set ) {
+	          var iter = SetIterable(value);
+	          assertNotInfinite(iter.size);
+	          iter.forEach(function(v ) {return set.add(v)});
+	        });
+	    }
+	
+	    Set.of = function(/*...values*/) {
+	      return this(arguments);
+	    };
+	
+	    Set.fromKeys = function(value) {
+	      return this(KeyedIterable(value).keySeq());
+	    };
+	
+	    Set.prototype.toString = function() {
+	      return this.__toString('Set {', '}');
+	    };
+	
+	    // @pragma Access
+	
+	    Set.prototype.has = function(value) {
+	      return this._map.has(value);
+	    };
+	
+	    // @pragma Modification
+	
+	    Set.prototype.add = function(value) {
+	      return updateSet(this, this._map.set(value, true));
+	    };
+	
+	    Set.prototype.remove = function(value) {
+	      return updateSet(this, this._map.remove(value));
+	    };
+	
+	    Set.prototype.clear = function() {
+	      return updateSet(this, this._map.clear());
+	    };
+	
+	    // @pragma Composition
+	
+	    Set.prototype.union = function() {var iters = SLICE$0.call(arguments, 0);
+	      iters = iters.filter(function(x ) {return x.size !== 0});
+	      if (iters.length === 0) {
+	        return this;
+	      }
+	      if (this.size === 0 && !this.__ownerID && iters.length === 1) {
+	        return this.constructor(iters[0]);
+	      }
+	      return this.withMutations(function(set ) {
+	        for (var ii = 0; ii < iters.length; ii++) {
+	          SetIterable(iters[ii]).forEach(function(value ) {return set.add(value)});
+	        }
+	      });
+	    };
+	
+	    Set.prototype.intersect = function() {var iters = SLICE$0.call(arguments, 0);
+	      if (iters.length === 0) {
+	        return this;
+	      }
+	      iters = iters.map(function(iter ) {return SetIterable(iter)});
+	      var originalSet = this;
+	      return this.withMutations(function(set ) {
+	        originalSet.forEach(function(value ) {
+	          if (!iters.every(function(iter ) {return iter.includes(value)})) {
+	            set.remove(value);
 	          }
 	        });
 	      });
+	    };
 	
-	      recentSitesBlock = _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(
-	          'h2',
-	          null,
-	          'Recent Sites'
-	        ),
-	        recentSiteItems
+	    Set.prototype.subtract = function() {var iters = SLICE$0.call(arguments, 0);
+	      if (iters.length === 0) {
+	        return this;
+	      }
+	      iters = iters.map(function(iter ) {return SetIterable(iter)});
+	      var originalSet = this;
+	      return this.withMutations(function(set ) {
+	        originalSet.forEach(function(value ) {
+	          if (iters.some(function(iter ) {return iter.includes(value)})) {
+	            set.remove(value);
+	          }
+	        });
+	      });
+	    };
+	
+	    Set.prototype.merge = function() {
+	      return this.union.apply(this, arguments);
+	    };
+	
+	    Set.prototype.mergeWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
+	      return this.union.apply(this, iters);
+	    };
+	
+	    Set.prototype.sort = function(comparator) {
+	      // Late binding
+	      return OrderedSet(sortFactory(this, comparator));
+	    };
+	
+	    Set.prototype.sortBy = function(mapper, comparator) {
+	      // Late binding
+	      return OrderedSet(sortFactory(this, comparator, mapper));
+	    };
+	
+	    Set.prototype.wasAltered = function() {
+	      return this._map.wasAltered();
+	    };
+	
+	    Set.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+	      return this._map.__iterate(function(_, k)  {return fn(k, k, this$0)}, reverse);
+	    };
+	
+	    Set.prototype.__iterator = function(type, reverse) {
+	      return this._map.map(function(_, k)  {return k}).__iterator(type, reverse);
+	    };
+	
+	    Set.prototype.__ensureOwner = function(ownerID) {
+	      if (ownerID === this.__ownerID) {
+	        return this;
+	      }
+	      var newMap = this._map.__ensureOwner(ownerID);
+	      if (!ownerID) {
+	        this.__ownerID = ownerID;
+	        this._map = newMap;
+	        return this;
+	      }
+	      return this.__make(newMap, ownerID);
+	    };
+	
+	
+	  function isSet(maybeSet) {
+	    return !!(maybeSet && maybeSet[IS_SET_SENTINEL]);
+	  }
+	
+	  Set.isSet = isSet;
+	
+	  var IS_SET_SENTINEL = '@@__IMMUTABLE_SET__@@';
+	
+	  var SetPrototype = Set.prototype;
+	  SetPrototype[IS_SET_SENTINEL] = true;
+	  SetPrototype[DELETE] = SetPrototype.remove;
+	  SetPrototype.mergeDeep = SetPrototype.merge;
+	  SetPrototype.mergeDeepWith = SetPrototype.mergeWith;
+	  SetPrototype.withMutations = MapPrototype.withMutations;
+	  SetPrototype.asMutable = MapPrototype.asMutable;
+	  SetPrototype.asImmutable = MapPrototype.asImmutable;
+	
+	  SetPrototype.__empty = emptySet;
+	  SetPrototype.__make = makeSet;
+	
+	  function updateSet(set, newMap) {
+	    if (set.__ownerID) {
+	      set.size = newMap.size;
+	      set._map = newMap;
+	      return set;
+	    }
+	    return newMap === set._map ? set :
+	      newMap.size === 0 ? set.__empty() :
+	      set.__make(newMap);
+	  }
+	
+	  function makeSet(map, ownerID) {
+	    var set = Object.create(SetPrototype);
+	    set.size = map ? map.size : 0;
+	    set._map = map;
+	    set.__ownerID = ownerID;
+	    return set;
+	  }
+	
+	  var EMPTY_SET;
+	  function emptySet() {
+	    return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
+	  }
+	
+	  createClass(OrderedSet, Set);
+	
+	    // @pragma Construction
+	
+	    function OrderedSet(value) {
+	      return value === null || value === undefined ? emptyOrderedSet() :
+	        isOrderedSet(value) ? value :
+	        emptyOrderedSet().withMutations(function(set ) {
+	          var iter = SetIterable(value);
+	          assertNotInfinite(iter.size);
+	          iter.forEach(function(v ) {return set.add(v)});
+	        });
+	    }
+	
+	    OrderedSet.of = function(/*...values*/) {
+	      return this(arguments);
+	    };
+	
+	    OrderedSet.fromKeys = function(value) {
+	      return this(KeyedIterable(value).keySeq());
+	    };
+	
+	    OrderedSet.prototype.toString = function() {
+	      return this.__toString('OrderedSet {', '}');
+	    };
+	
+	
+	  function isOrderedSet(maybeOrderedSet) {
+	    return isSet(maybeOrderedSet) && isOrdered(maybeOrderedSet);
+	  }
+	
+	  OrderedSet.isOrderedSet = isOrderedSet;
+	
+	  var OrderedSetPrototype = OrderedSet.prototype;
+	  OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
+	
+	  OrderedSetPrototype.__empty = emptyOrderedSet;
+	  OrderedSetPrototype.__make = makeOrderedSet;
+	
+	  function makeOrderedSet(map, ownerID) {
+	    var set = Object.create(OrderedSetPrototype);
+	    set.size = map ? map.size : 0;
+	    set._map = map;
+	    set.__ownerID = ownerID;
+	    return set;
+	  }
+	
+	  var EMPTY_ORDERED_SET;
+	  function emptyOrderedSet() {
+	    return EMPTY_ORDERED_SET || (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()));
+	  }
+	
+	  createClass(Stack, IndexedCollection);
+	
+	    // @pragma Construction
+	
+	    function Stack(value) {
+	      return value === null || value === undefined ? emptyStack() :
+	        isStack(value) ? value :
+	        emptyStack().unshiftAll(value);
+	    }
+	
+	    Stack.of = function(/*...values*/) {
+	      return this(arguments);
+	    };
+	
+	    Stack.prototype.toString = function() {
+	      return this.__toString('Stack [', ']');
+	    };
+	
+	    // @pragma Access
+	
+	    Stack.prototype.get = function(index, notSetValue) {
+	      var head = this._head;
+	      index = wrapIndex(this, index);
+	      while (head && index--) {
+	        head = head.next;
+	      }
+	      return head ? head.value : notSetValue;
+	    };
+	
+	    Stack.prototype.peek = function() {
+	      return this._head && this._head.value;
+	    };
+	
+	    // @pragma Modification
+	
+	    Stack.prototype.push = function(/*...values*/) {
+	      if (arguments.length === 0) {
+	        return this;
+	      }
+	      var newSize = this.size + arguments.length;
+	      var head = this._head;
+	      for (var ii = arguments.length - 1; ii >= 0; ii--) {
+	        head = {
+	          value: arguments[ii],
+	          next: head
+	        };
+	      }
+	      if (this.__ownerID) {
+	        this.size = newSize;
+	        this._head = head;
+	        this.__hash = undefined;
+	        this.__altered = true;
+	        return this;
+	      }
+	      return makeStack(newSize, head);
+	    };
+	
+	    Stack.prototype.pushAll = function(iter) {
+	      iter = IndexedIterable(iter);
+	      if (iter.size === 0) {
+	        return this;
+	      }
+	      assertNotInfinite(iter.size);
+	      var newSize = this.size;
+	      var head = this._head;
+	      iter.reverse().forEach(function(value ) {
+	        newSize++;
+	        head = {
+	          value: value,
+	          next: head
+	        };
+	      });
+	      if (this.__ownerID) {
+	        this.size = newSize;
+	        this._head = head;
+	        this.__hash = undefined;
+	        this.__altered = true;
+	        return this;
+	      }
+	      return makeStack(newSize, head);
+	    };
+	
+	    Stack.prototype.pop = function() {
+	      return this.slice(1);
+	    };
+	
+	    Stack.prototype.unshift = function(/*...values*/) {
+	      return this.push.apply(this, arguments);
+	    };
+	
+	    Stack.prototype.unshiftAll = function(iter) {
+	      return this.pushAll(iter);
+	    };
+	
+	    Stack.prototype.shift = function() {
+	      return this.pop.apply(this, arguments);
+	    };
+	
+	    Stack.prototype.clear = function() {
+	      if (this.size === 0) {
+	        return this;
+	      }
+	      if (this.__ownerID) {
+	        this.size = 0;
+	        this._head = undefined;
+	        this.__hash = undefined;
+	        this.__altered = true;
+	        return this;
+	      }
+	      return emptyStack();
+	    };
+	
+	    Stack.prototype.slice = function(begin, end) {
+	      if (wholeSlice(begin, end, this.size)) {
+	        return this;
+	      }
+	      var resolvedBegin = resolveBegin(begin, this.size);
+	      var resolvedEnd = resolveEnd(end, this.size);
+	      if (resolvedEnd !== this.size) {
+	        // super.slice(begin, end);
+	        return IndexedCollection.prototype.slice.call(this, begin, end);
+	      }
+	      var newSize = this.size - resolvedBegin;
+	      var head = this._head;
+	      while (resolvedBegin--) {
+	        head = head.next;
+	      }
+	      if (this.__ownerID) {
+	        this.size = newSize;
+	        this._head = head;
+	        this.__hash = undefined;
+	        this.__altered = true;
+	        return this;
+	      }
+	      return makeStack(newSize, head);
+	    };
+	
+	    // @pragma Mutability
+	
+	    Stack.prototype.__ensureOwner = function(ownerID) {
+	      if (ownerID === this.__ownerID) {
+	        return this;
+	      }
+	      if (!ownerID) {
+	        this.__ownerID = ownerID;
+	        this.__altered = false;
+	        return this;
+	      }
+	      return makeStack(this.size, this._head, ownerID, this.__hash);
+	    };
+	
+	    // @pragma Iteration
+	
+	    Stack.prototype.__iterate = function(fn, reverse) {
+	      if (reverse) {
+	        return this.reverse().__iterate(fn);
+	      }
+	      var iterations = 0;
+	      var node = this._head;
+	      while (node) {
+	        if (fn(node.value, iterations++, this) === false) {
+	          break;
+	        }
+	        node = node.next;
+	      }
+	      return iterations;
+	    };
+	
+	    Stack.prototype.__iterator = function(type, reverse) {
+	      if (reverse) {
+	        return this.reverse().__iterator(type);
+	      }
+	      var iterations = 0;
+	      var node = this._head;
+	      return new Iterator(function()  {
+	        if (node) {
+	          var value = node.value;
+	          node = node.next;
+	          return iteratorValue(type, iterations++, value);
+	        }
+	        return iteratorDone();
+	      });
+	    };
+	
+	
+	  function isStack(maybeStack) {
+	    return !!(maybeStack && maybeStack[IS_STACK_SENTINEL]);
+	  }
+	
+	  Stack.isStack = isStack;
+	
+	  var IS_STACK_SENTINEL = '@@__IMMUTABLE_STACK__@@';
+	
+	  var StackPrototype = Stack.prototype;
+	  StackPrototype[IS_STACK_SENTINEL] = true;
+	  StackPrototype.withMutations = MapPrototype.withMutations;
+	  StackPrototype.asMutable = MapPrototype.asMutable;
+	  StackPrototype.asImmutable = MapPrototype.asImmutable;
+	  StackPrototype.wasAltered = MapPrototype.wasAltered;
+	
+	
+	  function makeStack(size, head, ownerID, hash) {
+	    var map = Object.create(StackPrototype);
+	    map.size = size;
+	    map._head = head;
+	    map.__ownerID = ownerID;
+	    map.__hash = hash;
+	    map.__altered = false;
+	    return map;
+	  }
+	
+	  var EMPTY_STACK;
+	  function emptyStack() {
+	    return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
+	  }
+	
+	  /**
+	   * Contributes additional methods to a constructor
+	   */
+	  function mixin(ctor, methods) {
+	    var keyCopier = function(key ) { ctor.prototype[key] = methods[key]; };
+	    Object.keys(methods).forEach(keyCopier);
+	    Object.getOwnPropertySymbols &&
+	      Object.getOwnPropertySymbols(methods).forEach(keyCopier);
+	    return ctor;
+	  }
+	
+	  Iterable.Iterator = Iterator;
+	
+	  mixin(Iterable, {
+	
+	    // ### Conversion to other types
+	
+	    toArray: function() {
+	      assertNotInfinite(this.size);
+	      var array = new Array(this.size || 0);
+	      this.valueSeq().__iterate(function(v, i)  { array[i] = v; });
+	      return array;
+	    },
+	
+	    toIndexedSeq: function() {
+	      return new ToIndexedSequence(this);
+	    },
+	
+	    toJS: function() {
+	      return this.toSeq().map(
+	        function(value ) {return value && typeof value.toJS === 'function' ? value.toJS() : value}
+	      ).__toJS();
+	    },
+	
+	    toJSON: function() {
+	      return this.toSeq().map(
+	        function(value ) {return value && typeof value.toJSON === 'function' ? value.toJSON() : value}
+	      ).__toJS();
+	    },
+	
+	    toKeyedSeq: function() {
+	      return new ToKeyedSequence(this, true);
+	    },
+	
+	    toMap: function() {
+	      // Use Late Binding here to solve the circular dependency.
+	      return Map(this.toKeyedSeq());
+	    },
+	
+	    toObject: function() {
+	      assertNotInfinite(this.size);
+	      var object = {};
+	      this.__iterate(function(v, k)  { object[k] = v; });
+	      return object;
+	    },
+	
+	    toOrderedMap: function() {
+	      // Use Late Binding here to solve the circular dependency.
+	      return OrderedMap(this.toKeyedSeq());
+	    },
+	
+	    toOrderedSet: function() {
+	      // Use Late Binding here to solve the circular dependency.
+	      return OrderedSet(isKeyed(this) ? this.valueSeq() : this);
+	    },
+	
+	    toSet: function() {
+	      // Use Late Binding here to solve the circular dependency.
+	      return Set(isKeyed(this) ? this.valueSeq() : this);
+	    },
+	
+	    toSetSeq: function() {
+	      return new ToSetSequence(this);
+	    },
+	
+	    toSeq: function() {
+	      return isIndexed(this) ? this.toIndexedSeq() :
+	        isKeyed(this) ? this.toKeyedSeq() :
+	        this.toSetSeq();
+	    },
+	
+	    toStack: function() {
+	      // Use Late Binding here to solve the circular dependency.
+	      return Stack(isKeyed(this) ? this.valueSeq() : this);
+	    },
+	
+	    toList: function() {
+	      // Use Late Binding here to solve the circular dependency.
+	      return List(isKeyed(this) ? this.valueSeq() : this);
+	    },
+	
+	
+	    // ### Common JavaScript methods and properties
+	
+	    toString: function() {
+	      return '[Iterable]';
+	    },
+	
+	    __toString: function(head, tail) {
+	      if (this.size === 0) {
+	        return head + tail;
+	      }
+	      return head + ' ' + this.toSeq().map(this.__toStringMapper).join(', ') + ' ' + tail;
+	    },
+	
+	
+	    // ### ES6 Collection methods (ES6 Array and Map)
+	
+	    concat: function() {var values = SLICE$0.call(arguments, 0);
+	      return reify(this, concatFactory(this, values));
+	    },
+	
+	    includes: function(searchValue) {
+	      return this.some(function(value ) {return is(value, searchValue)});
+	    },
+	
+	    entries: function() {
+	      return this.__iterator(ITERATE_ENTRIES);
+	    },
+	
+	    every: function(predicate, context) {
+	      assertNotInfinite(this.size);
+	      var returnValue = true;
+	      this.__iterate(function(v, k, c)  {
+	        if (!predicate.call(context, v, k, c)) {
+	          returnValue = false;
+	          return false;
+	        }
+	      });
+	      return returnValue;
+	    },
+	
+	    filter: function(predicate, context) {
+	      return reify(this, filterFactory(this, predicate, context, true));
+	    },
+	
+	    find: function(predicate, context, notSetValue) {
+	      var entry = this.findEntry(predicate, context);
+	      return entry ? entry[1] : notSetValue;
+	    },
+	
+	    forEach: function(sideEffect, context) {
+	      assertNotInfinite(this.size);
+	      return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
+	    },
+	
+	    join: function(separator) {
+	      assertNotInfinite(this.size);
+	      separator = separator !== undefined ? '' + separator : ',';
+	      var joined = '';
+	      var isFirst = true;
+	      this.__iterate(function(v ) {
+	        isFirst ? (isFirst = false) : (joined += separator);
+	        joined += v !== null && v !== undefined ? v.toString() : '';
+	      });
+	      return joined;
+	    },
+	
+	    keys: function() {
+	      return this.__iterator(ITERATE_KEYS);
+	    },
+	
+	    map: function(mapper, context) {
+	      return reify(this, mapFactory(this, mapper, context));
+	    },
+	
+	    reduce: function(reducer, initialReduction, context) {
+	      assertNotInfinite(this.size);
+	      var reduction;
+	      var useFirst;
+	      if (arguments.length < 2) {
+	        useFirst = true;
+	      } else {
+	        reduction = initialReduction;
+	      }
+	      this.__iterate(function(v, k, c)  {
+	        if (useFirst) {
+	          useFirst = false;
+	          reduction = v;
+	        } else {
+	          reduction = reducer.call(context, reduction, v, k, c);
+	        }
+	      });
+	      return reduction;
+	    },
+	
+	    reduceRight: function(reducer, initialReduction, context) {
+	      var reversed = this.toKeyedSeq().reverse();
+	      return reversed.reduce.apply(reversed, arguments);
+	    },
+	
+	    reverse: function() {
+	      return reify(this, reverseFactory(this, true));
+	    },
+	
+	    slice: function(begin, end) {
+	      return reify(this, sliceFactory(this, begin, end, true));
+	    },
+	
+	    some: function(predicate, context) {
+	      return !this.every(not(predicate), context);
+	    },
+	
+	    sort: function(comparator) {
+	      return reify(this, sortFactory(this, comparator));
+	    },
+	
+	    values: function() {
+	      return this.__iterator(ITERATE_VALUES);
+	    },
+	
+	
+	    // ### More sequential methods
+	
+	    butLast: function() {
+	      return this.slice(0, -1);
+	    },
+	
+	    isEmpty: function() {
+	      return this.size !== undefined ? this.size === 0 : !this.some(function()  {return true});
+	    },
+	
+	    count: function(predicate, context) {
+	      return ensureSize(
+	        predicate ? this.toSeq().filter(predicate, context) : this
+	      );
+	    },
+	
+	    countBy: function(grouper, context) {
+	      return countByFactory(this, grouper, context);
+	    },
+	
+	    equals: function(other) {
+	      return deepEqual(this, other);
+	    },
+	
+	    entrySeq: function() {
+	      var iterable = this;
+	      if (iterable._cache) {
+	        // We cache as an entries array, so we can just return the cache!
+	        return new ArraySeq(iterable._cache);
+	      }
+	      var entriesSequence = iterable.toSeq().map(entryMapper).toIndexedSeq();
+	      entriesSequence.fromEntrySeq = function()  {return iterable.toSeq()};
+	      return entriesSequence;
+	    },
+	
+	    filterNot: function(predicate, context) {
+	      return this.filter(not(predicate), context);
+	    },
+	
+	    findEntry: function(predicate, context, notSetValue) {
+	      var found = notSetValue;
+	      this.__iterate(function(v, k, c)  {
+	        if (predicate.call(context, v, k, c)) {
+	          found = [k, v];
+	          return false;
+	        }
+	      });
+	      return found;
+	    },
+	
+	    findKey: function(predicate, context) {
+	      var entry = this.findEntry(predicate, context);
+	      return entry && entry[0];
+	    },
+	
+	    findLast: function(predicate, context, notSetValue) {
+	      return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
+	    },
+	
+	    findLastEntry: function(predicate, context, notSetValue) {
+	      return this.toKeyedSeq().reverse().findEntry(predicate, context, notSetValue);
+	    },
+	
+	    findLastKey: function(predicate, context) {
+	      return this.toKeyedSeq().reverse().findKey(predicate, context);
+	    },
+	
+	    first: function() {
+	      return this.find(returnTrue);
+	    },
+	
+	    flatMap: function(mapper, context) {
+	      return reify(this, flatMapFactory(this, mapper, context));
+	    },
+	
+	    flatten: function(depth) {
+	      return reify(this, flattenFactory(this, depth, true));
+	    },
+	
+	    fromEntrySeq: function() {
+	      return new FromEntriesSequence(this);
+	    },
+	
+	    get: function(searchKey, notSetValue) {
+	      return this.find(function(_, key)  {return is(key, searchKey)}, undefined, notSetValue);
+	    },
+	
+	    getIn: function(searchKeyPath, notSetValue) {
+	      var nested = this;
+	      // Note: in an ES6 environment, we would prefer:
+	      // for (var key of searchKeyPath) {
+	      var iter = forceIterator(searchKeyPath);
+	      var step;
+	      while (!(step = iter.next()).done) {
+	        var key = step.value;
+	        nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
+	        if (nested === NOT_SET) {
+	          return notSetValue;
+	        }
+	      }
+	      return nested;
+	    },
+	
+	    groupBy: function(grouper, context) {
+	      return groupByFactory(this, grouper, context);
+	    },
+	
+	    has: function(searchKey) {
+	      return this.get(searchKey, NOT_SET) !== NOT_SET;
+	    },
+	
+	    hasIn: function(searchKeyPath) {
+	      return this.getIn(searchKeyPath, NOT_SET) !== NOT_SET;
+	    },
+	
+	    isSubset: function(iter) {
+	      iter = typeof iter.includes === 'function' ? iter : Iterable(iter);
+	      return this.every(function(value ) {return iter.includes(value)});
+	    },
+	
+	    isSuperset: function(iter) {
+	      iter = typeof iter.isSubset === 'function' ? iter : Iterable(iter);
+	      return iter.isSubset(this);
+	    },
+	
+	    keyOf: function(searchValue) {
+	      return this.findKey(function(value ) {return is(value, searchValue)});
+	    },
+	
+	    keySeq: function() {
+	      return this.toSeq().map(keyMapper).toIndexedSeq();
+	    },
+	
+	    last: function() {
+	      return this.toSeq().reverse().first();
+	    },
+	
+	    lastKeyOf: function(searchValue) {
+	      return this.toKeyedSeq().reverse().keyOf(searchValue);
+	    },
+	
+	    max: function(comparator) {
+	      return maxFactory(this, comparator);
+	    },
+	
+	    maxBy: function(mapper, comparator) {
+	      return maxFactory(this, comparator, mapper);
+	    },
+	
+	    min: function(comparator) {
+	      return maxFactory(this, comparator ? neg(comparator) : defaultNegComparator);
+	    },
+	
+	    minBy: function(mapper, comparator) {
+	      return maxFactory(this, comparator ? neg(comparator) : defaultNegComparator, mapper);
+	    },
+	
+	    rest: function() {
+	      return this.slice(1);
+	    },
+	
+	    skip: function(amount) {
+	      return this.slice(Math.max(0, amount));
+	    },
+	
+	    skipLast: function(amount) {
+	      return reify(this, this.toSeq().reverse().skip(amount).reverse());
+	    },
+	
+	    skipWhile: function(predicate, context) {
+	      return reify(this, skipWhileFactory(this, predicate, context, true));
+	    },
+	
+	    skipUntil: function(predicate, context) {
+	      return this.skipWhile(not(predicate), context);
+	    },
+	
+	    sortBy: function(mapper, comparator) {
+	      return reify(this, sortFactory(this, comparator, mapper));
+	    },
+	
+	    take: function(amount) {
+	      return this.slice(0, Math.max(0, amount));
+	    },
+	
+	    takeLast: function(amount) {
+	      return reify(this, this.toSeq().reverse().take(amount).reverse());
+	    },
+	
+	    takeWhile: function(predicate, context) {
+	      return reify(this, takeWhileFactory(this, predicate, context));
+	    },
+	
+	    takeUntil: function(predicate, context) {
+	      return this.takeWhile(not(predicate), context);
+	    },
+	
+	    valueSeq: function() {
+	      return this.toIndexedSeq();
+	    },
+	
+	
+	    // ### Hashable Object
+	
+	    hashCode: function() {
+	      return this.__hash || (this.__hash = hashIterable(this));
+	    }
+	
+	
+	    // ### Internal
+	
+	    // abstract __iterate(fn, reverse)
+	
+	    // abstract __iterator(type, reverse)
+	  });
+	
+	  // var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
+	  // var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
+	  // var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
+	  // var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
+	
+	  var IterablePrototype = Iterable.prototype;
+	  IterablePrototype[IS_ITERABLE_SENTINEL] = true;
+	  IterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.values;
+	  IterablePrototype.__toJS = IterablePrototype.toArray;
+	  IterablePrototype.__toStringMapper = quoteString;
+	  IterablePrototype.inspect =
+	  IterablePrototype.toSource = function() { return this.toString(); };
+	  IterablePrototype.chain = IterablePrototype.flatMap;
+	  IterablePrototype.contains = IterablePrototype.includes;
+	
+	  mixin(KeyedIterable, {
+	
+	    // ### More sequential methods
+	
+	    flip: function() {
+	      return reify(this, flipFactory(this));
+	    },
+	
+	    mapEntries: function(mapper, context) {var this$0 = this;
+	      var iterations = 0;
+	      return reify(this,
+	        this.toSeq().map(
+	          function(v, k)  {return mapper.call(context, [k, v], iterations++, this$0)}
+	        ).fromEntrySeq()
+	      );
+	    },
+	
+	    mapKeys: function(mapper, context) {var this$0 = this;
+	      return reify(this,
+	        this.toSeq().flip().map(
+	          function(k, v)  {return mapper.call(context, k, v, this$0)}
+	        ).flip()
 	      );
 	    }
 	
-	    if (this.props.isOpen) {
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'dark-background' },
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'modal-card' },
-	          _react2.default.createElement(
-	            'h1',
-	            { className: 'tc f1 mt0' },
-	            'Sites'
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'tc' },
-	            _react2.default.createElement(_CartoonButton2.default, {
-	              text: 'New',
-	              onClick: function onClick() {
-	                return (0, _utils.saveSiteAsDialog)(_this.props.actions);
-	              },
-	              size: 'medium'
-	            }),
-	            _react2.default.createElement(_CartoonButton2.default, {
-	              className: 'ml2',
-	              text: 'Open',
-	              onClick: function onClick() {
-	                return (0, _utils.loadSiteDialog)(_this.props.actions);
-	              },
-	              size: 'medium'
-	            })
-	          ),
-	          recentSitesBlock
-	        )
+	  });
+	
+	  var KeyedIterablePrototype = KeyedIterable.prototype;
+	  KeyedIterablePrototype[IS_KEYED_SENTINEL] = true;
+	  KeyedIterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.entries;
+	  KeyedIterablePrototype.__toJS = IterablePrototype.toObject;
+	  KeyedIterablePrototype.__toStringMapper = function(v, k)  {return JSON.stringify(k) + ': ' + quoteString(v)};
+	
+	
+	
+	  mixin(IndexedIterable, {
+	
+	    // ### Conversion to other types
+	
+	    toKeyedSeq: function() {
+	      return new ToKeyedSequence(this, false);
+	    },
+	
+	
+	    // ### ES6 Collection methods (ES6 Array and Map)
+	
+	    filter: function(predicate, context) {
+	      return reify(this, filterFactory(this, predicate, context, false));
+	    },
+	
+	    findIndex: function(predicate, context) {
+	      var entry = this.findEntry(predicate, context);
+	      return entry ? entry[0] : -1;
+	    },
+	
+	    indexOf: function(searchValue) {
+	      var key = this.keyOf(searchValue);
+	      return key === undefined ? -1 : key;
+	    },
+	
+	    lastIndexOf: function(searchValue) {
+	      var key = this.lastKeyOf(searchValue);
+	      return key === undefined ? -1 : key;
+	    },
+	
+	    reverse: function() {
+	      return reify(this, reverseFactory(this, false));
+	    },
+	
+	    slice: function(begin, end) {
+	      return reify(this, sliceFactory(this, begin, end, false));
+	    },
+	
+	    splice: function(index, removeNum /*, ...values*/) {
+	      var numArgs = arguments.length;
+	      removeNum = Math.max(removeNum | 0, 0);
+	      if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
+	        return this;
+	      }
+	      // If index is negative, it should resolve relative to the size of the
+	      // collection. However size may be expensive to compute if not cached, so
+	      // only call count() if the number is in fact negative.
+	      index = resolveBegin(index, index < 0 ? this.count() : this.size);
+	      var spliced = this.slice(0, index);
+	      return reify(
+	        this,
+	        numArgs === 1 ?
+	          spliced :
+	          spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum))
 	      );
-	    } else {
-	      return _react2.default.createElement('div', null);
+	    },
+	
+	
+	    // ### More collection methods
+	
+	    findLastIndex: function(predicate, context) {
+	      var entry = this.findLastEntry(predicate, context);
+	      return entry ? entry[0] : -1;
+	    },
+	
+	    first: function() {
+	      return this.get(0);
+	    },
+	
+	    flatten: function(depth) {
+	      return reify(this, flattenFactory(this, depth, false));
+	    },
+	
+	    get: function(index, notSetValue) {
+	      index = wrapIndex(this, index);
+	      return (index < 0 || (this.size === Infinity ||
+	          (this.size !== undefined && index > this.size))) ?
+	        notSetValue :
+	        this.find(function(_, key)  {return key === index}, undefined, notSetValue);
+	    },
+	
+	    has: function(index) {
+	      index = wrapIndex(this, index);
+	      return index >= 0 && (this.size !== undefined ?
+	        this.size === Infinity || index < this.size :
+	        this.indexOf(index) !== -1
+	      );
+	    },
+	
+	    interpose: function(separator) {
+	      return reify(this, interposeFactory(this, separator));
+	    },
+	
+	    interleave: function(/*...iterables*/) {
+	      var iterables = [this].concat(arrCopy(arguments));
+	      var zipped = zipWithFactory(this.toSeq(), IndexedSeq.of, iterables);
+	      var interleaved = zipped.flatten(true);
+	      if (zipped.size) {
+	        interleaved.size = zipped.size * iterables.length;
+	      }
+	      return reify(this, interleaved);
+	    },
+	
+	    keySeq: function() {
+	      return Range(0, this.size);
+	    },
+	
+	    last: function() {
+	      return this.get(-1);
+	    },
+	
+	    skipWhile: function(predicate, context) {
+	      return reify(this, skipWhileFactory(this, predicate, context, false));
+	    },
+	
+	    zip: function(/*, ...iterables */) {
+	      var iterables = [this].concat(arrCopy(arguments));
+	      return reify(this, zipWithFactory(this, defaultZipper, iterables));
+	    },
+	
+	    zipWith: function(zipper/*, ...iterables */) {
+	      var iterables = arrCopy(arguments);
+	      iterables[0] = this;
+	      return reify(this, zipWithFactory(this, zipper, iterables));
+	    }
+	
+	  });
+	
+	  IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
+	  IndexedIterable.prototype[IS_ORDERED_SENTINEL] = true;
+	
+	
+	
+	  mixin(SetIterable, {
+	
+	    // ### ES6 Collection methods (ES6 Array and Map)
+	
+	    get: function(value, notSetValue) {
+	      return this.has(value) ? value : notSetValue;
+	    },
+	
+	    includes: function(value) {
+	      return this.has(value);
+	    },
+	
+	
+	    // ### More sequential methods
+	
+	    keySeq: function() {
+	      return this.valueSeq();
+	    }
+	
+	  });
+	
+	  SetIterable.prototype.has = IterablePrototype.includes;
+	  SetIterable.prototype.contains = SetIterable.prototype.includes;
+	
+	
+	  // Mixin subclasses
+	
+	  mixin(KeyedSeq, KeyedIterable.prototype);
+	  mixin(IndexedSeq, IndexedIterable.prototype);
+	  mixin(SetSeq, SetIterable.prototype);
+	
+	  mixin(KeyedCollection, KeyedIterable.prototype);
+	  mixin(IndexedCollection, IndexedIterable.prototype);
+	  mixin(SetCollection, SetIterable.prototype);
+	
+	
+	  // #pragma Helper functions
+	
+	  function keyMapper(v, k) {
+	    return k;
+	  }
+	
+	  function entryMapper(v, k) {
+	    return [k, v];
+	  }
+	
+	  function not(predicate) {
+	    return function() {
+	      return !predicate.apply(this, arguments);
 	    }
 	  }
-	});
 	
-	var siteModalSelector = (0, _utils.createImmutableJSSelector)([function (state) {
-	  return state.getIn(['fileMetadata', 'dirname']);
-	}, function (state) {
-	  return state.get('recentSites');
-	}], function (dirname, recentSites) {
-	  return {
-	    isOpen: !dirname,
-	    recentSites: recentSites.toJS()
+	  function neg(predicate) {
+	    return function() {
+	      return -predicate.apply(this, arguments);
+	    }
+	  }
+	
+	  function quoteString(value) {
+	    return typeof value === 'string' ? JSON.stringify(value) : String(value);
+	  }
+	
+	  function defaultZipper() {
+	    return arrCopy(arguments);
+	  }
+	
+	  function defaultNegComparator(a, b) {
+	    return a < b ? 1 : a > b ? -1 : 0;
+	  }
+	
+	  function hashIterable(iterable) {
+	    if (iterable.size === Infinity) {
+	      return 0;
+	    }
+	    var ordered = isOrdered(iterable);
+	    var keyed = isKeyed(iterable);
+	    var h = ordered ? 1 : 0;
+	    var size = iterable.__iterate(
+	      keyed ?
+	        ordered ?
+	          function(v, k)  { h = 31 * h + hashMerge(hash(v), hash(k)) | 0; } :
+	          function(v, k)  { h = h + hashMerge(hash(v), hash(k)) | 0; } :
+	        ordered ?
+	          function(v ) { h = 31 * h + hash(v) | 0; } :
+	          function(v ) { h = h + hash(v) | 0; }
+	    );
+	    return murmurHashOfSize(size, h);
+	  }
+	
+	  function murmurHashOfSize(size, h) {
+	    h = imul(h, 0xCC9E2D51);
+	    h = imul(h << 15 | h >>> -15, 0x1B873593);
+	    h = imul(h << 13 | h >>> -13, 5);
+	    h = (h + 0xE6546B64 | 0) ^ size;
+	    h = imul(h ^ h >>> 16, 0x85EBCA6B);
+	    h = imul(h ^ h >>> 13, 0xC2B2AE35);
+	    h = smi(h ^ h >>> 16);
+	    return h;
+	  }
+	
+	  function hashMerge(a, b) {
+	    return a ^ b + 0x9E3779B9 + (a << 6) + (a >> 2) | 0; // int
+	  }
+	
+	  var Immutable = {
+	
+	    Iterable: Iterable,
+	
+	    Seq: Seq,
+	    Collection: Collection,
+	    Map: Map,
+	    OrderedMap: OrderedMap,
+	    List: List,
+	    Stack: Stack,
+	    Set: Set,
+	    OrderedSet: OrderedSet,
+	
+	    Record: Record,
+	    Range: Range,
+	    Repeat: Repeat,
+	
+	    is: is,
+	    fromJS: fromJS
+	
 	  };
-	});
 	
-	exports.default = (0, _reactRedux.connect)(function (state) {
-	  return siteModalSelector(state);
-	})(OpenSiteModal);
+	  return Immutable;
+	
+	}));
+
+/***/ },
+/* 202 */
+/*!***************************************!*\
+  !*** ./~/human-readable-ids/index.js ***!
+  \***************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/*jshint -W054 */
+	;(function (exports) {
+	  'use strict';
+	
+	  var lists = exports.humanReadableIds || __webpack_require__(/*! ./lists */ 203)
+	    , shuffle = exports.knuthShuffle || __webpack_require__(/*! knuth-shuffle */ 206).knuthShuffle
+	    , animals = []
+	    , adjectives = []
+	    , numbers = []
+	    ;
+	
+	  function genNumbers() {
+	    var i = 2
+	      ;
+	
+	    numbers = [];
+	    numbers.push(0);
+	    // 1 is not plural, so we skip it
+	    for (i = 2; i <= 100; i += 1) {
+	      numbers.push(i);
+	    }
+	
+	    return shuffle(numbers);
+	  }
+	
+	  function random() {
+	    if (!adjectives.length) {
+	      adjectives = shuffle(lists.adjectives.slice(0));
+	    }
+	    if (!animals.length) {
+	      animals = shuffle(lists.animals.slice(0));
+	    }
+	    if (!numbers.length) {
+	      numbers = shuffle(genNumbers());
+	    }
+	
+	    return adjectives.pop()
+	      + '-' + animals.pop()
+	      + '-' + numbers.pop()
+	      ;
+	  }
+	
+	  exports.humanReadableIds = { random: random };
+	  exports.hri = exports.humanReadableIds;
+	
+	}('undefined' !== typeof exports && exports || new Function('return this')()));
+
 
 /***/ },
 /* 203 */
-/*!**********************!*\
-  !*** ./app/utils.js ***!
-  \**********************/
+/*!***************************************!*\
+  !*** ./~/human-readable-ids/lists.js ***!
+  \***************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	module.exports = {
+	  animals: __webpack_require__(/*! ./assets/animals */ 204).humanReadableIds.animals
+	, adjectives: __webpack_require__(/*! ./assets/adjectives */ 205).humanReadableIds.adjectives
+	};
+
+
+/***/ },
+/* 204 */
+/*!************************************************!*\
+  !*** ./~/human-readable-ids/assets/animals.js ***!
+  \************************************************/
+/***/ function(module, exports) {
+
+	/*jshint -W054 */
+	;(function (exports) {
+	  'use strict';
+	
+	  exports.humanReadableIds = exports.humanReadableIds || {};
+	  exports.humanReadableIds.animals = ["ape","baboon","badger","bat","bear","bird","bobcat","bulldog","bullfrog","cat","catfish","cheetah","chicken","chipmunk","cobra","cougar","cow","crab","deer","dingo","dodo","dog","dolphin","donkey","dragon","dragonfly","duck","eagle","earwig","eel","elephant","emu","falcon","fireant","firefox","fish","fly","fox","frog","gecko","goat","goose","grasshopper","horse","hound","husky","impala","insect","jellyfish","kangaroo","ladybug","liger","lion","lionfish","lizard","mayfly","mole","monkey","moose","moth","mouse","mule","newt","octopus","otter","owl","panda","panther","parrot","penguin","pig","puma","pug","quail","rabbit","rat","rattlesnake","robin","seahorse","sheep","shrimp","skunk","sloth","snail","snake","squid","starfish","stingray","swan","termite","tiger","treefrog","turkey","turtle","vampirebat","walrus","warthog","wasp","wolverine","wombat","yak","zebra"];
+	}('undefined' !== typeof exports && exports || new Function('return this')()));
+
+
+/***/ },
+/* 205 */
+/*!***************************************************!*\
+  !*** ./~/human-readable-ids/assets/adjectives.js ***!
+  \***************************************************/
+/***/ function(module, exports) {
+
+	/*jshint -W054 */
+	;(function (exports) {
+	  'use strict';
+	
+	  exports.humanReadableIds = exports.humanReadableIds || {};
+	  exports.humanReadableIds.adjectives = ["afraid","ancient","angry","average","bad","big","bitter","black","blue","brave","breezy","bright","brown","calm","chatty","chilly","clever","cold","cowardly","cuddly","curly","curvy","dangerous","dry","dull","empty","evil","fast","fat","fluffy","foolish","fresh","friendly","funny","fuzzy","gentle","giant","good","great","green","grumpy","happy","hard","heavy","helpless","honest","horrible","hot","hungry","itchy","jolly","kind","lazy","light","little","loud","lovely","lucky","massive","mean","mighty","modern","moody","nasty","neat","nervous","new","nice","odd","old","orange","ordinary","perfect","pink","plastic","polite","popular","pretty","proud","purple","quick","quiet","rare","red","rotten","rude","selfish","serious","shaggy","sharp","short","shy","silent","silly","slimy","slippery","smart","smooth","soft","sour","spicy","splendid","spotty","stale","strange","strong","stupid","sweet","swift","tall","tame","tasty","tender","terrible","thin","tidy","tiny","tough","tricky","ugly","unlucky","warm","weak","wet","white","wicked","wise","witty","wonderful","yellow","young"];
+	}('undefined' !== typeof exports && exports || new Function('return this')()));
+
+
+/***/ },
+/* 206 */
+/*!**********************************!*\
+  !*** ./~/knuth-shuffle/index.js ***!
+  \**********************************/
+/***/ function(module, exports) {
+
+	/*jshint -W054 */
+	(function (exports) {
+	  'use strict';
+	
+	  // http://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+	  function shuffle(array) {
+	    var currentIndex = array.length
+	      , temporaryValue
+	      , randomIndex
+	      ;
+	
+	    // While there remain elements to shuffle...
+	    while (0 !== currentIndex) {
+	
+	      // Pick a remaining element...
+	      randomIndex = Math.floor(Math.random() * currentIndex);
+	      currentIndex -= 1;
+	
+	      // And swap it with the current element.
+	      temporaryValue = array[currentIndex];
+	      array[currentIndex] = array[randomIndex];
+	      array[randomIndex] = temporaryValue;
+	    }
+	
+	    return array;
+	  }
+	
+	  exports.knuthShuffle = shuffle;
+	}('undefined' !== typeof exports && exports || 'undefined' !== typeof window && window || global));
+
+
+/***/ },
+/* 207 */
+/*!***********************!*\
+  !*** external "path" ***!
+  \***********************/
+/***/ function(module, exports) {
+
+	module.exports = require("path");
+
+/***/ },
+/* 208 */
+/*!************************************!*\
+  !*** ./~/redux-thunk/lib/index.js ***!
+  \************************************/
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	exports.__esModule = true;
+	function createThunkMiddleware(extraArgument) {
+	  return function (_ref) {
+	    var dispatch = _ref.dispatch,
+	        getState = _ref.getState;
+	    return function (next) {
+	      return function (action) {
+	        if (typeof action === 'function') {
+	          return action(dispatch, getState, extraArgument);
+	        }
+	
+	        return next(action);
+	      };
+	    };
+	  };
+	}
+	
+	var thunk = createThunkMiddleware();
+	thunk.withExtraArgument = createThunkMiddleware;
+	
+	exports['default'] = thunk;
+
+/***/ },
+/* 209 */
+/*!***************************!*\
+  !*** ./app/serializer.js ***!
+  \***************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24239,307 +29230,38 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.createImmutableJSSelector = exports.globalEventManager = exports.Rect = undefined;
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	exports.distanceBetweenPoints = distanceBetweenPoints;
-	exports.guid = guid;
-	exports.getGlobalPosFromSyntheticEvent = getGlobalPosFromSyntheticEvent;
-	exports.minDistanceBetweenPointAndLine = minDistanceBetweenPointAndLine;
-	exports.wasRightButtonPressed = wasRightButtonPressed;
-	exports.saveSiteAsDialog = saveSiteAsDialog;
-	exports.loadSiteDialog = loadSiteDialog;
-	exports.toTitleCase = toTitleCase;
-	exports.focusRefCallback = focusRefCallback;
-	exports.getComponentDomNode = getComponentDomNode;
-	exports.escapeHtml = escapeHtml;
-	exports.camelToDash = camelToDash;
-	
-	var _lodash = __webpack_require__(/*! lodash */ 204);
+	var _lodash = __webpack_require__(/*! lodash */ 210);
 	
 	var _lodash2 = _interopRequireDefault(_lodash);
 	
-	var _jquery = __webpack_require__(/*! jquery */ 205);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	var _immutable = __webpack_require__(/*! immutable */ 206);
+	var _immutable = __webpack_require__(/*! immutable */ 201);
 	
 	var _immutable2 = _interopRequireDefault(_immutable);
 	
-	var _electron = __webpack_require__(/*! electron */ 3);
-	
-	var _reselect = __webpack_require__(/*! reselect */ 207);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	function serializerFactory() {
+	  var serializableKeys = ['siteName', 'pages', 'componentMap', 'ourComponentBoxes', 'yourComponentBoxes', 'currentPageId', 'assets', 'componentsMap', 'recentSites'];
 	
-	var dialog = void 0;
-	if (_electron.remote) {
-	  //Hack for testing
-	  dialog = _electron.remote.dialog;
-	}
-	
-	function distanceBetweenPoints(p1, p2) {
-	  return Math.abs(Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2)));
-	}
-	
-	function guid() {
-	  function s4() {
-	    return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-	  }
-	  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-	}
-	
-	var Rect = exports.Rect = function () {
-	  function Rect(el) {
-	    _classCallCheck(this, Rect);
-	
-	    if (el) {
-	      this.fromElement(el);
-	    }
+	  function serialize(state) {
+	    var serializableState = _lodash2.default.pick(state.toJS(), serializableKeys);
+	    return JSON.stringify(serializableState);
 	  }
 	
-	  _createClass(Rect, [{
-	    key: 'computeDerivedProperties',
-	    value: function computeDerivedProperties() {
-	      this.middleX = this.x + this.w / 2;
-	      this.middleY = this.y + this.h / 2;
-	    }
-	  }, {
-	    key: 'fromElement',
-	    value: function fromElement(el) {
-	      if (!(el instanceof _jquery2.default)) {
-	        el = (0, _jquery2.default)(el);
-	      }
-	
-	      var height = el.height();
-	      var width = el.width();
-	      var offset = el.offset();
-	
-	      this.x = offset.left;
-	      this.y = offset.top;
-	      this.w = width;
-	      this.h = height;
-	
-	      this._el = el;
-	
-	      this.computeDerivedProperties();
-	      return this;
-	    }
-	  }]);
-	
-	  return Rect;
-	}();
-	
-	function getGlobalPosFromSyntheticEvent(e) {
-	  return { x: e.clientX, y: e.clientY };
-	}
-	
-	function minDistanceBetweenPointAndLine(p, line) {
-	  /* From http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment */
-	  var x = p.x,
-	      y = p.y;
-	
-	  var x1 = line[0].x;
-	  var y1 = line[0].y;
-	  var x2 = line[1].x;
-	  var y2 = line[1].y;
-	
-	  /* TD: Why does this work? */
-	  var A = x - x1;
-	  var B = y - y1;
-	  var C = x2 - x1;
-	  var D = y2 - y1;
-	
-	  var dot = A * C + B * D;
-	  var lenSq = C * C + D * D;
-	  var param = -1;
-	
-	  // in case of 0 length line
-	  if (lenSq !== 0) {
-	    param = dot / lenSq;
+	  function deserialize(jsonState) {
+	    return _immutable2.default.fromJS(JSON.parse(jsonState));
 	  }
 	
-	  var xx = void 0,
-	      yy = void 0;
-	
-	  if (param < 0) {
-	    xx = x1;
-	    yy = y1;
-	  } else if (param > 1) {
-	    xx = x2;
-	    yy = y2;
-	  } else {
-	    xx = x1 + param * C;
-	    yy = y1 + param * D;
-	  }
-	
-	  var dx = x - xx;
-	  var dy = y - yy;
-	  return Math.sqrt(dx * dx + dy * dy);
+	  return { serialize: serialize, deserialize: deserialize };
 	}
 	
-	function wasRightButtonPressed(e) {
-	  var isRightMB = void 0;
+	var serializer = serializerFactory();
 	
-	  if ('which' in e) {
-	    // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
-	    isRightMB = e.which === 3;
-	  } else if ('button' in e) {
-	    // IE, Opera
-	    isRightMB = e.button === 2;
-	  }
-	
-	  return isRightMB;
-	}
-	
-	var GlobalEventManager = function () {
-	  // Lower priority fires first
-	  // Event listeners are passed (browserEvent, cancel)
-	  // Cancel acts like prevent default
-	  function GlobalEventManager() {
-	    _classCallCheck(this, GlobalEventManager);
-	
-	    this.events = {};
-	  }
-	
-	  _createClass(GlobalEventManager, [{
-	    key: 'addListener',
-	    value: function addListener(eventName, listener, priority) {
-	      var _this = this;
-	
-	      if (!this.events[eventName]) {
-	        window.addEventListener(eventName, function (e) {
-	          var isCanceled = false;
-	          var cancel = function cancel() {
-	            isCanceled = true;
-	          };
-	
-	          var eventArr = _this.events[eventName];
-	          for (var i = 0; i < eventArr.length; i++) {
-	            if (!isCanceled) {
-	              eventArr[i].listener(e, cancel);
-	            }
-	          }
-	        });
-	
-	        this.events[eventName] = [];
-	      }
-	
-	      var id = guid();
-	
-	      this.events[eventName].push({ listener: listener, priority: priority, id: id });
-	      this.events[eventName] = _lodash2.default.sortBy(this.events[eventName], function (ev) {
-	        ev.priority;
-	      });
-	
-	      return id;
-	    }
-	  }, {
-	    key: 'removeListener',
-	    value: function removeListener(eventName, id) {
-	      return _lodash2.default.remove(this.events[eventName], function (listener) {
-	        return listener.id === id;
-	      }).length > 0;
-	    }
-	  }]);
-	
-	  return GlobalEventManager;
-	}();
-	
-	var globalEventManager = exports.globalEventManager = new GlobalEventManager();
-	
-	function saveSiteAsDialog(actions) {
-	  dialog.showSaveDialog({
-	    title: 'Save Site As',
-	    filters: [{
-	      name: 'Motif Site Name',
-	      extensions: ['*']
-	    }]
-	  }, function (filename) {
-	    if (filename) {
-	      actions.saveSite(filename);
-	    }
-	  });
-	}
-	
-	function loadSiteDialog(actions) {
-	  dialog.showOpenDialog({
-	    title: 'Select a site to edit',
-	    properties: ['openDirectory'],
-	    filters: [{
-	      name: 'Open Site',
-	      extensions: ['*']
-	    }]
-	  }, function (filenames) {
-	    if (!filenames) return;
-	    actions.loadSite(filenames[0]);
-	  });
-	}
-	
-	function toTitleCase(str) {
-	  return str.replace(/\w\S*/g, function (txt) {
-	    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-	  });
-	}
-	
-	function focusRefCallback(ref) {
-	  if (ref && document.activeElement !== ref) {
-	    ref.focus();
-	  }
-	}
-	
-	function getComponentDomNode(componentId, nodeType) {
-	  // Node Types: treeView, componentView
-	  var classStr = '.' + nodeType + '_' + componentId;
-	  var el = (0, _jquery2.default)(classStr);
-	
-	  if (!el) {
-	    throw new Error('Class ' + classStr + ' Not found. With args ' + componentId + ' ' + nodeType);
-	  }
-	
-	  return el;
-	}
-	
-	var createImmutableJSSelector = exports.createImmutableJSSelector = (0, _reselect.createSelectorCreator)(_reselect.defaultMemoize, function (a, b) {
-	  if (_immutable2.default.Iterable.isIterable(a) && _immutable2.default.Iterable.isIterable(b)) {
-	    return _immutable2.default.is(a, b);
-	  } else {
-	    return a === b;
-	  }
-	});
-	
-	window.logger = function logger() {
-	  for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	    args[_key] = arguments[_key];
-	  }
-	
-	  console.log.apply(null, args.map(function (arg) {
-	    if (_immutable2.default.Iterable.isIterable(arg)) {
-	      return arg.toJS();
-	    } else {
-	      return arg;
-	    }
-	  }));
-	};
-	
-	function escapeHtml(str) {
-	  // From: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
-	  var div = document.createElement('div');
-	  div.appendChild(document.createTextNode(str));
-	  return div.innerHTML;
-	}
-	
-	function camelToDash(str) {
-	  // http://stackoverflow.com/questions/8955533/javascript-jquery-split-camelcase-string-and-add-hyphen-rather-than-space
-	  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-	}
+	exports.default = serializer;
 
 /***/ },
-/* 204 */
+/* 210 */
 /*!****************************!*\
   !*** ./~/lodash/lodash.js ***!
   \****************************/
@@ -41630,10 +46352,1148 @@
 	  }
 	}.call(this));
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../webpack/buildin/module.js */ 188)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../webpack/buildin/module.js */ 187)(module)))
 
 /***/ },
-/* 205 */
+/* 211 */
+/*!********************************************************!*\
+  !*** ./app/stateManagers/componentTreeStateManager.js ***!
+  \********************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.componentTreeReducer = exports.componentTreeActions = undefined;
+	
+	var _componentTreeReducer;
+	
+	var _constants = __webpack_require__(/*! ../constants */ 212);
+	
+	var _base_components = __webpack_require__(/*! ../base_components */ 213);
+	
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+	
+	var UNHOVER_COMPONENT = 'UNHOVER_COMPONENT';
+	var HOVER_COMPONENT = 'HOVER_COMPONENT';
+	
+	var ADD_VARIANT = 'ADD_VARIANT';
+	var MOVE_COMPONENT = 'MOVE_COMPONENT';
+	var DELETE_COMPONENT = 'DELETE_COMPONENT';
+	
+	var SELECT_COMPONENT = 'SELECT_COMPONENT';
+	
+	var CHANGE_COMPONENT_NAME = 'CHANGE_COMPONENT_NAME';
+	var CREATE_COMPONENT_BLOCK = 'CREATE_COMPONENT_BLOCK';
+	var SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
+	
+	// test for optional argument
+	var componentTreeActions = exports.componentTreeActions = {
+	  moveComponent: function moveComponent(componentId, parentComponentId, insertionIndex) {
+	    return {
+	      type: MOVE_COMPONENT,
+	      componentId: componentId,
+	      parentComponentId: parentComponentId,
+	      insertionIndex: insertionIndex
+	    };
+	  },
+	  addVariant: function addVariant(componentId, parentComponentId, insertionIndex, spec) {
+	    return {
+	      type: ADD_VARIANT,
+	      componentId: componentId,
+	      parentComponentId: parentComponentId,
+	      insertionIndex: insertionIndex,
+	      spec: spec || {}
+	    };
+	  },
+	  deleteComponent: function deleteComponent(componentId) {
+	    return {
+	      type: DELETE_COMPONENT,
+	      componentId: componentId
+	    };
+	  },
+	  selectComponent: function selectComponent(componentId) {
+	    return {
+	      type: SELECT_COMPONENT,
+	      componentId: componentId,
+	      _noUndo: true
+	    };
+	  },
+	  hoverComponent: function hoverComponent(componentId) {
+	    return {
+	      type: HOVER_COMPONENT,
+	      componentId: componentId,
+	      _noUndo: true
+	    };
+	  },
+	  unHoverComponent: function unHoverComponent() {
+	    return {
+	      type: UNHOVER_COMPONENT,
+	      _noUndo: true
+	    };
+	  },
+	  changeComponentName: function changeComponentName(componentId, newName) {
+	    return {
+	      type: CHANGE_COMPONENT_NAME,
+	      componentId: componentId,
+	      newName: newName
+	    };
+	  },
+	  createComponentBlock: function createComponentBlock(newBlockId) {
+	    return {
+	      type: CREATE_COMPONENT_BLOCK,
+	      newBlockId: newBlockId
+	    };
+	  },
+	  setComponentAttribute: function setComponentAttribute(componentId, attrKey, newAttrValue) {
+	    return {
+	      type: SET_COMPONENT_ATTRIBUTE,
+	      componentId: componentId,
+	      attrKey: attrKey,
+	      newAttrValue: newAttrValue
+	    };
+	  }
+	};
+	
+	var componentTreeReducer = exports.componentTreeReducer = (_componentTreeReducer = {}, _defineProperty(_componentTreeReducer, ADD_VARIANT, function (state, action) {
+	  var componentId = action.componentId,
+	      parentComponentId = action.parentComponentId,
+	      insertionIndex = action.insertionIndex,
+	      spec = action.spec;
+	
+	  var componentsContainer = new _base_components.ComponentsContainer(state.get('componentsMap'));
+	
+	  var variantId = componentsContainer.createVariant(componentId, spec);
+	
+	  componentsContainer.addChild(parentComponentId, variantId, insertionIndex);
+	
+	  return state.set('componentsMap', componentsContainer.components);
+	}), _defineProperty(_componentTreeReducer, MOVE_COMPONENT, function (state, action) {
+	  return state.set('componentsMap', _base_components.ComponentsContainer.moveComponent(state.get('componentsMap'), action.componentId, action.parentComponentId, action.insertionIndex));
+	}), _defineProperty(_componentTreeReducer, DELETE_COMPONENT, function (state, action) {
+	  var componentId = action.componentId;
+	
+	  var componentsContainer = new _base_components.ComponentsContainer(state.get('componentsMap'));
+	  componentsContainer.deleteComponent(componentId);
+	
+	  return state.updateIn(['activeComponentId'], function (activeComponentId) {
+	    if (activeComponentId === componentId) {
+	      return undefined;
+	    } else {
+	      return activeComponentId;
+	    }
+	  }).set('componentsMap', componentsContainer.components);
+	}), _defineProperty(_componentTreeReducer, SELECT_COMPONENT, function (state, action) {
+	  return state.merge({
+	    activeComponentState: _constants.NONE,
+	    activeComponentBreakpoint: _constants.NONE,
+	    activeComponentId: action.componentId
+	  });
+	}), _defineProperty(_componentTreeReducer, CHANGE_COMPONENT_NAME, function (state, action) {
+	  return state.setIn(['componentsMap', action.componentId, 'name'], action.newName);
+	}), _defineProperty(_componentTreeReducer, CREATE_COMPONENT_BLOCK, function (state, action) {
+	  var newBlockId = action.newBlockId;
+	
+	
+	  var newComponentsMap = state.get('componentsMap').withMutations(function (componentsMap) {
+	    var componentsContainer = new _base_components.ComponentsContainer(componentsMap);
+	    var newBlockParentId = componentsMap.getIn([newBlockId, 'parentId']);
+	    componentsMap.mergeIn([newBlockId], { name: 'New Component', parentId: undefined });
+	
+	    var variantId = componentsContainer.createVariant(newBlockId, {
+	      parentId: newBlockParentId
+	    });
+	
+	    componentsMap.updateIn([newBlockParentId, 'childIds'], function (childIds) {
+	      return childIds.map(function (childId) {
+	        if (childId === newBlockId) {
+	          return variantId;
+	        } else {
+	          return childId;
+	        }
+	      });
+	    });
+	  });
+	
+	  return state.update('yourComponentBoxes', function (yourComponentBoxes) {
+	    return yourComponentBoxes.push(newBlockId);
+	  }).set('componentsMap', newComponentsMap);
+	}), _defineProperty(_componentTreeReducer, SET_COMPONENT_ATTRIBUTE, function (state, action) {
+	  return state.update('componentsMap', function (componentsMap) {
+	    return _base_components.ComponentsContainer.setAttribute(componentsMap, action.componentId, action.attrKey, action.newAttrValue, {
+	      breakpoint: state.get('activeComponentBreakpoint'),
+	      state: state.get('activeComponentState')
+	    });
+	  });
+	}), _defineProperty(_componentTreeReducer, UNHOVER_COMPONENT, function (state) {
+	  return state.set('hoveredComponentId', undefined);
+	}), _defineProperty(_componentTreeReducer, HOVER_COMPONENT, function (state, action) {
+	  return state.set('hoveredComponentId', action.componentId);
+	}), _componentTreeReducer);
+
+/***/ },
+/* 212 */
+/*!**************************!*\
+  !*** ./app/constants.js ***!
+  \**************************/
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var dragTypes = exports.dragTypes = {
+	  ADD_COMPONENT: 'ADD_COMPONENT',
+	  MOVE_COMPONENT: 'MOVE_COMPONENT'
+	};
+	
+	var mainViewTypes = exports.mainViewTypes = {
+	  EDITOR: 'EDITOR',
+	  ASSETS: 'ASSETS',
+	  COMPONENTS: 'COMPONENTS'
+	};
+	
+	var fieldTypes = exports.fieldTypes = {
+	  TEXT: 'TEXT', /* fieldSettings:  */
+	  LARGE_TEXT: 'LARGE_TEXT', /* fieldSettings:  */
+	  NUMBER: 'NUMBER',
+	  COLOR: 'COLOR', /* fieldSettings:  */
+	  DROPDOWN: 'DROPDOWN' };
+	
+	var NONE = exports.NONE = 'NONE';
+	
+	var stateTypes = exports.stateTypes = {
+	  HOVER: 'HOVER'
+	};
+	
+	var breakpointTypes = exports.breakpointTypes = {
+	  MEDIUM: 'MEDIUM',
+	  LARGE: 'LARGE'
+	};
+	
+	var componentTypes = exports.componentTypes = {
+	  CONTAINER: 'CONTAINER',
+	  HEADER: 'HEADER',
+	  TEXT: 'TEXT',
+	  IMAGE: 'IMAGE',
+	  ROOT: 'ROOT'
+	};
+	
+	var SIDEBAR_WIDTH = exports.SIDEBAR_WIDTH = 220;
+
+/***/ },
+/* 213 */
+/*!********************************!*\
+  !*** ./app/base_components.js ***!
+  \********************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.ComponentsContainer = exports.defaultComponentsMap = exports.image = exports.header = exports.text = exports.container = exports.containerAttributes = exports.root = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _Immutable$Map;
+	
+	exports.createNewImageSpec = createNewImageSpec;
+	exports.createComponentData = createComponentData;
+	
+	var _lodash = __webpack_require__(/*! lodash */ 210);
+	
+	var _lodash2 = _interopRequireDefault(_lodash);
+	
+	var _immutable = __webpack_require__(/*! immutable */ 201);
+	
+	var _immutable2 = _interopRequireDefault(_immutable);
+	
+	var _utils = __webpack_require__(/*! ./utils */ 214);
+	
+	var _constants = __webpack_require__(/*! ./constants */ 212);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+	
+	var CONTAINER = _constants.componentTypes.CONTAINER,
+	    HEADER = _constants.componentTypes.HEADER,
+	    TEXT = _constants.componentTypes.TEXT,
+	    IMAGE = _constants.componentTypes.IMAGE,
+	    ROOT = _constants.componentTypes.ROOT;
+	var fromJS = _immutable2.default.fromJS;
+	function createNewImageSpec(asset) {
+	  return {
+	    name: asset.name,
+	    defaultAttributes: { src: asset.src }
+	  };
+	}
+	
+	function createComponentData(componentType, spec) {
+	  return fromJS({
+	    componentType: componentType,
+	    name: spec.name,
+	    childIds: [],
+	    variantIds: [],
+	    masterId: spec.masterId,
+	    parentId: spec.parentId,
+	    defaultAttributes: spec.defaultAttributes || {},
+	    id: spec.id || (0, _utils.guid)(),
+	    states: spec.states || {},
+	    breakpoints: spec.breakpoints || {}
+	  });
+	}
+	
+	var defaultAttributes = {
+	  position: 'static',
+	  margin: '0px',
+	  padding: '0px',
+	  height: 'auto',
+	  width: 'auto',
+	  backgroundColor: 'transparent'
+	};
+	
+	var root = exports.root = createComponentData(ROOT, {
+	  id: ROOT,
+	  defaultAttributes: {
+	    height: '100%'
+	  }
+	});
+	
+	var containerAttributes = exports.containerAttributes = Object.assign({}, defaultAttributes, {
+	  display: 'flex',
+	  flexDirection: 'column',
+	  justifyContent: 'flex-start'
+	});
+	
+	var container = exports.container = createComponentData(CONTAINER, {
+	  name: 'Container',
+	  id: CONTAINER,
+	  defaultAttributes: containerAttributes
+	});
+	
+	var text = exports.text = createComponentData(TEXT, {
+	  name: 'Text',
+	  id: TEXT,
+	  defaultAttributes: Object.assign({}, defaultAttributes, {
+	    text: 'Text. Text. Text. I am some text.'
+	  })
+	});
+	
+	var header = exports.header = createComponentData(HEADER, {
+	  name: 'Header',
+	  id: HEADER,
+	  defaultAttributes: Object.assign({}, defaultAttributes, {
+	    text: 'I am a header'
+	  })
+	});
+	
+	var image = exports.image = createComponentData(IMAGE, {
+	  name: 'Image',
+	  id: IMAGE,
+	  defaultAttributes: Object.assign({}, defaultAttributes, {
+	    src: ''
+	  })
+	});
+	
+	var defaultComponentsMap = exports.defaultComponentsMap = _immutable2.default.Map((_Immutable$Map = {}, _defineProperty(_Immutable$Map, root.get('id'), root), _defineProperty(_Immutable$Map, container.get('id'), container), _defineProperty(_Immutable$Map, header.get('id'), header), _defineProperty(_Immutable$Map, text.get('id'), text), _defineProperty(_Immutable$Map, image.get('id'), image), _Immutable$Map));
+	
+	var ComponentsContainer = exports.ComponentsContainer = function () {
+	  function ComponentsContainer(components) {
+	    _classCallCheck(this, ComponentsContainer);
+	
+	    this.components = components;
+	  }
+	
+	  //  Write
+	
+	
+	  _createClass(ComponentsContainer, [{
+	    key: 'createVariant',
+	    value: function createVariant(masterId, spec) {
+	      var variantId = (0, _utils.guid)();
+	      this.components = ComponentsContainer.createVariant(this.components, variantId, masterId, spec);
+	      return variantId;
+	    }
+	  }, {
+	    key: 'deleteComponent',
+	    value: function deleteComponent(deletedComponentId) {
+	      this.components = ComponentsContainer.deleteComponent(this.components, deletedComponentId);
+	    }
+	  }, {
+	    key: 'addChild',
+	    value: function addChild(parentId, childId, ind) {
+	      this.components = ComponentsContainer.addChild(this.components, parentId, childId, ind);
+	    }
+	  }, {
+	    key: 'moveComponent',
+	    value: function moveComponent(movedComponentId, newParentId, insertionIndex) {
+	      this.components = ComponentsContainer.moveComponent(this.components, movedComponentId, newParentId, insertionIndex);
+	    }
+	  }, {
+	    key: 'setAttribute',
+	    value: function setAttribute(componentId, attributeName, newValue, attributeOptions) {
+	      this.components = ComponentsContainer.setAttribute(this.components, componentId, attributeName, newValue, attributeOptions);
+	    }
+	  }, {
+	    key: 'getAttributes',
+	
+	
+	    //  Read
+	    value: function getAttributes(componentId, attributeOptions) {
+	      return ComponentsContainer.getAttributes(this.components, componentId, attributeOptions);
+	    }
+	  }, {
+	    key: 'getName',
+	    value: function getName(componentId) {
+	      return ComponentsContainer.getName(this.components, componentId);
+	    }
+	  }, {
+	    key: 'walkChildren',
+	    value: function walkChildren(componentId, func) {
+	      ComponentsContainer.walkChildren(this.components, componentId, func);
+	    }
+	  }, {
+	    key: 'getRenderableProperties',
+	    value: function getRenderableProperties(componentId, attributeOptions) {
+	      return ComponentsContainer.getRenderableProperties(this.components, componentId, attributeOptions);
+	    }
+	  }, {
+	    key: 'getRenderTree',
+	    value: function getRenderTree(componentId, context) {
+	      return ComponentsContainer.getRenderTree(this.components, componentId, context);
+	    }
+	  }, {
+	    key: 'hydrateComponent',
+	    value: function hydrateComponent(componentId) {
+	      return ComponentsContainer.hydrateComponent(this.components, componentId);
+	    }
+	  }, {
+	    key: 'getIndex',
+	    value: function getIndex(componentId) {
+	      return ComponentsContainer.getIndex(this.components, componentId);
+	    }
+	  }, {
+	    key: 'getHtml',
+	
+	
+	    // All user inputs must be escaped
+	    value: function getHtml(componentId) {
+	      return ComponentsContainer.getHtml(this.components, componentId);
+	    }
+	  }, {
+	    key: 'getCss',
+	    value: function getCss(componentId) {
+	      return ComponentsContainer.getCss(this.components, componentId);
+	    }
+	  }], [{
+	    key: 'createVariant',
+	    value: function createVariant(componentsMap, variantId, masterId, spec) {
+	      return componentsMap.withMutations(function (components) {
+	        var master = components.get(masterId).update('variantIds', function (variantIds) {
+	          return variantIds.push(variantId);
+	        });
+	
+	        var variant = createComponentData(master.get('componentType'), Object.assign({ masterId: masterId, id: variantId }, spec));
+	
+	        components.set(masterId, master).set(variantId, variant);
+	
+	        master.get('childIds').forEach(function (childId) {
+	          var childVariantId = (0, _utils.guid)();
+	          ComponentsContainer.createVariant(components, childVariantId, childId);
+	          ComponentsContainer.addChild(components, variantId, childVariantId);
+	        });
+	      });
+	    }
+	  }, {
+	    key: 'deleteComponent',
+	    value: function deleteComponent(componentsMap, deletedComponentId) {
+	      return componentsMap.withMutations(function (components) {
+	        var deletedComponent = components.get(deletedComponentId);
+	        var deletedComponentParent = components.get(deletedComponent.get('parentId'));
+	        var deletedComponentMaster = components.get(deletedComponent.get('masterId'));
+	        components.delete(deletedComponentId);
+	
+	        if (deletedComponentParent) {
+	          components.set(deletedComponentParent.get('id'), deletedComponentParent.update('childIds', function (childIds) {
+	            return childIds.filterNot(function (childId) {
+	              return childId === deletedComponentId;
+	            });
+	          }));
+	        }
+	
+	        if (deletedComponentMaster) {
+	          components.set(deletedComponentMaster.get('id'), deletedComponentMaster.update('variantIds', function (variantIds) {
+	            return variantIds.filterNot(function (variantId) {
+	              return variantId === deletedComponentId;
+	            });
+	          }));
+	        }
+	
+	        // TD: if master is deleted should all the children really be deleted?
+	        // Should probably connect component to next nearest master
+	        deletedComponent.get('variantIds').forEach(function (variantId) {
+	          ComponentsContainer.deleteComponent(components, variantId);
+	        });
+	      });
+	    }
+	  }, {
+	    key: 'addChild',
+	    value: function addChild(componentsMap, parentId, childId, ind) {
+	      return componentsMap.withMutations(function (components) {
+	        components.get(parentId).get('variantIds').forEach(function (variantId) {
+	          var childVariantId = (0, _utils.guid)();
+	          ComponentsContainer.createVariant(components, childVariantId, childId);
+	          ComponentsContainer.addChild(components, variantId, childVariantId, ind);
+	        });
+	
+	        components.set(childId, components.get(childId).set('parentId', parentId));
+	
+	        components.set(parentId, components.get(parentId).update('childIds', function (childIds) {
+	          if (ind === undefined) {
+	            return childIds.push(childId);
+	          } else {
+	            return childIds.splice(ind, 0, childId);
+	          }
+	        }));
+	      });
+	    }
+	  }, {
+	    key: 'moveComponent',
+	    value: function moveComponent(componentsMap, movedComponentId, newParentId, insertionIndex) {
+	      // Delete from parent and remove from all variants of parent
+	      return componentsMap.withMutations(function (components) {
+	        var movedComponent = components.get(movedComponentId);
+	        var movedComponentParent = components.get(movedComponent.get('parentId'));
+	
+	        components.set(movedComponentParent.get('id'), movedComponentParent.update('childIds', function (childIds) {
+	          return childIds.filterNot(function (childId) {
+	            return childId === movedComponentId;
+	          });
+	        }));
+	
+	        movedComponent.get('variantIds').forEach(function (variantId) {
+	          ComponentsContainer.deleteComponent(components, variantId);
+	        });
+	
+	        ComponentsContainer.addChild(components, newParentId, movedComponentId, insertionIndex);
+	      });
+	    }
+	  }, {
+	    key: 'setAttribute',
+	    value: function setAttribute(componentsMap, componentId, attributeName, newValue, attributeOptions) {
+	      return componentsMap.withMutations(function (components) {
+	        var component = components.get(componentId);
+	
+	        var _ref = attributeOptions || {},
+	            state = _ref.state,
+	            breakpoint = _ref.breakpoint;
+	
+	        var attributeType = void 0,
+	            attributeOption = void 0;
+	
+	        if (state !== _constants.NONE) {
+	          attributeType = 'states';
+	          attributeOption = state;
+	        } else if (breakpoint !== _constants.NONE) {
+	          attributeType = 'breakpoints';
+	          attributeOption = breakpoint;
+	        }
+	
+	        if (attributeType) {
+	          if (!component.getIn([attributeType, attributeOption])) {
+	            component = component.setIn([attributeType, attributeOption], _immutable2.default.Map());
+	          }
+	
+	          component = component.setIn([attributeType, attributeOption, attributeName], newValue);
+	        } else {
+	          component = component.setIn(['defaultAttributes', attributeName], newValue);
+	        }
+	
+	        return components.set(componentId, component);
+	      });
+	    }
+	  }, {
+	    key: 'getAttributes',
+	    value: function getAttributes(componentsMap, componentId, attributeOptions) {
+	      var component = componentsMap.get(componentId);
+	
+	      var _ref2 = attributeOptions || { state: _constants.NONE, breakpoint: _constants.NONE },
+	          state = _ref2.state,
+	          breakpoint = _ref2.breakpoint;
+	
+	      var masterId = component.get('masterId');
+	      var masterAttrs = {};
+	      var attributes = void 0;
+	
+	      if (masterId) {
+	        masterAttrs = ComponentsContainer.getAttributes(componentsMap, masterId, attributeOptions);
+	      }
+	
+	      if (state !== _constants.NONE && component.getIn(['states', state])) {
+	        attributes = component.getIn(['states', state]).toJS();
+	      } else if (breakpoint !== _constants.NONE && component.getIn(['breakpoints', breakpoint])) {
+	        attributes = component.getIn(['breakpoints', breakpoint]).toJS();
+	      } else {
+	        attributes = component.get('defaultAttributes').toJS();
+	      }
+	
+	      return Object.assign(masterAttrs, attributes);
+	    }
+	  }, {
+	    key: 'getName',
+	    value: function getName(componentsMap, componentId) {
+	      var component = componentsMap.get(componentId);
+	      if (!component.get('name')) {
+	        return componentsMap.get(component.get('masterId')).get('name');
+	      } else {
+	        return component.get('name');
+	      }
+	    }
+	  }, {
+	    key: 'walkChildren',
+	    value: function walkChildren(componentsMap, componentId, func, ind, isChild) {
+	      // Does not call callback on componentId this is called with.
+	      var component = componentsMap.get(componentId);
+	      var isCanceled = false;
+	
+	      if (isChild) {
+	        func.call(null, component, ind, function () {
+	          isCanceled = true;
+	        });
+	      }
+	
+	      if (!isCanceled) {
+	        component.get('childIds').forEach(function (childId, ind) {
+	          ComponentsContainer.walkChildren(componentsMap, childId, func, ind, true);
+	        });
+	      }
+	    }
+	  }, {
+	    key: 'getRenderableProperties',
+	    value: function getRenderableProperties(componentsMap, componentId, attributeOptions) {
+	      var attrToCssLookup = {};
+	      var attrToHtmlPropertyLookup = {
+	        text: true,
+	        src: true
+	      };
+	
+	      // default attributes
+	      var attributes = ComponentsContainer.getAttributes(componentsMap, componentId);
+	
+	      if (attributeOptions.state !== _constants.NONE || attributeOptions.breakpoint !== _constants.NONE) {
+	        Object.assign(attributes, ComponentsContainer.getAttributes(componentsMap, componentId, attributeOptions));
+	      }
+	
+	      return _lodash2.default.reduce(attributes, function (renderableAttributes, attrVal, attrKey) {
+	        if (attrToHtmlPropertyLookup[attrKey]) {
+	          renderableAttributes.htmlProperties[attrKey] = attrVal;
+	        } else if (attrToCssLookup[attrKey]) {
+	          Object.assign(renderableAttributes.sx, attrToCssLookup[attrKey](attrVal));
+	        } else {
+	          renderableAttributes.sx[attrKey] = attrVal;
+	        }
+	
+	        return renderableAttributes;
+	      }, {
+	        htmlProperties: {},
+	        sx: {}
+	      });
+	    }
+	  }, {
+	    key: 'getRenderTree',
+	    value: function getRenderTree(componentsMap, componentId, context, index) {
+	      /*
+	          context: {
+	         states: { id of component and state} - only if not none
+	         width
+	         }
+	          component stuff with:
+	         sx
+	         htmlProperties
+	          Later delete stuff
+	       */
+	
+	      // TD: if I only take certain properties I can make this cheaper
+	      if (componentId) {
+	        var componentJs = componentsMap.get(componentId).toJS();
+	        var breakpoint = _constants.NONE;
+	        var state = _constants.NONE;
+	        var defaultFont = 16; // TD: read from dom.
+	
+	        if (context) {
+	          if (context.width > 30 * defaultFont && context.width < 60 * defaultFont) {
+	            breakpoint = _constants.breakpointTypes.MEDIUM;
+	          }if (context.width > 60 * defaultFont) {
+	            breakpoint = _constants.breakpointTypes.LARGE;
+	          }
+	
+	          if (context.states[componentId]) {
+	            state = context.states[componentId];
+	          }
+	        }
+	
+	        var _ComponentsContainer$ = ComponentsContainer.getRenderableProperties(componentsMap, componentId, {
+	          breakpoint: breakpoint,
+	          state: state
+	        }),
+	            sx = _ComponentsContainer$.sx,
+	            htmlProperties = _ComponentsContainer$.htmlProperties;
+	
+	        componentJs.sx = sx;
+	        componentJs.htmlProperties = htmlProperties;
+	        componentJs.index = index;
+	        componentJs.name = ComponentsContainer.getName(componentsMap, componentId);
+	
+	        if (componentJs.parentId) {
+	          componentJs.parent = componentsMap.get(componentJs.parentId).toJS();
+	        }
+	
+	        if (componentJs.masterId) {
+	          componentJs.master = componentsMap.get(componentJs.masterId).toJS();
+	        }
+	
+	        var children = [];
+	        componentJs.childIds.forEach(function (id, ind) {
+	          children.push(ComponentsContainer.getRenderTree(componentsMap, id, context, ind));
+	        });
+	        componentJs.children = children;
+	
+	        return componentJs;
+	      } else {
+	        return null;
+	      }
+	    }
+	  }, {
+	    key: 'hydrateComponent',
+	    value: function hydrateComponent(componentsMap, componentId) {
+	      // returns component with all ids replaced with references to the component
+	      /*
+	         adds props;
+	         index
+	       */
+	      var componentJs = componentsMap.get(componentId).toJS();
+	      componentJs.index = ComponentsContainer.getIndex(componentsMap, componentJs.id);
+	
+	      componentJs.parent = componentsMap.get(componentJs.parentId).toJS();
+	      componentJs.master = componentsMap.get(componentJs.masterId).toJS();
+	      componentJs.children = [];
+	      componentJs.variants = [];
+	
+	      componentJs.childIds.forEach(function (childId) {
+	        componentJs.children.push(componentsMap.get(childId).toJs());
+	      });
+	
+	      componentJs.variantIds.forEach(function (variantId) {
+	        componentJs.variants.push(componentsMap.get(variantId).toJs());
+	      });
+	
+	      return componentJs;
+	    }
+	  }, {
+	    key: 'getIndex',
+	    value: function getIndex(componentsMap, componentId) {
+	      var parent = componentsMap.get(componentsMap.getIn([componentId, 'parentId']));
+	      var index = void 0;
+	      parent.get('childIds').forEach(function (childId, childIndex) {
+	        if (childId === componentId) {
+	          index = childIndex;
+	        }
+	      });
+	
+	      return index;
+	    }
+	  }, {
+	    key: 'getHtml',
+	    value: function getHtml(componentsMap, componentId) {
+	      // TD: this is total bloat. reduce the amount to bloat.
+	      // A simple optimization would be having all components share a class.
+	      var component = componentsMap.get(componentId);
+	      var id = component.get('id');
+	      var componentType = component.get('componentType');
+	      var attributes = ComponentsContainer.getAttributes(componentsMap, id);
+	
+	      if (componentType === _constants.componentTypes.CONTAINER || componentType === _constants.componentTypes.ROOT) {
+	        var childStr = component.get('childIds').reduce(function (childStr, childId) {
+	          return childStr + ComponentsContainer.getHtml(componentsMap, childId);
+	        }, '');
+	        return '<div class="' + id + '">' + childStr + '</div>';
+	      } else if (componentType === _constants.componentTypes.HEADER) {
+	        // TD: add in user param for h num
+	        return '<h1 class="' + id + '">' + attributes.text + '</h1>';
+	      } else if (componentType === _constants.componentTypes.TEXT) {
+	        return '<p class="' + id + '">' + attributes.text + '</p>';
+	      } else if (componentType === _constants.componentTypes.IMAGE) {
+	        // need to use attr getter
+	        return '<img class="' + id + '" src="' + attributes.src + '" />';
+	      }
+	
+	      throw new Error('Invalid Component Type ' + componentType);
+	    }
+	  }, {
+	    key: 'getCss',
+	    value: function getCss(componentsMap, componentId) {
+	      // iterate all state and breakpoint types
+	
+	      function attributesToString(attrs) {
+	        return _lodash2.default.reduce(attrs, function (str, attrVal, attrKey) {
+	          return str + (0, _utils.camelToDash)(attrKey) + ': ' + attrVal + ';\n';
+	        }, '');
+	      }
+	
+	      var selectors = [];
+	
+	      var defaultBody = attributesToString(ComponentsContainer.getAttributes(componentsMap, componentId));
+	
+	      if (defaultBody.length) {
+	        selectors.push('.' + componentId + ' { ' + defaultBody + ' } ');
+	      }
+	
+	      var breakpointMediumBody = attributesToString(ComponentsContainer.getAttributes(componentsMap, componentId, { breakpoint: _constants.breakpointTypes.MEDIUM }));
+	
+	      if (breakpointMediumBody.length) {
+	        selectors.push('@media only screen and (min-device-width : 30rem) and (max-device-width : 60rem) { .' + componentId + ' { ' + breakpointMediumBody + ' } }');
+	      }
+	
+	      var breakpointLargeBody = attributesToString(ComponentsContainer.getAttributes(componentsMap, componentId, { breakpoint: _constants.breakpointTypes.LARGE }));
+	
+	      if (breakpointLargeBody.length) {
+	        selectors.push('@media only screen and (min-device-width : 60rem) and (max-device-width : 60rem) { .' + componentId + ' { ' + breakpointLargeBody + ' } }');
+	      }
+	
+	      var hoverBody = attributesToString(ComponentsContainer.getAttributes(componentsMap, componentId, { state: _constants.stateTypes.HOVER }));
+	
+	      if (hoverBody.length) {
+	        selectors.push('.' + componentId + ':hover { ' + hoverBody + ' } ');
+	      }
+	
+	      return selectors.join('\n');
+	    }
+	  }]);
+
+	  return ComponentsContainer;
+	}();
+
+/***/ },
+/* 214 */
+/*!**********************!*\
+  !*** ./app/utils.js ***!
+  \**********************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.createImmutableJSSelector = exports.globalEventManager = exports.Rect = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	exports.distanceBetweenPoints = distanceBetweenPoints;
+	exports.guid = guid;
+	exports.getGlobalPosFromSyntheticEvent = getGlobalPosFromSyntheticEvent;
+	exports.minDistanceBetweenPointAndLine = minDistanceBetweenPointAndLine;
+	exports.wasRightButtonPressed = wasRightButtonPressed;
+	exports.saveSiteAsDialog = saveSiteAsDialog;
+	exports.loadSiteDialog = loadSiteDialog;
+	exports.toTitleCase = toTitleCase;
+	exports.focusRefCallback = focusRefCallback;
+	exports.getComponentDomNode = getComponentDomNode;
+	exports.escapeHtml = escapeHtml;
+	exports.camelToDash = camelToDash;
+	
+	var _lodash = __webpack_require__(/*! lodash */ 210);
+	
+	var _lodash2 = _interopRequireDefault(_lodash);
+	
+	var _jquery = __webpack_require__(/*! jquery */ 215);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _immutable = __webpack_require__(/*! immutable */ 201);
+	
+	var _immutable2 = _interopRequireDefault(_immutable);
+	
+	var _electron = __webpack_require__(/*! electron */ 3);
+	
+	var _reselect = __webpack_require__(/*! reselect */ 216);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var dialog = void 0;
+	if (_electron.remote) {
+	  //Hack for testing
+	  dialog = _electron.remote.dialog;
+	}
+	
+	function distanceBetweenPoints(p1, p2) {
+	  return Math.abs(Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2)));
+	}
+	
+	function guid() {
+	  function s4() {
+	    return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+	  }
+	  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+	}
+	
+	var Rect = exports.Rect = function () {
+	  function Rect(el) {
+	    _classCallCheck(this, Rect);
+	
+	    if (el) {
+	      this.fromElement(el);
+	    }
+	  }
+	
+	  _createClass(Rect, [{
+	    key: 'computeDerivedProperties',
+	    value: function computeDerivedProperties() {
+	      this.middleX = this.x + this.w / 2;
+	      this.middleY = this.y + this.h / 2;
+	    }
+	  }, {
+	    key: 'fromElement',
+	    value: function fromElement(el) {
+	      if (!(el instanceof _jquery2.default)) {
+	        el = (0, _jquery2.default)(el);
+	      }
+	
+	      var height = el.height();
+	      var width = el.width();
+	      var offset = el.offset();
+	
+	      this.x = offset.left;
+	      this.y = offset.top;
+	      this.w = width;
+	      this.h = height;
+	
+	      this._el = el;
+	
+	      this.computeDerivedProperties();
+	      return this;
+	    }
+	  }]);
+	
+	  return Rect;
+	}();
+	
+	function getGlobalPosFromSyntheticEvent(e) {
+	  return { x: e.clientX, y: e.clientY };
+	}
+	
+	function minDistanceBetweenPointAndLine(p, line) {
+	  /* From http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment */
+	  var x = p.x,
+	      y = p.y;
+	
+	  var x1 = line[0].x;
+	  var y1 = line[0].y;
+	  var x2 = line[1].x;
+	  var y2 = line[1].y;
+	
+	  /* TD: Why does this work? */
+	  var A = x - x1;
+	  var B = y - y1;
+	  var C = x2 - x1;
+	  var D = y2 - y1;
+	
+	  var dot = A * C + B * D;
+	  var lenSq = C * C + D * D;
+	  var param = -1;
+	
+	  // in case of 0 length line
+	  if (lenSq !== 0) {
+	    param = dot / lenSq;
+	  }
+	
+	  var xx = void 0,
+	      yy = void 0;
+	
+	  if (param < 0) {
+	    xx = x1;
+	    yy = y1;
+	  } else if (param > 1) {
+	    xx = x2;
+	    yy = y2;
+	  } else {
+	    xx = x1 + param * C;
+	    yy = y1 + param * D;
+	  }
+	
+	  var dx = x - xx;
+	  var dy = y - yy;
+	  return Math.sqrt(dx * dx + dy * dy);
+	}
+	
+	function wasRightButtonPressed(e) {
+	  var isRightMB = void 0;
+	
+	  if ('which' in e) {
+	    // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+	    isRightMB = e.which === 3;
+	  } else if ('button' in e) {
+	    // IE, Opera
+	    isRightMB = e.button === 2;
+	  }
+	
+	  return isRightMB;
+	}
+	
+	var GlobalEventManager = function () {
+	  // Lower priority fires first
+	  // Event listeners are passed (browserEvent, cancel)
+	  // Cancel acts like prevent default
+	  function GlobalEventManager() {
+	    _classCallCheck(this, GlobalEventManager);
+	
+	    this.events = {};
+	  }
+	
+	  _createClass(GlobalEventManager, [{
+	    key: 'addListener',
+	    value: function addListener(eventName, listener, priority) {
+	      var _this = this;
+	
+	      if (!this.events[eventName]) {
+	        window.addEventListener(eventName, function (e) {
+	          var isCanceled = false;
+	          var cancel = function cancel() {
+	            isCanceled = true;
+	          };
+	
+	          var eventArr = _this.events[eventName];
+	          for (var i = 0; i < eventArr.length; i++) {
+	            if (!isCanceled) {
+	              eventArr[i].listener(e, cancel);
+	            }
+	          }
+	        });
+	
+	        this.events[eventName] = [];
+	      }
+	
+	      var id = guid();
+	
+	      this.events[eventName].push({ listener: listener, priority: priority, id: id });
+	      this.events[eventName] = _lodash2.default.sortBy(this.events[eventName], function (ev) {
+	        ev.priority;
+	      });
+	
+	      return id;
+	    }
+	  }, {
+	    key: 'removeListener',
+	    value: function removeListener(eventName, id) {
+	      return _lodash2.default.remove(this.events[eventName], function (listener) {
+	        return listener.id === id;
+	      }).length > 0;
+	    }
+	  }]);
+	
+	  return GlobalEventManager;
+	}();
+	
+	var globalEventManager = exports.globalEventManager = new GlobalEventManager();
+	
+	function saveSiteAsDialog(actions) {
+	  dialog.showSaveDialog({
+	    title: 'Save Site As',
+	    filters: [{
+	      name: 'Motif Site Name',
+	      extensions: ['*']
+	    }]
+	  }, function (filename) {
+	    if (filename) {
+	      actions.saveSite(filename);
+	    }
+	  });
+	}
+	
+	function loadSiteDialog(actions) {
+	  dialog.showOpenDialog({
+	    title: 'Select a site to edit',
+	    properties: ['openDirectory'],
+	    filters: [{
+	      name: 'Open Site',
+	      extensions: ['*']
+	    }]
+	  }, function (filenames) {
+	    if (!filenames) return;
+	    actions.loadSite(filenames[0]);
+	  });
+	}
+	
+	function toTitleCase(str) {
+	  return str.replace(/\w\S*/g, function (txt) {
+	    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+	  });
+	}
+	
+	function focusRefCallback(ref) {
+	  if (ref && document.activeElement !== ref) {
+	    ref.focus();
+	  }
+	}
+	
+	function getComponentDomNode(componentId, nodeType) {
+	  // Node Types: treeView, componentView
+	  var classStr = '.' + nodeType + '_' + componentId;
+	  var el = (0, _jquery2.default)(classStr);
+	
+	  if (!el) {
+	    throw new Error('Class ' + classStr + ' Not found. With args ' + componentId + ' ' + nodeType);
+	  }
+	
+	  return el;
+	}
+	
+	var createImmutableJSSelector = exports.createImmutableJSSelector = (0, _reselect.createSelectorCreator)(_reselect.defaultMemoize, function (a, b) {
+	  if (_immutable2.default.Iterable.isIterable(a) && _immutable2.default.Iterable.isIterable(b)) {
+	    return _immutable2.default.is(a, b);
+	  } else {
+	    return a === b;
+	  }
+	});
+	
+	window.logger = function logger() {
+	  for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	    args[_key] = arguments[_key];
+	  }
+	
+	  console.log.apply(null, args.map(function (arg) {
+	    if (_immutable2.default.Iterable.isIterable(arg)) {
+	      return arg.toJS();
+	    } else {
+	      return arg;
+	    }
+	  }));
+	};
+	
+	function escapeHtml(str) {
+	  // From: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
+	  var div = document.createElement('div');
+	  div.appendChild(document.createTextNode(str));
+	  return div.innerHTML;
+	}
+	
+	function camelToDash(str) {
+	  // http://stackoverflow.com/questions/8955533/javascript-jquery-split-camelcase-string-and-add-hyphen-rather-than-space
+	  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+	}
+
+/***/ },
+/* 215 */
 /*!*********************************!*\
   !*** ./~/jquery/dist/jquery.js ***!
   \*********************************/
@@ -51456,4994 +57316,7 @@
 
 
 /***/ },
-/* 206 */
-/*!***************************************!*\
-  !*** ./~/immutable/dist/immutable.js ***!
-  \***************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 *  Copyright (c) 2014-2015, Facebook, Inc.
-	 *  All rights reserved.
-	 *
-	 *  This source code is licensed under the BSD-style license found in the
-	 *  LICENSE file in the root directory of this source tree. An additional grant
-	 *  of patent rights can be found in the PATENTS file in the same directory.
-	 */
-	
-	(function (global, factory) {
-	   true ? module.exports = factory() :
-	  typeof define === 'function' && define.amd ? define(factory) :
-	  (global.Immutable = factory());
-	}(this, function () { 'use strict';var SLICE$0 = Array.prototype.slice;
-	
-	  function createClass(ctor, superClass) {
-	    if (superClass) {
-	      ctor.prototype = Object.create(superClass.prototype);
-	    }
-	    ctor.prototype.constructor = ctor;
-	  }
-	
-	  function Iterable(value) {
-	      return isIterable(value) ? value : Seq(value);
-	    }
-	
-	
-	  createClass(KeyedIterable, Iterable);
-	    function KeyedIterable(value) {
-	      return isKeyed(value) ? value : KeyedSeq(value);
-	    }
-	
-	
-	  createClass(IndexedIterable, Iterable);
-	    function IndexedIterable(value) {
-	      return isIndexed(value) ? value : IndexedSeq(value);
-	    }
-	
-	
-	  createClass(SetIterable, Iterable);
-	    function SetIterable(value) {
-	      return isIterable(value) && !isAssociative(value) ? value : SetSeq(value);
-	    }
-	
-	
-	
-	  function isIterable(maybeIterable) {
-	    return !!(maybeIterable && maybeIterable[IS_ITERABLE_SENTINEL]);
-	  }
-	
-	  function isKeyed(maybeKeyed) {
-	    return !!(maybeKeyed && maybeKeyed[IS_KEYED_SENTINEL]);
-	  }
-	
-	  function isIndexed(maybeIndexed) {
-	    return !!(maybeIndexed && maybeIndexed[IS_INDEXED_SENTINEL]);
-	  }
-	
-	  function isAssociative(maybeAssociative) {
-	    return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
-	  }
-	
-	  function isOrdered(maybeOrdered) {
-	    return !!(maybeOrdered && maybeOrdered[IS_ORDERED_SENTINEL]);
-	  }
-	
-	  Iterable.isIterable = isIterable;
-	  Iterable.isKeyed = isKeyed;
-	  Iterable.isIndexed = isIndexed;
-	  Iterable.isAssociative = isAssociative;
-	  Iterable.isOrdered = isOrdered;
-	
-	  Iterable.Keyed = KeyedIterable;
-	  Iterable.Indexed = IndexedIterable;
-	  Iterable.Set = SetIterable;
-	
-	
-	  var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
-	  var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
-	  var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
-	  var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
-	
-	  // Used for setting prototype methods that IE8 chokes on.
-	  var DELETE = 'delete';
-	
-	  // Constants describing the size of trie nodes.
-	  var SHIFT = 5; // Resulted in best performance after ______?
-	  var SIZE = 1 << SHIFT;
-	  var MASK = SIZE - 1;
-	
-	  // A consistent shared value representing "not set" which equals nothing other
-	  // than itself, and nothing that could be provided externally.
-	  var NOT_SET = {};
-	
-	  // Boolean references, Rough equivalent of `bool &`.
-	  var CHANGE_LENGTH = { value: false };
-	  var DID_ALTER = { value: false };
-	
-	  function MakeRef(ref) {
-	    ref.value = false;
-	    return ref;
-	  }
-	
-	  function SetRef(ref) {
-	    ref && (ref.value = true);
-	  }
-	
-	  // A function which returns a value representing an "owner" for transient writes
-	  // to tries. The return value will only ever equal itself, and will not equal
-	  // the return of any subsequent call of this function.
-	  function OwnerID() {}
-	
-	  // http://jsperf.com/copy-array-inline
-	  function arrCopy(arr, offset) {
-	    offset = offset || 0;
-	    var len = Math.max(0, arr.length - offset);
-	    var newArr = new Array(len);
-	    for (var ii = 0; ii < len; ii++) {
-	      newArr[ii] = arr[ii + offset];
-	    }
-	    return newArr;
-	  }
-	
-	  function ensureSize(iter) {
-	    if (iter.size === undefined) {
-	      iter.size = iter.__iterate(returnTrue);
-	    }
-	    return iter.size;
-	  }
-	
-	  function wrapIndex(iter, index) {
-	    // This implements "is array index" which the ECMAString spec defines as:
-	    //
-	    //     A String property name P is an array index if and only if
-	    //     ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal
-	    //     to 2^32−1.
-	    //
-	    // http://www.ecma-international.org/ecma-262/6.0/#sec-array-exotic-objects
-	    if (typeof index !== 'number') {
-	      var uint32Index = index >>> 0; // N >>> 0 is shorthand for ToUint32
-	      if ('' + uint32Index !== index || uint32Index === 4294967295) {
-	        return NaN;
-	      }
-	      index = uint32Index;
-	    }
-	    return index < 0 ? ensureSize(iter) + index : index;
-	  }
-	
-	  function returnTrue() {
-	    return true;
-	  }
-	
-	  function wholeSlice(begin, end, size) {
-	    return (begin === 0 || (size !== undefined && begin <= -size)) &&
-	      (end === undefined || (size !== undefined && end >= size));
-	  }
-	
-	  function resolveBegin(begin, size) {
-	    return resolveIndex(begin, size, 0);
-	  }
-	
-	  function resolveEnd(end, size) {
-	    return resolveIndex(end, size, size);
-	  }
-	
-	  function resolveIndex(index, size, defaultIndex) {
-	    return index === undefined ?
-	      defaultIndex :
-	      index < 0 ?
-	        Math.max(0, size + index) :
-	        size === undefined ?
-	          index :
-	          Math.min(size, index);
-	  }
-	
-	  /* global Symbol */
-	
-	  var ITERATE_KEYS = 0;
-	  var ITERATE_VALUES = 1;
-	  var ITERATE_ENTRIES = 2;
-	
-	  var REAL_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
-	  var FAUX_ITERATOR_SYMBOL = '@@iterator';
-	
-	  var ITERATOR_SYMBOL = REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
-	
-	
-	  function Iterator(next) {
-	      this.next = next;
-	    }
-	
-	    Iterator.prototype.toString = function() {
-	      return '[Iterator]';
-	    };
-	
-	
-	  Iterator.KEYS = ITERATE_KEYS;
-	  Iterator.VALUES = ITERATE_VALUES;
-	  Iterator.ENTRIES = ITERATE_ENTRIES;
-	
-	  Iterator.prototype.inspect =
-	  Iterator.prototype.toSource = function () { return this.toString(); }
-	  Iterator.prototype[ITERATOR_SYMBOL] = function () {
-	    return this;
-	  };
-	
-	
-	  function iteratorValue(type, k, v, iteratorResult) {
-	    var value = type === 0 ? k : type === 1 ? v : [k, v];
-	    iteratorResult ? (iteratorResult.value = value) : (iteratorResult = {
-	      value: value, done: false
-	    });
-	    return iteratorResult;
-	  }
-	
-	  function iteratorDone() {
-	    return { value: undefined, done: true };
-	  }
-	
-	  function hasIterator(maybeIterable) {
-	    return !!getIteratorFn(maybeIterable);
-	  }
-	
-	  function isIterator(maybeIterator) {
-	    return maybeIterator && typeof maybeIterator.next === 'function';
-	  }
-	
-	  function getIterator(iterable) {
-	    var iteratorFn = getIteratorFn(iterable);
-	    return iteratorFn && iteratorFn.call(iterable);
-	  }
-	
-	  function getIteratorFn(iterable) {
-	    var iteratorFn = iterable && (
-	      (REAL_ITERATOR_SYMBOL && iterable[REAL_ITERATOR_SYMBOL]) ||
-	      iterable[FAUX_ITERATOR_SYMBOL]
-	    );
-	    if (typeof iteratorFn === 'function') {
-	      return iteratorFn;
-	    }
-	  }
-	
-	  function isArrayLike(value) {
-	    return value && typeof value.length === 'number';
-	  }
-	
-	  createClass(Seq, Iterable);
-	    function Seq(value) {
-	      return value === null || value === undefined ? emptySequence() :
-	        isIterable(value) ? value.toSeq() : seqFromValue(value);
-	    }
-	
-	    Seq.of = function(/*...values*/) {
-	      return Seq(arguments);
-	    };
-	
-	    Seq.prototype.toSeq = function() {
-	      return this;
-	    };
-	
-	    Seq.prototype.toString = function() {
-	      return this.__toString('Seq {', '}');
-	    };
-	
-	    Seq.prototype.cacheResult = function() {
-	      if (!this._cache && this.__iterateUncached) {
-	        this._cache = this.entrySeq().toArray();
-	        this.size = this._cache.length;
-	      }
-	      return this;
-	    };
-	
-	    // abstract __iterateUncached(fn, reverse)
-	
-	    Seq.prototype.__iterate = function(fn, reverse) {
-	      return seqIterate(this, fn, reverse, true);
-	    };
-	
-	    // abstract __iteratorUncached(type, reverse)
-	
-	    Seq.prototype.__iterator = function(type, reverse) {
-	      return seqIterator(this, type, reverse, true);
-	    };
-	
-	
-	
-	  createClass(KeyedSeq, Seq);
-	    function KeyedSeq(value) {
-	      return value === null || value === undefined ?
-	        emptySequence().toKeyedSeq() :
-	        isIterable(value) ?
-	          (isKeyed(value) ? value.toSeq() : value.fromEntrySeq()) :
-	          keyedSeqFromValue(value);
-	    }
-	
-	    KeyedSeq.prototype.toKeyedSeq = function() {
-	      return this;
-	    };
-	
-	
-	
-	  createClass(IndexedSeq, Seq);
-	    function IndexedSeq(value) {
-	      return value === null || value === undefined ? emptySequence() :
-	        !isIterable(value) ? indexedSeqFromValue(value) :
-	        isKeyed(value) ? value.entrySeq() : value.toIndexedSeq();
-	    }
-	
-	    IndexedSeq.of = function(/*...values*/) {
-	      return IndexedSeq(arguments);
-	    };
-	
-	    IndexedSeq.prototype.toIndexedSeq = function() {
-	      return this;
-	    };
-	
-	    IndexedSeq.prototype.toString = function() {
-	      return this.__toString('Seq [', ']');
-	    };
-	
-	    IndexedSeq.prototype.__iterate = function(fn, reverse) {
-	      return seqIterate(this, fn, reverse, false);
-	    };
-	
-	    IndexedSeq.prototype.__iterator = function(type, reverse) {
-	      return seqIterator(this, type, reverse, false);
-	    };
-	
-	
-	
-	  createClass(SetSeq, Seq);
-	    function SetSeq(value) {
-	      return (
-	        value === null || value === undefined ? emptySequence() :
-	        !isIterable(value) ? indexedSeqFromValue(value) :
-	        isKeyed(value) ? value.entrySeq() : value
-	      ).toSetSeq();
-	    }
-	
-	    SetSeq.of = function(/*...values*/) {
-	      return SetSeq(arguments);
-	    };
-	
-	    SetSeq.prototype.toSetSeq = function() {
-	      return this;
-	    };
-	
-	
-	
-	  Seq.isSeq = isSeq;
-	  Seq.Keyed = KeyedSeq;
-	  Seq.Set = SetSeq;
-	  Seq.Indexed = IndexedSeq;
-	
-	  var IS_SEQ_SENTINEL = '@@__IMMUTABLE_SEQ__@@';
-	
-	  Seq.prototype[IS_SEQ_SENTINEL] = true;
-	
-	
-	
-	  createClass(ArraySeq, IndexedSeq);
-	    function ArraySeq(array) {
-	      this._array = array;
-	      this.size = array.length;
-	    }
-	
-	    ArraySeq.prototype.get = function(index, notSetValue) {
-	      return this.has(index) ? this._array[wrapIndex(this, index)] : notSetValue;
-	    };
-	
-	    ArraySeq.prototype.__iterate = function(fn, reverse) {
-	      var array = this._array;
-	      var maxIndex = array.length - 1;
-	      for (var ii = 0; ii <= maxIndex; ii++) {
-	        if (fn(array[reverse ? maxIndex - ii : ii], ii, this) === false) {
-	          return ii + 1;
-	        }
-	      }
-	      return ii;
-	    };
-	
-	    ArraySeq.prototype.__iterator = function(type, reverse) {
-	      var array = this._array;
-	      var maxIndex = array.length - 1;
-	      var ii = 0;
-	      return new Iterator(function() 
-	        {return ii > maxIndex ?
-	          iteratorDone() :
-	          iteratorValue(type, ii, array[reverse ? maxIndex - ii++ : ii++])}
-	      );
-	    };
-	
-	
-	
-	  createClass(ObjectSeq, KeyedSeq);
-	    function ObjectSeq(object) {
-	      var keys = Object.keys(object);
-	      this._object = object;
-	      this._keys = keys;
-	      this.size = keys.length;
-	    }
-	
-	    ObjectSeq.prototype.get = function(key, notSetValue) {
-	      if (notSetValue !== undefined && !this.has(key)) {
-	        return notSetValue;
-	      }
-	      return this._object[key];
-	    };
-	
-	    ObjectSeq.prototype.has = function(key) {
-	      return this._object.hasOwnProperty(key);
-	    };
-	
-	    ObjectSeq.prototype.__iterate = function(fn, reverse) {
-	      var object = this._object;
-	      var keys = this._keys;
-	      var maxIndex = keys.length - 1;
-	      for (var ii = 0; ii <= maxIndex; ii++) {
-	        var key = keys[reverse ? maxIndex - ii : ii];
-	        if (fn(object[key], key, this) === false) {
-	          return ii + 1;
-	        }
-	      }
-	      return ii;
-	    };
-	
-	    ObjectSeq.prototype.__iterator = function(type, reverse) {
-	      var object = this._object;
-	      var keys = this._keys;
-	      var maxIndex = keys.length - 1;
-	      var ii = 0;
-	      return new Iterator(function()  {
-	        var key = keys[reverse ? maxIndex - ii : ii];
-	        return ii++ > maxIndex ?
-	          iteratorDone() :
-	          iteratorValue(type, key, object[key]);
-	      });
-	    };
-	
-	  ObjectSeq.prototype[IS_ORDERED_SENTINEL] = true;
-	
-	
-	  createClass(IterableSeq, IndexedSeq);
-	    function IterableSeq(iterable) {
-	      this._iterable = iterable;
-	      this.size = iterable.length || iterable.size;
-	    }
-	
-	    IterableSeq.prototype.__iterateUncached = function(fn, reverse) {
-	      if (reverse) {
-	        return this.cacheResult().__iterate(fn, reverse);
-	      }
-	      var iterable = this._iterable;
-	      var iterator = getIterator(iterable);
-	      var iterations = 0;
-	      if (isIterator(iterator)) {
-	        var step;
-	        while (!(step = iterator.next()).done) {
-	          if (fn(step.value, iterations++, this) === false) {
-	            break;
-	          }
-	        }
-	      }
-	      return iterations;
-	    };
-	
-	    IterableSeq.prototype.__iteratorUncached = function(type, reverse) {
-	      if (reverse) {
-	        return this.cacheResult().__iterator(type, reverse);
-	      }
-	      var iterable = this._iterable;
-	      var iterator = getIterator(iterable);
-	      if (!isIterator(iterator)) {
-	        return new Iterator(iteratorDone);
-	      }
-	      var iterations = 0;
-	      return new Iterator(function()  {
-	        var step = iterator.next();
-	        return step.done ? step : iteratorValue(type, iterations++, step.value);
-	      });
-	    };
-	
-	
-	
-	  createClass(IteratorSeq, IndexedSeq);
-	    function IteratorSeq(iterator) {
-	      this._iterator = iterator;
-	      this._iteratorCache = [];
-	    }
-	
-	    IteratorSeq.prototype.__iterateUncached = function(fn, reverse) {
-	      if (reverse) {
-	        return this.cacheResult().__iterate(fn, reverse);
-	      }
-	      var iterator = this._iterator;
-	      var cache = this._iteratorCache;
-	      var iterations = 0;
-	      while (iterations < cache.length) {
-	        if (fn(cache[iterations], iterations++, this) === false) {
-	          return iterations;
-	        }
-	      }
-	      var step;
-	      while (!(step = iterator.next()).done) {
-	        var val = step.value;
-	        cache[iterations] = val;
-	        if (fn(val, iterations++, this) === false) {
-	          break;
-	        }
-	      }
-	      return iterations;
-	    };
-	
-	    IteratorSeq.prototype.__iteratorUncached = function(type, reverse) {
-	      if (reverse) {
-	        return this.cacheResult().__iterator(type, reverse);
-	      }
-	      var iterator = this._iterator;
-	      var cache = this._iteratorCache;
-	      var iterations = 0;
-	      return new Iterator(function()  {
-	        if (iterations >= cache.length) {
-	          var step = iterator.next();
-	          if (step.done) {
-	            return step;
-	          }
-	          cache[iterations] = step.value;
-	        }
-	        return iteratorValue(type, iterations, cache[iterations++]);
-	      });
-	    };
-	
-	
-	
-	
-	  // # pragma Helper functions
-	
-	  function isSeq(maybeSeq) {
-	    return !!(maybeSeq && maybeSeq[IS_SEQ_SENTINEL]);
-	  }
-	
-	  var EMPTY_SEQ;
-	
-	  function emptySequence() {
-	    return EMPTY_SEQ || (EMPTY_SEQ = new ArraySeq([]));
-	  }
-	
-	  function keyedSeqFromValue(value) {
-	    var seq =
-	      Array.isArray(value) ? new ArraySeq(value).fromEntrySeq() :
-	      isIterator(value) ? new IteratorSeq(value).fromEntrySeq() :
-	      hasIterator(value) ? new IterableSeq(value).fromEntrySeq() :
-	      typeof value === 'object' ? new ObjectSeq(value) :
-	      undefined;
-	    if (!seq) {
-	      throw new TypeError(
-	        'Expected Array or iterable object of [k, v] entries, '+
-	        'or keyed object: ' + value
-	      );
-	    }
-	    return seq;
-	  }
-	
-	  function indexedSeqFromValue(value) {
-	    var seq = maybeIndexedSeqFromValue(value);
-	    if (!seq) {
-	      throw new TypeError(
-	        'Expected Array or iterable object of values: ' + value
-	      );
-	    }
-	    return seq;
-	  }
-	
-	  function seqFromValue(value) {
-	    var seq = maybeIndexedSeqFromValue(value) ||
-	      (typeof value === 'object' && new ObjectSeq(value));
-	    if (!seq) {
-	      throw new TypeError(
-	        'Expected Array or iterable object of values, or keyed object: ' + value
-	      );
-	    }
-	    return seq;
-	  }
-	
-	  function maybeIndexedSeqFromValue(value) {
-	    return (
-	      isArrayLike(value) ? new ArraySeq(value) :
-	      isIterator(value) ? new IteratorSeq(value) :
-	      hasIterator(value) ? new IterableSeq(value) :
-	      undefined
-	    );
-	  }
-	
-	  function seqIterate(seq, fn, reverse, useKeys) {
-	    var cache = seq._cache;
-	    if (cache) {
-	      var maxIndex = cache.length - 1;
-	      for (var ii = 0; ii <= maxIndex; ii++) {
-	        var entry = cache[reverse ? maxIndex - ii : ii];
-	        if (fn(entry[1], useKeys ? entry[0] : ii, seq) === false) {
-	          return ii + 1;
-	        }
-	      }
-	      return ii;
-	    }
-	    return seq.__iterateUncached(fn, reverse);
-	  }
-	
-	  function seqIterator(seq, type, reverse, useKeys) {
-	    var cache = seq._cache;
-	    if (cache) {
-	      var maxIndex = cache.length - 1;
-	      var ii = 0;
-	      return new Iterator(function()  {
-	        var entry = cache[reverse ? maxIndex - ii : ii];
-	        return ii++ > maxIndex ?
-	          iteratorDone() :
-	          iteratorValue(type, useKeys ? entry[0] : ii - 1, entry[1]);
-	      });
-	    }
-	    return seq.__iteratorUncached(type, reverse);
-	  }
-	
-	  function fromJS(json, converter) {
-	    return converter ?
-	      fromJSWith(converter, json, '', {'': json}) :
-	      fromJSDefault(json);
-	  }
-	
-	  function fromJSWith(converter, json, key, parentJSON) {
-	    if (Array.isArray(json)) {
-	      return converter.call(parentJSON, key, IndexedSeq(json).map(function(v, k)  {return fromJSWith(converter, v, k, json)}));
-	    }
-	    if (isPlainObj(json)) {
-	      return converter.call(parentJSON, key, KeyedSeq(json).map(function(v, k)  {return fromJSWith(converter, v, k, json)}));
-	    }
-	    return json;
-	  }
-	
-	  function fromJSDefault(json) {
-	    if (Array.isArray(json)) {
-	      return IndexedSeq(json).map(fromJSDefault).toList();
-	    }
-	    if (isPlainObj(json)) {
-	      return KeyedSeq(json).map(fromJSDefault).toMap();
-	    }
-	    return json;
-	  }
-	
-	  function isPlainObj(value) {
-	    return value && (value.constructor === Object || value.constructor === undefined);
-	  }
-	
-	  /**
-	   * An extension of the "same-value" algorithm as [described for use by ES6 Map
-	   * and Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#Key_equality)
-	   *
-	   * NaN is considered the same as NaN, however -0 and 0 are considered the same
-	   * value, which is different from the algorithm described by
-	   * [`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is).
-	   *
-	   * This is extended further to allow Objects to describe the values they
-	   * represent, by way of `valueOf` or `equals` (and `hashCode`).
-	   *
-	   * Note: because of this extension, the key equality of Immutable.Map and the
-	   * value equality of Immutable.Set will differ from ES6 Map and Set.
-	   *
-	   * ### Defining custom values
-	   *
-	   * The easiest way to describe the value an object represents is by implementing
-	   * `valueOf`. For example, `Date` represents a value by returning a unix
-	   * timestamp for `valueOf`:
-	   *
-	   *     var date1 = new Date(1234567890000); // Fri Feb 13 2009 ...
-	   *     var date2 = new Date(1234567890000);
-	   *     date1.valueOf(); // 1234567890000
-	   *     assert( date1 !== date2 );
-	   *     assert( Immutable.is( date1, date2 ) );
-	   *
-	   * Note: overriding `valueOf` may have other implications if you use this object
-	   * where JavaScript expects a primitive, such as implicit string coercion.
-	   *
-	   * For more complex types, especially collections, implementing `valueOf` may
-	   * not be performant. An alternative is to implement `equals` and `hashCode`.
-	   *
-	   * `equals` takes another object, presumably of similar type, and returns true
-	   * if the it is equal. Equality is symmetrical, so the same result should be
-	   * returned if this and the argument are flipped.
-	   *
-	   *     assert( a.equals(b) === b.equals(a) );
-	   *
-	   * `hashCode` returns a 32bit integer number representing the object which will
-	   * be used to determine how to store the value object in a Map or Set. You must
-	   * provide both or neither methods, one must not exist without the other.
-	   *
-	   * Also, an important relationship between these methods must be upheld: if two
-	   * values are equal, they *must* return the same hashCode. If the values are not
-	   * equal, they might have the same hashCode; this is called a hash collision,
-	   * and while undesirable for performance reasons, it is acceptable.
-	   *
-	   *     if (a.equals(b)) {
-	   *       assert( a.hashCode() === b.hashCode() );
-	   *     }
-	   *
-	   * All Immutable collections implement `equals` and `hashCode`.
-	   *
-	   */
-	  function is(valueA, valueB) {
-	    if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
-	      return true;
-	    }
-	    if (!valueA || !valueB) {
-	      return false;
-	    }
-	    if (typeof valueA.valueOf === 'function' &&
-	        typeof valueB.valueOf === 'function') {
-	      valueA = valueA.valueOf();
-	      valueB = valueB.valueOf();
-	      if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
-	        return true;
-	      }
-	      if (!valueA || !valueB) {
-	        return false;
-	      }
-	    }
-	    if (typeof valueA.equals === 'function' &&
-	        typeof valueB.equals === 'function' &&
-	        valueA.equals(valueB)) {
-	      return true;
-	    }
-	    return false;
-	  }
-	
-	  function deepEqual(a, b) {
-	    if (a === b) {
-	      return true;
-	    }
-	
-	    if (
-	      !isIterable(b) ||
-	      a.size !== undefined && b.size !== undefined && a.size !== b.size ||
-	      a.__hash !== undefined && b.__hash !== undefined && a.__hash !== b.__hash ||
-	      isKeyed(a) !== isKeyed(b) ||
-	      isIndexed(a) !== isIndexed(b) ||
-	      isOrdered(a) !== isOrdered(b)
-	    ) {
-	      return false;
-	    }
-	
-	    if (a.size === 0 && b.size === 0) {
-	      return true;
-	    }
-	
-	    var notAssociative = !isAssociative(a);
-	
-	    if (isOrdered(a)) {
-	      var entries = a.entries();
-	      return b.every(function(v, k)  {
-	        var entry = entries.next().value;
-	        return entry && is(entry[1], v) && (notAssociative || is(entry[0], k));
-	      }) && entries.next().done;
-	    }
-	
-	    var flipped = false;
-	
-	    if (a.size === undefined) {
-	      if (b.size === undefined) {
-	        if (typeof a.cacheResult === 'function') {
-	          a.cacheResult();
-	        }
-	      } else {
-	        flipped = true;
-	        var _ = a;
-	        a = b;
-	        b = _;
-	      }
-	    }
-	
-	    var allEqual = true;
-	    var bSize = b.__iterate(function(v, k)  {
-	      if (notAssociative ? !a.has(v) :
-	          flipped ? !is(v, a.get(k, NOT_SET)) : !is(a.get(k, NOT_SET), v)) {
-	        allEqual = false;
-	        return false;
-	      }
-	    });
-	
-	    return allEqual && a.size === bSize;
-	  }
-	
-	  createClass(Repeat, IndexedSeq);
-	
-	    function Repeat(value, times) {
-	      if (!(this instanceof Repeat)) {
-	        return new Repeat(value, times);
-	      }
-	      this._value = value;
-	      this.size = times === undefined ? Infinity : Math.max(0, times);
-	      if (this.size === 0) {
-	        if (EMPTY_REPEAT) {
-	          return EMPTY_REPEAT;
-	        }
-	        EMPTY_REPEAT = this;
-	      }
-	    }
-	
-	    Repeat.prototype.toString = function() {
-	      if (this.size === 0) {
-	        return 'Repeat []';
-	      }
-	      return 'Repeat [ ' + this._value + ' ' + this.size + ' times ]';
-	    };
-	
-	    Repeat.prototype.get = function(index, notSetValue) {
-	      return this.has(index) ? this._value : notSetValue;
-	    };
-	
-	    Repeat.prototype.includes = function(searchValue) {
-	      return is(this._value, searchValue);
-	    };
-	
-	    Repeat.prototype.slice = function(begin, end) {
-	      var size = this.size;
-	      return wholeSlice(begin, end, size) ? this :
-	        new Repeat(this._value, resolveEnd(end, size) - resolveBegin(begin, size));
-	    };
-	
-	    Repeat.prototype.reverse = function() {
-	      return this;
-	    };
-	
-	    Repeat.prototype.indexOf = function(searchValue) {
-	      if (is(this._value, searchValue)) {
-	        return 0;
-	      }
-	      return -1;
-	    };
-	
-	    Repeat.prototype.lastIndexOf = function(searchValue) {
-	      if (is(this._value, searchValue)) {
-	        return this.size;
-	      }
-	      return -1;
-	    };
-	
-	    Repeat.prototype.__iterate = function(fn, reverse) {
-	      for (var ii = 0; ii < this.size; ii++) {
-	        if (fn(this._value, ii, this) === false) {
-	          return ii + 1;
-	        }
-	      }
-	      return ii;
-	    };
-	
-	    Repeat.prototype.__iterator = function(type, reverse) {var this$0 = this;
-	      var ii = 0;
-	      return new Iterator(function() 
-	        {return ii < this$0.size ? iteratorValue(type, ii++, this$0._value) : iteratorDone()}
-	      );
-	    };
-	
-	    Repeat.prototype.equals = function(other) {
-	      return other instanceof Repeat ?
-	        is(this._value, other._value) :
-	        deepEqual(other);
-	    };
-	
-	
-	  var EMPTY_REPEAT;
-	
-	  function invariant(condition, error) {
-	    if (!condition) throw new Error(error);
-	  }
-	
-	  createClass(Range, IndexedSeq);
-	
-	    function Range(start, end, step) {
-	      if (!(this instanceof Range)) {
-	        return new Range(start, end, step);
-	      }
-	      invariant(step !== 0, 'Cannot step a Range by 0');
-	      start = start || 0;
-	      if (end === undefined) {
-	        end = Infinity;
-	      }
-	      step = step === undefined ? 1 : Math.abs(step);
-	      if (end < start) {
-	        step = -step;
-	      }
-	      this._start = start;
-	      this._end = end;
-	      this._step = step;
-	      this.size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
-	      if (this.size === 0) {
-	        if (EMPTY_RANGE) {
-	          return EMPTY_RANGE;
-	        }
-	        EMPTY_RANGE = this;
-	      }
-	    }
-	
-	    Range.prototype.toString = function() {
-	      if (this.size === 0) {
-	        return 'Range []';
-	      }
-	      return 'Range [ ' +
-	        this._start + '...' + this._end +
-	        (this._step !== 1 ? ' by ' + this._step : '') +
-	      ' ]';
-	    };
-	
-	    Range.prototype.get = function(index, notSetValue) {
-	      return this.has(index) ?
-	        this._start + wrapIndex(this, index) * this._step :
-	        notSetValue;
-	    };
-	
-	    Range.prototype.includes = function(searchValue) {
-	      var possibleIndex = (searchValue - this._start) / this._step;
-	      return possibleIndex >= 0 &&
-	        possibleIndex < this.size &&
-	        possibleIndex === Math.floor(possibleIndex);
-	    };
-	
-	    Range.prototype.slice = function(begin, end) {
-	      if (wholeSlice(begin, end, this.size)) {
-	        return this;
-	      }
-	      begin = resolveBegin(begin, this.size);
-	      end = resolveEnd(end, this.size);
-	      if (end <= begin) {
-	        return new Range(0, 0);
-	      }
-	      return new Range(this.get(begin, this._end), this.get(end, this._end), this._step);
-	    };
-	
-	    Range.prototype.indexOf = function(searchValue) {
-	      var offsetValue = searchValue - this._start;
-	      if (offsetValue % this._step === 0) {
-	        var index = offsetValue / this._step;
-	        if (index >= 0 && index < this.size) {
-	          return index
-	        }
-	      }
-	      return -1;
-	    };
-	
-	    Range.prototype.lastIndexOf = function(searchValue) {
-	      return this.indexOf(searchValue);
-	    };
-	
-	    Range.prototype.__iterate = function(fn, reverse) {
-	      var maxIndex = this.size - 1;
-	      var step = this._step;
-	      var value = reverse ? this._start + maxIndex * step : this._start;
-	      for (var ii = 0; ii <= maxIndex; ii++) {
-	        if (fn(value, ii, this) === false) {
-	          return ii + 1;
-	        }
-	        value += reverse ? -step : step;
-	      }
-	      return ii;
-	    };
-	
-	    Range.prototype.__iterator = function(type, reverse) {
-	      var maxIndex = this.size - 1;
-	      var step = this._step;
-	      var value = reverse ? this._start + maxIndex * step : this._start;
-	      var ii = 0;
-	      return new Iterator(function()  {
-	        var v = value;
-	        value += reverse ? -step : step;
-	        return ii > maxIndex ? iteratorDone() : iteratorValue(type, ii++, v);
-	      });
-	    };
-	
-	    Range.prototype.equals = function(other) {
-	      return other instanceof Range ?
-	        this._start === other._start &&
-	        this._end === other._end &&
-	        this._step === other._step :
-	        deepEqual(this, other);
-	    };
-	
-	
-	  var EMPTY_RANGE;
-	
-	  createClass(Collection, Iterable);
-	    function Collection() {
-	      throw TypeError('Abstract');
-	    }
-	
-	
-	  createClass(KeyedCollection, Collection);function KeyedCollection() {}
-	
-	  createClass(IndexedCollection, Collection);function IndexedCollection() {}
-	
-	  createClass(SetCollection, Collection);function SetCollection() {}
-	
-	
-	  Collection.Keyed = KeyedCollection;
-	  Collection.Indexed = IndexedCollection;
-	  Collection.Set = SetCollection;
-	
-	  var imul =
-	    typeof Math.imul === 'function' && Math.imul(0xffffffff, 2) === -2 ?
-	    Math.imul :
-	    function imul(a, b) {
-	      a = a | 0; // int
-	      b = b | 0; // int
-	      var c = a & 0xffff;
-	      var d = b & 0xffff;
-	      // Shift by 0 fixes the sign on the high part.
-	      return (c * d) + ((((a >>> 16) * d + c * (b >>> 16)) << 16) >>> 0) | 0; // int
-	    };
-	
-	  // v8 has an optimization for storing 31-bit signed numbers.
-	  // Values which have either 00 or 11 as the high order bits qualify.
-	  // This function drops the highest order bit in a signed number, maintaining
-	  // the sign bit.
-	  function smi(i32) {
-	    return ((i32 >>> 1) & 0x40000000) | (i32 & 0xBFFFFFFF);
-	  }
-	
-	  function hash(o) {
-	    if (o === false || o === null || o === undefined) {
-	      return 0;
-	    }
-	    if (typeof o.valueOf === 'function') {
-	      o = o.valueOf();
-	      if (o === false || o === null || o === undefined) {
-	        return 0;
-	      }
-	    }
-	    if (o === true) {
-	      return 1;
-	    }
-	    var type = typeof o;
-	    if (type === 'number') {
-	      if (o !== o || o === Infinity) {
-	        return 0;
-	      }
-	      var h = o | 0;
-	      if (h !== o) {
-	        h ^= o * 0xFFFFFFFF;
-	      }
-	      while (o > 0xFFFFFFFF) {
-	        o /= 0xFFFFFFFF;
-	        h ^= o;
-	      }
-	      return smi(h);
-	    }
-	    if (type === 'string') {
-	      return o.length > STRING_HASH_CACHE_MIN_STRLEN ? cachedHashString(o) : hashString(o);
-	    }
-	    if (typeof o.hashCode === 'function') {
-	      return o.hashCode();
-	    }
-	    if (type === 'object') {
-	      return hashJSObj(o);
-	    }
-	    if (typeof o.toString === 'function') {
-	      return hashString(o.toString());
-	    }
-	    throw new Error('Value type ' + type + ' cannot be hashed.');
-	  }
-	
-	  function cachedHashString(string) {
-	    var hash = stringHashCache[string];
-	    if (hash === undefined) {
-	      hash = hashString(string);
-	      if (STRING_HASH_CACHE_SIZE === STRING_HASH_CACHE_MAX_SIZE) {
-	        STRING_HASH_CACHE_SIZE = 0;
-	        stringHashCache = {};
-	      }
-	      STRING_HASH_CACHE_SIZE++;
-	      stringHashCache[string] = hash;
-	    }
-	    return hash;
-	  }
-	
-	  // http://jsperf.com/hashing-strings
-	  function hashString(string) {
-	    // This is the hash from JVM
-	    // The hash code for a string is computed as
-	    // s[0] * 31 ^ (n - 1) + s[1] * 31 ^ (n - 2) + ... + s[n - 1],
-	    // where s[i] is the ith character of the string and n is the length of
-	    // the string. We "mod" the result to make it between 0 (inclusive) and 2^31
-	    // (exclusive) by dropping high bits.
-	    var hash = 0;
-	    for (var ii = 0; ii < string.length; ii++) {
-	      hash = 31 * hash + string.charCodeAt(ii) | 0;
-	    }
-	    return smi(hash);
-	  }
-	
-	  function hashJSObj(obj) {
-	    var hash;
-	    if (usingWeakMap) {
-	      hash = weakMap.get(obj);
-	      if (hash !== undefined) {
-	        return hash;
-	      }
-	    }
-	
-	    hash = obj[UID_HASH_KEY];
-	    if (hash !== undefined) {
-	      return hash;
-	    }
-	
-	    if (!canDefineProperty) {
-	      hash = obj.propertyIsEnumerable && obj.propertyIsEnumerable[UID_HASH_KEY];
-	      if (hash !== undefined) {
-	        return hash;
-	      }
-	
-	      hash = getIENodeHash(obj);
-	      if (hash !== undefined) {
-	        return hash;
-	      }
-	    }
-	
-	    hash = ++objHashUID;
-	    if (objHashUID & 0x40000000) {
-	      objHashUID = 0;
-	    }
-	
-	    if (usingWeakMap) {
-	      weakMap.set(obj, hash);
-	    } else if (isExtensible !== undefined && isExtensible(obj) === false) {
-	      throw new Error('Non-extensible objects are not allowed as keys.');
-	    } else if (canDefineProperty) {
-	      Object.defineProperty(obj, UID_HASH_KEY, {
-	        'enumerable': false,
-	        'configurable': false,
-	        'writable': false,
-	        'value': hash
-	      });
-	    } else if (obj.propertyIsEnumerable !== undefined &&
-	               obj.propertyIsEnumerable === obj.constructor.prototype.propertyIsEnumerable) {
-	      // Since we can't define a non-enumerable property on the object
-	      // we'll hijack one of the less-used non-enumerable properties to
-	      // save our hash on it. Since this is a function it will not show up in
-	      // `JSON.stringify` which is what we want.
-	      obj.propertyIsEnumerable = function() {
-	        return this.constructor.prototype.propertyIsEnumerable.apply(this, arguments);
-	      };
-	      obj.propertyIsEnumerable[UID_HASH_KEY] = hash;
-	    } else if (obj.nodeType !== undefined) {
-	      // At this point we couldn't get the IE `uniqueID` to use as a hash
-	      // and we couldn't use a non-enumerable property to exploit the
-	      // dontEnum bug so we simply add the `UID_HASH_KEY` on the node
-	      // itself.
-	      obj[UID_HASH_KEY] = hash;
-	    } else {
-	      throw new Error('Unable to set a non-enumerable property on object.');
-	    }
-	
-	    return hash;
-	  }
-	
-	  // Get references to ES5 object methods.
-	  var isExtensible = Object.isExtensible;
-	
-	  // True if Object.defineProperty works as expected. IE8 fails this test.
-	  var canDefineProperty = (function() {
-	    try {
-	      Object.defineProperty({}, '@', {});
-	      return true;
-	    } catch (e) {
-	      return false;
-	    }
-	  }());
-	
-	  // IE has a `uniqueID` property on DOM nodes. We can construct the hash from it
-	  // and avoid memory leaks from the IE cloneNode bug.
-	  function getIENodeHash(node) {
-	    if (node && node.nodeType > 0) {
-	      switch (node.nodeType) {
-	        case 1: // Element
-	          return node.uniqueID;
-	        case 9: // Document
-	          return node.documentElement && node.documentElement.uniqueID;
-	      }
-	    }
-	  }
-	
-	  // If possible, use a WeakMap.
-	  var usingWeakMap = typeof WeakMap === 'function';
-	  var weakMap;
-	  if (usingWeakMap) {
-	    weakMap = new WeakMap();
-	  }
-	
-	  var objHashUID = 0;
-	
-	  var UID_HASH_KEY = '__immutablehash__';
-	  if (typeof Symbol === 'function') {
-	    UID_HASH_KEY = Symbol(UID_HASH_KEY);
-	  }
-	
-	  var STRING_HASH_CACHE_MIN_STRLEN = 16;
-	  var STRING_HASH_CACHE_MAX_SIZE = 255;
-	  var STRING_HASH_CACHE_SIZE = 0;
-	  var stringHashCache = {};
-	
-	  function assertNotInfinite(size) {
-	    invariant(
-	      size !== Infinity,
-	      'Cannot perform this action with an infinite size.'
-	    );
-	  }
-	
-	  createClass(Map, KeyedCollection);
-	
-	    // @pragma Construction
-	
-	    function Map(value) {
-	      return value === null || value === undefined ? emptyMap() :
-	        isMap(value) && !isOrdered(value) ? value :
-	        emptyMap().withMutations(function(map ) {
-	          var iter = KeyedIterable(value);
-	          assertNotInfinite(iter.size);
-	          iter.forEach(function(v, k)  {return map.set(k, v)});
-	        });
-	    }
-	
-	    Map.of = function() {var keyValues = SLICE$0.call(arguments, 0);
-	      return emptyMap().withMutations(function(map ) {
-	        for (var i = 0; i < keyValues.length; i += 2) {
-	          if (i + 1 >= keyValues.length) {
-	            throw new Error('Missing value for key: ' + keyValues[i]);
-	          }
-	          map.set(keyValues[i], keyValues[i + 1]);
-	        }
-	      });
-	    };
-	
-	    Map.prototype.toString = function() {
-	      return this.__toString('Map {', '}');
-	    };
-	
-	    // @pragma Access
-	
-	    Map.prototype.get = function(k, notSetValue) {
-	      return this._root ?
-	        this._root.get(0, undefined, k, notSetValue) :
-	        notSetValue;
-	    };
-	
-	    // @pragma Modification
-	
-	    Map.prototype.set = function(k, v) {
-	      return updateMap(this, k, v);
-	    };
-	
-	    Map.prototype.setIn = function(keyPath, v) {
-	      return this.updateIn(keyPath, NOT_SET, function()  {return v});
-	    };
-	
-	    Map.prototype.remove = function(k) {
-	      return updateMap(this, k, NOT_SET);
-	    };
-	
-	    Map.prototype.deleteIn = function(keyPath) {
-	      return this.updateIn(keyPath, function()  {return NOT_SET});
-	    };
-	
-	    Map.prototype.update = function(k, notSetValue, updater) {
-	      return arguments.length === 1 ?
-	        k(this) :
-	        this.updateIn([k], notSetValue, updater);
-	    };
-	
-	    Map.prototype.updateIn = function(keyPath, notSetValue, updater) {
-	      if (!updater) {
-	        updater = notSetValue;
-	        notSetValue = undefined;
-	      }
-	      var updatedValue = updateInDeepMap(
-	        this,
-	        forceIterator(keyPath),
-	        notSetValue,
-	        updater
-	      );
-	      return updatedValue === NOT_SET ? undefined : updatedValue;
-	    };
-	
-	    Map.prototype.clear = function() {
-	      if (this.size === 0) {
-	        return this;
-	      }
-	      if (this.__ownerID) {
-	        this.size = 0;
-	        this._root = null;
-	        this.__hash = undefined;
-	        this.__altered = true;
-	        return this;
-	      }
-	      return emptyMap();
-	    };
-	
-	    // @pragma Composition
-	
-	    Map.prototype.merge = function(/*...iters*/) {
-	      return mergeIntoMapWith(this, undefined, arguments);
-	    };
-	
-	    Map.prototype.mergeWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
-	      return mergeIntoMapWith(this, merger, iters);
-	    };
-	
-	    Map.prototype.mergeIn = function(keyPath) {var iters = SLICE$0.call(arguments, 1);
-	      return this.updateIn(
-	        keyPath,
-	        emptyMap(),
-	        function(m ) {return typeof m.merge === 'function' ?
-	          m.merge.apply(m, iters) :
-	          iters[iters.length - 1]}
-	      );
-	    };
-	
-	    Map.prototype.mergeDeep = function(/*...iters*/) {
-	      return mergeIntoMapWith(this, deepMerger, arguments);
-	    };
-	
-	    Map.prototype.mergeDeepWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
-	      return mergeIntoMapWith(this, deepMergerWith(merger), iters);
-	    };
-	
-	    Map.prototype.mergeDeepIn = function(keyPath) {var iters = SLICE$0.call(arguments, 1);
-	      return this.updateIn(
-	        keyPath,
-	        emptyMap(),
-	        function(m ) {return typeof m.mergeDeep === 'function' ?
-	          m.mergeDeep.apply(m, iters) :
-	          iters[iters.length - 1]}
-	      );
-	    };
-	
-	    Map.prototype.sort = function(comparator) {
-	      // Late binding
-	      return OrderedMap(sortFactory(this, comparator));
-	    };
-	
-	    Map.prototype.sortBy = function(mapper, comparator) {
-	      // Late binding
-	      return OrderedMap(sortFactory(this, comparator, mapper));
-	    };
-	
-	    // @pragma Mutability
-	
-	    Map.prototype.withMutations = function(fn) {
-	      var mutable = this.asMutable();
-	      fn(mutable);
-	      return mutable.wasAltered() ? mutable.__ensureOwner(this.__ownerID) : this;
-	    };
-	
-	    Map.prototype.asMutable = function() {
-	      return this.__ownerID ? this : this.__ensureOwner(new OwnerID());
-	    };
-	
-	    Map.prototype.asImmutable = function() {
-	      return this.__ensureOwner();
-	    };
-	
-	    Map.prototype.wasAltered = function() {
-	      return this.__altered;
-	    };
-	
-	    Map.prototype.__iterator = function(type, reverse) {
-	      return new MapIterator(this, type, reverse);
-	    };
-	
-	    Map.prototype.__iterate = function(fn, reverse) {var this$0 = this;
-	      var iterations = 0;
-	      this._root && this._root.iterate(function(entry ) {
-	        iterations++;
-	        return fn(entry[1], entry[0], this$0);
-	      }, reverse);
-	      return iterations;
-	    };
-	
-	    Map.prototype.__ensureOwner = function(ownerID) {
-	      if (ownerID === this.__ownerID) {
-	        return this;
-	      }
-	      if (!ownerID) {
-	        this.__ownerID = ownerID;
-	        this.__altered = false;
-	        return this;
-	      }
-	      return makeMap(this.size, this._root, ownerID, this.__hash);
-	    };
-	
-	
-	  function isMap(maybeMap) {
-	    return !!(maybeMap && maybeMap[IS_MAP_SENTINEL]);
-	  }
-	
-	  Map.isMap = isMap;
-	
-	  var IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
-	
-	  var MapPrototype = Map.prototype;
-	  MapPrototype[IS_MAP_SENTINEL] = true;
-	  MapPrototype[DELETE] = MapPrototype.remove;
-	  MapPrototype.removeIn = MapPrototype.deleteIn;
-	
-	
-	  // #pragma Trie Nodes
-	
-	
-	
-	    function ArrayMapNode(ownerID, entries) {
-	      this.ownerID = ownerID;
-	      this.entries = entries;
-	    }
-	
-	    ArrayMapNode.prototype.get = function(shift, keyHash, key, notSetValue) {
-	      var entries = this.entries;
-	      for (var ii = 0, len = entries.length; ii < len; ii++) {
-	        if (is(key, entries[ii][0])) {
-	          return entries[ii][1];
-	        }
-	      }
-	      return notSetValue;
-	    };
-	
-	    ArrayMapNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
-	      var removed = value === NOT_SET;
-	
-	      var entries = this.entries;
-	      var idx = 0;
-	      for (var len = entries.length; idx < len; idx++) {
-	        if (is(key, entries[idx][0])) {
-	          break;
-	        }
-	      }
-	      var exists = idx < len;
-	
-	      if (exists ? entries[idx][1] === value : removed) {
-	        return this;
-	      }
-	
-	      SetRef(didAlter);
-	      (removed || !exists) && SetRef(didChangeSize);
-	
-	      if (removed && entries.length === 1) {
-	        return; // undefined
-	      }
-	
-	      if (!exists && !removed && entries.length >= MAX_ARRAY_MAP_SIZE) {
-	        return createNodes(ownerID, entries, key, value);
-	      }
-	
-	      var isEditable = ownerID && ownerID === this.ownerID;
-	      var newEntries = isEditable ? entries : arrCopy(entries);
-	
-	      if (exists) {
-	        if (removed) {
-	          idx === len - 1 ? newEntries.pop() : (newEntries[idx] = newEntries.pop());
-	        } else {
-	          newEntries[idx] = [key, value];
-	        }
-	      } else {
-	        newEntries.push([key, value]);
-	      }
-	
-	      if (isEditable) {
-	        this.entries = newEntries;
-	        return this;
-	      }
-	
-	      return new ArrayMapNode(ownerID, newEntries);
-	    };
-	
-	
-	
-	
-	    function BitmapIndexedNode(ownerID, bitmap, nodes) {
-	      this.ownerID = ownerID;
-	      this.bitmap = bitmap;
-	      this.nodes = nodes;
-	    }
-	
-	    BitmapIndexedNode.prototype.get = function(shift, keyHash, key, notSetValue) {
-	      if (keyHash === undefined) {
-	        keyHash = hash(key);
-	      }
-	      var bit = (1 << ((shift === 0 ? keyHash : keyHash >>> shift) & MASK));
-	      var bitmap = this.bitmap;
-	      return (bitmap & bit) === 0 ? notSetValue :
-	        this.nodes[popCount(bitmap & (bit - 1))].get(shift + SHIFT, keyHash, key, notSetValue);
-	    };
-	
-	    BitmapIndexedNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
-	      if (keyHash === undefined) {
-	        keyHash = hash(key);
-	      }
-	      var keyHashFrag = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
-	      var bit = 1 << keyHashFrag;
-	      var bitmap = this.bitmap;
-	      var exists = (bitmap & bit) !== 0;
-	
-	      if (!exists && value === NOT_SET) {
-	        return this;
-	      }
-	
-	      var idx = popCount(bitmap & (bit - 1));
-	      var nodes = this.nodes;
-	      var node = exists ? nodes[idx] : undefined;
-	      var newNode = updateNode(node, ownerID, shift + SHIFT, keyHash, key, value, didChangeSize, didAlter);
-	
-	      if (newNode === node) {
-	        return this;
-	      }
-	
-	      if (!exists && newNode && nodes.length >= MAX_BITMAP_INDEXED_SIZE) {
-	        return expandNodes(ownerID, nodes, bitmap, keyHashFrag, newNode);
-	      }
-	
-	      if (exists && !newNode && nodes.length === 2 && isLeafNode(nodes[idx ^ 1])) {
-	        return nodes[idx ^ 1];
-	      }
-	
-	      if (exists && newNode && nodes.length === 1 && isLeafNode(newNode)) {
-	        return newNode;
-	      }
-	
-	      var isEditable = ownerID && ownerID === this.ownerID;
-	      var newBitmap = exists ? newNode ? bitmap : bitmap ^ bit : bitmap | bit;
-	      var newNodes = exists ? newNode ?
-	        setIn(nodes, idx, newNode, isEditable) :
-	        spliceOut(nodes, idx, isEditable) :
-	        spliceIn(nodes, idx, newNode, isEditable);
-	
-	      if (isEditable) {
-	        this.bitmap = newBitmap;
-	        this.nodes = newNodes;
-	        return this;
-	      }
-	
-	      return new BitmapIndexedNode(ownerID, newBitmap, newNodes);
-	    };
-	
-	
-	
-	
-	    function HashArrayMapNode(ownerID, count, nodes) {
-	      this.ownerID = ownerID;
-	      this.count = count;
-	      this.nodes = nodes;
-	    }
-	
-	    HashArrayMapNode.prototype.get = function(shift, keyHash, key, notSetValue) {
-	      if (keyHash === undefined) {
-	        keyHash = hash(key);
-	      }
-	      var idx = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
-	      var node = this.nodes[idx];
-	      return node ? node.get(shift + SHIFT, keyHash, key, notSetValue) : notSetValue;
-	    };
-	
-	    HashArrayMapNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
-	      if (keyHash === undefined) {
-	        keyHash = hash(key);
-	      }
-	      var idx = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
-	      var removed = value === NOT_SET;
-	      var nodes = this.nodes;
-	      var node = nodes[idx];
-	
-	      if (removed && !node) {
-	        return this;
-	      }
-	
-	      var newNode = updateNode(node, ownerID, shift + SHIFT, keyHash, key, value, didChangeSize, didAlter);
-	      if (newNode === node) {
-	        return this;
-	      }
-	
-	      var newCount = this.count;
-	      if (!node) {
-	        newCount++;
-	      } else if (!newNode) {
-	        newCount--;
-	        if (newCount < MIN_HASH_ARRAY_MAP_SIZE) {
-	          return packNodes(ownerID, nodes, newCount, idx);
-	        }
-	      }
-	
-	      var isEditable = ownerID && ownerID === this.ownerID;
-	      var newNodes = setIn(nodes, idx, newNode, isEditable);
-	
-	      if (isEditable) {
-	        this.count = newCount;
-	        this.nodes = newNodes;
-	        return this;
-	      }
-	
-	      return new HashArrayMapNode(ownerID, newCount, newNodes);
-	    };
-	
-	
-	
-	
-	    function HashCollisionNode(ownerID, keyHash, entries) {
-	      this.ownerID = ownerID;
-	      this.keyHash = keyHash;
-	      this.entries = entries;
-	    }
-	
-	    HashCollisionNode.prototype.get = function(shift, keyHash, key, notSetValue) {
-	      var entries = this.entries;
-	      for (var ii = 0, len = entries.length; ii < len; ii++) {
-	        if (is(key, entries[ii][0])) {
-	          return entries[ii][1];
-	        }
-	      }
-	      return notSetValue;
-	    };
-	
-	    HashCollisionNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
-	      if (keyHash === undefined) {
-	        keyHash = hash(key);
-	      }
-	
-	      var removed = value === NOT_SET;
-	
-	      if (keyHash !== this.keyHash) {
-	        if (removed) {
-	          return this;
-	        }
-	        SetRef(didAlter);
-	        SetRef(didChangeSize);
-	        return mergeIntoNode(this, ownerID, shift, keyHash, [key, value]);
-	      }
-	
-	      var entries = this.entries;
-	      var idx = 0;
-	      for (var len = entries.length; idx < len; idx++) {
-	        if (is(key, entries[idx][0])) {
-	          break;
-	        }
-	      }
-	      var exists = idx < len;
-	
-	      if (exists ? entries[idx][1] === value : removed) {
-	        return this;
-	      }
-	
-	      SetRef(didAlter);
-	      (removed || !exists) && SetRef(didChangeSize);
-	
-	      if (removed && len === 2) {
-	        return new ValueNode(ownerID, this.keyHash, entries[idx ^ 1]);
-	      }
-	
-	      var isEditable = ownerID && ownerID === this.ownerID;
-	      var newEntries = isEditable ? entries : arrCopy(entries);
-	
-	      if (exists) {
-	        if (removed) {
-	          idx === len - 1 ? newEntries.pop() : (newEntries[idx] = newEntries.pop());
-	        } else {
-	          newEntries[idx] = [key, value];
-	        }
-	      } else {
-	        newEntries.push([key, value]);
-	      }
-	
-	      if (isEditable) {
-	        this.entries = newEntries;
-	        return this;
-	      }
-	
-	      return new HashCollisionNode(ownerID, this.keyHash, newEntries);
-	    };
-	
-	
-	
-	
-	    function ValueNode(ownerID, keyHash, entry) {
-	      this.ownerID = ownerID;
-	      this.keyHash = keyHash;
-	      this.entry = entry;
-	    }
-	
-	    ValueNode.prototype.get = function(shift, keyHash, key, notSetValue) {
-	      return is(key, this.entry[0]) ? this.entry[1] : notSetValue;
-	    };
-	
-	    ValueNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
-	      var removed = value === NOT_SET;
-	      var keyMatch = is(key, this.entry[0]);
-	      if (keyMatch ? value === this.entry[1] : removed) {
-	        return this;
-	      }
-	
-	      SetRef(didAlter);
-	
-	      if (removed) {
-	        SetRef(didChangeSize);
-	        return; // undefined
-	      }
-	
-	      if (keyMatch) {
-	        if (ownerID && ownerID === this.ownerID) {
-	          this.entry[1] = value;
-	          return this;
-	        }
-	        return new ValueNode(ownerID, this.keyHash, [key, value]);
-	      }
-	
-	      SetRef(didChangeSize);
-	      return mergeIntoNode(this, ownerID, shift, hash(key), [key, value]);
-	    };
-	
-	
-	
-	  // #pragma Iterators
-	
-	  ArrayMapNode.prototype.iterate =
-	  HashCollisionNode.prototype.iterate = function (fn, reverse) {
-	    var entries = this.entries;
-	    for (var ii = 0, maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
-	      if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
-	        return false;
-	      }
-	    }
-	  }
-	
-	  BitmapIndexedNode.prototype.iterate =
-	  HashArrayMapNode.prototype.iterate = function (fn, reverse) {
-	    var nodes = this.nodes;
-	    for (var ii = 0, maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
-	      var node = nodes[reverse ? maxIndex - ii : ii];
-	      if (node && node.iterate(fn, reverse) === false) {
-	        return false;
-	      }
-	    }
-	  }
-	
-	  ValueNode.prototype.iterate = function (fn, reverse) {
-	    return fn(this.entry);
-	  }
-	
-	  createClass(MapIterator, Iterator);
-	
-	    function MapIterator(map, type, reverse) {
-	      this._type = type;
-	      this._reverse = reverse;
-	      this._stack = map._root && mapIteratorFrame(map._root);
-	    }
-	
-	    MapIterator.prototype.next = function() {
-	      var type = this._type;
-	      var stack = this._stack;
-	      while (stack) {
-	        var node = stack.node;
-	        var index = stack.index++;
-	        var maxIndex;
-	        if (node.entry) {
-	          if (index === 0) {
-	            return mapIteratorValue(type, node.entry);
-	          }
-	        } else if (node.entries) {
-	          maxIndex = node.entries.length - 1;
-	          if (index <= maxIndex) {
-	            return mapIteratorValue(type, node.entries[this._reverse ? maxIndex - index : index]);
-	          }
-	        } else {
-	          maxIndex = node.nodes.length - 1;
-	          if (index <= maxIndex) {
-	            var subNode = node.nodes[this._reverse ? maxIndex - index : index];
-	            if (subNode) {
-	              if (subNode.entry) {
-	                return mapIteratorValue(type, subNode.entry);
-	              }
-	              stack = this._stack = mapIteratorFrame(subNode, stack);
-	            }
-	            continue;
-	          }
-	        }
-	        stack = this._stack = this._stack.__prev;
-	      }
-	      return iteratorDone();
-	    };
-	
-	
-	  function mapIteratorValue(type, entry) {
-	    return iteratorValue(type, entry[0], entry[1]);
-	  }
-	
-	  function mapIteratorFrame(node, prev) {
-	    return {
-	      node: node,
-	      index: 0,
-	      __prev: prev
-	    };
-	  }
-	
-	  function makeMap(size, root, ownerID, hash) {
-	    var map = Object.create(MapPrototype);
-	    map.size = size;
-	    map._root = root;
-	    map.__ownerID = ownerID;
-	    map.__hash = hash;
-	    map.__altered = false;
-	    return map;
-	  }
-	
-	  var EMPTY_MAP;
-	  function emptyMap() {
-	    return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
-	  }
-	
-	  function updateMap(map, k, v) {
-	    var newRoot;
-	    var newSize;
-	    if (!map._root) {
-	      if (v === NOT_SET) {
-	        return map;
-	      }
-	      newSize = 1;
-	      newRoot = new ArrayMapNode(map.__ownerID, [[k, v]]);
-	    } else {
-	      var didChangeSize = MakeRef(CHANGE_LENGTH);
-	      var didAlter = MakeRef(DID_ALTER);
-	      newRoot = updateNode(map._root, map.__ownerID, 0, undefined, k, v, didChangeSize, didAlter);
-	      if (!didAlter.value) {
-	        return map;
-	      }
-	      newSize = map.size + (didChangeSize.value ? v === NOT_SET ? -1 : 1 : 0);
-	    }
-	    if (map.__ownerID) {
-	      map.size = newSize;
-	      map._root = newRoot;
-	      map.__hash = undefined;
-	      map.__altered = true;
-	      return map;
-	    }
-	    return newRoot ? makeMap(newSize, newRoot) : emptyMap();
-	  }
-	
-	  function updateNode(node, ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
-	    if (!node) {
-	      if (value === NOT_SET) {
-	        return node;
-	      }
-	      SetRef(didAlter);
-	      SetRef(didChangeSize);
-	      return new ValueNode(ownerID, keyHash, [key, value]);
-	    }
-	    return node.update(ownerID, shift, keyHash, key, value, didChangeSize, didAlter);
-	  }
-	
-	  function isLeafNode(node) {
-	    return node.constructor === ValueNode || node.constructor === HashCollisionNode;
-	  }
-	
-	  function mergeIntoNode(node, ownerID, shift, keyHash, entry) {
-	    if (node.keyHash === keyHash) {
-	      return new HashCollisionNode(ownerID, keyHash, [node.entry, entry]);
-	    }
-	
-	    var idx1 = (shift === 0 ? node.keyHash : node.keyHash >>> shift) & MASK;
-	    var idx2 = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
-	
-	    var newNode;
-	    var nodes = idx1 === idx2 ?
-	      [mergeIntoNode(node, ownerID, shift + SHIFT, keyHash, entry)] :
-	      ((newNode = new ValueNode(ownerID, keyHash, entry)), idx1 < idx2 ? [node, newNode] : [newNode, node]);
-	
-	    return new BitmapIndexedNode(ownerID, (1 << idx1) | (1 << idx2), nodes);
-	  }
-	
-	  function createNodes(ownerID, entries, key, value) {
-	    if (!ownerID) {
-	      ownerID = new OwnerID();
-	    }
-	    var node = new ValueNode(ownerID, hash(key), [key, value]);
-	    for (var ii = 0; ii < entries.length; ii++) {
-	      var entry = entries[ii];
-	      node = node.update(ownerID, 0, undefined, entry[0], entry[1]);
-	    }
-	    return node;
-	  }
-	
-	  function packNodes(ownerID, nodes, count, excluding) {
-	    var bitmap = 0;
-	    var packedII = 0;
-	    var packedNodes = new Array(count);
-	    for (var ii = 0, bit = 1, len = nodes.length; ii < len; ii++, bit <<= 1) {
-	      var node = nodes[ii];
-	      if (node !== undefined && ii !== excluding) {
-	        bitmap |= bit;
-	        packedNodes[packedII++] = node;
-	      }
-	    }
-	    return new BitmapIndexedNode(ownerID, bitmap, packedNodes);
-	  }
-	
-	  function expandNodes(ownerID, nodes, bitmap, including, node) {
-	    var count = 0;
-	    var expandedNodes = new Array(SIZE);
-	    for (var ii = 0; bitmap !== 0; ii++, bitmap >>>= 1) {
-	      expandedNodes[ii] = bitmap & 1 ? nodes[count++] : undefined;
-	    }
-	    expandedNodes[including] = node;
-	    return new HashArrayMapNode(ownerID, count + 1, expandedNodes);
-	  }
-	
-	  function mergeIntoMapWith(map, merger, iterables) {
-	    var iters = [];
-	    for (var ii = 0; ii < iterables.length; ii++) {
-	      var value = iterables[ii];
-	      var iter = KeyedIterable(value);
-	      if (!isIterable(value)) {
-	        iter = iter.map(function(v ) {return fromJS(v)});
-	      }
-	      iters.push(iter);
-	    }
-	    return mergeIntoCollectionWith(map, merger, iters);
-	  }
-	
-	  function deepMerger(existing, value, key) {
-	    return existing && existing.mergeDeep && isIterable(value) ?
-	      existing.mergeDeep(value) :
-	      is(existing, value) ? existing : value;
-	  }
-	
-	  function deepMergerWith(merger) {
-	    return function(existing, value, key)  {
-	      if (existing && existing.mergeDeepWith && isIterable(value)) {
-	        return existing.mergeDeepWith(merger, value);
-	      }
-	      var nextValue = merger(existing, value, key);
-	      return is(existing, nextValue) ? existing : nextValue;
-	    };
-	  }
-	
-	  function mergeIntoCollectionWith(collection, merger, iters) {
-	    iters = iters.filter(function(x ) {return x.size !== 0});
-	    if (iters.length === 0) {
-	      return collection;
-	    }
-	    if (collection.size === 0 && !collection.__ownerID && iters.length === 1) {
-	      return collection.constructor(iters[0]);
-	    }
-	    return collection.withMutations(function(collection ) {
-	      var mergeIntoMap = merger ?
-	        function(value, key)  {
-	          collection.update(key, NOT_SET, function(existing )
-	            {return existing === NOT_SET ? value : merger(existing, value, key)}
-	          );
-	        } :
-	        function(value, key)  {
-	          collection.set(key, value);
-	        }
-	      for (var ii = 0; ii < iters.length; ii++) {
-	        iters[ii].forEach(mergeIntoMap);
-	      }
-	    });
-	  }
-	
-	  function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
-	    var isNotSet = existing === NOT_SET;
-	    var step = keyPathIter.next();
-	    if (step.done) {
-	      var existingValue = isNotSet ? notSetValue : existing;
-	      var newValue = updater(existingValue);
-	      return newValue === existingValue ? existing : newValue;
-	    }
-	    invariant(
-	      isNotSet || (existing && existing.set),
-	      'invalid keyPath'
-	    );
-	    var key = step.value;
-	    var nextExisting = isNotSet ? NOT_SET : existing.get(key, NOT_SET);
-	    var nextUpdated = updateInDeepMap(
-	      nextExisting,
-	      keyPathIter,
-	      notSetValue,
-	      updater
-	    );
-	    return nextUpdated === nextExisting ? existing :
-	      nextUpdated === NOT_SET ? existing.remove(key) :
-	      (isNotSet ? emptyMap() : existing).set(key, nextUpdated);
-	  }
-	
-	  function popCount(x) {
-	    x = x - ((x >> 1) & 0x55555555);
-	    x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
-	    x = (x + (x >> 4)) & 0x0f0f0f0f;
-	    x = x + (x >> 8);
-	    x = x + (x >> 16);
-	    return x & 0x7f;
-	  }
-	
-	  function setIn(array, idx, val, canEdit) {
-	    var newArray = canEdit ? array : arrCopy(array);
-	    newArray[idx] = val;
-	    return newArray;
-	  }
-	
-	  function spliceIn(array, idx, val, canEdit) {
-	    var newLen = array.length + 1;
-	    if (canEdit && idx + 1 === newLen) {
-	      array[idx] = val;
-	      return array;
-	    }
-	    var newArray = new Array(newLen);
-	    var after = 0;
-	    for (var ii = 0; ii < newLen; ii++) {
-	      if (ii === idx) {
-	        newArray[ii] = val;
-	        after = -1;
-	      } else {
-	        newArray[ii] = array[ii + after];
-	      }
-	    }
-	    return newArray;
-	  }
-	
-	  function spliceOut(array, idx, canEdit) {
-	    var newLen = array.length - 1;
-	    if (canEdit && idx === newLen) {
-	      array.pop();
-	      return array;
-	    }
-	    var newArray = new Array(newLen);
-	    var after = 0;
-	    for (var ii = 0; ii < newLen; ii++) {
-	      if (ii === idx) {
-	        after = 1;
-	      }
-	      newArray[ii] = array[ii + after];
-	    }
-	    return newArray;
-	  }
-	
-	  var MAX_ARRAY_MAP_SIZE = SIZE / 4;
-	  var MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
-	  var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;
-	
-	  createClass(List, IndexedCollection);
-	
-	    // @pragma Construction
-	
-	    function List(value) {
-	      var empty = emptyList();
-	      if (value === null || value === undefined) {
-	        return empty;
-	      }
-	      if (isList(value)) {
-	        return value;
-	      }
-	      var iter = IndexedIterable(value);
-	      var size = iter.size;
-	      if (size === 0) {
-	        return empty;
-	      }
-	      assertNotInfinite(size);
-	      if (size > 0 && size < SIZE) {
-	        return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
-	      }
-	      return empty.withMutations(function(list ) {
-	        list.setSize(size);
-	        iter.forEach(function(v, i)  {return list.set(i, v)});
-	      });
-	    }
-	
-	    List.of = function(/*...values*/) {
-	      return this(arguments);
-	    };
-	
-	    List.prototype.toString = function() {
-	      return this.__toString('List [', ']');
-	    };
-	
-	    // @pragma Access
-	
-	    List.prototype.get = function(index, notSetValue) {
-	      index = wrapIndex(this, index);
-	      if (index >= 0 && index < this.size) {
-	        index += this._origin;
-	        var node = listNodeFor(this, index);
-	        return node && node.array[index & MASK];
-	      }
-	      return notSetValue;
-	    };
-	
-	    // @pragma Modification
-	
-	    List.prototype.set = function(index, value) {
-	      return updateList(this, index, value);
-	    };
-	
-	    List.prototype.remove = function(index) {
-	      return !this.has(index) ? this :
-	        index === 0 ? this.shift() :
-	        index === this.size - 1 ? this.pop() :
-	        this.splice(index, 1);
-	    };
-	
-	    List.prototype.insert = function(index, value) {
-	      return this.splice(index, 0, value);
-	    };
-	
-	    List.prototype.clear = function() {
-	      if (this.size === 0) {
-	        return this;
-	      }
-	      if (this.__ownerID) {
-	        this.size = this._origin = this._capacity = 0;
-	        this._level = SHIFT;
-	        this._root = this._tail = null;
-	        this.__hash = undefined;
-	        this.__altered = true;
-	        return this;
-	      }
-	      return emptyList();
-	    };
-	
-	    List.prototype.push = function(/*...values*/) {
-	      var values = arguments;
-	      var oldSize = this.size;
-	      return this.withMutations(function(list ) {
-	        setListBounds(list, 0, oldSize + values.length);
-	        for (var ii = 0; ii < values.length; ii++) {
-	          list.set(oldSize + ii, values[ii]);
-	        }
-	      });
-	    };
-	
-	    List.prototype.pop = function() {
-	      return setListBounds(this, 0, -1);
-	    };
-	
-	    List.prototype.unshift = function(/*...values*/) {
-	      var values = arguments;
-	      return this.withMutations(function(list ) {
-	        setListBounds(list, -values.length);
-	        for (var ii = 0; ii < values.length; ii++) {
-	          list.set(ii, values[ii]);
-	        }
-	      });
-	    };
-	
-	    List.prototype.shift = function() {
-	      return setListBounds(this, 1);
-	    };
-	
-	    // @pragma Composition
-	
-	    List.prototype.merge = function(/*...iters*/) {
-	      return mergeIntoListWith(this, undefined, arguments);
-	    };
-	
-	    List.prototype.mergeWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
-	      return mergeIntoListWith(this, merger, iters);
-	    };
-	
-	    List.prototype.mergeDeep = function(/*...iters*/) {
-	      return mergeIntoListWith(this, deepMerger, arguments);
-	    };
-	
-	    List.prototype.mergeDeepWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
-	      return mergeIntoListWith(this, deepMergerWith(merger), iters);
-	    };
-	
-	    List.prototype.setSize = function(size) {
-	      return setListBounds(this, 0, size);
-	    };
-	
-	    // @pragma Iteration
-	
-	    List.prototype.slice = function(begin, end) {
-	      var size = this.size;
-	      if (wholeSlice(begin, end, size)) {
-	        return this;
-	      }
-	      return setListBounds(
-	        this,
-	        resolveBegin(begin, size),
-	        resolveEnd(end, size)
-	      );
-	    };
-	
-	    List.prototype.__iterator = function(type, reverse) {
-	      var index = 0;
-	      var values = iterateList(this, reverse);
-	      return new Iterator(function()  {
-	        var value = values();
-	        return value === DONE ?
-	          iteratorDone() :
-	          iteratorValue(type, index++, value);
-	      });
-	    };
-	
-	    List.prototype.__iterate = function(fn, reverse) {
-	      var index = 0;
-	      var values = iterateList(this, reverse);
-	      var value;
-	      while ((value = values()) !== DONE) {
-	        if (fn(value, index++, this) === false) {
-	          break;
-	        }
-	      }
-	      return index;
-	    };
-	
-	    List.prototype.__ensureOwner = function(ownerID) {
-	      if (ownerID === this.__ownerID) {
-	        return this;
-	      }
-	      if (!ownerID) {
-	        this.__ownerID = ownerID;
-	        return this;
-	      }
-	      return makeList(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
-	    };
-	
-	
-	  function isList(maybeList) {
-	    return !!(maybeList && maybeList[IS_LIST_SENTINEL]);
-	  }
-	
-	  List.isList = isList;
-	
-	  var IS_LIST_SENTINEL = '@@__IMMUTABLE_LIST__@@';
-	
-	  var ListPrototype = List.prototype;
-	  ListPrototype[IS_LIST_SENTINEL] = true;
-	  ListPrototype[DELETE] = ListPrototype.remove;
-	  ListPrototype.setIn = MapPrototype.setIn;
-	  ListPrototype.deleteIn =
-	  ListPrototype.removeIn = MapPrototype.removeIn;
-	  ListPrototype.update = MapPrototype.update;
-	  ListPrototype.updateIn = MapPrototype.updateIn;
-	  ListPrototype.mergeIn = MapPrototype.mergeIn;
-	  ListPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
-	  ListPrototype.withMutations = MapPrototype.withMutations;
-	  ListPrototype.asMutable = MapPrototype.asMutable;
-	  ListPrototype.asImmutable = MapPrototype.asImmutable;
-	  ListPrototype.wasAltered = MapPrototype.wasAltered;
-	
-	
-	
-	    function VNode(array, ownerID) {
-	      this.array = array;
-	      this.ownerID = ownerID;
-	    }
-	
-	    // TODO: seems like these methods are very similar
-	
-	    VNode.prototype.removeBefore = function(ownerID, level, index) {
-	      if (index === level ? 1 << level : 0 || this.array.length === 0) {
-	        return this;
-	      }
-	      var originIndex = (index >>> level) & MASK;
-	      if (originIndex >= this.array.length) {
-	        return new VNode([], ownerID);
-	      }
-	      var removingFirst = originIndex === 0;
-	      var newChild;
-	      if (level > 0) {
-	        var oldChild = this.array[originIndex];
-	        newChild = oldChild && oldChild.removeBefore(ownerID, level - SHIFT, index);
-	        if (newChild === oldChild && removingFirst) {
-	          return this;
-	        }
-	      }
-	      if (removingFirst && !newChild) {
-	        return this;
-	      }
-	      var editable = editableVNode(this, ownerID);
-	      if (!removingFirst) {
-	        for (var ii = 0; ii < originIndex; ii++) {
-	          editable.array[ii] = undefined;
-	        }
-	      }
-	      if (newChild) {
-	        editable.array[originIndex] = newChild;
-	      }
-	      return editable;
-	    };
-	
-	    VNode.prototype.removeAfter = function(ownerID, level, index) {
-	      if (index === (level ? 1 << level : 0) || this.array.length === 0) {
-	        return this;
-	      }
-	      var sizeIndex = ((index - 1) >>> level) & MASK;
-	      if (sizeIndex >= this.array.length) {
-	        return this;
-	      }
-	
-	      var newChild;
-	      if (level > 0) {
-	        var oldChild = this.array[sizeIndex];
-	        newChild = oldChild && oldChild.removeAfter(ownerID, level - SHIFT, index);
-	        if (newChild === oldChild && sizeIndex === this.array.length - 1) {
-	          return this;
-	        }
-	      }
-	
-	      var editable = editableVNode(this, ownerID);
-	      editable.array.splice(sizeIndex + 1);
-	      if (newChild) {
-	        editable.array[sizeIndex] = newChild;
-	      }
-	      return editable;
-	    };
-	
-	
-	
-	  var DONE = {};
-	
-	  function iterateList(list, reverse) {
-	    var left = list._origin;
-	    var right = list._capacity;
-	    var tailPos = getTailOffset(right);
-	    var tail = list._tail;
-	
-	    return iterateNodeOrLeaf(list._root, list._level, 0);
-	
-	    function iterateNodeOrLeaf(node, level, offset) {
-	      return level === 0 ?
-	        iterateLeaf(node, offset) :
-	        iterateNode(node, level, offset);
-	    }
-	
-	    function iterateLeaf(node, offset) {
-	      var array = offset === tailPos ? tail && tail.array : node && node.array;
-	      var from = offset > left ? 0 : left - offset;
-	      var to = right - offset;
-	      if (to > SIZE) {
-	        to = SIZE;
-	      }
-	      return function()  {
-	        if (from === to) {
-	          return DONE;
-	        }
-	        var idx = reverse ? --to : from++;
-	        return array && array[idx];
-	      };
-	    }
-	
-	    function iterateNode(node, level, offset) {
-	      var values;
-	      var array = node && node.array;
-	      var from = offset > left ? 0 : (left - offset) >> level;
-	      var to = ((right - offset) >> level) + 1;
-	      if (to > SIZE) {
-	        to = SIZE;
-	      }
-	      return function()  {
-	        do {
-	          if (values) {
-	            var value = values();
-	            if (value !== DONE) {
-	              return value;
-	            }
-	            values = null;
-	          }
-	          if (from === to) {
-	            return DONE;
-	          }
-	          var idx = reverse ? --to : from++;
-	          values = iterateNodeOrLeaf(
-	            array && array[idx], level - SHIFT, offset + (idx << level)
-	          );
-	        } while (true);
-	      };
-	    }
-	  }
-	
-	  function makeList(origin, capacity, level, root, tail, ownerID, hash) {
-	    var list = Object.create(ListPrototype);
-	    list.size = capacity - origin;
-	    list._origin = origin;
-	    list._capacity = capacity;
-	    list._level = level;
-	    list._root = root;
-	    list._tail = tail;
-	    list.__ownerID = ownerID;
-	    list.__hash = hash;
-	    list.__altered = false;
-	    return list;
-	  }
-	
-	  var EMPTY_LIST;
-	  function emptyList() {
-	    return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
-	  }
-	
-	  function updateList(list, index, value) {
-	    index = wrapIndex(list, index);
-	
-	    if (index !== index) {
-	      return list;
-	    }
-	
-	    if (index >= list.size || index < 0) {
-	      return list.withMutations(function(list ) {
-	        index < 0 ?
-	          setListBounds(list, index).set(0, value) :
-	          setListBounds(list, 0, index + 1).set(index, value)
-	      });
-	    }
-	
-	    index += list._origin;
-	
-	    var newTail = list._tail;
-	    var newRoot = list._root;
-	    var didAlter = MakeRef(DID_ALTER);
-	    if (index >= getTailOffset(list._capacity)) {
-	      newTail = updateVNode(newTail, list.__ownerID, 0, index, value, didAlter);
-	    } else {
-	      newRoot = updateVNode(newRoot, list.__ownerID, list._level, index, value, didAlter);
-	    }
-	
-	    if (!didAlter.value) {
-	      return list;
-	    }
-	
-	    if (list.__ownerID) {
-	      list._root = newRoot;
-	      list._tail = newTail;
-	      list.__hash = undefined;
-	      list.__altered = true;
-	      return list;
-	    }
-	    return makeList(list._origin, list._capacity, list._level, newRoot, newTail);
-	  }
-	
-	  function updateVNode(node, ownerID, level, index, value, didAlter) {
-	    var idx = (index >>> level) & MASK;
-	    var nodeHas = node && idx < node.array.length;
-	    if (!nodeHas && value === undefined) {
-	      return node;
-	    }
-	
-	    var newNode;
-	
-	    if (level > 0) {
-	      var lowerNode = node && node.array[idx];
-	      var newLowerNode = updateVNode(lowerNode, ownerID, level - SHIFT, index, value, didAlter);
-	      if (newLowerNode === lowerNode) {
-	        return node;
-	      }
-	      newNode = editableVNode(node, ownerID);
-	      newNode.array[idx] = newLowerNode;
-	      return newNode;
-	    }
-	
-	    if (nodeHas && node.array[idx] === value) {
-	      return node;
-	    }
-	
-	    SetRef(didAlter);
-	
-	    newNode = editableVNode(node, ownerID);
-	    if (value === undefined && idx === newNode.array.length - 1) {
-	      newNode.array.pop();
-	    } else {
-	      newNode.array[idx] = value;
-	    }
-	    return newNode;
-	  }
-	
-	  function editableVNode(node, ownerID) {
-	    if (ownerID && node && ownerID === node.ownerID) {
-	      return node;
-	    }
-	    return new VNode(node ? node.array.slice() : [], ownerID);
-	  }
-	
-	  function listNodeFor(list, rawIndex) {
-	    if (rawIndex >= getTailOffset(list._capacity)) {
-	      return list._tail;
-	    }
-	    if (rawIndex < 1 << (list._level + SHIFT)) {
-	      var node = list._root;
-	      var level = list._level;
-	      while (node && level > 0) {
-	        node = node.array[(rawIndex >>> level) & MASK];
-	        level -= SHIFT;
-	      }
-	      return node;
-	    }
-	  }
-	
-	  function setListBounds(list, begin, end) {
-	    // Sanitize begin & end using this shorthand for ToInt32(argument)
-	    // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
-	    if (begin !== undefined) {
-	      begin = begin | 0;
-	    }
-	    if (end !== undefined) {
-	      end = end | 0;
-	    }
-	    var owner = list.__ownerID || new OwnerID();
-	    var oldOrigin = list._origin;
-	    var oldCapacity = list._capacity;
-	    var newOrigin = oldOrigin + begin;
-	    var newCapacity = end === undefined ? oldCapacity : end < 0 ? oldCapacity + end : oldOrigin + end;
-	    if (newOrigin === oldOrigin && newCapacity === oldCapacity) {
-	      return list;
-	    }
-	
-	    // If it's going to end after it starts, it's empty.
-	    if (newOrigin >= newCapacity) {
-	      return list.clear();
-	    }
-	
-	    var newLevel = list._level;
-	    var newRoot = list._root;
-	
-	    // New origin might need creating a higher root.
-	    var offsetShift = 0;
-	    while (newOrigin + offsetShift < 0) {
-	      newRoot = new VNode(newRoot && newRoot.array.length ? [undefined, newRoot] : [], owner);
-	      newLevel += SHIFT;
-	      offsetShift += 1 << newLevel;
-	    }
-	    if (offsetShift) {
-	      newOrigin += offsetShift;
-	      oldOrigin += offsetShift;
-	      newCapacity += offsetShift;
-	      oldCapacity += offsetShift;
-	    }
-	
-	    var oldTailOffset = getTailOffset(oldCapacity);
-	    var newTailOffset = getTailOffset(newCapacity);
-	
-	    // New size might need creating a higher root.
-	    while (newTailOffset >= 1 << (newLevel + SHIFT)) {
-	      newRoot = new VNode(newRoot && newRoot.array.length ? [newRoot] : [], owner);
-	      newLevel += SHIFT;
-	    }
-	
-	    // Locate or create the new tail.
-	    var oldTail = list._tail;
-	    var newTail = newTailOffset < oldTailOffset ?
-	      listNodeFor(list, newCapacity - 1) :
-	      newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
-	
-	    // Merge Tail into tree.
-	    if (oldTail && newTailOffset > oldTailOffset && newOrigin < oldCapacity && oldTail.array.length) {
-	      newRoot = editableVNode(newRoot, owner);
-	      var node = newRoot;
-	      for (var level = newLevel; level > SHIFT; level -= SHIFT) {
-	        var idx = (oldTailOffset >>> level) & MASK;
-	        node = node.array[idx] = editableVNode(node.array[idx], owner);
-	      }
-	      node.array[(oldTailOffset >>> SHIFT) & MASK] = oldTail;
-	    }
-	
-	    // If the size has been reduced, there's a chance the tail needs to be trimmed.
-	    if (newCapacity < oldCapacity) {
-	      newTail = newTail && newTail.removeAfter(owner, 0, newCapacity);
-	    }
-	
-	    // If the new origin is within the tail, then we do not need a root.
-	    if (newOrigin >= newTailOffset) {
-	      newOrigin -= newTailOffset;
-	      newCapacity -= newTailOffset;
-	      newLevel = SHIFT;
-	      newRoot = null;
-	      newTail = newTail && newTail.removeBefore(owner, 0, newOrigin);
-	
-	    // Otherwise, if the root has been trimmed, garbage collect.
-	    } else if (newOrigin > oldOrigin || newTailOffset < oldTailOffset) {
-	      offsetShift = 0;
-	
-	      // Identify the new top root node of the subtree of the old root.
-	      while (newRoot) {
-	        var beginIndex = (newOrigin >>> newLevel) & MASK;
-	        if (beginIndex !== (newTailOffset >>> newLevel) & MASK) {
-	          break;
-	        }
-	        if (beginIndex) {
-	          offsetShift += (1 << newLevel) * beginIndex;
-	        }
-	        newLevel -= SHIFT;
-	        newRoot = newRoot.array[beginIndex];
-	      }
-	
-	      // Trim the new sides of the new root.
-	      if (newRoot && newOrigin > oldOrigin) {
-	        newRoot = newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
-	      }
-	      if (newRoot && newTailOffset < oldTailOffset) {
-	        newRoot = newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
-	      }
-	      if (offsetShift) {
-	        newOrigin -= offsetShift;
-	        newCapacity -= offsetShift;
-	      }
-	    }
-	
-	    if (list.__ownerID) {
-	      list.size = newCapacity - newOrigin;
-	      list._origin = newOrigin;
-	      list._capacity = newCapacity;
-	      list._level = newLevel;
-	      list._root = newRoot;
-	      list._tail = newTail;
-	      list.__hash = undefined;
-	      list.__altered = true;
-	      return list;
-	    }
-	    return makeList(newOrigin, newCapacity, newLevel, newRoot, newTail);
-	  }
-	
-	  function mergeIntoListWith(list, merger, iterables) {
-	    var iters = [];
-	    var maxSize = 0;
-	    for (var ii = 0; ii < iterables.length; ii++) {
-	      var value = iterables[ii];
-	      var iter = IndexedIterable(value);
-	      if (iter.size > maxSize) {
-	        maxSize = iter.size;
-	      }
-	      if (!isIterable(value)) {
-	        iter = iter.map(function(v ) {return fromJS(v)});
-	      }
-	      iters.push(iter);
-	    }
-	    if (maxSize > list.size) {
-	      list = list.setSize(maxSize);
-	    }
-	    return mergeIntoCollectionWith(list, merger, iters);
-	  }
-	
-	  function getTailOffset(size) {
-	    return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
-	  }
-	
-	  createClass(OrderedMap, Map);
-	
-	    // @pragma Construction
-	
-	    function OrderedMap(value) {
-	      return value === null || value === undefined ? emptyOrderedMap() :
-	        isOrderedMap(value) ? value :
-	        emptyOrderedMap().withMutations(function(map ) {
-	          var iter = KeyedIterable(value);
-	          assertNotInfinite(iter.size);
-	          iter.forEach(function(v, k)  {return map.set(k, v)});
-	        });
-	    }
-	
-	    OrderedMap.of = function(/*...values*/) {
-	      return this(arguments);
-	    };
-	
-	    OrderedMap.prototype.toString = function() {
-	      return this.__toString('OrderedMap {', '}');
-	    };
-	
-	    // @pragma Access
-	
-	    OrderedMap.prototype.get = function(k, notSetValue) {
-	      var index = this._map.get(k);
-	      return index !== undefined ? this._list.get(index)[1] : notSetValue;
-	    };
-	
-	    // @pragma Modification
-	
-	    OrderedMap.prototype.clear = function() {
-	      if (this.size === 0) {
-	        return this;
-	      }
-	      if (this.__ownerID) {
-	        this.size = 0;
-	        this._map.clear();
-	        this._list.clear();
-	        return this;
-	      }
-	      return emptyOrderedMap();
-	    };
-	
-	    OrderedMap.prototype.set = function(k, v) {
-	      return updateOrderedMap(this, k, v);
-	    };
-	
-	    OrderedMap.prototype.remove = function(k) {
-	      return updateOrderedMap(this, k, NOT_SET);
-	    };
-	
-	    OrderedMap.prototype.wasAltered = function() {
-	      return this._map.wasAltered() || this._list.wasAltered();
-	    };
-	
-	    OrderedMap.prototype.__iterate = function(fn, reverse) {var this$0 = this;
-	      return this._list.__iterate(
-	        function(entry ) {return entry && fn(entry[1], entry[0], this$0)},
-	        reverse
-	      );
-	    };
-	
-	    OrderedMap.prototype.__iterator = function(type, reverse) {
-	      return this._list.fromEntrySeq().__iterator(type, reverse);
-	    };
-	
-	    OrderedMap.prototype.__ensureOwner = function(ownerID) {
-	      if (ownerID === this.__ownerID) {
-	        return this;
-	      }
-	      var newMap = this._map.__ensureOwner(ownerID);
-	      var newList = this._list.__ensureOwner(ownerID);
-	      if (!ownerID) {
-	        this.__ownerID = ownerID;
-	        this._map = newMap;
-	        this._list = newList;
-	        return this;
-	      }
-	      return makeOrderedMap(newMap, newList, ownerID, this.__hash);
-	    };
-	
-	
-	  function isOrderedMap(maybeOrderedMap) {
-	    return isMap(maybeOrderedMap) && isOrdered(maybeOrderedMap);
-	  }
-	
-	  OrderedMap.isOrderedMap = isOrderedMap;
-	
-	  OrderedMap.prototype[IS_ORDERED_SENTINEL] = true;
-	  OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
-	
-	
-	
-	  function makeOrderedMap(map, list, ownerID, hash) {
-	    var omap = Object.create(OrderedMap.prototype);
-	    omap.size = map ? map.size : 0;
-	    omap._map = map;
-	    omap._list = list;
-	    omap.__ownerID = ownerID;
-	    omap.__hash = hash;
-	    return omap;
-	  }
-	
-	  var EMPTY_ORDERED_MAP;
-	  function emptyOrderedMap() {
-	    return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
-	  }
-	
-	  function updateOrderedMap(omap, k, v) {
-	    var map = omap._map;
-	    var list = omap._list;
-	    var i = map.get(k);
-	    var has = i !== undefined;
-	    var newMap;
-	    var newList;
-	    if (v === NOT_SET) { // removed
-	      if (!has) {
-	        return omap;
-	      }
-	      if (list.size >= SIZE && list.size >= map.size * 2) {
-	        newList = list.filter(function(entry, idx)  {return entry !== undefined && i !== idx});
-	        newMap = newList.toKeyedSeq().map(function(entry ) {return entry[0]}).flip().toMap();
-	        if (omap.__ownerID) {
-	          newMap.__ownerID = newList.__ownerID = omap.__ownerID;
-	        }
-	      } else {
-	        newMap = map.remove(k);
-	        newList = i === list.size - 1 ? list.pop() : list.set(i, undefined);
-	      }
-	    } else {
-	      if (has) {
-	        if (v === list.get(i)[1]) {
-	          return omap;
-	        }
-	        newMap = map;
-	        newList = list.set(i, [k, v]);
-	      } else {
-	        newMap = map.set(k, list.size);
-	        newList = list.set(list.size, [k, v]);
-	      }
-	    }
-	    if (omap.__ownerID) {
-	      omap.size = newMap.size;
-	      omap._map = newMap;
-	      omap._list = newList;
-	      omap.__hash = undefined;
-	      return omap;
-	    }
-	    return makeOrderedMap(newMap, newList);
-	  }
-	
-	  createClass(ToKeyedSequence, KeyedSeq);
-	    function ToKeyedSequence(indexed, useKeys) {
-	      this._iter = indexed;
-	      this._useKeys = useKeys;
-	      this.size = indexed.size;
-	    }
-	
-	    ToKeyedSequence.prototype.get = function(key, notSetValue) {
-	      return this._iter.get(key, notSetValue);
-	    };
-	
-	    ToKeyedSequence.prototype.has = function(key) {
-	      return this._iter.has(key);
-	    };
-	
-	    ToKeyedSequence.prototype.valueSeq = function() {
-	      return this._iter.valueSeq();
-	    };
-	
-	    ToKeyedSequence.prototype.reverse = function() {var this$0 = this;
-	      var reversedSequence = reverseFactory(this, true);
-	      if (!this._useKeys) {
-	        reversedSequence.valueSeq = function()  {return this$0._iter.toSeq().reverse()};
-	      }
-	      return reversedSequence;
-	    };
-	
-	    ToKeyedSequence.prototype.map = function(mapper, context) {var this$0 = this;
-	      var mappedSequence = mapFactory(this, mapper, context);
-	      if (!this._useKeys) {
-	        mappedSequence.valueSeq = function()  {return this$0._iter.toSeq().map(mapper, context)};
-	      }
-	      return mappedSequence;
-	    };
-	
-	    ToKeyedSequence.prototype.__iterate = function(fn, reverse) {var this$0 = this;
-	      var ii;
-	      return this._iter.__iterate(
-	        this._useKeys ?
-	          function(v, k)  {return fn(v, k, this$0)} :
-	          ((ii = reverse ? resolveSize(this) : 0),
-	            function(v ) {return fn(v, reverse ? --ii : ii++, this$0)}),
-	        reverse
-	      );
-	    };
-	
-	    ToKeyedSequence.prototype.__iterator = function(type, reverse) {
-	      if (this._useKeys) {
-	        return this._iter.__iterator(type, reverse);
-	      }
-	      var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-	      var ii = reverse ? resolveSize(this) : 0;
-	      return new Iterator(function()  {
-	        var step = iterator.next();
-	        return step.done ? step :
-	          iteratorValue(type, reverse ? --ii : ii++, step.value, step);
-	      });
-	    };
-	
-	  ToKeyedSequence.prototype[IS_ORDERED_SENTINEL] = true;
-	
-	
-	  createClass(ToIndexedSequence, IndexedSeq);
-	    function ToIndexedSequence(iter) {
-	      this._iter = iter;
-	      this.size = iter.size;
-	    }
-	
-	    ToIndexedSequence.prototype.includes = function(value) {
-	      return this._iter.includes(value);
-	    };
-	
-	    ToIndexedSequence.prototype.__iterate = function(fn, reverse) {var this$0 = this;
-	      var iterations = 0;
-	      return this._iter.__iterate(function(v ) {return fn(v, iterations++, this$0)}, reverse);
-	    };
-	
-	    ToIndexedSequence.prototype.__iterator = function(type, reverse) {
-	      var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-	      var iterations = 0;
-	      return new Iterator(function()  {
-	        var step = iterator.next();
-	        return step.done ? step :
-	          iteratorValue(type, iterations++, step.value, step)
-	      });
-	    };
-	
-	
-	
-	  createClass(ToSetSequence, SetSeq);
-	    function ToSetSequence(iter) {
-	      this._iter = iter;
-	      this.size = iter.size;
-	    }
-	
-	    ToSetSequence.prototype.has = function(key) {
-	      return this._iter.includes(key);
-	    };
-	
-	    ToSetSequence.prototype.__iterate = function(fn, reverse) {var this$0 = this;
-	      return this._iter.__iterate(function(v ) {return fn(v, v, this$0)}, reverse);
-	    };
-	
-	    ToSetSequence.prototype.__iterator = function(type, reverse) {
-	      var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-	      return new Iterator(function()  {
-	        var step = iterator.next();
-	        return step.done ? step :
-	          iteratorValue(type, step.value, step.value, step);
-	      });
-	    };
-	
-	
-	
-	  createClass(FromEntriesSequence, KeyedSeq);
-	    function FromEntriesSequence(entries) {
-	      this._iter = entries;
-	      this.size = entries.size;
-	    }
-	
-	    FromEntriesSequence.prototype.entrySeq = function() {
-	      return this._iter.toSeq();
-	    };
-	
-	    FromEntriesSequence.prototype.__iterate = function(fn, reverse) {var this$0 = this;
-	      return this._iter.__iterate(function(entry ) {
-	        // Check if entry exists first so array access doesn't throw for holes
-	        // in the parent iteration.
-	        if (entry) {
-	          validateEntry(entry);
-	          var indexedIterable = isIterable(entry);
-	          return fn(
-	            indexedIterable ? entry.get(1) : entry[1],
-	            indexedIterable ? entry.get(0) : entry[0],
-	            this$0
-	          );
-	        }
-	      }, reverse);
-	    };
-	
-	    FromEntriesSequence.prototype.__iterator = function(type, reverse) {
-	      var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
-	      return new Iterator(function()  {
-	        while (true) {
-	          var step = iterator.next();
-	          if (step.done) {
-	            return step;
-	          }
-	          var entry = step.value;
-	          // Check if entry exists first so array access doesn't throw for holes
-	          // in the parent iteration.
-	          if (entry) {
-	            validateEntry(entry);
-	            var indexedIterable = isIterable(entry);
-	            return iteratorValue(
-	              type,
-	              indexedIterable ? entry.get(0) : entry[0],
-	              indexedIterable ? entry.get(1) : entry[1],
-	              step
-	            );
-	          }
-	        }
-	      });
-	    };
-	
-	
-	  ToIndexedSequence.prototype.cacheResult =
-	  ToKeyedSequence.prototype.cacheResult =
-	  ToSetSequence.prototype.cacheResult =
-	  FromEntriesSequence.prototype.cacheResult =
-	    cacheResultThrough;
-	
-	
-	  function flipFactory(iterable) {
-	    var flipSequence = makeSequence(iterable);
-	    flipSequence._iter = iterable;
-	    flipSequence.size = iterable.size;
-	    flipSequence.flip = function()  {return iterable};
-	    flipSequence.reverse = function () {
-	      var reversedSequence = iterable.reverse.apply(this); // super.reverse()
-	      reversedSequence.flip = function()  {return iterable.reverse()};
-	      return reversedSequence;
-	    };
-	    flipSequence.has = function(key ) {return iterable.includes(key)};
-	    flipSequence.includes = function(key ) {return iterable.has(key)};
-	    flipSequence.cacheResult = cacheResultThrough;
-	    flipSequence.__iterateUncached = function (fn, reverse) {var this$0 = this;
-	      return iterable.__iterate(function(v, k)  {return fn(k, v, this$0) !== false}, reverse);
-	    }
-	    flipSequence.__iteratorUncached = function(type, reverse) {
-	      if (type === ITERATE_ENTRIES) {
-	        var iterator = iterable.__iterator(type, reverse);
-	        return new Iterator(function()  {
-	          var step = iterator.next();
-	          if (!step.done) {
-	            var k = step.value[0];
-	            step.value[0] = step.value[1];
-	            step.value[1] = k;
-	          }
-	          return step;
-	        });
-	      }
-	      return iterable.__iterator(
-	        type === ITERATE_VALUES ? ITERATE_KEYS : ITERATE_VALUES,
-	        reverse
-	      );
-	    }
-	    return flipSequence;
-	  }
-	
-	
-	  function mapFactory(iterable, mapper, context) {
-	    var mappedSequence = makeSequence(iterable);
-	    mappedSequence.size = iterable.size;
-	    mappedSequence.has = function(key ) {return iterable.has(key)};
-	    mappedSequence.get = function(key, notSetValue)  {
-	      var v = iterable.get(key, NOT_SET);
-	      return v === NOT_SET ?
-	        notSetValue :
-	        mapper.call(context, v, key, iterable);
-	    };
-	    mappedSequence.__iterateUncached = function (fn, reverse) {var this$0 = this;
-	      return iterable.__iterate(
-	        function(v, k, c)  {return fn(mapper.call(context, v, k, c), k, this$0) !== false},
-	        reverse
-	      );
-	    }
-	    mappedSequence.__iteratorUncached = function (type, reverse) {
-	      var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
-	      return new Iterator(function()  {
-	        var step = iterator.next();
-	        if (step.done) {
-	          return step;
-	        }
-	        var entry = step.value;
-	        var key = entry[0];
-	        return iteratorValue(
-	          type,
-	          key,
-	          mapper.call(context, entry[1], key, iterable),
-	          step
-	        );
-	      });
-	    }
-	    return mappedSequence;
-	  }
-	
-	
-	  function reverseFactory(iterable, useKeys) {
-	    var reversedSequence = makeSequence(iterable);
-	    reversedSequence._iter = iterable;
-	    reversedSequence.size = iterable.size;
-	    reversedSequence.reverse = function()  {return iterable};
-	    if (iterable.flip) {
-	      reversedSequence.flip = function () {
-	        var flipSequence = flipFactory(iterable);
-	        flipSequence.reverse = function()  {return iterable.flip()};
-	        return flipSequence;
-	      };
-	    }
-	    reversedSequence.get = function(key, notSetValue) 
-	      {return iterable.get(useKeys ? key : -1 - key, notSetValue)};
-	    reversedSequence.has = function(key )
-	      {return iterable.has(useKeys ? key : -1 - key)};
-	    reversedSequence.includes = function(value ) {return iterable.includes(value)};
-	    reversedSequence.cacheResult = cacheResultThrough;
-	    reversedSequence.__iterate = function (fn, reverse) {var this$0 = this;
-	      return iterable.__iterate(function(v, k)  {return fn(v, k, this$0)}, !reverse);
-	    };
-	    reversedSequence.__iterator =
-	      function(type, reverse)  {return iterable.__iterator(type, !reverse)};
-	    return reversedSequence;
-	  }
-	
-	
-	  function filterFactory(iterable, predicate, context, useKeys) {
-	    var filterSequence = makeSequence(iterable);
-	    if (useKeys) {
-	      filterSequence.has = function(key ) {
-	        var v = iterable.get(key, NOT_SET);
-	        return v !== NOT_SET && !!predicate.call(context, v, key, iterable);
-	      };
-	      filterSequence.get = function(key, notSetValue)  {
-	        var v = iterable.get(key, NOT_SET);
-	        return v !== NOT_SET && predicate.call(context, v, key, iterable) ?
-	          v : notSetValue;
-	      };
-	    }
-	    filterSequence.__iterateUncached = function (fn, reverse) {var this$0 = this;
-	      var iterations = 0;
-	      iterable.__iterate(function(v, k, c)  {
-	        if (predicate.call(context, v, k, c)) {
-	          iterations++;
-	          return fn(v, useKeys ? k : iterations - 1, this$0);
-	        }
-	      }, reverse);
-	      return iterations;
-	    };
-	    filterSequence.__iteratorUncached = function (type, reverse) {
-	      var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
-	      var iterations = 0;
-	      return new Iterator(function()  {
-	        while (true) {
-	          var step = iterator.next();
-	          if (step.done) {
-	            return step;
-	          }
-	          var entry = step.value;
-	          var key = entry[0];
-	          var value = entry[1];
-	          if (predicate.call(context, value, key, iterable)) {
-	            return iteratorValue(type, useKeys ? key : iterations++, value, step);
-	          }
-	        }
-	      });
-	    }
-	    return filterSequence;
-	  }
-	
-	
-	  function countByFactory(iterable, grouper, context) {
-	    var groups = Map().asMutable();
-	    iterable.__iterate(function(v, k)  {
-	      groups.update(
-	        grouper.call(context, v, k, iterable),
-	        0,
-	        function(a ) {return a + 1}
-	      );
-	    });
-	    return groups.asImmutable();
-	  }
-	
-	
-	  function groupByFactory(iterable, grouper, context) {
-	    var isKeyedIter = isKeyed(iterable);
-	    var groups = (isOrdered(iterable) ? OrderedMap() : Map()).asMutable();
-	    iterable.__iterate(function(v, k)  {
-	      groups.update(
-	        grouper.call(context, v, k, iterable),
-	        function(a ) {return (a = a || [], a.push(isKeyedIter ? [k, v] : v), a)}
-	      );
-	    });
-	    var coerce = iterableClass(iterable);
-	    return groups.map(function(arr ) {return reify(iterable, coerce(arr))});
-	  }
-	
-	
-	  function sliceFactory(iterable, begin, end, useKeys) {
-	    var originalSize = iterable.size;
-	
-	    // Sanitize begin & end using this shorthand for ToInt32(argument)
-	    // http://www.ecma-international.org/ecma-262/6.0/#sec-toint32
-	    if (begin !== undefined) {
-	      begin = begin | 0;
-	    }
-	    if (end !== undefined) {
-	      if (end === Infinity) {
-	        end = originalSize;
-	      } else {
-	        end = end | 0;
-	      }
-	    }
-	
-	    if (wholeSlice(begin, end, originalSize)) {
-	      return iterable;
-	    }
-	
-	    var resolvedBegin = resolveBegin(begin, originalSize);
-	    var resolvedEnd = resolveEnd(end, originalSize);
-	
-	    // begin or end will be NaN if they were provided as negative numbers and
-	    // this iterable's size is unknown. In that case, cache first so there is
-	    // a known size and these do not resolve to NaN.
-	    if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
-	      return sliceFactory(iterable.toSeq().cacheResult(), begin, end, useKeys);
-	    }
-	
-	    // Note: resolvedEnd is undefined when the original sequence's length is
-	    // unknown and this slice did not supply an end and should contain all
-	    // elements after resolvedBegin.
-	    // In that case, resolvedSize will be NaN and sliceSize will remain undefined.
-	    var resolvedSize = resolvedEnd - resolvedBegin;
-	    var sliceSize;
-	    if (resolvedSize === resolvedSize) {
-	      sliceSize = resolvedSize < 0 ? 0 : resolvedSize;
-	    }
-	
-	    var sliceSeq = makeSequence(iterable);
-	
-	    // If iterable.size is undefined, the size of the realized sliceSeq is
-	    // unknown at this point unless the number of items to slice is 0
-	    sliceSeq.size = sliceSize === 0 ? sliceSize : iterable.size && sliceSize || undefined;
-	
-	    if (!useKeys && isSeq(iterable) && sliceSize >= 0) {
-	      sliceSeq.get = function (index, notSetValue) {
-	        index = wrapIndex(this, index);
-	        return index >= 0 && index < sliceSize ?
-	          iterable.get(index + resolvedBegin, notSetValue) :
-	          notSetValue;
-	      }
-	    }
-	
-	    sliceSeq.__iterateUncached = function(fn, reverse) {var this$0 = this;
-	      if (sliceSize === 0) {
-	        return 0;
-	      }
-	      if (reverse) {
-	        return this.cacheResult().__iterate(fn, reverse);
-	      }
-	      var skipped = 0;
-	      var isSkipping = true;
-	      var iterations = 0;
-	      iterable.__iterate(function(v, k)  {
-	        if (!(isSkipping && (isSkipping = skipped++ < resolvedBegin))) {
-	          iterations++;
-	          return fn(v, useKeys ? k : iterations - 1, this$0) !== false &&
-	                 iterations !== sliceSize;
-	        }
-	      });
-	      return iterations;
-	    };
-	
-	    sliceSeq.__iteratorUncached = function(type, reverse) {
-	      if (sliceSize !== 0 && reverse) {
-	        return this.cacheResult().__iterator(type, reverse);
-	      }
-	      // Don't bother instantiating parent iterator if taking 0.
-	      var iterator = sliceSize !== 0 && iterable.__iterator(type, reverse);
-	      var skipped = 0;
-	      var iterations = 0;
-	      return new Iterator(function()  {
-	        while (skipped++ < resolvedBegin) {
-	          iterator.next();
-	        }
-	        if (++iterations > sliceSize) {
-	          return iteratorDone();
-	        }
-	        var step = iterator.next();
-	        if (useKeys || type === ITERATE_VALUES) {
-	          return step;
-	        } else if (type === ITERATE_KEYS) {
-	          return iteratorValue(type, iterations - 1, undefined, step);
-	        } else {
-	          return iteratorValue(type, iterations - 1, step.value[1], step);
-	        }
-	      });
-	    }
-	
-	    return sliceSeq;
-	  }
-	
-	
-	  function takeWhileFactory(iterable, predicate, context) {
-	    var takeSequence = makeSequence(iterable);
-	    takeSequence.__iterateUncached = function(fn, reverse) {var this$0 = this;
-	      if (reverse) {
-	        return this.cacheResult().__iterate(fn, reverse);
-	      }
-	      var iterations = 0;
-	      iterable.__iterate(function(v, k, c) 
-	        {return predicate.call(context, v, k, c) && ++iterations && fn(v, k, this$0)}
-	      );
-	      return iterations;
-	    };
-	    takeSequence.__iteratorUncached = function(type, reverse) {var this$0 = this;
-	      if (reverse) {
-	        return this.cacheResult().__iterator(type, reverse);
-	      }
-	      var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
-	      var iterating = true;
-	      return new Iterator(function()  {
-	        if (!iterating) {
-	          return iteratorDone();
-	        }
-	        var step = iterator.next();
-	        if (step.done) {
-	          return step;
-	        }
-	        var entry = step.value;
-	        var k = entry[0];
-	        var v = entry[1];
-	        if (!predicate.call(context, v, k, this$0)) {
-	          iterating = false;
-	          return iteratorDone();
-	        }
-	        return type === ITERATE_ENTRIES ? step :
-	          iteratorValue(type, k, v, step);
-	      });
-	    };
-	    return takeSequence;
-	  }
-	
-	
-	  function skipWhileFactory(iterable, predicate, context, useKeys) {
-	    var skipSequence = makeSequence(iterable);
-	    skipSequence.__iterateUncached = function (fn, reverse) {var this$0 = this;
-	      if (reverse) {
-	        return this.cacheResult().__iterate(fn, reverse);
-	      }
-	      var isSkipping = true;
-	      var iterations = 0;
-	      iterable.__iterate(function(v, k, c)  {
-	        if (!(isSkipping && (isSkipping = predicate.call(context, v, k, c)))) {
-	          iterations++;
-	          return fn(v, useKeys ? k : iterations - 1, this$0);
-	        }
-	      });
-	      return iterations;
-	    };
-	    skipSequence.__iteratorUncached = function(type, reverse) {var this$0 = this;
-	      if (reverse) {
-	        return this.cacheResult().__iterator(type, reverse);
-	      }
-	      var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
-	      var skipping = true;
-	      var iterations = 0;
-	      return new Iterator(function()  {
-	        var step, k, v;
-	        do {
-	          step = iterator.next();
-	          if (step.done) {
-	            if (useKeys || type === ITERATE_VALUES) {
-	              return step;
-	            } else if (type === ITERATE_KEYS) {
-	              return iteratorValue(type, iterations++, undefined, step);
-	            } else {
-	              return iteratorValue(type, iterations++, step.value[1], step);
-	            }
-	          }
-	          var entry = step.value;
-	          k = entry[0];
-	          v = entry[1];
-	          skipping && (skipping = predicate.call(context, v, k, this$0));
-	        } while (skipping);
-	        return type === ITERATE_ENTRIES ? step :
-	          iteratorValue(type, k, v, step);
-	      });
-	    };
-	    return skipSequence;
-	  }
-	
-	
-	  function concatFactory(iterable, values) {
-	    var isKeyedIterable = isKeyed(iterable);
-	    var iters = [iterable].concat(values).map(function(v ) {
-	      if (!isIterable(v)) {
-	        v = isKeyedIterable ?
-	          keyedSeqFromValue(v) :
-	          indexedSeqFromValue(Array.isArray(v) ? v : [v]);
-	      } else if (isKeyedIterable) {
-	        v = KeyedIterable(v);
-	      }
-	      return v;
-	    }).filter(function(v ) {return v.size !== 0});
-	
-	    if (iters.length === 0) {
-	      return iterable;
-	    }
-	
-	    if (iters.length === 1) {
-	      var singleton = iters[0];
-	      if (singleton === iterable ||
-	          isKeyedIterable && isKeyed(singleton) ||
-	          isIndexed(iterable) && isIndexed(singleton)) {
-	        return singleton;
-	      }
-	    }
-	
-	    var concatSeq = new ArraySeq(iters);
-	    if (isKeyedIterable) {
-	      concatSeq = concatSeq.toKeyedSeq();
-	    } else if (!isIndexed(iterable)) {
-	      concatSeq = concatSeq.toSetSeq();
-	    }
-	    concatSeq = concatSeq.flatten(true);
-	    concatSeq.size = iters.reduce(
-	      function(sum, seq)  {
-	        if (sum !== undefined) {
-	          var size = seq.size;
-	          if (size !== undefined) {
-	            return sum + size;
-	          }
-	        }
-	      },
-	      0
-	    );
-	    return concatSeq;
-	  }
-	
-	
-	  function flattenFactory(iterable, depth, useKeys) {
-	    var flatSequence = makeSequence(iterable);
-	    flatSequence.__iterateUncached = function(fn, reverse) {
-	      var iterations = 0;
-	      var stopped = false;
-	      function flatDeep(iter, currentDepth) {var this$0 = this;
-	        iter.__iterate(function(v, k)  {
-	          if ((!depth || currentDepth < depth) && isIterable(v)) {
-	            flatDeep(v, currentDepth + 1);
-	          } else if (fn(v, useKeys ? k : iterations++, this$0) === false) {
-	            stopped = true;
-	          }
-	          return !stopped;
-	        }, reverse);
-	      }
-	      flatDeep(iterable, 0);
-	      return iterations;
-	    }
-	    flatSequence.__iteratorUncached = function(type, reverse) {
-	      var iterator = iterable.__iterator(type, reverse);
-	      var stack = [];
-	      var iterations = 0;
-	      return new Iterator(function()  {
-	        while (iterator) {
-	          var step = iterator.next();
-	          if (step.done !== false) {
-	            iterator = stack.pop();
-	            continue;
-	          }
-	          var v = step.value;
-	          if (type === ITERATE_ENTRIES) {
-	            v = v[1];
-	          }
-	          if ((!depth || stack.length < depth) && isIterable(v)) {
-	            stack.push(iterator);
-	            iterator = v.__iterator(type, reverse);
-	          } else {
-	            return useKeys ? step : iteratorValue(type, iterations++, v, step);
-	          }
-	        }
-	        return iteratorDone();
-	      });
-	    }
-	    return flatSequence;
-	  }
-	
-	
-	  function flatMapFactory(iterable, mapper, context) {
-	    var coerce = iterableClass(iterable);
-	    return iterable.toSeq().map(
-	      function(v, k)  {return coerce(mapper.call(context, v, k, iterable))}
-	    ).flatten(true);
-	  }
-	
-	
-	  function interposeFactory(iterable, separator) {
-	    var interposedSequence = makeSequence(iterable);
-	    interposedSequence.size = iterable.size && iterable.size * 2 -1;
-	    interposedSequence.__iterateUncached = function(fn, reverse) {var this$0 = this;
-	      var iterations = 0;
-	      iterable.__iterate(function(v, k) 
-	        {return (!iterations || fn(separator, iterations++, this$0) !== false) &&
-	        fn(v, iterations++, this$0) !== false},
-	        reverse
-	      );
-	      return iterations;
-	    };
-	    interposedSequence.__iteratorUncached = function(type, reverse) {
-	      var iterator = iterable.__iterator(ITERATE_VALUES, reverse);
-	      var iterations = 0;
-	      var step;
-	      return new Iterator(function()  {
-	        if (!step || iterations % 2) {
-	          step = iterator.next();
-	          if (step.done) {
-	            return step;
-	          }
-	        }
-	        return iterations % 2 ?
-	          iteratorValue(type, iterations++, separator) :
-	          iteratorValue(type, iterations++, step.value, step);
-	      });
-	    };
-	    return interposedSequence;
-	  }
-	
-	
-	  function sortFactory(iterable, comparator, mapper) {
-	    if (!comparator) {
-	      comparator = defaultComparator;
-	    }
-	    var isKeyedIterable = isKeyed(iterable);
-	    var index = 0;
-	    var entries = iterable.toSeq().map(
-	      function(v, k)  {return [k, v, index++, mapper ? mapper(v, k, iterable) : v]}
-	    ).toArray();
-	    entries.sort(function(a, b)  {return comparator(a[3], b[3]) || a[2] - b[2]}).forEach(
-	      isKeyedIterable ?
-	      function(v, i)  { entries[i].length = 2; } :
-	      function(v, i)  { entries[i] = v[1]; }
-	    );
-	    return isKeyedIterable ? KeyedSeq(entries) :
-	      isIndexed(iterable) ? IndexedSeq(entries) :
-	      SetSeq(entries);
-	  }
-	
-	
-	  function maxFactory(iterable, comparator, mapper) {
-	    if (!comparator) {
-	      comparator = defaultComparator;
-	    }
-	    if (mapper) {
-	      var entry = iterable.toSeq()
-	        .map(function(v, k)  {return [v, mapper(v, k, iterable)]})
-	        .reduce(function(a, b)  {return maxCompare(comparator, a[1], b[1]) ? b : a});
-	      return entry && entry[0];
-	    } else {
-	      return iterable.reduce(function(a, b)  {return maxCompare(comparator, a, b) ? b : a});
-	    }
-	  }
-	
-	  function maxCompare(comparator, a, b) {
-	    var comp = comparator(b, a);
-	    // b is considered the new max if the comparator declares them equal, but
-	    // they are not equal and b is in fact a nullish value.
-	    return (comp === 0 && b !== a && (b === undefined || b === null || b !== b)) || comp > 0;
-	  }
-	
-	
-	  function zipWithFactory(keyIter, zipper, iters) {
-	    var zipSequence = makeSequence(keyIter);
-	    zipSequence.size = new ArraySeq(iters).map(function(i ) {return i.size}).min();
-	    // Note: this a generic base implementation of __iterate in terms of
-	    // __iterator which may be more generically useful in the future.
-	    zipSequence.__iterate = function(fn, reverse) {
-	      /* generic:
-	      var iterator = this.__iterator(ITERATE_ENTRIES, reverse);
-	      var step;
-	      var iterations = 0;
-	      while (!(step = iterator.next()).done) {
-	        iterations++;
-	        if (fn(step.value[1], step.value[0], this) === false) {
-	          break;
-	        }
-	      }
-	      return iterations;
-	      */
-	      // indexed:
-	      var iterator = this.__iterator(ITERATE_VALUES, reverse);
-	      var step;
-	      var iterations = 0;
-	      while (!(step = iterator.next()).done) {
-	        if (fn(step.value, iterations++, this) === false) {
-	          break;
-	        }
-	      }
-	      return iterations;
-	    };
-	    zipSequence.__iteratorUncached = function(type, reverse) {
-	      var iterators = iters.map(function(i )
-	        {return (i = Iterable(i), getIterator(reverse ? i.reverse() : i))}
-	      );
-	      var iterations = 0;
-	      var isDone = false;
-	      return new Iterator(function()  {
-	        var steps;
-	        if (!isDone) {
-	          steps = iterators.map(function(i ) {return i.next()});
-	          isDone = steps.some(function(s ) {return s.done});
-	        }
-	        if (isDone) {
-	          return iteratorDone();
-	        }
-	        return iteratorValue(
-	          type,
-	          iterations++,
-	          zipper.apply(null, steps.map(function(s ) {return s.value}))
-	        );
-	      });
-	    };
-	    return zipSequence
-	  }
-	
-	
-	  // #pragma Helper Functions
-	
-	  function reify(iter, seq) {
-	    return isSeq(iter) ? seq : iter.constructor(seq);
-	  }
-	
-	  function validateEntry(entry) {
-	    if (entry !== Object(entry)) {
-	      throw new TypeError('Expected [K, V] tuple: ' + entry);
-	    }
-	  }
-	
-	  function resolveSize(iter) {
-	    assertNotInfinite(iter.size);
-	    return ensureSize(iter);
-	  }
-	
-	  function iterableClass(iterable) {
-	    return isKeyed(iterable) ? KeyedIterable :
-	      isIndexed(iterable) ? IndexedIterable :
-	      SetIterable;
-	  }
-	
-	  function makeSequence(iterable) {
-	    return Object.create(
-	      (
-	        isKeyed(iterable) ? KeyedSeq :
-	        isIndexed(iterable) ? IndexedSeq :
-	        SetSeq
-	      ).prototype
-	    );
-	  }
-	
-	  function cacheResultThrough() {
-	    if (this._iter.cacheResult) {
-	      this._iter.cacheResult();
-	      this.size = this._iter.size;
-	      return this;
-	    } else {
-	      return Seq.prototype.cacheResult.call(this);
-	    }
-	  }
-	
-	  function defaultComparator(a, b) {
-	    return a > b ? 1 : a < b ? -1 : 0;
-	  }
-	
-	  function forceIterator(keyPath) {
-	    var iter = getIterator(keyPath);
-	    if (!iter) {
-	      // Array might not be iterable in this environment, so we need a fallback
-	      // to our wrapped type.
-	      if (!isArrayLike(keyPath)) {
-	        throw new TypeError('Expected iterable or array-like: ' + keyPath);
-	      }
-	      iter = getIterator(Iterable(keyPath));
-	    }
-	    return iter;
-	  }
-	
-	  createClass(Record, KeyedCollection);
-	
-	    function Record(defaultValues, name) {
-	      var hasInitialized;
-	
-	      var RecordType = function Record(values) {
-	        if (values instanceof RecordType) {
-	          return values;
-	        }
-	        if (!(this instanceof RecordType)) {
-	          return new RecordType(values);
-	        }
-	        if (!hasInitialized) {
-	          hasInitialized = true;
-	          var keys = Object.keys(defaultValues);
-	          setProps(RecordTypePrototype, keys);
-	          RecordTypePrototype.size = keys.length;
-	          RecordTypePrototype._name = name;
-	          RecordTypePrototype._keys = keys;
-	          RecordTypePrototype._defaultValues = defaultValues;
-	        }
-	        this._map = Map(values);
-	      };
-	
-	      var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
-	      RecordTypePrototype.constructor = RecordType;
-	
-	      return RecordType;
-	    }
-	
-	    Record.prototype.toString = function() {
-	      return this.__toString(recordName(this) + ' {', '}');
-	    };
-	
-	    // @pragma Access
-	
-	    Record.prototype.has = function(k) {
-	      return this._defaultValues.hasOwnProperty(k);
-	    };
-	
-	    Record.prototype.get = function(k, notSetValue) {
-	      if (!this.has(k)) {
-	        return notSetValue;
-	      }
-	      var defaultVal = this._defaultValues[k];
-	      return this._map ? this._map.get(k, defaultVal) : defaultVal;
-	    };
-	
-	    // @pragma Modification
-	
-	    Record.prototype.clear = function() {
-	      if (this.__ownerID) {
-	        this._map && this._map.clear();
-	        return this;
-	      }
-	      var RecordType = this.constructor;
-	      return RecordType._empty || (RecordType._empty = makeRecord(this, emptyMap()));
-	    };
-	
-	    Record.prototype.set = function(k, v) {
-	      if (!this.has(k)) {
-	        throw new Error('Cannot set unknown key "' + k + '" on ' + recordName(this));
-	      }
-	      if (this._map && !this._map.has(k)) {
-	        var defaultVal = this._defaultValues[k];
-	        if (v === defaultVal) {
-	          return this;
-	        }
-	      }
-	      var newMap = this._map && this._map.set(k, v);
-	      if (this.__ownerID || newMap === this._map) {
-	        return this;
-	      }
-	      return makeRecord(this, newMap);
-	    };
-	
-	    Record.prototype.remove = function(k) {
-	      if (!this.has(k)) {
-	        return this;
-	      }
-	      var newMap = this._map && this._map.remove(k);
-	      if (this.__ownerID || newMap === this._map) {
-	        return this;
-	      }
-	      return makeRecord(this, newMap);
-	    };
-	
-	    Record.prototype.wasAltered = function() {
-	      return this._map.wasAltered();
-	    };
-	
-	    Record.prototype.__iterator = function(type, reverse) {var this$0 = this;
-	      return KeyedIterable(this._defaultValues).map(function(_, k)  {return this$0.get(k)}).__iterator(type, reverse);
-	    };
-	
-	    Record.prototype.__iterate = function(fn, reverse) {var this$0 = this;
-	      return KeyedIterable(this._defaultValues).map(function(_, k)  {return this$0.get(k)}).__iterate(fn, reverse);
-	    };
-	
-	    Record.prototype.__ensureOwner = function(ownerID) {
-	      if (ownerID === this.__ownerID) {
-	        return this;
-	      }
-	      var newMap = this._map && this._map.__ensureOwner(ownerID);
-	      if (!ownerID) {
-	        this.__ownerID = ownerID;
-	        this._map = newMap;
-	        return this;
-	      }
-	      return makeRecord(this, newMap, ownerID);
-	    };
-	
-	
-	  var RecordPrototype = Record.prototype;
-	  RecordPrototype[DELETE] = RecordPrototype.remove;
-	  RecordPrototype.deleteIn =
-	  RecordPrototype.removeIn = MapPrototype.removeIn;
-	  RecordPrototype.merge = MapPrototype.merge;
-	  RecordPrototype.mergeWith = MapPrototype.mergeWith;
-	  RecordPrototype.mergeIn = MapPrototype.mergeIn;
-	  RecordPrototype.mergeDeep = MapPrototype.mergeDeep;
-	  RecordPrototype.mergeDeepWith = MapPrototype.mergeDeepWith;
-	  RecordPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
-	  RecordPrototype.setIn = MapPrototype.setIn;
-	  RecordPrototype.update = MapPrototype.update;
-	  RecordPrototype.updateIn = MapPrototype.updateIn;
-	  RecordPrototype.withMutations = MapPrototype.withMutations;
-	  RecordPrototype.asMutable = MapPrototype.asMutable;
-	  RecordPrototype.asImmutable = MapPrototype.asImmutable;
-	
-	
-	  function makeRecord(likeRecord, map, ownerID) {
-	    var record = Object.create(Object.getPrototypeOf(likeRecord));
-	    record._map = map;
-	    record.__ownerID = ownerID;
-	    return record;
-	  }
-	
-	  function recordName(record) {
-	    return record._name || record.constructor.name || 'Record';
-	  }
-	
-	  function setProps(prototype, names) {
-	    try {
-	      names.forEach(setProp.bind(undefined, prototype));
-	    } catch (error) {
-	      // Object.defineProperty failed. Probably IE8.
-	    }
-	  }
-	
-	  function setProp(prototype, name) {
-	    Object.defineProperty(prototype, name, {
-	      get: function() {
-	        return this.get(name);
-	      },
-	      set: function(value) {
-	        invariant(this.__ownerID, 'Cannot set on an immutable record.');
-	        this.set(name, value);
-	      }
-	    });
-	  }
-	
-	  createClass(Set, SetCollection);
-	
-	    // @pragma Construction
-	
-	    function Set(value) {
-	      return value === null || value === undefined ? emptySet() :
-	        isSet(value) && !isOrdered(value) ? value :
-	        emptySet().withMutations(function(set ) {
-	          var iter = SetIterable(value);
-	          assertNotInfinite(iter.size);
-	          iter.forEach(function(v ) {return set.add(v)});
-	        });
-	    }
-	
-	    Set.of = function(/*...values*/) {
-	      return this(arguments);
-	    };
-	
-	    Set.fromKeys = function(value) {
-	      return this(KeyedIterable(value).keySeq());
-	    };
-	
-	    Set.prototype.toString = function() {
-	      return this.__toString('Set {', '}');
-	    };
-	
-	    // @pragma Access
-	
-	    Set.prototype.has = function(value) {
-	      return this._map.has(value);
-	    };
-	
-	    // @pragma Modification
-	
-	    Set.prototype.add = function(value) {
-	      return updateSet(this, this._map.set(value, true));
-	    };
-	
-	    Set.prototype.remove = function(value) {
-	      return updateSet(this, this._map.remove(value));
-	    };
-	
-	    Set.prototype.clear = function() {
-	      return updateSet(this, this._map.clear());
-	    };
-	
-	    // @pragma Composition
-	
-	    Set.prototype.union = function() {var iters = SLICE$0.call(arguments, 0);
-	      iters = iters.filter(function(x ) {return x.size !== 0});
-	      if (iters.length === 0) {
-	        return this;
-	      }
-	      if (this.size === 0 && !this.__ownerID && iters.length === 1) {
-	        return this.constructor(iters[0]);
-	      }
-	      return this.withMutations(function(set ) {
-	        for (var ii = 0; ii < iters.length; ii++) {
-	          SetIterable(iters[ii]).forEach(function(value ) {return set.add(value)});
-	        }
-	      });
-	    };
-	
-	    Set.prototype.intersect = function() {var iters = SLICE$0.call(arguments, 0);
-	      if (iters.length === 0) {
-	        return this;
-	      }
-	      iters = iters.map(function(iter ) {return SetIterable(iter)});
-	      var originalSet = this;
-	      return this.withMutations(function(set ) {
-	        originalSet.forEach(function(value ) {
-	          if (!iters.every(function(iter ) {return iter.includes(value)})) {
-	            set.remove(value);
-	          }
-	        });
-	      });
-	    };
-	
-	    Set.prototype.subtract = function() {var iters = SLICE$0.call(arguments, 0);
-	      if (iters.length === 0) {
-	        return this;
-	      }
-	      iters = iters.map(function(iter ) {return SetIterable(iter)});
-	      var originalSet = this;
-	      return this.withMutations(function(set ) {
-	        originalSet.forEach(function(value ) {
-	          if (iters.some(function(iter ) {return iter.includes(value)})) {
-	            set.remove(value);
-	          }
-	        });
-	      });
-	    };
-	
-	    Set.prototype.merge = function() {
-	      return this.union.apply(this, arguments);
-	    };
-	
-	    Set.prototype.mergeWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
-	      return this.union.apply(this, iters);
-	    };
-	
-	    Set.prototype.sort = function(comparator) {
-	      // Late binding
-	      return OrderedSet(sortFactory(this, comparator));
-	    };
-	
-	    Set.prototype.sortBy = function(mapper, comparator) {
-	      // Late binding
-	      return OrderedSet(sortFactory(this, comparator, mapper));
-	    };
-	
-	    Set.prototype.wasAltered = function() {
-	      return this._map.wasAltered();
-	    };
-	
-	    Set.prototype.__iterate = function(fn, reverse) {var this$0 = this;
-	      return this._map.__iterate(function(_, k)  {return fn(k, k, this$0)}, reverse);
-	    };
-	
-	    Set.prototype.__iterator = function(type, reverse) {
-	      return this._map.map(function(_, k)  {return k}).__iterator(type, reverse);
-	    };
-	
-	    Set.prototype.__ensureOwner = function(ownerID) {
-	      if (ownerID === this.__ownerID) {
-	        return this;
-	      }
-	      var newMap = this._map.__ensureOwner(ownerID);
-	      if (!ownerID) {
-	        this.__ownerID = ownerID;
-	        this._map = newMap;
-	        return this;
-	      }
-	      return this.__make(newMap, ownerID);
-	    };
-	
-	
-	  function isSet(maybeSet) {
-	    return !!(maybeSet && maybeSet[IS_SET_SENTINEL]);
-	  }
-	
-	  Set.isSet = isSet;
-	
-	  var IS_SET_SENTINEL = '@@__IMMUTABLE_SET__@@';
-	
-	  var SetPrototype = Set.prototype;
-	  SetPrototype[IS_SET_SENTINEL] = true;
-	  SetPrototype[DELETE] = SetPrototype.remove;
-	  SetPrototype.mergeDeep = SetPrototype.merge;
-	  SetPrototype.mergeDeepWith = SetPrototype.mergeWith;
-	  SetPrototype.withMutations = MapPrototype.withMutations;
-	  SetPrototype.asMutable = MapPrototype.asMutable;
-	  SetPrototype.asImmutable = MapPrototype.asImmutable;
-	
-	  SetPrototype.__empty = emptySet;
-	  SetPrototype.__make = makeSet;
-	
-	  function updateSet(set, newMap) {
-	    if (set.__ownerID) {
-	      set.size = newMap.size;
-	      set._map = newMap;
-	      return set;
-	    }
-	    return newMap === set._map ? set :
-	      newMap.size === 0 ? set.__empty() :
-	      set.__make(newMap);
-	  }
-	
-	  function makeSet(map, ownerID) {
-	    var set = Object.create(SetPrototype);
-	    set.size = map ? map.size : 0;
-	    set._map = map;
-	    set.__ownerID = ownerID;
-	    return set;
-	  }
-	
-	  var EMPTY_SET;
-	  function emptySet() {
-	    return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
-	  }
-	
-	  createClass(OrderedSet, Set);
-	
-	    // @pragma Construction
-	
-	    function OrderedSet(value) {
-	      return value === null || value === undefined ? emptyOrderedSet() :
-	        isOrderedSet(value) ? value :
-	        emptyOrderedSet().withMutations(function(set ) {
-	          var iter = SetIterable(value);
-	          assertNotInfinite(iter.size);
-	          iter.forEach(function(v ) {return set.add(v)});
-	        });
-	    }
-	
-	    OrderedSet.of = function(/*...values*/) {
-	      return this(arguments);
-	    };
-	
-	    OrderedSet.fromKeys = function(value) {
-	      return this(KeyedIterable(value).keySeq());
-	    };
-	
-	    OrderedSet.prototype.toString = function() {
-	      return this.__toString('OrderedSet {', '}');
-	    };
-	
-	
-	  function isOrderedSet(maybeOrderedSet) {
-	    return isSet(maybeOrderedSet) && isOrdered(maybeOrderedSet);
-	  }
-	
-	  OrderedSet.isOrderedSet = isOrderedSet;
-	
-	  var OrderedSetPrototype = OrderedSet.prototype;
-	  OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
-	
-	  OrderedSetPrototype.__empty = emptyOrderedSet;
-	  OrderedSetPrototype.__make = makeOrderedSet;
-	
-	  function makeOrderedSet(map, ownerID) {
-	    var set = Object.create(OrderedSetPrototype);
-	    set.size = map ? map.size : 0;
-	    set._map = map;
-	    set.__ownerID = ownerID;
-	    return set;
-	  }
-	
-	  var EMPTY_ORDERED_SET;
-	  function emptyOrderedSet() {
-	    return EMPTY_ORDERED_SET || (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()));
-	  }
-	
-	  createClass(Stack, IndexedCollection);
-	
-	    // @pragma Construction
-	
-	    function Stack(value) {
-	      return value === null || value === undefined ? emptyStack() :
-	        isStack(value) ? value :
-	        emptyStack().unshiftAll(value);
-	    }
-	
-	    Stack.of = function(/*...values*/) {
-	      return this(arguments);
-	    };
-	
-	    Stack.prototype.toString = function() {
-	      return this.__toString('Stack [', ']');
-	    };
-	
-	    // @pragma Access
-	
-	    Stack.prototype.get = function(index, notSetValue) {
-	      var head = this._head;
-	      index = wrapIndex(this, index);
-	      while (head && index--) {
-	        head = head.next;
-	      }
-	      return head ? head.value : notSetValue;
-	    };
-	
-	    Stack.prototype.peek = function() {
-	      return this._head && this._head.value;
-	    };
-	
-	    // @pragma Modification
-	
-	    Stack.prototype.push = function(/*...values*/) {
-	      if (arguments.length === 0) {
-	        return this;
-	      }
-	      var newSize = this.size + arguments.length;
-	      var head = this._head;
-	      for (var ii = arguments.length - 1; ii >= 0; ii--) {
-	        head = {
-	          value: arguments[ii],
-	          next: head
-	        };
-	      }
-	      if (this.__ownerID) {
-	        this.size = newSize;
-	        this._head = head;
-	        this.__hash = undefined;
-	        this.__altered = true;
-	        return this;
-	      }
-	      return makeStack(newSize, head);
-	    };
-	
-	    Stack.prototype.pushAll = function(iter) {
-	      iter = IndexedIterable(iter);
-	      if (iter.size === 0) {
-	        return this;
-	      }
-	      assertNotInfinite(iter.size);
-	      var newSize = this.size;
-	      var head = this._head;
-	      iter.reverse().forEach(function(value ) {
-	        newSize++;
-	        head = {
-	          value: value,
-	          next: head
-	        };
-	      });
-	      if (this.__ownerID) {
-	        this.size = newSize;
-	        this._head = head;
-	        this.__hash = undefined;
-	        this.__altered = true;
-	        return this;
-	      }
-	      return makeStack(newSize, head);
-	    };
-	
-	    Stack.prototype.pop = function() {
-	      return this.slice(1);
-	    };
-	
-	    Stack.prototype.unshift = function(/*...values*/) {
-	      return this.push.apply(this, arguments);
-	    };
-	
-	    Stack.prototype.unshiftAll = function(iter) {
-	      return this.pushAll(iter);
-	    };
-	
-	    Stack.prototype.shift = function() {
-	      return this.pop.apply(this, arguments);
-	    };
-	
-	    Stack.prototype.clear = function() {
-	      if (this.size === 0) {
-	        return this;
-	      }
-	      if (this.__ownerID) {
-	        this.size = 0;
-	        this._head = undefined;
-	        this.__hash = undefined;
-	        this.__altered = true;
-	        return this;
-	      }
-	      return emptyStack();
-	    };
-	
-	    Stack.prototype.slice = function(begin, end) {
-	      if (wholeSlice(begin, end, this.size)) {
-	        return this;
-	      }
-	      var resolvedBegin = resolveBegin(begin, this.size);
-	      var resolvedEnd = resolveEnd(end, this.size);
-	      if (resolvedEnd !== this.size) {
-	        // super.slice(begin, end);
-	        return IndexedCollection.prototype.slice.call(this, begin, end);
-	      }
-	      var newSize = this.size - resolvedBegin;
-	      var head = this._head;
-	      while (resolvedBegin--) {
-	        head = head.next;
-	      }
-	      if (this.__ownerID) {
-	        this.size = newSize;
-	        this._head = head;
-	        this.__hash = undefined;
-	        this.__altered = true;
-	        return this;
-	      }
-	      return makeStack(newSize, head);
-	    };
-	
-	    // @pragma Mutability
-	
-	    Stack.prototype.__ensureOwner = function(ownerID) {
-	      if (ownerID === this.__ownerID) {
-	        return this;
-	      }
-	      if (!ownerID) {
-	        this.__ownerID = ownerID;
-	        this.__altered = false;
-	        return this;
-	      }
-	      return makeStack(this.size, this._head, ownerID, this.__hash);
-	    };
-	
-	    // @pragma Iteration
-	
-	    Stack.prototype.__iterate = function(fn, reverse) {
-	      if (reverse) {
-	        return this.reverse().__iterate(fn);
-	      }
-	      var iterations = 0;
-	      var node = this._head;
-	      while (node) {
-	        if (fn(node.value, iterations++, this) === false) {
-	          break;
-	        }
-	        node = node.next;
-	      }
-	      return iterations;
-	    };
-	
-	    Stack.prototype.__iterator = function(type, reverse) {
-	      if (reverse) {
-	        return this.reverse().__iterator(type);
-	      }
-	      var iterations = 0;
-	      var node = this._head;
-	      return new Iterator(function()  {
-	        if (node) {
-	          var value = node.value;
-	          node = node.next;
-	          return iteratorValue(type, iterations++, value);
-	        }
-	        return iteratorDone();
-	      });
-	    };
-	
-	
-	  function isStack(maybeStack) {
-	    return !!(maybeStack && maybeStack[IS_STACK_SENTINEL]);
-	  }
-	
-	  Stack.isStack = isStack;
-	
-	  var IS_STACK_SENTINEL = '@@__IMMUTABLE_STACK__@@';
-	
-	  var StackPrototype = Stack.prototype;
-	  StackPrototype[IS_STACK_SENTINEL] = true;
-	  StackPrototype.withMutations = MapPrototype.withMutations;
-	  StackPrototype.asMutable = MapPrototype.asMutable;
-	  StackPrototype.asImmutable = MapPrototype.asImmutable;
-	  StackPrototype.wasAltered = MapPrototype.wasAltered;
-	
-	
-	  function makeStack(size, head, ownerID, hash) {
-	    var map = Object.create(StackPrototype);
-	    map.size = size;
-	    map._head = head;
-	    map.__ownerID = ownerID;
-	    map.__hash = hash;
-	    map.__altered = false;
-	    return map;
-	  }
-	
-	  var EMPTY_STACK;
-	  function emptyStack() {
-	    return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
-	  }
-	
-	  /**
-	   * Contributes additional methods to a constructor
-	   */
-	  function mixin(ctor, methods) {
-	    var keyCopier = function(key ) { ctor.prototype[key] = methods[key]; };
-	    Object.keys(methods).forEach(keyCopier);
-	    Object.getOwnPropertySymbols &&
-	      Object.getOwnPropertySymbols(methods).forEach(keyCopier);
-	    return ctor;
-	  }
-	
-	  Iterable.Iterator = Iterator;
-	
-	  mixin(Iterable, {
-	
-	    // ### Conversion to other types
-	
-	    toArray: function() {
-	      assertNotInfinite(this.size);
-	      var array = new Array(this.size || 0);
-	      this.valueSeq().__iterate(function(v, i)  { array[i] = v; });
-	      return array;
-	    },
-	
-	    toIndexedSeq: function() {
-	      return new ToIndexedSequence(this);
-	    },
-	
-	    toJS: function() {
-	      return this.toSeq().map(
-	        function(value ) {return value && typeof value.toJS === 'function' ? value.toJS() : value}
-	      ).__toJS();
-	    },
-	
-	    toJSON: function() {
-	      return this.toSeq().map(
-	        function(value ) {return value && typeof value.toJSON === 'function' ? value.toJSON() : value}
-	      ).__toJS();
-	    },
-	
-	    toKeyedSeq: function() {
-	      return new ToKeyedSequence(this, true);
-	    },
-	
-	    toMap: function() {
-	      // Use Late Binding here to solve the circular dependency.
-	      return Map(this.toKeyedSeq());
-	    },
-	
-	    toObject: function() {
-	      assertNotInfinite(this.size);
-	      var object = {};
-	      this.__iterate(function(v, k)  { object[k] = v; });
-	      return object;
-	    },
-	
-	    toOrderedMap: function() {
-	      // Use Late Binding here to solve the circular dependency.
-	      return OrderedMap(this.toKeyedSeq());
-	    },
-	
-	    toOrderedSet: function() {
-	      // Use Late Binding here to solve the circular dependency.
-	      return OrderedSet(isKeyed(this) ? this.valueSeq() : this);
-	    },
-	
-	    toSet: function() {
-	      // Use Late Binding here to solve the circular dependency.
-	      return Set(isKeyed(this) ? this.valueSeq() : this);
-	    },
-	
-	    toSetSeq: function() {
-	      return new ToSetSequence(this);
-	    },
-	
-	    toSeq: function() {
-	      return isIndexed(this) ? this.toIndexedSeq() :
-	        isKeyed(this) ? this.toKeyedSeq() :
-	        this.toSetSeq();
-	    },
-	
-	    toStack: function() {
-	      // Use Late Binding here to solve the circular dependency.
-	      return Stack(isKeyed(this) ? this.valueSeq() : this);
-	    },
-	
-	    toList: function() {
-	      // Use Late Binding here to solve the circular dependency.
-	      return List(isKeyed(this) ? this.valueSeq() : this);
-	    },
-	
-	
-	    // ### Common JavaScript methods and properties
-	
-	    toString: function() {
-	      return '[Iterable]';
-	    },
-	
-	    __toString: function(head, tail) {
-	      if (this.size === 0) {
-	        return head + tail;
-	      }
-	      return head + ' ' + this.toSeq().map(this.__toStringMapper).join(', ') + ' ' + tail;
-	    },
-	
-	
-	    // ### ES6 Collection methods (ES6 Array and Map)
-	
-	    concat: function() {var values = SLICE$0.call(arguments, 0);
-	      return reify(this, concatFactory(this, values));
-	    },
-	
-	    includes: function(searchValue) {
-	      return this.some(function(value ) {return is(value, searchValue)});
-	    },
-	
-	    entries: function() {
-	      return this.__iterator(ITERATE_ENTRIES);
-	    },
-	
-	    every: function(predicate, context) {
-	      assertNotInfinite(this.size);
-	      var returnValue = true;
-	      this.__iterate(function(v, k, c)  {
-	        if (!predicate.call(context, v, k, c)) {
-	          returnValue = false;
-	          return false;
-	        }
-	      });
-	      return returnValue;
-	    },
-	
-	    filter: function(predicate, context) {
-	      return reify(this, filterFactory(this, predicate, context, true));
-	    },
-	
-	    find: function(predicate, context, notSetValue) {
-	      var entry = this.findEntry(predicate, context);
-	      return entry ? entry[1] : notSetValue;
-	    },
-	
-	    forEach: function(sideEffect, context) {
-	      assertNotInfinite(this.size);
-	      return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
-	    },
-	
-	    join: function(separator) {
-	      assertNotInfinite(this.size);
-	      separator = separator !== undefined ? '' + separator : ',';
-	      var joined = '';
-	      var isFirst = true;
-	      this.__iterate(function(v ) {
-	        isFirst ? (isFirst = false) : (joined += separator);
-	        joined += v !== null && v !== undefined ? v.toString() : '';
-	      });
-	      return joined;
-	    },
-	
-	    keys: function() {
-	      return this.__iterator(ITERATE_KEYS);
-	    },
-	
-	    map: function(mapper, context) {
-	      return reify(this, mapFactory(this, mapper, context));
-	    },
-	
-	    reduce: function(reducer, initialReduction, context) {
-	      assertNotInfinite(this.size);
-	      var reduction;
-	      var useFirst;
-	      if (arguments.length < 2) {
-	        useFirst = true;
-	      } else {
-	        reduction = initialReduction;
-	      }
-	      this.__iterate(function(v, k, c)  {
-	        if (useFirst) {
-	          useFirst = false;
-	          reduction = v;
-	        } else {
-	          reduction = reducer.call(context, reduction, v, k, c);
-	        }
-	      });
-	      return reduction;
-	    },
-	
-	    reduceRight: function(reducer, initialReduction, context) {
-	      var reversed = this.toKeyedSeq().reverse();
-	      return reversed.reduce.apply(reversed, arguments);
-	    },
-	
-	    reverse: function() {
-	      return reify(this, reverseFactory(this, true));
-	    },
-	
-	    slice: function(begin, end) {
-	      return reify(this, sliceFactory(this, begin, end, true));
-	    },
-	
-	    some: function(predicate, context) {
-	      return !this.every(not(predicate), context);
-	    },
-	
-	    sort: function(comparator) {
-	      return reify(this, sortFactory(this, comparator));
-	    },
-	
-	    values: function() {
-	      return this.__iterator(ITERATE_VALUES);
-	    },
-	
-	
-	    // ### More sequential methods
-	
-	    butLast: function() {
-	      return this.slice(0, -1);
-	    },
-	
-	    isEmpty: function() {
-	      return this.size !== undefined ? this.size === 0 : !this.some(function()  {return true});
-	    },
-	
-	    count: function(predicate, context) {
-	      return ensureSize(
-	        predicate ? this.toSeq().filter(predicate, context) : this
-	      );
-	    },
-	
-	    countBy: function(grouper, context) {
-	      return countByFactory(this, grouper, context);
-	    },
-	
-	    equals: function(other) {
-	      return deepEqual(this, other);
-	    },
-	
-	    entrySeq: function() {
-	      var iterable = this;
-	      if (iterable._cache) {
-	        // We cache as an entries array, so we can just return the cache!
-	        return new ArraySeq(iterable._cache);
-	      }
-	      var entriesSequence = iterable.toSeq().map(entryMapper).toIndexedSeq();
-	      entriesSequence.fromEntrySeq = function()  {return iterable.toSeq()};
-	      return entriesSequence;
-	    },
-	
-	    filterNot: function(predicate, context) {
-	      return this.filter(not(predicate), context);
-	    },
-	
-	    findEntry: function(predicate, context, notSetValue) {
-	      var found = notSetValue;
-	      this.__iterate(function(v, k, c)  {
-	        if (predicate.call(context, v, k, c)) {
-	          found = [k, v];
-	          return false;
-	        }
-	      });
-	      return found;
-	    },
-	
-	    findKey: function(predicate, context) {
-	      var entry = this.findEntry(predicate, context);
-	      return entry && entry[0];
-	    },
-	
-	    findLast: function(predicate, context, notSetValue) {
-	      return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
-	    },
-	
-	    findLastEntry: function(predicate, context, notSetValue) {
-	      return this.toKeyedSeq().reverse().findEntry(predicate, context, notSetValue);
-	    },
-	
-	    findLastKey: function(predicate, context) {
-	      return this.toKeyedSeq().reverse().findKey(predicate, context);
-	    },
-	
-	    first: function() {
-	      return this.find(returnTrue);
-	    },
-	
-	    flatMap: function(mapper, context) {
-	      return reify(this, flatMapFactory(this, mapper, context));
-	    },
-	
-	    flatten: function(depth) {
-	      return reify(this, flattenFactory(this, depth, true));
-	    },
-	
-	    fromEntrySeq: function() {
-	      return new FromEntriesSequence(this);
-	    },
-	
-	    get: function(searchKey, notSetValue) {
-	      return this.find(function(_, key)  {return is(key, searchKey)}, undefined, notSetValue);
-	    },
-	
-	    getIn: function(searchKeyPath, notSetValue) {
-	      var nested = this;
-	      // Note: in an ES6 environment, we would prefer:
-	      // for (var key of searchKeyPath) {
-	      var iter = forceIterator(searchKeyPath);
-	      var step;
-	      while (!(step = iter.next()).done) {
-	        var key = step.value;
-	        nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
-	        if (nested === NOT_SET) {
-	          return notSetValue;
-	        }
-	      }
-	      return nested;
-	    },
-	
-	    groupBy: function(grouper, context) {
-	      return groupByFactory(this, grouper, context);
-	    },
-	
-	    has: function(searchKey) {
-	      return this.get(searchKey, NOT_SET) !== NOT_SET;
-	    },
-	
-	    hasIn: function(searchKeyPath) {
-	      return this.getIn(searchKeyPath, NOT_SET) !== NOT_SET;
-	    },
-	
-	    isSubset: function(iter) {
-	      iter = typeof iter.includes === 'function' ? iter : Iterable(iter);
-	      return this.every(function(value ) {return iter.includes(value)});
-	    },
-	
-	    isSuperset: function(iter) {
-	      iter = typeof iter.isSubset === 'function' ? iter : Iterable(iter);
-	      return iter.isSubset(this);
-	    },
-	
-	    keyOf: function(searchValue) {
-	      return this.findKey(function(value ) {return is(value, searchValue)});
-	    },
-	
-	    keySeq: function() {
-	      return this.toSeq().map(keyMapper).toIndexedSeq();
-	    },
-	
-	    last: function() {
-	      return this.toSeq().reverse().first();
-	    },
-	
-	    lastKeyOf: function(searchValue) {
-	      return this.toKeyedSeq().reverse().keyOf(searchValue);
-	    },
-	
-	    max: function(comparator) {
-	      return maxFactory(this, comparator);
-	    },
-	
-	    maxBy: function(mapper, comparator) {
-	      return maxFactory(this, comparator, mapper);
-	    },
-	
-	    min: function(comparator) {
-	      return maxFactory(this, comparator ? neg(comparator) : defaultNegComparator);
-	    },
-	
-	    minBy: function(mapper, comparator) {
-	      return maxFactory(this, comparator ? neg(comparator) : defaultNegComparator, mapper);
-	    },
-	
-	    rest: function() {
-	      return this.slice(1);
-	    },
-	
-	    skip: function(amount) {
-	      return this.slice(Math.max(0, amount));
-	    },
-	
-	    skipLast: function(amount) {
-	      return reify(this, this.toSeq().reverse().skip(amount).reverse());
-	    },
-	
-	    skipWhile: function(predicate, context) {
-	      return reify(this, skipWhileFactory(this, predicate, context, true));
-	    },
-	
-	    skipUntil: function(predicate, context) {
-	      return this.skipWhile(not(predicate), context);
-	    },
-	
-	    sortBy: function(mapper, comparator) {
-	      return reify(this, sortFactory(this, comparator, mapper));
-	    },
-	
-	    take: function(amount) {
-	      return this.slice(0, Math.max(0, amount));
-	    },
-	
-	    takeLast: function(amount) {
-	      return reify(this, this.toSeq().reverse().take(amount).reverse());
-	    },
-	
-	    takeWhile: function(predicate, context) {
-	      return reify(this, takeWhileFactory(this, predicate, context));
-	    },
-	
-	    takeUntil: function(predicate, context) {
-	      return this.takeWhile(not(predicate), context);
-	    },
-	
-	    valueSeq: function() {
-	      return this.toIndexedSeq();
-	    },
-	
-	
-	    // ### Hashable Object
-	
-	    hashCode: function() {
-	      return this.__hash || (this.__hash = hashIterable(this));
-	    }
-	
-	
-	    // ### Internal
-	
-	    // abstract __iterate(fn, reverse)
-	
-	    // abstract __iterator(type, reverse)
-	  });
-	
-	  // var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
-	  // var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
-	  // var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
-	  // var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
-	
-	  var IterablePrototype = Iterable.prototype;
-	  IterablePrototype[IS_ITERABLE_SENTINEL] = true;
-	  IterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.values;
-	  IterablePrototype.__toJS = IterablePrototype.toArray;
-	  IterablePrototype.__toStringMapper = quoteString;
-	  IterablePrototype.inspect =
-	  IterablePrototype.toSource = function() { return this.toString(); };
-	  IterablePrototype.chain = IterablePrototype.flatMap;
-	  IterablePrototype.contains = IterablePrototype.includes;
-	
-	  mixin(KeyedIterable, {
-	
-	    // ### More sequential methods
-	
-	    flip: function() {
-	      return reify(this, flipFactory(this));
-	    },
-	
-	    mapEntries: function(mapper, context) {var this$0 = this;
-	      var iterations = 0;
-	      return reify(this,
-	        this.toSeq().map(
-	          function(v, k)  {return mapper.call(context, [k, v], iterations++, this$0)}
-	        ).fromEntrySeq()
-	      );
-	    },
-	
-	    mapKeys: function(mapper, context) {var this$0 = this;
-	      return reify(this,
-	        this.toSeq().flip().map(
-	          function(k, v)  {return mapper.call(context, k, v, this$0)}
-	        ).flip()
-	      );
-	    }
-	
-	  });
-	
-	  var KeyedIterablePrototype = KeyedIterable.prototype;
-	  KeyedIterablePrototype[IS_KEYED_SENTINEL] = true;
-	  KeyedIterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.entries;
-	  KeyedIterablePrototype.__toJS = IterablePrototype.toObject;
-	  KeyedIterablePrototype.__toStringMapper = function(v, k)  {return JSON.stringify(k) + ': ' + quoteString(v)};
-	
-	
-	
-	  mixin(IndexedIterable, {
-	
-	    // ### Conversion to other types
-	
-	    toKeyedSeq: function() {
-	      return new ToKeyedSequence(this, false);
-	    },
-	
-	
-	    // ### ES6 Collection methods (ES6 Array and Map)
-	
-	    filter: function(predicate, context) {
-	      return reify(this, filterFactory(this, predicate, context, false));
-	    },
-	
-	    findIndex: function(predicate, context) {
-	      var entry = this.findEntry(predicate, context);
-	      return entry ? entry[0] : -1;
-	    },
-	
-	    indexOf: function(searchValue) {
-	      var key = this.keyOf(searchValue);
-	      return key === undefined ? -1 : key;
-	    },
-	
-	    lastIndexOf: function(searchValue) {
-	      var key = this.lastKeyOf(searchValue);
-	      return key === undefined ? -1 : key;
-	    },
-	
-	    reverse: function() {
-	      return reify(this, reverseFactory(this, false));
-	    },
-	
-	    slice: function(begin, end) {
-	      return reify(this, sliceFactory(this, begin, end, false));
-	    },
-	
-	    splice: function(index, removeNum /*, ...values*/) {
-	      var numArgs = arguments.length;
-	      removeNum = Math.max(removeNum | 0, 0);
-	      if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
-	        return this;
-	      }
-	      // If index is negative, it should resolve relative to the size of the
-	      // collection. However size may be expensive to compute if not cached, so
-	      // only call count() if the number is in fact negative.
-	      index = resolveBegin(index, index < 0 ? this.count() : this.size);
-	      var spliced = this.slice(0, index);
-	      return reify(
-	        this,
-	        numArgs === 1 ?
-	          spliced :
-	          spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum))
-	      );
-	    },
-	
-	
-	    // ### More collection methods
-	
-	    findLastIndex: function(predicate, context) {
-	      var entry = this.findLastEntry(predicate, context);
-	      return entry ? entry[0] : -1;
-	    },
-	
-	    first: function() {
-	      return this.get(0);
-	    },
-	
-	    flatten: function(depth) {
-	      return reify(this, flattenFactory(this, depth, false));
-	    },
-	
-	    get: function(index, notSetValue) {
-	      index = wrapIndex(this, index);
-	      return (index < 0 || (this.size === Infinity ||
-	          (this.size !== undefined && index > this.size))) ?
-	        notSetValue :
-	        this.find(function(_, key)  {return key === index}, undefined, notSetValue);
-	    },
-	
-	    has: function(index) {
-	      index = wrapIndex(this, index);
-	      return index >= 0 && (this.size !== undefined ?
-	        this.size === Infinity || index < this.size :
-	        this.indexOf(index) !== -1
-	      );
-	    },
-	
-	    interpose: function(separator) {
-	      return reify(this, interposeFactory(this, separator));
-	    },
-	
-	    interleave: function(/*...iterables*/) {
-	      var iterables = [this].concat(arrCopy(arguments));
-	      var zipped = zipWithFactory(this.toSeq(), IndexedSeq.of, iterables);
-	      var interleaved = zipped.flatten(true);
-	      if (zipped.size) {
-	        interleaved.size = zipped.size * iterables.length;
-	      }
-	      return reify(this, interleaved);
-	    },
-	
-	    keySeq: function() {
-	      return Range(0, this.size);
-	    },
-	
-	    last: function() {
-	      return this.get(-1);
-	    },
-	
-	    skipWhile: function(predicate, context) {
-	      return reify(this, skipWhileFactory(this, predicate, context, false));
-	    },
-	
-	    zip: function(/*, ...iterables */) {
-	      var iterables = [this].concat(arrCopy(arguments));
-	      return reify(this, zipWithFactory(this, defaultZipper, iterables));
-	    },
-	
-	    zipWith: function(zipper/*, ...iterables */) {
-	      var iterables = arrCopy(arguments);
-	      iterables[0] = this;
-	      return reify(this, zipWithFactory(this, zipper, iterables));
-	    }
-	
-	  });
-	
-	  IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
-	  IndexedIterable.prototype[IS_ORDERED_SENTINEL] = true;
-	
-	
-	
-	  mixin(SetIterable, {
-	
-	    // ### ES6 Collection methods (ES6 Array and Map)
-	
-	    get: function(value, notSetValue) {
-	      return this.has(value) ? value : notSetValue;
-	    },
-	
-	    includes: function(value) {
-	      return this.has(value);
-	    },
-	
-	
-	    // ### More sequential methods
-	
-	    keySeq: function() {
-	      return this.valueSeq();
-	    }
-	
-	  });
-	
-	  SetIterable.prototype.has = IterablePrototype.includes;
-	  SetIterable.prototype.contains = SetIterable.prototype.includes;
-	
-	
-	  // Mixin subclasses
-	
-	  mixin(KeyedSeq, KeyedIterable.prototype);
-	  mixin(IndexedSeq, IndexedIterable.prototype);
-	  mixin(SetSeq, SetIterable.prototype);
-	
-	  mixin(KeyedCollection, KeyedIterable.prototype);
-	  mixin(IndexedCollection, IndexedIterable.prototype);
-	  mixin(SetCollection, SetIterable.prototype);
-	
-	
-	  // #pragma Helper functions
-	
-	  function keyMapper(v, k) {
-	    return k;
-	  }
-	
-	  function entryMapper(v, k) {
-	    return [k, v];
-	  }
-	
-	  function not(predicate) {
-	    return function() {
-	      return !predicate.apply(this, arguments);
-	    }
-	  }
-	
-	  function neg(predicate) {
-	    return function() {
-	      return -predicate.apply(this, arguments);
-	    }
-	  }
-	
-	  function quoteString(value) {
-	    return typeof value === 'string' ? JSON.stringify(value) : String(value);
-	  }
-	
-	  function defaultZipper() {
-	    return arrCopy(arguments);
-	  }
-	
-	  function defaultNegComparator(a, b) {
-	    return a < b ? 1 : a > b ? -1 : 0;
-	  }
-	
-	  function hashIterable(iterable) {
-	    if (iterable.size === Infinity) {
-	      return 0;
-	    }
-	    var ordered = isOrdered(iterable);
-	    var keyed = isKeyed(iterable);
-	    var h = ordered ? 1 : 0;
-	    var size = iterable.__iterate(
-	      keyed ?
-	        ordered ?
-	          function(v, k)  { h = 31 * h + hashMerge(hash(v), hash(k)) | 0; } :
-	          function(v, k)  { h = h + hashMerge(hash(v), hash(k)) | 0; } :
-	        ordered ?
-	          function(v ) { h = 31 * h + hash(v) | 0; } :
-	          function(v ) { h = h + hash(v) | 0; }
-	    );
-	    return murmurHashOfSize(size, h);
-	  }
-	
-	  function murmurHashOfSize(size, h) {
-	    h = imul(h, 0xCC9E2D51);
-	    h = imul(h << 15 | h >>> -15, 0x1B873593);
-	    h = imul(h << 13 | h >>> -13, 5);
-	    h = (h + 0xE6546B64 | 0) ^ size;
-	    h = imul(h ^ h >>> 16, 0x85EBCA6B);
-	    h = imul(h ^ h >>> 13, 0xC2B2AE35);
-	    h = smi(h ^ h >>> 16);
-	    return h;
-	  }
-	
-	  function hashMerge(a, b) {
-	    return a ^ b + 0x9E3779B9 + (a << 6) + (a >> 2) | 0; // int
-	  }
-	
-	  var Immutable = {
-	
-	    Iterable: Iterable,
-	
-	    Seq: Seq,
-	    Collection: Collection,
-	    Map: Map,
-	    OrderedMap: OrderedMap,
-	    List: List,
-	    Stack: Stack,
-	    Set: Set,
-	    OrderedSet: OrderedSet,
-	
-	    Record: Record,
-	    Range: Range,
-	    Repeat: Repeat,
-	
-	    is: is,
-	    fromJS: fromJS
-	
-	  };
-	
-	  return Immutable;
-	
-	}));
-
-/***/ },
-/* 207 */
+/* 216 */
 /*!*********************************!*\
   !*** ./~/reselect/lib/index.js ***!
   \*********************************/
@@ -56562,7 +57435,497 @@
 	}
 
 /***/ },
-/* 208 */
+/* 217 */
+/*!**********************************************!*\
+  !*** ./app/components/ViewChoiceDropdown.js ***!
+  \**********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(/*! react */ 5);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _classnames = __webpack_require__(/*! classnames */ 218);
+	
+	var _classnames2 = _interopRequireDefault(_classnames);
+	
+	var _PopupSelect = __webpack_require__(/*! ./PopupSelect */ 219);
+	
+	var _PopupSelect2 = _interopRequireDefault(_PopupSelect);
+	
+	var _constants = __webpack_require__(/*! ../constants */ 212);
+	
+	var _UpArrow = __webpack_require__(/*! ./UpArrow */ 220);
+	
+	var _UpArrow2 = _interopRequireDefault(_UpArrow);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function ChoiceViewPopup(props) {
+	  var items = [{ text: 'Editor', value: _constants.mainViewTypes.EDITOR }, { text: 'Assets', value: _constants.mainViewTypes.ASSETS }, { text: 'Components', value: _constants.mainViewTypes.COMPONENTS }].map(function (itemData) {
+	    return _react2.default.createElement(
+	      'li',
+	      {
+	        key: itemData.text,
+	        className: (0, _classnames2.default)({
+	          highlighted: itemData.value === props.mainView
+	        }),
+	        onClick: function onClick() {
+	          return props.actions.changeMainView(itemData.value);
+	        } },
+	      itemData.text
+	    );
+	  });
+	
+	  return _react2.default.createElement(
+	    'div',
+	    null,
+	    _react2.default.createElement(
+	      'div',
+	      {
+	        className: 'popup tl fixed',
+	        style: {
+	          top: props.y,
+	          left: '50%'
+	        } },
+	      _react2.default.createElement(
+	        'ul',
+	        null,
+	        items
+	      )
+	    ),
+	    _react2.default.createElement(_UpArrow2.default, { y: props.y, x: '50%' })
+	  );
+	}
+	
+	function ViewChoiceDropdown(props) {
+	  return _react2.default.createElement(
+	    'div',
+	    { className: 'tc' },
+	    _react2.default.createElement(
+	      _PopupSelect2.default,
+	      {
+	        className: 'mv3 w4',
+	        value: props.mainView },
+	      _react2.default.createElement(ChoiceViewPopup, {
+	        mainView: props.mainView,
+	        actions: props.actions
+	      })
+	    )
+	  );
+	}
+	
+	exports.default = ViewChoiceDropdown;
+
+/***/ },
+/* 218 */
+/*!*******************************!*\
+  !*** ./~/classnames/index.js ***!
+  \*******************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2016 Jed Watson.
+	  Licensed under the MIT License (MIT), see
+	  http://jedwatson.github.io/classnames
+	*/
+	/* global define */
+	
+	(function () {
+		'use strict';
+	
+		var hasOwn = {}.hasOwnProperty;
+	
+		function classNames () {
+			var classes = [];
+	
+			for (var i = 0; i < arguments.length; i++) {
+				var arg = arguments[i];
+				if (!arg) continue;
+	
+				var argType = typeof arg;
+	
+				if (argType === 'string' || argType === 'number') {
+					classes.push(arg);
+				} else if (Array.isArray(arg)) {
+					classes.push(classNames.apply(null, arg));
+				} else if (argType === 'object') {
+					for (var key in arg) {
+						if (hasOwn.call(arg, key) && arg[key]) {
+							classes.push(key);
+						}
+					}
+				}
+			}
+	
+			return classes.join(' ');
+		}
+	
+		if (typeof module !== 'undefined' && module.exports) {
+			module.exports = classNames;
+		} else if (true) {
+			// register as 'classnames', consistent with npm package name
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return classNames;
+			}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else {
+			window.classNames = classNames;
+		}
+	}());
+
+
+/***/ },
+/* 219 */
+/*!***************************************!*\
+  !*** ./app/components/PopupSelect.js ***!
+  \***************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _jquery = __webpack_require__(/*! jquery */ 215);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _react = __webpack_require__(/*! react */ 5);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _classnames = __webpack_require__(/*! classnames */ 218);
+	
+	var _classnames2 = _interopRequireDefault(_classnames);
+	
+	var _utils = __webpack_require__(/*! ../utils */ 214);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var PopupSelect = _react2.default.createClass({
+	  displayName: 'PopupSelect',
+	  getInitialState: function getInitialState() {
+	    return {
+	      isOpen: false
+	    };
+	  },
+	  render: function render() {
+	    var _this = this;
+	
+	    var popup = void 0,
+	        pos = void 0,
+	        margin = 15;
+	    if (this.state.isOpen) {
+	      if (this.el) {
+	        var jqEl = (0, _jquery2.default)(this.el);
+	        var offset = jqEl.offset();
+	        var height = jqEl.height();
+	        pos = {
+	          x: offset.left + jqEl.width() / 2,
+	          y: offset.top + height + margin
+	        };
+	      }
+	
+	      popup = _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement('div', {
+	          onClick: function onClick() {
+	            return _this.setState({ isOpen: false });
+	          },
+	          style: { left: 0, top: 0 },
+	          className: 'absolute w-100 h-100'
+	        }),
+	        _react2.default.cloneElement(this.props.children, pos)
+	      );
+	    }
+	
+	    return _react2.default.createElement(
+	      'div',
+	      { className: 'popup-select' },
+	      _react2.default.createElement(
+	        'div',
+	        {
+	          ref: function ref(_ref) {
+	            _this.el = _ref;
+	          },
+	          className: (0, _classnames2.default)(this.props.className, 'dib'),
+	          onClick: function onClick() {
+	            return _this.setState({ isOpen: true });
+	          }
+	        },
+	        (0, _utils.toTitleCase)(this.props.value),
+	        _react2.default.createElement('img', {
+	          className: 'icon-small dib ph1',
+	          src: 'public/img/assets/down-triangle.svg' })
+	      ),
+	      popup
+	    );
+	  }
+	});
+	
+	exports.default = PopupSelect;
+
+/***/ },
+/* 220 */
+/*!***********************************!*\
+  !*** ./app/components/UpArrow.js ***!
+  \***********************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(/*! react */ 5);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var UpArrow = function UpArrow(props) {
+	  var fontSize = 16;
+	  return _react2.default.createElement(
+	    "div",
+	    {
+	      style: {
+	        left: props.x,
+	        top: props.y - fontSize / 2,
+	        fontSize: fontSize
+	      },
+	      className: "up-arrow fixed"
+	    },
+	    "\u25B2"
+	  );
+	};
+	
+	exports.default = UpArrow;
+
+/***/ },
+/* 221 */
+/*!**************************************!*\
+  !*** ./app/containers/AssetsView.js ***!
+  \**************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(/*! react */ 5);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _lodash = __webpack_require__(/*! lodash */ 210);
+	
+	var _lodash2 = _interopRequireDefault(_lodash);
+	
+	var _reactRedux = __webpack_require__(/*! react-redux */ 162);
+	
+	var _electron = __webpack_require__(/*! electron */ 3);
+	
+	var _utils = __webpack_require__(/*! ../utils */ 214);
+	
+	var _ViewChoiceDropdown = __webpack_require__(/*! ../components/ViewChoiceDropdown */ 217);
+	
+	var _ViewChoiceDropdown2 = _interopRequireDefault(_ViewChoiceDropdown);
+	
+	var _CartoonButton = __webpack_require__(/*! ../components/CartoonButton */ 222);
+	
+	var _CartoonButton2 = _interopRequireDefault(_CartoonButton);
+	
+	var _TextField = __webpack_require__(/*! ../components/forms/TextField */ 223);
+	
+	var _TextField2 = _interopRequireDefault(_TextField);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var dialog = _electron.remote.dialog;
+	
+	var AssetIcon = _react2.default.createClass({
+	  displayName: 'AssetIcon',
+	  getInitialState: function getInitialState() {
+	    return {
+	      isHovering: false,
+	      isEditing: false
+	    };
+	  },
+	  render: function render() {
+	    var _this = this;
+	
+	    var _props = this.props,
+	        asset = _props.asset,
+	        actions = _props.actions;
+	    var _state = this.state,
+	        isEditing = _state.isEditing,
+	        isHovering = _state.isHovering;
+	    var name = asset.name,
+	        src = asset.src;
+	
+	    var editBar = void 0,
+	        input = void 0;
+	
+	    if (isHovering) {
+	      editBar = _react2.default.createElement(
+	        'div',
+	        { className: 'asset-edit-bar' },
+	        _react2.default.createElement('i', {
+	          className: 'fa fa-pencil-square-o ml2 v-mid',
+	          onClick: function onClick() {
+	            _this.setState({ isEditing: true });
+	          }
+	        }),
+	        _react2.default.createElement('i', {
+	          className: 'fa fa-trash ml2 v-mid',
+	          onClick: function onClick() {
+	            _this.props.actions.deleteAsset(asset.id);
+	          }
+	        })
+	      );
+	    }
+	
+	    if (isEditing) {
+	      input = _react2.default.createElement(_TextField2.default, {
+	        onSubmit: function onSubmit(value) {
+	          console.log('submit');
+	          _this.setState({ isEditing: false });
+	          actions.updateAssetName(asset.id, value);
+	        },
+	        value: asset.name
+	      });
+	    } else {
+	      input = _react2.default.createElement(
+	        'span',
+	        null,
+	        name
+	      );
+	    }
+	
+	    return _react2.default.createElement(
+	      'div',
+	      {
+	        className: 'asset-icon',
+	        onMouseEnter: function onMouseEnter() {
+	          _this.setState({ isHovering: true });
+	        },
+	        onMouseLeave: function onMouseLeave() {
+	          _this.setState({ isHovering: false });
+	        }
+	      },
+	      _react2.default.createElement('img', { src: src }),
+	      input,
+	      editBar
+	    );
+	  }
+	});
+	
+	/*
+	
+	   <EditableText
+	   value=
+	   onSubmit={(value) => {
+	   actions.updateAssetName(asset.id, value)
+	   }}
+	   />
+	
+	*/
+	
+	var AssetsView = _react2.default.createClass({
+	  displayName: 'AssetsView',
+	  render: function render() {
+	    var _this2 = this;
+	
+	    //console.log('ASSETS VIEW RENDER');
+	
+	    var _props2 = this.props,
+	        actions = _props2.actions,
+	        currentMainView = _props2.currentMainView,
+	        assets = _props2.assets;
+	
+	    var icons = assets.map(function (asset) {
+	      return _react2.default.createElement(AssetIcon, { asset: asset, actions: actions });
+	    });
+	
+	    if (icons.length === 0) {
+	      icons = _react2.default.createElement(
+	        'div',
+	        { className: 'mt6 tc w-100' },
+	        _react2.default.createElement(
+	          'span',
+	          { className: 'f3 hint' },
+	          'No assets. Click import to add some.'
+	        )
+	      );
+	    }
+	
+	    return _react2.default.createElement(
+	      'div',
+	      { className: 'h-100' },
+	      _react2.default.createElement(_ViewChoiceDropdown2.default, {
+	        mainView: currentMainView,
+	        actions: actions
+	      }),
+	      _react2.default.createElement(
+	        'div',
+	        { className: 'mh5 card' },
+	        _react2.default.createElement(
+	          'h1',
+	          { className: 'dib ma0' },
+	          'Images'
+	        ),
+	        _react2.default.createElement(_CartoonButton2.default, {
+	          className: 'v-mid mh2 mb2',
+	          text: 'Import',
+	          onClick: function onClick() {
+	            dialog.showOpenDialog({
+	              title: 'Select an asset to import',
+	              properties: ['openFile'],
+	              filters: [{
+	                name: 'asset file',
+	                extensions: ['jpeg', 'png', 'gif', 'svg']
+	              }]
+	            }, function (filenames) {
+	              if (!filenames) return;
+	              _this2.props.actions.addAsset(filenames[0]);
+	            });
+	          }
+	        }),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'flex flex-wrap' },
+	          icons
+	        )
+	      )
+	    );
+	  }
+	});
+	
+	var assetsSelector = (0, _utils.createImmutableJSSelector)([function (state) {
+	  return state.get('assets');
+	}, function (state) {
+	  return state.get('currentMainView');
+	}], function (assets, currentMainView) {
+	  return {
+	    currentMainView: currentMainView,
+	    assets: _lodash2.default.toArray(assets.toJS())
+	  };
+	});
+	
+	exports.default = (0, _reactRedux.connect)(assetsSelector)(AssetsView);
+
+/***/ },
+/* 222 */
 /*!*****************************************!*\
   !*** ./app/components/CartoonButton.js ***!
   \*****************************************/
@@ -56578,7 +57941,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _classnames = __webpack_require__(/*! classnames */ 162);
+	var _classnames = __webpack_require__(/*! classnames */ 218);
 	
 	var _classnames2 = _interopRequireDefault(_classnames);
 	
@@ -56603,730 +57966,7 @@
 	exports.default = CartoonButton;
 
 /***/ },
-/* 209 */
-/*!*************************************!*\
-  !*** ./app/containers/LeftPanel.js ***!
-  \*************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _react = __webpack_require__(/*! react */ 5);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _reactRedux = __webpack_require__(/*! react-redux */ 163);
-	
-	var _jquery = __webpack_require__(/*! jquery */ 205);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	var _lodash = __webpack_require__(/*! lodash */ 204);
-	
-	var _lodash2 = _interopRequireDefault(_lodash);
-	
-	var _constants = __webpack_require__(/*! ../constants */ 210);
-	
-	var _dragManager = __webpack_require__(/*! ../dragManager */ 211);
-	
-	var _dragManager2 = _interopRequireDefault(_dragManager);
-	
-	var _utils = __webpack_require__(/*! ../utils */ 203);
-	
-	var _HorizontalSelect = __webpack_require__(/*! ../components/HorizontalSelect */ 212);
-	
-	var _HorizontalSelect2 = _interopRequireDefault(_HorizontalSelect);
-	
-	var _FormLabel = __webpack_require__(/*! ../components/forms/FormLabel */ 213);
-	
-	var _FormLabel2 = _interopRequireDefault(_FormLabel);
-	
-	var _TextField = __webpack_require__(/*! ../components/forms/TextField */ 214);
-	
-	var _TextField2 = _interopRequireDefault(_TextField);
-	
-	var _ComponentTree = __webpack_require__(/*! ../components/ComponentTree */ 215);
-	
-	var _ComponentTree2 = _interopRequireDefault(_ComponentTree);
-	
-	var _TreeItem = __webpack_require__(/*! ../components/TreeItem */ 216);
-	
-	var _TreeItem2 = _interopRequireDefault(_TreeItem);
-	
-	var _selectors = __webpack_require__(/*! ../selectors */ 217);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function DragShadow(props) {
-	  var padding = 100;
-	  var sx = {
-	    opacity: 0.5,
-	    position: 'absolute',
-	    top: props.y - props.offsetY - padding,
-	    left: props.x - props.offsetX - padding,
-	    width: props.width,
-	    padding: 100,
-	    zIndex: 3
-	  };
-	
-	  return _react2.default.createElement(
-	    'div',
-	    {
-	      className: 'c-grabbing',
-	      style: sx },
-	    props.children
-	  );
-	}
-	
-	var ComponentTreeContainer = _react2.default.createClass({
-	  displayName: 'ComponentTreeContainer',
-	  getInitialState: function getInitialState() {
-	    return {
-	      isDragging: false,
-	      dragData: {},
-	      hasOpenedMenu: false
-	    };
-	  },
-	  walkRenderTree: function walkRenderTree(renderTree, func) {
-	    var _this = this;
-	
-	    var isChild = arguments.length <= 2 ? undefined : arguments[2];
-	    var isCanceled = false;
-	
-	    if (isChild) {
-	      func(renderTree, function () {
-	        isCanceled = true;
-	      });
-	    }
-	
-	    renderTree.children.forEach(function (child) {
-	      if (!isCanceled) {
-	        _this.walkRenderTree(child, func, true);
-	      }
-	    });
-	  },
-	  beginDrag: function beginDrag(e, node, itemWidth, itemX, itemY) {
-	    var that = this;
-	    _dragManager2.default.start(e, {
-	      dragType: 'treeItem',
-	      onConsummate: function onConsummate(e) {
-	        that.setState({
-	          isDragging: true,
-	          dragData: {
-	            shouldUpdate: true,
-	            nodeText: node.name,
-	            width: itemWidth,
-	            shadowOffsetX: e.clientX - itemX,
-	            shadowOffsetY: e.clientY - itemY,
-	            x: e.clientX,
-	            y: e.clientY
-	          }
-	        });
-	
-	        that.initializeDropSpots(node.id, node.parentId, node.index);
-	      },
-	      onDrag: function onDrag(e) {
-	        var pos = {
-	          x: e.clientX,
-	          y: e.clientY
-	        };
-	        that.updateDropSpots(pos);
-	      },
-	      onEnd: function onEnd() {
-	        var closestInsertionPoints = that.state.closestInsertionPoints;
-	
-	        if (closestInsertionPoints && closestInsertionPoints.length) {
-	          that.props.actions.moveComponent(node.id, closestInsertionPoints[0].parentId, closestInsertionPoints[0].insertionIndex);
-	        }
-	
-	        that.setState({
-	          isDragging: false,
-	          dragData: {}
-	        });
-	      }
-	    });
-	  },
-	  initializeDropSpots: function initializeDropSpots(draggedComponentId, draggedComponentParentId, draggedComponentIndex) {
-	    var insertionPoints = [];
-	    var beforeComponentIndex = draggedComponentIndex;
-	    var afterComponentIndex = beforeComponentIndex + 1;
-	
-	    function getInsertionPoint(nodeId, nodeIndex, parentId) {
-	      var el = void 0;
-	      if (!nodeId) {
-	        el = (0, _jquery2.default)('.treeDropSpot_' + parentId + '_emptyChild');
-	      } else {
-	        el = (0, _jquery2.default)('.treeDropSpot_' + nodeId + '_' + nodeIndex);
-	      }
-	
-	      var w = el.width();
-	      var pos = el.offset();
-	
-	      return {
-	        id: (0, _utils.guid)(),
-	        insertionIndex: nodeIndex,
-	        parentId: parentId,
-	        getY: function getY() {
-	          return el.offset().top;
-	        },
-	        points: [{ x: pos.left, y: pos.top }, { x: pos.left + w, y: pos.top }],
-	        isDraggedComponent: parentId === draggedComponentParentId && (nodeIndex === beforeComponentIndex || nodeIndex === afterComponentIndex)
-	      };
-	    }
-	
-	    this.walkRenderTree(this.props.renderTree, function (node, cancel) {
-	      // Before
-	      var nodeParentId = node.parentId;
-	      var nodeId = node.id;
-	      var ind = node.index;
-	
-	      if (ind === 0) {
-	        insertionPoints.push(getInsertionPoint(nodeId, ind, nodeParentId));
-	      }
-	
-	      // After
-	      insertionPoints.push(getInsertionPoint(nodeId, ind + 1, nodeParentId));
-	
-	      if (nodeId === draggedComponentId) {
-	        // Can't drag component inside itself
-	        cancel();
-	      } else if (node.componentType === _constants.componentTypes.CONTAINER && node.children.length === 0) {
-	        // Inside
-	        insertionPoints.push(getInsertionPoint(undefined, 0, nodeId));
-	      }
-	    });
-	
-	    insertionPoints = _lodash2.default.sortBy(insertionPoints, function (insertionPoint) {
-	      return insertionPoint.getY();
-	    });
-	
-	    this.setState({
-	      dragData: Object.assign(this.state.dragData, {
-	        draggedComponentId: draggedComponentId,
-	        insertionPointCache: insertionPoints
-	      })
-	    });
-	  },
-	  updateDropSpots: function updateDropSpots(pos) {
-	    // Binary search to find 3 closest nodes
-	    var insertionPoints = this.state.dragData.insertionPointCache;
-	    var left = 0,
-	        right = insertionPoints.length - 1;
-	    var middle = void 0;
-	    var shouldUpdate = true;
-	
-	    // TD: remove check
-	    var count = 0;
-	
-	    while (left <= right) {
-	      middle = Math.floor((right + left) / 2);
-	      var point = insertionPoints[middle];
-	      var pointY = point.getY();
-	
-	      if (pointY === pos.y) {
-	        break;
-	      } else if (pos.y < pointY) {
-	        right = middle - 1;
-	      } else {
-	        left = middle + 1;
-	      }
-	
-	      if (count > 200) {
-	        throw new Error(left + '_' + right);
-	      }
-	
-	      count++;
-	    }
-	
-	    var minDist = Math.abs(pos.y - insertionPoints[middle].getY());
-	    var closestIndex = [middle - 1, middle + 1].reduce(function (closestIndex, ind) {
-	      if (insertionPoints[ind]) {
-	        var dist = Math.abs(pos.y - insertionPoints[ind].getY());
-	        if (dist < minDist) {
-	          minDist = dist;
-	          return ind;
-	        }
-	      }
-	
-	      return closestIndex;
-	    }, middle);
-	
-	    // Check if drop spots have changed
-	    var newClosestInsertionPoints = [closestIndex, closestIndex - 1, closestIndex + 1].reduce(function (closestInsertionPoints, ind) {
-	      if (insertionPoints[ind]) {
-	        closestInsertionPoints.push(insertionPoints[ind]);
-	      }
-	
-	      return closestInsertionPoints;
-	    }, []);
-	
-	    if (this.state.dragData.closestInsertionPoints) {
-	      shouldUpdate = !_lodash2.default.every(this.state.closestInsertionPoints, function (stateInsertionPoint, ind) {
-	        return stateInsertionPoint.id === newClosestInsertionPoints[ind].id;
-	      });
-	    }
-	
-	    this.setState({
-	      dragData: Object.assign(this.state.dragData, {
-	        closestInsertionPoints: newClosestInsertionPoints,
-	        shouldUpdate: shouldUpdate,
-	        x: pos.x,
-	        y: pos.y
-	      })
-	    });
-	  },
-	  render: function render() {
-	    var _props = this.props,
-	        actions = _props.actions,
-	        activeComponentId = _props.activeComponentId,
-	        hoveredComponentId = _props.hoveredComponentId,
-	        renderTree = _props.renderTree;
-	    var _state = this.state,
-	        isDragging = _state.isDragging,
-	        hasOpenedMenu = _state.hasOpenedMenu,
-	        dragData = _state.dragData;
-	    var shouldUpdate = dragData.shouldUpdate,
-	        width = dragData.width,
-	        shadowOffsetX = dragData.shadowOffsetX,
-	        shadowOffsetY = dragData.shadowOffsetY,
-	        x = dragData.x,
-	        y = dragData.y,
-	        nodeText = dragData.nodeText;
-	
-	
-	    var shadow = void 0,
-	        hintText = void 0;
-	
-	    var closestInsertionPoints = this.state.closestInsertionPoints || [];
-	
-	    if (isDragging) {
-	      shadow = _react2.default.createElement(
-	        DragShadow,
-	        {
-	          width: width,
-	          offsetX: shadowOffsetX,
-	          offsetY: shadowOffsetY,
-	          x: x,
-	          y: y
-	        },
-	        _react2.default.createElement(
-	          _TreeItem2.default,
-	          { className: 'c-grabbing' },
-	          nodeText
-	        )
-	      );
-	    }
-	
-	    if (!hasOpenedMenu) {
-	      hintText = _react2.default.createElement(
-	        'span',
-	        { className: 'hint f7 ml2 mt2 dib' },
-	        'Right click components for menu'
-	      );
-	    }
-	
-	    return _react2.default.createElement(
-	      'div',
-	      null,
-	      hintText,
-	      _react2.default.createElement(_ComponentTree2.default, {
-	        node: renderTree,
-	        actions: actions,
-	        isDragging: isDragging,
-	        shouldUpdate: shouldUpdate,
-	        context: {
-	          otherPossibleTreeViewDropSpots: _lodash2.default.tail(closestInsertionPoints),
-	          selectedTreeViewDropSpot: _lodash2.default.first(closestInsertionPoints),
-	          activeComponentId: activeComponentId,
-	          hoveredComponentId: hoveredComponentId,
-	          beginDrag: this.beginDrag
-	        }
-	      }),
-	      shadow
-	    );
-	  }
-	});
-	
-	var LeftPanel = _react2.default.createClass({
-	  displayName: 'LeftPanel',
-	  render: function render() {
-	    var _this2 = this;
-	
-	    //console.log('LEFT_PANEL Render');
-	    var body = void 0;
-	    var _props2 = this.props,
-	        actions = _props2.actions,
-	        activePanel = _props2.activePanel,
-	        activeComponentId = _props2.activeComponentId,
-	        hoveredComponentId = _props2.hoveredComponentId,
-	        renderTree = _props2.renderTree,
-	        currentPage = _props2.currentPage;
-	
-	
-	    if (!currentPage) {
-	      body = _react2.default.createElement(
-	        'h2',
-	        { className: 'suggestion' },
-	        'No Page Selected'
-	      );
-	    } else if (activePanel === _constants.leftPanelTypes.TREE) {
-	      body = _react2.default.createElement(ComponentTreeContainer, {
-	        actions: actions,
-	        renderTree: renderTree,
-	        activeComponentId: activeComponentId,
-	        hoveredComponentId: hoveredComponentId
-	      });
-	    } else if (activePanel === _constants.leftPanelTypes.DETAILS) {
-	      var inputs = [{ name: 'name', key: 'metaName' }, { name: 'url', key: 'url' }, { name: 'author', key: 'author' }, { name: 'title', key: 'title' }, { name: 'description', key: 'description', large: true }, { name: 'keywords', key: 'keywords', large: true }].map(function (input) {
-	        return _react2.default.createElement(
-	          _FormLabel2.default,
-	          { name: input.name },
-	          _react2.default.createElement(_TextField2.default, {
-	            key: input.key,
-	            value: currentPage.get(input.key),
-	            onSubmit: function onSubmit(value) {
-	              _this2.props.actions.setPageValue(input.key, value);
-	            },
-	            isLarge: input.large
-	          })
-	        );
-	      });
-	
-	      body = _react2.default.createElement(
-	        'div',
-	        null,
-	        inputs
-	      );
-	    }
-	
-	    return _react2.default.createElement(
-	      'div',
-	      null,
-	      _react2.default.createElement(_HorizontalSelect2.default, {
-	        className: 'w-100',
-	        options: [{ value: _constants.leftPanelTypes.TREE, text: 'Tree' }, { value: _constants.leftPanelTypes.DETAILS, text: 'Page Settings' }],
-	        activePanel: this.props.activePanel,
-	        onClick: function onClick(name) {
-	          actions.changePanel(name, 'left');
-	        }
-	      }),
-	      _react2.default.createElement(
-	        'div',
-	        { className: 'ph1' },
-	        body
-	      )
-	    );
-	  }
-	});
-	
-	var leftPanelSelector = (0, _utils.createImmutableJSSelector)([function (state) {
-	  return state.get('activeLeftPanel');
-	}, function (state) {
-	  return state.get('activeComponentId');
-	}, function (state) {
-	  return state.get('hoveredComponentId');
-	}, _selectors.renderTreeSelector, function (state) {
-	  return state.getIn(['pages', state.get('currentPageId')]);
-	}], function (activePanel, activeComponentId, hoveredComponentId, renderTree, currentPage) {
-	  return {
-	    activePanel: activePanel,
-	    activeComponentId: activeComponentId,
-	    hoveredComponentId: hoveredComponentId,
-	    renderTree: renderTree,
-	    currentPage: currentPage
-	  };
-	});
-	
-	exports.default = (0, _reactRedux.connect)(leftPanelSelector)(LeftPanel);
-
-/***/ },
-/* 210 */
-/*!**************************!*\
-  !*** ./app/constants.js ***!
-  \**************************/
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	var dragTypes = exports.dragTypes = {
-	  ADD_COMPONENT: 'ADD_COMPONENT',
-	  MOVE_COMPONENT: 'MOVE_COMPONENT'
-	};
-	
-	var mainViewTypes = exports.mainViewTypes = {
-	  EDITOR: 'EDITOR',
-	  ASSETS: 'ASSETS',
-	  COMPONENTS: 'COMPONENTS'
-	};
-	
-	var fieldTypes = exports.fieldTypes = {
-	  TEXT: 'TEXT', /* fieldSettings:  */
-	  LARGE_TEXT: 'LARGE_TEXT', /* fieldSettings:  */
-	  NUMBER: 'NUMBER',
-	  COLOR: 'COLOR', /* fieldSettings:  */
-	  DROPDOWN: 'DROPDOWN' };
-	
-	var NONE = exports.NONE = 'NONE';
-	
-	var stateTypes = exports.stateTypes = {
-	  HOVER: 'HOVER'
-	};
-	
-	var breakpointTypes = exports.breakpointTypes = {
-	  MEDIUM: 'MEDIUM',
-	  LARGE: 'LARGE'
-	};
-	
-	var componentTypes = exports.componentTypes = {
-	  CONTAINER: 'CONTAINER',
-	  HEADER: 'HEADER',
-	  TEXT: 'TEXT',
-	  IMAGE: 'IMAGE',
-	  ROOT: 'ROOT'
-	};
-	
-	var leftPanelTypes = exports.leftPanelTypes = {
-	  TREE: 'TREE',
-	  DETAILS: 'DETAILS'
-	};
-	
-	var SIDEBAR_WIDTH = exports.SIDEBAR_WIDTH = 220;
-
-/***/ },
-/* 211 */
-/*!****************************!*\
-  !*** ./app/dragManager.js ***!
-  \****************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _lodash = __webpack_require__(/*! lodash */ 204);
-	
-	var _lodash2 = _interopRequireDefault(_lodash);
-	
-	var _utils = __webpack_require__(/*! ./utils */ 203);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } // Taken from https://github.com/zindlerb/apparatus/blob/master/src/View/Manager/DragManager.coffee
-	
-	
-	var Drag = function Drag(mouseDownEvent, spec) {
-	  _classCallCheck(this, Drag);
-	
-	  _lodash2.default.extend(this, spec);
-	  this.originalX = mouseDownEvent.clientX;
-	  this.originalY = mouseDownEvent.clientY;
-	
-	  if (this.consummated === undefined) {
-	    this.consummated = false;
-	  }
-	};
-	
-	var DragManager = function () {
-	  function DragManager() {
-	    _classCallCheck(this, DragManager);
-	
-	    this.drag = null;
-	    _utils.globalEventManager.addListener('mousemove', this._onMouseMove.bind(this), 1);
-	    _utils.globalEventManager.addListener('mouseup', this._onMouseUp.bind(this), 1);
-	  }
-	
-	  _createClass(DragManager, [{
-	    key: 'start',
-	    value: function start(mouseDownEvent, spec) {
-	      this.drag = new Drag(mouseDownEvent, spec);
-	    }
-	  }, {
-	    key: '_onMouseMove',
-	    value: function _onMouseMove(mouseMoveEvent) {
-	      if (!this.drag) return;
-	      if (!this.drag.consummated) {
-	        // Check if we should consummate.
-	        var dx = mouseMoveEvent.clientX - this.drag.originalX;
-	        var dy = mouseMoveEvent.clientY - this.drag.originalY;
-	        var d = Math.max(Math.abs(dx), Math.abs(dy));
-	
-	        if (d > 3) {
-	          this._consummate(mouseMoveEvent);
-	        }
-	      } else if (this.drag.onDrag) {
-	        this.drag.onDrag(mouseMoveEvent);
-	      }
-	    }
-	  }, {
-	    key: '_onMouseUp',
-	    value: function _onMouseUp(mouseUpEvent, cancel) {
-	      if (!this.drag) return;
-	
-	      if (this.drag.onEnd) {
-	        this.drag.onEnd(mouseUpEvent);
-	      }
-	
-	      this.drag = null;
-	
-	      cancel();
-	    }
-	  }, {
-	    key: '_consummate',
-	    value: function _consummate(mouseMoveEvent) {
-	      this.drag.consummated = true;
-	      if (this.drag.onConsummate) {
-	        this.drag.onConsummate(mouseMoveEvent);
-	      }
-	    }
-	  }]);
-	
-	  return DragManager;
-	}();
-	
-	var dragManager = new DragManager();
-	exports.default = dragManager;
-
-/***/ },
-/* 212 */
-/*!********************************************!*\
-  !*** ./app/components/HorizontalSelect.js ***!
-  \********************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = HorizontalSelect;
-	
-	var _lodash = __webpack_require__(/*! lodash */ 204);
-	
-	var _lodash2 = _interopRequireDefault(_lodash);
-	
-	var _classnames = __webpack_require__(/*! classnames */ 162);
-	
-	var _classnames2 = _interopRequireDefault(_classnames);
-	
-	var _react = __webpack_require__(/*! react */ 5);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	/* Call horizontal Select */
-	
-	/*
-	   - hasBorder
-	   - options
-	   - onClick
-	
-	change existing header instance
-	
-	 */
-	
-	function HorizontalSelect(props) {
-	  var options = _lodash2.default.map(props.options, function (option, ind) {
-	    var content = void 0;
-	    var headerClick = function headerClick(e) {
-	      props.onClick(option.value);
-	      e.stopPropagation();
-	    };
-	
-	    if (option.faClass) {
-	      content = _react2.default.createElement('i', { className: (0, _classnames2.default)('icon', 'fa', option.faClass), 'aria-hidden': 'true' });
-	    } else if (option.src) {
-	      content = _react2.default.createElement('img', { src: option.src, className: 'img' });
-	    } else {
-	      content = _react2.default.createElement(
-	        'span',
-	        {
-	          className: 'f6' },
-	        option.text
-	      );
-	    }
-	
-	    return _react2.default.createElement(
-	      'div',
-	      {
-	        className: (0, _classnames2.default)('tc pv2 ph2 h-100 c-pointer fl', {
-	          highlighted: option.value === props.activePanel
-	        }),
-	        style: { width: 100 / props.options.length + '%' },
-	        onMouseUp: headerClick,
-	        key: ind
-	      },
-	      content
-	    );
-	  });
-	
-	  return _react2.default.createElement(
-	    'div',
-	    {
-	      className: (0, _classnames2.default)('cf horizontal-select', {
-	        border: props.hasBorder
-	      }, props.className)
-	    },
-	    options
-	  );
-	}
-
-/***/ },
-/* 213 */
-/*!*******************************************!*\
-  !*** ./app/components/forms/FormLabel.js ***!
-  \*******************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = FormLabel;
-	
-	var _react = __webpack_require__(/*! react */ 5);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _classnames = __webpack_require__(/*! classnames */ 162);
-	
-	var _classnames2 = _interopRequireDefault(_classnames);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	// Child is a form field
-	function FormLabel(props) {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: (0, _classnames2.default)(props.className) },
-	    _react2.default.createElement(
-	      'div',
-	      { className: 'mb1' },
-	      _react2.default.createElement(
-	        'span',
-	        { className: 'f7' },
-	        props.name,
-	        ':'
-	      )
-	    ),
-	    props.children
-	  );
-	}
-
-/***/ },
-/* 214 */
+/* 223 */
 /*!*******************************************!*\
   !*** ./app/components/forms/TextField.js ***!
   \*******************************************/
@@ -57342,7 +57982,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _jquery = __webpack_require__(/*! jquery */ 205);
+	var _jquery = __webpack_require__(/*! jquery */ 215);
 	
 	var _jquery2 = _interopRequireDefault(_jquery);
 	
@@ -57506,9 +58146,103 @@
 	// track mouse in leave - if inside then we know not to let the blur event go through.
 
 /***/ },
-/* 215 */
+/* 224 */
+/*!**************************************!*\
+  !*** ./app/containers/EditorView.js ***!
+  \**************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(/*! react */ 5);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _classnames = __webpack_require__(/*! classnames */ 218);
+	
+	var _classnames2 = _interopRequireDefault(_classnames);
+	
+	var _ViewChoiceDropdown = __webpack_require__(/*! ../components/ViewChoiceDropdown */ 217);
+	
+	var _ViewChoiceDropdown2 = _interopRequireDefault(_ViewChoiceDropdown);
+	
+	var _PagesDropdown = __webpack_require__(/*! ./PagesDropdown */ 225);
+	
+	var _PagesDropdown2 = _interopRequireDefault(_PagesDropdown);
+	
+	var _EditorRenderer = __webpack_require__(/*! ./EditorRenderer */ 228);
+	
+	var _EditorRenderer2 = _interopRequireDefault(_EditorRenderer);
+	
+	var _Sidebar = __webpack_require__(/*! ../components/Sidebar */ 232);
+	
+	var _Sidebar2 = _interopRequireDefault(_Sidebar);
+	
+	var _EditorAttributes = __webpack_require__(/*! ./EditorAttributes */ 233);
+	
+	var _EditorAttributes2 = _interopRequireDefault(_EditorAttributes);
+	
+	var _EditorLeftPanel = __webpack_require__(/*! ./EditorLeftPanel */ 474);
+	
+	var _EditorLeftPanel2 = _interopRequireDefault(_EditorLeftPanel);
+	
+	var _ComponentMenu = __webpack_require__(/*! ../components/ComponentMenu */ 467);
+	
+	var _ComponentMenu2 = _interopRequireDefault(_ComponentMenu);
+	
+	var _OpenSiteModal = __webpack_require__(/*! ../containers/OpenSiteModal */ 468);
+	
+	var _OpenSiteModal2 = _interopRequireDefault(_OpenSiteModal);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var EditorView = _react2.default.createClass({
+	  displayName: 'EditorView',
+	  render: function render() {
+	    var _props = this.props,
+	        actions = _props.actions,
+	        currentMainView = _props.currentMainView;
+	
+	
+	    return _react2.default.createElement(
+	      'div',
+	      { className: (0, _classnames2.default)('flex h-100') },
+	      _react2.default.createElement(
+	        _Sidebar2.default,
+	        { direction: 'left' },
+	        _react2.default.createElement(_EditorLeftPanel2.default, null)
+	      ),
+	      _react2.default.createElement(
+	        'div',
+	        { className: 'flex-auto flex flex-column h-100 mh4 relative' },
+	        _react2.default.createElement(_ViewChoiceDropdown2.default, {
+	          mainView: currentMainView,
+	          actions: actions
+	        }),
+	        _react2.default.createElement(_PagesDropdown2.default, null),
+	        _react2.default.createElement(_EditorRenderer2.default, null)
+	      ),
+	      _react2.default.createElement(
+	        _Sidebar2.default,
+	        { direction: 'right' },
+	        _react2.default.createElement(_EditorAttributes2.default, null)
+	      ),
+	      _react2.default.createElement(_ComponentMenu2.default, { actions: actions }),
+	      _react2.default.createElement(_OpenSiteModal2.default, { actions: actions })
+	    );
+	  }
+	});
+	
+	exports.default = EditorView;
+
+/***/ },
+/* 225 */
 /*!*****************************************!*\
-  !*** ./app/components/ComponentTree.js ***!
+  !*** ./app/containers/PagesDropdown.js ***!
   \*****************************************/
 /***/ function(module, exports, __webpack_require__) {
 
@@ -57522,215 +58256,123 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _jquery = __webpack_require__(/*! jquery */ 205);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	var _lodash = __webpack_require__(/*! lodash */ 204);
+	var _lodash = __webpack_require__(/*! lodash */ 210);
 	
 	var _lodash2 = _interopRequireDefault(_lodash);
 	
-	var _classnames = __webpack_require__(/*! classnames */ 162);
+	var _reactRedux = __webpack_require__(/*! react-redux */ 162);
 	
-	var _classnames2 = _interopRequireDefault(_classnames);
+	var _utils = __webpack_require__(/*! ../utils */ 214);
 	
-	var _utils = __webpack_require__(/*! ../utils */ 203);
+	var _FormLabel = __webpack_require__(/*! ../components/forms/FormLabel */ 226);
 	
-	var _TreeItem = __webpack_require__(/*! ./TreeItem */ 216);
+	var _FormLabel2 = _interopRequireDefault(_FormLabel);
 	
-	var _TreeItem2 = _interopRequireDefault(_TreeItem);
+	var _PopupSelect = __webpack_require__(/*! ../components/PopupSelect */ 219);
+	
+	var _PopupSelect2 = _interopRequireDefault(_PopupSelect);
+	
+	var _PagesPopup = __webpack_require__(/*! ../components/PagesPopup */ 227);
+	
+	var _PagesPopup2 = _interopRequireDefault(_PagesPopup);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var Spacer = function Spacer(props) {
-	  var sx = void 0,
-	      indexMarker = void 0;
-	  var index = props.index,
-	      nodeId = props.nodeId,
-	      isActive = props.isActive,
-	      isNear = props.isNear;
-	
-	
-	  if (isActive) {
-	    sx = {
-	      border: '1px solid #FF8D80',
-	      marginTop: 1
-	    };
-	  } else if (isNear) {
-	    sx = {
-	      border: '1px solid #FFDCD8',
-	      marginTop: 1
-	    };
-	  } else {
-	    sx = {
-	      border: '0px solid #FFDCD8',
-	      height: 1
-	    };
-	  }
-	
-	  if (index === undefined) {
-	    indexMarker = 'emptyChild';
-	  } else {
-	    indexMarker = index;
-	  }
-	
-	  return _react2.default.createElement('div', {
-	    style: sx,
-	    className: 'spacer treeDropSpot_' + nodeId + '_' + indexMarker
-	  });
-	};
-	
-	function checkActive(parentId, dropPoint, ind) {
-	  if (!dropPoint) {
-	    return false;
-	  }
-	
-	  return dropPoint.parentId === parentId && dropPoint.insertionIndex === ind && !dropPoint.isDraggedComponent;
-	}
-	
-	var ComponentTree = _react2.default.createClass({
-	  displayName: 'ComponentTree',
-	  shouldComponentUpdate: function shouldComponentUpdate(nextProps) {
-	    // TD: change this so there is less coupling with container
-	    if (nextProps.isDragging) {
-	      // Assumes component tree cannot change mid drag
-	      return nextProps.shouldUpdate;
-	    } else {
-	      return true;
-	    }
-	  },
+	var PagesDropdown = _react2.default.createClass({
+	  displayName: 'PagesDropdown',
 	  render: function render() {
-	    var children = void 0;
-	    var afterSpacer = void 0,
-	        beforeSpacer = void 0,
-	        afterSpacerInd = void 0;
 	    var _props = this.props,
-	        context = _props.context,
-	        node = _props.node,
+	        currentPageId = _props.currentPageId,
+	        currentPageName = _props.currentPageName,
+	        pages = _props.pages,
 	        actions = _props.actions;
-	    var otherPossibleTreeViewDropSpots = context.otherPossibleTreeViewDropSpots,
-	        selectedTreeViewDropSpot = context.selectedTreeViewDropSpot,
-	        activeComponentId = context.activeComponentId,
-	        hoveredComponentId = context.hoveredComponentId;
 	
-	
-	    if (node.parent) {
-	      if (node.index === 0) {
-	        beforeSpacer = _react2.default.createElement(Spacer, {
-	          nodeId: node.id,
-	          index: node.index,
-	          isActive: checkActive(node.parent.id, selectedTreeViewDropSpot, 0),
-	          isNear: _lodash2.default.some(otherPossibleTreeViewDropSpots, function (dspot) {
-	            return checkActive(node.parent.id, dspot, 0);
-	          })
-	        });
-	      }
-	
-	      afterSpacerInd = node.index + 1;
-	      afterSpacer = _react2.default.createElement(Spacer, {
-	        nodeId: node.id,
-	        index: afterSpacerInd,
-	        isActive: checkActive(node.parent.id, selectedTreeViewDropSpot, afterSpacerInd),
-	        isNear: _lodash2.default.some(otherPossibleTreeViewDropSpots, function (dspot) {
-	          return checkActive(node.parent.id, dspot, afterSpacerInd);
-	        })
-	      });
-	    }
-	
-	    children = _react2.default.createElement(TreeChildren, {
-	      parentId: node.id,
-	      children: node.children,
-	      context: context,
-	      actions: actions
-	    });
-	
-	    var treeItemIsActive = node.id === activeComponentId;
-	    var treeItemIsHovered = node.id === hoveredComponentId;
 	
 	    return _react2.default.createElement(
-	      'div',
-	      null,
-	      beforeSpacer,
+	      _FormLabel2.default,
+	      { className: 'mh2', name: 'Page' },
 	      _react2.default.createElement(
-	        _TreeItem2.default,
+	        _PopupSelect2.default,
 	        {
-	          className: (0, _classnames2.default)('c-grab', {
-	            isActive: treeItemIsActive,
-	            isHovered: !treeItemIsActive && treeItemIsHovered
-	          }),
-	          onMouseEnter: function onMouseEnter() {
-	            return actions.hoverComponent(node.id);
-	          },
-	          onMouseLeave: function onMouseLeave() {
-	            return actions.unHoverComponent();
-	          },
-	          onMouseUp: function onMouseUp(e) {
-	            if ((0, _utils.wasRightButtonPressed)(e)) {
-	              actions.openMenu(node.id, e.clientX, e.clientY);
-	            } else {
-	              actions.selectComponent(node.id);
-	            }
-	          },
-	          onMouseDown: function onMouseDown(e) {
-	            var target = (0, _jquery2.default)(e.target);
-	            var targetPos = target.position();
-	
-	            context.beginDrag(e, node, target.width(), targetPos.left, targetPos.top);
-	          }
-	        },
-	        node.name
-	      ),
-	      children,
-	      afterSpacer
-	    );
-	  }
-	});
-	
-	var TreeChildren = _react2.default.createClass({
-	  displayName: 'TreeChildren',
-	  render: function render() {
-	    var _this = this;
-	
-	    var emptySpacer = void 0;
-	    var _props2 = this.props,
-	        parentId = _props2.parentId,
-	        context = _props2.context;
-	
-	    var children = _lodash2.default.map(this.props.children, function (child) {
-	      return _react2.default.createElement(ComponentTree, {
-	        context: _this.props.context,
-	        actions: _this.props.actions,
-	        node: child,
-	        key: child.id
-	      });
-	    });
-	
-	    if (this.props.children.length === 0) {
-	      emptySpacer = _react2.default.createElement(Spacer, {
-	        nodeId: this.props.parentId,
-	        isActive: checkActive(parentId, context.selectedTreeViewDropSpot, 0),
-	        isNear: _lodash2.default.some(context.otherPossibleTreeViewDropSpots, function (dspot) {
-	          return checkActive(parentId, dspot, 0);
+	          value: currentPageName,
+	          className: 'f6 pv1' },
+	        _react2.default.createElement(_PagesPopup2.default, {
+	          pages: pages,
+	          currentPageId: currentPageId,
+	          currentPageName: currentPageName,
+	          actions: actions
 	        })
-	      });
-	    }
-	
-	    return _react2.default.createElement(
-	      'div',
-	      { className: 'ml2' },
-	      emptySpacer,
-	      children
+	      )
 	    );
 	  }
 	});
 	
-	exports.default = ComponentTree;
+	var pagesSelector = (0, _utils.createImmutableJSSelector)(function (state) {
+	  return state.get('pages');
+	}, function (pages) {
+	  return _lodash2.default.toArray(pages.toJS());
+	});
+	
+	var pagesDropdownSelector = (0, _utils.createImmutableJSSelector)([pagesSelector, function (state) {
+	  return state.getIn(['pages', state.get('currentPageId')]);
+	}], function (pages, currentPage) {
+	  return {
+	    pages: pages,
+	    currentPageName: currentPage.get('name'),
+	    currentPageId: currentPage.get('id')
+	  };
+	});
+	
+	exports.default = (0, _reactRedux.connect)(pagesDropdownSelector)(PagesDropdown);
 
 /***/ },
-/* 216 */
-/*!************************************!*\
-  !*** ./app/components/TreeItem.js ***!
-  \************************************/
+/* 226 */
+/*!*******************************************!*\
+  !*** ./app/components/forms/FormLabel.js ***!
+  \*******************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = FormLabel;
+	
+	var _react = __webpack_require__(/*! react */ 5);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _classnames = __webpack_require__(/*! classnames */ 218);
+	
+	var _classnames2 = _interopRequireDefault(_classnames);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	// Child is a form field
+	function FormLabel(props) {
+	  return _react2.default.createElement(
+	    'div',
+	    { className: (0, _classnames2.default)(props.className) },
+	    _react2.default.createElement(
+	      'div',
+	      { className: 'mb1' },
+	      _react2.default.createElement(
+	        'span',
+	        { className: 'f7' },
+	        props.name,
+	        ':'
+	      )
+	    ),
+	    props.children
+	  );
+	}
+
+/***/ },
+/* 227 */
+/*!**************************************!*\
+  !*** ./app/components/PagesPopup.js ***!
+  \**************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -57743,30 +58385,200 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _classnames = __webpack_require__(/*! classnames */ 162);
+	var _classnames = __webpack_require__(/*! classnames */ 218);
 	
 	var _classnames2 = _interopRequireDefault(_classnames);
 	
+	var _utils = __webpack_require__(/*! ../utils */ 214);
+	
+	var _UpArrow = __webpack_require__(/*! ../components/UpArrow */ 220);
+	
+	var _UpArrow2 = _interopRequireDefault(_UpArrow);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var TreeItem = function TreeItem(props) {
-	  return _react2.default.createElement(
-	    'span',
-	    {
-	      className: (0, _classnames2.default)('treeItem w-100 pv1 db', props.className),
-	      onMouseDown: props.onMouseDown,
-	      onMouseUp: props.onMouseUp,
-	      onMouseEnter: props.onMouseEnter,
-	      onMouseLeave: props.onMouseLeave
-	    },
-	    props.children
-	  );
-	};
+	var PagesPopup = _react2.default.createClass({
+	  displayName: 'PagesPopup',
+	  getInitialState: function getInitialState() {
+	    return {
+	      isEditing: false,
+	      tempText: ''
+	    };
+	  },
+	  render: function render() {
+	    var _this = this;
 	
-	exports.default = TreeItem;
+	    var _props = this.props,
+	        pages = _props.pages,
+	        currentPageId = _props.currentPageId,
+	        currentPageName = _props.currentPageName,
+	        actions = _props.actions;
+	    var _state = this.state,
+	        isEditing = _state.isEditing,
+	        tempText = _state.tempText;
+	
+	    var isActive = void 0;
+	    var pageComponents = pages.map(function (page) {
+	      isActive = page.id === currentPageId;
+	
+	      if (isActive && isEditing) {
+	        return _react2.default.createElement(
+	          'li',
+	          { key: page.id },
+	          _react2.default.createElement('input', {
+	            value: tempText,
+	            ref: _utils.focusRefCallback,
+	            onChange: function onChange(e) {
+	              _this.setState({ tempText: e.target.value });
+	            },
+	            onBlur: function onBlur(e) {
+	              _this.setState({ isEditing: false, tempText: '' });
+	              actions.setPageValue(page.id, 'name', e.target.value);
+	            }
+	          })
+	        );
+	      } else {
+	        return _react2.default.createElement(
+	          'li',
+	          {
+	            className: (0, _classnames2.default)({ highlighted: isActive }),
+	            onClick: function onClick() {
+	              actions.changePage(page.id);
+	            }
+	          },
+	          page.name
+	        );
+	      }
+	    });
+	
+	    if (pageComponents.length === 0) {
+	      pageComponents.push(_react2.default.createElement(
+	        'li',
+	        { className: 'suggestion' },
+	        'Please Add a page'
+	      ));
+	    }
+	
+	    return _react2.default.createElement(
+	      'div',
+	      null,
+	      _react2.default.createElement(
+	        'div',
+	        {
+	          style: {
+	            top: this.props.y,
+	            left: this.props.x
+	          },
+	          className: 'popup tl fixed w5' },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'ph3' },
+	          _react2.default.createElement('i', {
+	            className: 'fa fa-plus',
+	            'aria-hidden': 'true',
+	            onClick: function onClick() {
+	              actions.addPage();
+	            }
+	          }),
+	          _react2.default.createElement('i', {
+	            className: 'fa fa-trash',
+	            'aria-hidden': 'true',
+	            onClick: function onClick() {
+	              actions.deletePage(currentPageId);
+	            }
+	          }),
+	          _react2.default.createElement('i', {
+	            className: 'fa fa-pencil-square-o',
+	            'aria-hidden': 'true',
+	            onClick: function onClick() {
+	              _this.setState({
+	                isEditing: true,
+	                tempText: currentPageName
+	              });
+	            }
+	          })
+	        ),
+	        _react2.default.createElement(
+	          'ul',
+	          null,
+	          pageComponents
+	        )
+	      ),
+	      _react2.default.createElement(_UpArrow2.default, { y: this.props.y, x: this.props.x })
+	    );
+	  }
+	});
+	
+	exports.default = PagesPopup;
 
 /***/ },
-/* 217 */
+/* 228 */
+/*!******************************************!*\
+  !*** ./app/containers/EditorRenderer.js ***!
+  \******************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(/*! react */ 5);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _reactRedux = __webpack_require__(/*! react-redux */ 162);
+	
+	var _utils = __webpack_require__(/*! ../utils */ 214);
+	
+	var _selectors = __webpack_require__(/*! ../selectors */ 229);
+	
+	var _StaticRenderer = __webpack_require__(/*! ../components/StaticRenderer */ 230);
+	
+	var _StaticRenderer2 = _interopRequireDefault(_StaticRenderer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var EditorRenderer = _react2.default.createClass({
+	  displayName: 'EditorRenderer',
+	  render: function render() {
+	    var _props = this.props,
+	        renderTree = _props.renderTree,
+	        hoveredComponentId = _props.hoveredComponentId,
+	        activeComponentId = _props.activeComponentId,
+	        width = _props.width,
+	        actions = _props.actions;
+	
+	    return _react2.default.createElement(_StaticRenderer2.default, {
+	      actions: actions,
+	      renderTree: renderTree,
+	      hoveredComponentId: hoveredComponentId,
+	      activeComponentId: activeComponentId,
+	      width: width
+	    });
+	  }
+	});
+	
+	var editorRendererSelector = (0, _utils.createImmutableJSSelector)([_selectors.renderTreeSelector, function (state) {
+	  return state.get('hoveredComponentId');
+	}, function (state) {
+	  return state.get('activeComponentId');
+	}, function (state) {
+	  return state.get('rendererWidth');
+	}], function (renderTree, hoveredComponentId, activeComponentId, width) {
+	  return {
+	    renderTree: renderTree,
+	    hoveredComponentId: hoveredComponentId,
+	    activeComponentId: activeComponentId,
+	    width: width
+	  };
+	});
+	
+	exports.default = (0, _reactRedux.connect)(editorRendererSelector)(EditorRenderer);
+
+/***/ },
+/* 229 */
 /*!**************************!*\
   !*** ./app/selectors.js ***!
   \**************************/
@@ -57779,9 +58591,9 @@
 	});
 	exports.contextSelector = exports.renderTreeSelector = undefined;
 	
-	var _base_components = __webpack_require__(/*! ./base_components */ 218);
+	var _base_components = __webpack_require__(/*! ./base_components */ 213);
 	
-	var _utils = __webpack_require__(/*! ./utils */ 203);
+	var _utils = __webpack_require__(/*! ./utils */ 214);
 	
 	var renderTreeSelector = exports.renderTreeSelector = (0, _utils.createImmutableJSSelector)([function (state) {
 	  return state.getIn(['pages', state.get('currentPageId'), 'componentTreeId']);
@@ -57806,612 +58618,9 @@
 	});
 
 /***/ },
-/* 218 */
-/*!********************************!*\
-  !*** ./app/base_components.js ***!
-  \********************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.ComponentsContainer = exports.defaultComponentsMap = exports.image = exports.header = exports.text = exports.container = exports.containerAttributes = exports.root = undefined;
-	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _Immutable$Map;
-	
-	exports.createNewImageSpec = createNewImageSpec;
-	exports.createComponentData = createComponentData;
-	
-	var _lodash = __webpack_require__(/*! lodash */ 204);
-	
-	var _lodash2 = _interopRequireDefault(_lodash);
-	
-	var _immutable = __webpack_require__(/*! immutable */ 206);
-	
-	var _immutable2 = _interopRequireDefault(_immutable);
-	
-	var _utils = __webpack_require__(/*! ./utils */ 203);
-	
-	var _constants = __webpack_require__(/*! ./constants */ 210);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-	
-	var CONTAINER = _constants.componentTypes.CONTAINER,
-	    HEADER = _constants.componentTypes.HEADER,
-	    TEXT = _constants.componentTypes.TEXT,
-	    IMAGE = _constants.componentTypes.IMAGE,
-	    ROOT = _constants.componentTypes.ROOT;
-	var fromJS = _immutable2.default.fromJS;
-	function createNewImageSpec(asset) {
-	  return {
-	    name: asset.name,
-	    defaultAttributes: { src: asset.src }
-	  };
-	}
-	
-	function createComponentData(componentType, spec) {
-	  return fromJS({
-	    componentType: componentType,
-	    name: spec.name,
-	    childIds: [],
-	    variantIds: [],
-	    masterId: spec.masterId,
-	    parentId: spec.parentId,
-	    defaultAttributes: spec.defaultAttributes || {},
-	    id: spec.id || (0, _utils.guid)(),
-	    states: spec.states || {},
-	    breakpoints: spec.breakpoints || {}
-	  });
-	}
-	
-	var defaultAttributes = {
-	  position: 'static',
-	  margin: '0px',
-	  padding: '0px',
-	  height: 'auto',
-	  width: 'auto',
-	  backgroundColor: 'transparent'
-	};
-	
-	var root = exports.root = createComponentData(ROOT, {
-	  id: ROOT,
-	  defaultAttributes: {
-	    height: '100%'
-	  }
-	});
-	
-	var containerAttributes = exports.containerAttributes = Object.assign({}, defaultAttributes, {
-	  display: 'flex',
-	  flexDirection: 'column',
-	  justifyContent: 'flex-start'
-	});
-	
-	var container = exports.container = createComponentData(CONTAINER, {
-	  name: 'Container',
-	  id: CONTAINER,
-	  defaultAttributes: containerAttributes
-	});
-	
-	var text = exports.text = createComponentData(TEXT, {
-	  name: 'Text',
-	  id: TEXT,
-	  defaultAttributes: Object.assign({}, defaultAttributes, {
-	    text: 'Text. Text. Text. I am some text.'
-	  })
-	});
-	
-	var header = exports.header = createComponentData(HEADER, {
-	  name: 'Header',
-	  id: HEADER,
-	  defaultAttributes: Object.assign({}, defaultAttributes, {
-	    text: 'I am a header'
-	  })
-	});
-	
-	var image = exports.image = createComponentData(IMAGE, {
-	  name: 'Image',
-	  id: IMAGE,
-	  defaultAttributes: Object.assign({}, defaultAttributes, {
-	    src: ''
-	  })
-	});
-	
-	var defaultComponentsMap = exports.defaultComponentsMap = _immutable2.default.Map((_Immutable$Map = {}, _defineProperty(_Immutable$Map, root.get('id'), root), _defineProperty(_Immutable$Map, container.get('id'), container), _defineProperty(_Immutable$Map, header.get('id'), header), _defineProperty(_Immutable$Map, text.get('id'), text), _defineProperty(_Immutable$Map, image.get('id'), image), _Immutable$Map));
-	
-	var ComponentsContainer = exports.ComponentsContainer = function () {
-	  function ComponentsContainer(components) {
-	    _classCallCheck(this, ComponentsContainer);
-	
-	    this.components = components;
-	  }
-	
-	  //  Write
-	
-	
-	  _createClass(ComponentsContainer, [{
-	    key: 'createVariant',
-	    value: function createVariant(masterId, spec) {
-	      var variantId = (0, _utils.guid)();
-	      this.components = ComponentsContainer.createVariant(this.components, variantId, masterId, spec);
-	      return variantId;
-	    }
-	  }, {
-	    key: 'deleteComponent',
-	    value: function deleteComponent(deletedComponentId) {
-	      this.components = ComponentsContainer.deleteComponent(this.components, deletedComponentId);
-	    }
-	  }, {
-	    key: 'addChild',
-	    value: function addChild(parentId, childId, ind) {
-	      this.components = ComponentsContainer.addChild(this.components, parentId, childId, ind);
-	    }
-	  }, {
-	    key: 'moveComponent',
-	    value: function moveComponent(movedComponentId, newParentId, insertionIndex) {
-	      this.components = ComponentsContainer.moveComponent(this.components, movedComponentId, newParentId, insertionIndex);
-	    }
-	  }, {
-	    key: 'setAttribute',
-	    value: function setAttribute(componentId, attributeName, newValue, attributeOptions) {
-	      this.components = ComponentsContainer.setAttribute(this.components, componentId, attributeName, newValue, attributeOptions);
-	    }
-	  }, {
-	    key: 'getAttributes',
-	
-	
-	    //  Read
-	    value: function getAttributes(componentId, attributeOptions) {
-	      return ComponentsContainer.getAttributes(this.components, componentId, attributeOptions);
-	    }
-	  }, {
-	    key: 'getName',
-	    value: function getName(componentId) {
-	      return ComponentsContainer.getName(this.components, componentId);
-	    }
-	  }, {
-	    key: 'walkChildren',
-	    value: function walkChildren(componentId, func) {
-	      ComponentsContainer.walkChildren(this.components, componentId, func);
-	    }
-	  }, {
-	    key: 'getRenderableProperties',
-	    value: function getRenderableProperties(componentId, attributeOptions) {
-	      return ComponentsContainer.getRenderableProperties(this.components, componentId, attributeOptions);
-	    }
-	  }, {
-	    key: 'getRenderTree',
-	    value: function getRenderTree(componentId, context) {
-	      return ComponentsContainer.getRenderTree(this.components, componentId, context);
-	    }
-	  }, {
-	    key: 'hydrateComponent',
-	    value: function hydrateComponent(componentId) {
-	      return ComponentsContainer.hydrateComponent(this.components, componentId);
-	    }
-	  }, {
-	    key: 'getIndex',
-	    value: function getIndex(componentId) {
-	      return ComponentsContainer.getIndex(this.components, componentId);
-	    }
-	  }, {
-	    key: 'getHtml',
-	
-	
-	    // All user inputs must be escaped
-	    value: function getHtml(componentId) {
-	      return ComponentsContainer.getHtml(this.components, componentId);
-	    }
-	  }, {
-	    key: 'getCss',
-	    value: function getCss(componentId) {
-	      return ComponentsContainer.getCss(this.components, componentId);
-	    }
-	  }], [{
-	    key: 'createVariant',
-	    value: function createVariant(componentsMap, variantId, masterId, spec) {
-	      return componentsMap.withMutations(function (components) {
-	        var master = components.get(masterId).update('variantIds', function (variantIds) {
-	          return variantIds.push(variantId);
-	        });
-	
-	        var variant = createComponentData(master.get('componentType'), Object.assign({ masterId: masterId, id: variantId }, spec));
-	
-	        components.set(masterId, master).set(variantId, variant);
-	
-	        master.get('childIds').forEach(function (childId) {
-	          var childVariantId = (0, _utils.guid)();
-	          ComponentsContainer.createVariant(components, childVariantId, childId);
-	          ComponentsContainer.addChild(components, variantId, childVariantId);
-	        });
-	      });
-	    }
-	  }, {
-	    key: 'deleteComponent',
-	    value: function deleteComponent(componentsMap, deletedComponentId) {
-	      return componentsMap.withMutations(function (components) {
-	        var deletedComponent = components.get(deletedComponentId);
-	        var deletedComponentParent = components.get(deletedComponent.get('parentId'));
-	        var deletedComponentMaster = components.get(deletedComponent.get('masterId'));
-	        components.delete(deletedComponentId);
-	
-	        if (deletedComponentParent) {
-	          components.set(deletedComponentParent.get('id'), deletedComponentParent.update('childIds', function (childIds) {
-	            return childIds.filterNot(function (childId) {
-	              return childId === deletedComponentId;
-	            });
-	          }));
-	        }
-	
-	        if (deletedComponentMaster) {
-	          components.set(deletedComponentMaster.get('id'), deletedComponentMaster.update('variantIds', function (variantIds) {
-	            return variantIds.filterNot(function (variantId) {
-	              return variantId === deletedComponentId;
-	            });
-	          }));
-	        }
-	
-	        // TD: if master is deleted should all the children really be deleted?
-	        // Should probably connect component to next nearest master
-	        deletedComponent.get('variantIds').forEach(function (variantId) {
-	          ComponentsContainer.deleteComponent(components, variantId);
-	        });
-	      });
-	    }
-	  }, {
-	    key: 'addChild',
-	    value: function addChild(componentsMap, parentId, childId, ind) {
-	      return componentsMap.withMutations(function (components) {
-	        components.get(parentId).get('variantIds').forEach(function (variantId) {
-	          var childVariantId = (0, _utils.guid)();
-	          ComponentsContainer.createVariant(components, childVariantId, childId);
-	          ComponentsContainer.addChild(components, variantId, childVariantId, ind);
-	        });
-	
-	        components.set(childId, components.get(childId).set('parentId', parentId));
-	
-	        components.set(parentId, components.get(parentId).update('childIds', function (childIds) {
-	          if (ind === undefined) {
-	            return childIds.push(childId);
-	          } else {
-	            return childIds.splice(ind, 0, childId);
-	          }
-	        }));
-	      });
-	    }
-	  }, {
-	    key: 'moveComponent',
-	    value: function moveComponent(componentsMap, movedComponentId, newParentId, insertionIndex) {
-	      // Delete from parent and remove from all variants of parent
-	      return componentsMap.withMutations(function (components) {
-	        var movedComponent = components.get(movedComponentId);
-	        var movedComponentParent = components.get(movedComponent.get('parentId'));
-	
-	        components.set(movedComponentParent.get('id'), movedComponentParent.update('childIds', function (childIds) {
-	          return childIds.filterNot(function (childId) {
-	            return childId === movedComponentId;
-	          });
-	        }));
-	
-	        movedComponent.get('variantIds').forEach(function (variantId) {
-	          ComponentsContainer.deleteComponent(components, variantId);
-	        });
-	
-	        ComponentsContainer.addChild(components, newParentId, movedComponentId, insertionIndex);
-	      });
-	    }
-	  }, {
-	    key: 'setAttribute',
-	    value: function setAttribute(componentsMap, componentId, attributeName, newValue, attributeOptions) {
-	      return componentsMap.withMutations(function (components) {
-	        var component = components.get(componentId);
-	
-	        var _ref = attributeOptions || {},
-	            state = _ref.state,
-	            breakpoint = _ref.breakpoint;
-	
-	        var attributeType = void 0,
-	            attributeOption = void 0;
-	
-	        if (state !== _constants.NONE) {
-	          attributeType = 'states';
-	          attributeOption = state;
-	        } else if (breakpoint !== _constants.NONE) {
-	          attributeType = 'breakpoints';
-	          attributeOption = breakpoint;
-	        }
-	
-	        if (attributeType) {
-	          if (!component.getIn([attributeType, attributeOption])) {
-	            component = component.setIn([attributeType, attributeOption], _immutable2.default.Map());
-	          }
-	
-	          component = component.setIn([attributeType, attributeOption, attributeName], newValue);
-	        } else {
-	          component = component.setIn(['defaultAttributes', attributeName], newValue);
-	        }
-	
-	        return components.set(componentId, component);
-	      });
-	    }
-	  }, {
-	    key: 'getAttributes',
-	    value: function getAttributes(componentsMap, componentId, attributeOptions) {
-	      var component = componentsMap.get(componentId);
-	
-	      var _ref2 = attributeOptions || { state: _constants.NONE, breakpoint: _constants.NONE },
-	          state = _ref2.state,
-	          breakpoint = _ref2.breakpoint;
-	
-	      var masterId = component.get('masterId');
-	      var masterAttrs = {};
-	      var attributes = void 0;
-	
-	      if (masterId) {
-	        masterAttrs = ComponentsContainer.getAttributes(componentsMap, masterId, attributeOptions);
-	      }
-	
-	      if (state !== _constants.NONE && component.getIn(['states', state])) {
-	        attributes = component.getIn(['states', state]).toJS();
-	      } else if (breakpoint !== _constants.NONE && component.getIn(['breakpoints', breakpoint])) {
-	        attributes = component.getIn(['breakpoints', breakpoint]).toJS();
-	      } else {
-	        attributes = component.get('defaultAttributes').toJS();
-	      }
-	
-	      return Object.assign(masterAttrs, attributes);
-	    }
-	  }, {
-	    key: 'getName',
-	    value: function getName(componentsMap, componentId) {
-	      var component = componentsMap.get(componentId);
-	      if (!component.get('name')) {
-	        return componentsMap.get(component.get('masterId')).get('name');
-	      } else {
-	        return component.get('name');
-	      }
-	    }
-	  }, {
-	    key: 'walkChildren',
-	    value: function walkChildren(componentsMap, componentId, func, ind, isChild) {
-	      // Does not call callback on componentId this is called with.
-	      var component = componentsMap.get(componentId);
-	      var isCanceled = false;
-	
-	      if (isChild) {
-	        func.call(null, component, ind, function () {
-	          isCanceled = true;
-	        });
-	      }
-	
-	      if (!isCanceled) {
-	        component.get('childIds').forEach(function (childId, ind) {
-	          ComponentsContainer.walkChildren(componentsMap, childId, func, ind, true);
-	        });
-	      }
-	    }
-	  }, {
-	    key: 'getRenderableProperties',
-	    value: function getRenderableProperties(componentsMap, componentId, attributeOptions) {
-	      var attrToCssLookup = {};
-	      var attrToHtmlPropertyLookup = {
-	        text: true,
-	        src: true
-	      };
-	
-	      // default attributes
-	      var attributes = ComponentsContainer.getAttributes(componentsMap, componentId);
-	
-	      if (attributeOptions.state !== _constants.NONE || attributeOptions.breakpoint !== _constants.NONE) {
-	        Object.assign(attributes, ComponentsContainer.getAttributes(componentsMap, componentId, attributeOptions));
-	      }
-	
-	      return _lodash2.default.reduce(attributes, function (renderableAttributes, attrVal, attrKey) {
-	        if (attrToHtmlPropertyLookup[attrKey]) {
-	          renderableAttributes.htmlProperties[attrKey] = attrVal;
-	        } else if (attrToCssLookup[attrKey]) {
-	          Object.assign(renderableAttributes.sx, attrToCssLookup[attrKey](attrVal));
-	        } else {
-	          renderableAttributes.sx[attrKey] = attrVal;
-	        }
-	
-	        return renderableAttributes;
-	      }, {
-	        htmlProperties: {},
-	        sx: {}
-	      });
-	    }
-	  }, {
-	    key: 'getRenderTree',
-	    value: function getRenderTree(componentsMap, componentId, context, index) {
-	      /*
-	          context: {
-	         states: { id of component and state} - only if not none
-	         width
-	         }
-	          component stuff with:
-	         sx
-	         htmlProperties
-	          Later delete stuff
-	       */
-	
-	      // TD: if I only take certain properties I can make this cheaper
-	      if (componentId) {
-	        var _ret = function () {
-	          var componentJs = componentsMap.get(componentId).toJS();
-	          var breakpoint = _constants.NONE;
-	          var state = _constants.NONE;
-	          var defaultFont = 16; // TD: read from dom.
-	
-	          if (context) {
-	            if (context.width > 30 * defaultFont && context.width < 60 * defaultFont) {
-	              breakpoint = _constants.breakpointTypes.MEDIUM;
-	            }if (context.width > 60 * defaultFont) {
-	              breakpoint = _constants.breakpointTypes.LARGE;
-	            }
-	
-	            if (context.states[componentId]) {
-	              state = context.states[componentId];
-	            }
-	          }
-	
-	          var _ComponentsContainer$ = ComponentsContainer.getRenderableProperties(componentsMap, componentId, {
-	            breakpoint: breakpoint,
-	            state: state
-	          }),
-	              sx = _ComponentsContainer$.sx,
-	              htmlProperties = _ComponentsContainer$.htmlProperties;
-	
-	          componentJs.sx = sx;
-	          componentJs.htmlProperties = htmlProperties;
-	          componentJs.index = index;
-	          componentJs.name = ComponentsContainer.getName(componentsMap, componentId);
-	
-	          if (componentJs.parentId) {
-	            componentJs.parent = componentsMap.get(componentJs.parentId).toJS();
-	          }
-	
-	          if (componentJs.masterId) {
-	            componentJs.master = componentsMap.get(componentJs.masterId).toJS();
-	          }
-	
-	          var children = [];
-	          componentJs.childIds.forEach(function (id, ind) {
-	            children.push(ComponentsContainer.getRenderTree(componentsMap, id, context, ind));
-	          });
-	          componentJs.children = children;
-	
-	          return {
-	            v: componentJs
-	          };
-	        }();
-	
-	        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
-	      } else {
-	        return null;
-	      }
-	    }
-	  }, {
-	    key: 'hydrateComponent',
-	    value: function hydrateComponent(componentsMap, componentId) {
-	      // returns component with all ids replaced with references to the component
-	      /*
-	         adds props;
-	         index
-	       */
-	      var componentJs = componentsMap.get(componentId).toJS();
-	      componentJs.index = ComponentsContainer.getIndex(componentsMap, componentJs.id);
-	
-	      componentJs.parent = componentsMap.get(componentJs.parentId).toJS();
-	      componentJs.master = componentsMap.get(componentJs.masterId).toJS();
-	      componentJs.children = [];
-	      componentJs.variants = [];
-	
-	      componentJs.childIds.forEach(function (childId) {
-	        componentJs.children.push(componentsMap.get(childId).toJs());
-	      });
-	
-	      componentJs.variantIds.forEach(function (variantId) {
-	        componentJs.variants.push(componentsMap.get(variantId).toJs());
-	      });
-	
-	      return componentJs;
-	    }
-	  }, {
-	    key: 'getIndex',
-	    value: function getIndex(componentsMap, componentId) {
-	      var parent = componentsMap.get(componentsMap.getIn([componentId, 'parentId']));
-	      var index = void 0;
-	      parent.get('childIds').forEach(function (childId, childIndex) {
-	        if (childId === componentId) {
-	          index = childIndex;
-	        }
-	      });
-	
-	      return index;
-	    }
-	  }, {
-	    key: 'getHtml',
-	    value: function getHtml(componentsMap, componentId) {
-	      // TD: this is total bloat. reduce the amount to bloat.
-	      // A simple optimization would be having all components share a class.
-	      var component = componentsMap.get(componentId);
-	      var id = component.get('id');
-	      var componentType = component.get('componentType');
-	      var attributes = ComponentsContainer.getAttributes(componentsMap, id);
-	
-	      if (componentType === _constants.componentTypes.CONTAINER || componentType === _constants.componentTypes.ROOT) {
-	        var childStr = component.get('childIds').reduce(function (childStr, childId) {
-	          return childStr + ComponentsContainer.getHtml(componentsMap, childId);
-	        }, '');
-	        return '<div class="' + id + '">' + childStr + '</div>';
-	      } else if (componentType === _constants.componentTypes.HEADER) {
-	        // TD: add in user param for h num
-	        return '<h1 class="' + id + '">' + attributes.text + '</h1>';
-	      } else if (componentType === _constants.componentTypes.TEXT) {
-	        return '<p class="' + id + '">' + attributes.text + '</p>';
-	      } else if (componentType === _constants.componentTypes.IMAGE) {
-	        // need to use attr getter
-	        return '<img class="' + id + '" src="' + attributes.src + '" />';
-	      }
-	    }
-	  }, {
-	    key: 'getCss',
-	    value: function getCss(componentsMap, componentId) {
-	      // iterate all state and breakpoint types
-	
-	      function attributesToString(attrs) {
-	        return _lodash2.default.reduce(attrs, function (str, attrVal, attrKey) {
-	          return str + (0, _utils.camelToDash)(attrKey) + ': ' + attrVal + ';\n';
-	        }, '');
-	      }
-	
-	      var selectors = [];
-	
-	      var defaultBody = attributesToString(ComponentsContainer.getAttributes(componentsMap, componentId));
-	
-	      if (defaultBody.length) {
-	        selectors.push('.' + componentId + ' { ' + defaultBody + ' } ');
-	      }
-	
-	      var breakpointMediumBody = attributesToString(ComponentsContainer.getAttributes(componentsMap, componentId, { breakpoint: _constants.breakpointTypes.MEDIUM }));
-	
-	      if (breakpointMediumBody.length) {
-	        selectors.push('@media only screen and (min-device-width : 30rem) and (max-device-width : 60rem) { .' + componentId + ' { ' + breakpointMediumBody + ' } }');
-	      }
-	
-	      var breakpointLargeBody = attributesToString(ComponentsContainer.getAttributes(componentsMap, componentId, { breakpoint: _constants.breakpointTypes.LARGE }));
-	
-	      if (breakpointLargeBody.length) {
-	        selectors.push('@media only screen and (min-device-width : 60rem) and (max-device-width : 60rem) { .' + componentId + ' { ' + breakpointLargeBody + ' } }');
-	      }
-	
-	      var hoverBody = attributesToString(ComponentsContainer.getAttributes(componentsMap, componentId, { state: _constants.stateTypes.HOVER }));
-	
-	      if (hoverBody.length) {
-	        selectors.push('.' + componentId + ':hover { ' + hoverBody + ' } ');
-	      }
-	
-	      return selectors.join('\n');
-	    }
-	  }]);
-
-	  return ComponentsContainer;
-	}();
-
-/***/ },
-/* 219 */
+/* 230 */
 /*!******************************************!*\
-  !*** ./app/containers/StaticRenderer.js ***!
+  !*** ./app/components/StaticRenderer.js ***!
   \******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
@@ -58427,57 +58636,34 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactRedux = __webpack_require__(/*! react-redux */ 163);
-	
-	var _lodash = __webpack_require__(/*! lodash */ 204);
+	var _lodash = __webpack_require__(/*! lodash */ 210);
 	
 	var _lodash2 = _interopRequireDefault(_lodash);
 	
-	var _classnames = __webpack_require__(/*! classnames */ 162);
+	var _classnames = __webpack_require__(/*! classnames */ 218);
 	
 	var _classnames2 = _interopRequireDefault(_classnames);
 	
-	var _jquery = __webpack_require__(/*! jquery */ 205);
+	var _jquery = __webpack_require__(/*! jquery */ 215);
 	
 	var _jquery2 = _interopRequireDefault(_jquery);
 	
-	var _dragManager = __webpack_require__(/*! ../dragManager */ 211);
+	var _dragManager = __webpack_require__(/*! ../dragManager */ 231);
 	
 	var _dragManager2 = _interopRequireDefault(_dragManager);
 	
-	var _base_components = __webpack_require__(/*! ../base_components */ 218);
+	var _base_components = __webpack_require__(/*! ../base_components */ 213);
 	
-	var _constants = __webpack_require__(/*! ../constants */ 210);
-	
-	var _utils = __webpack_require__(/*! ../utils */ 203);
-	
-	var _HorizontalSelect = __webpack_require__(/*! ../components/HorizontalSelect */ 212);
-	
-	var _HorizontalSelect2 = _interopRequireDefault(_HorizontalSelect);
-	
-	var _FormLabel = __webpack_require__(/*! ../components/forms/FormLabel */ 213);
-	
-	var _FormLabel2 = _interopRequireDefault(_FormLabel);
-	
-	var _PopupSelect = __webpack_require__(/*! ../components/PopupSelect */ 220);
-	
-	var _PopupSelect2 = _interopRequireDefault(_PopupSelect);
-	
-	var _UpArrow = __webpack_require__(/*! ../components/UpArrow */ 221);
-	
-	var _UpArrow2 = _interopRequireDefault(_UpArrow);
+	var _constants = __webpack_require__(/*! ../constants */ 212);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 	
 	var RootClassReact = function RootClassReact(props) {
 	  var mComponentData = props.mComponentData,
 	      sx = props.sx,
 	      className = props.className,
 	      context = props.context,
-	      actions = props.actions,
-	      isMouseInRenderer = props.isMouseInRenderer;
+	      actions = props.actions;
 	
 	
 	  var children = _lodash2.default.map(mComponentData.children, function (child) {
@@ -58485,8 +58671,7 @@
 	      key: child.id,
 	      mComponentData: child,
 	      context: context,
-	      actions: actions,
-	      isMouseInRenderer: isMouseInRenderer
+	      actions: actions
 	    });
 	  });
 	
@@ -58508,11 +58693,11 @@
 	    };
 	  },
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    if (this.shouldExpand() && nextProps.isMouseInRenderer && !this.state.isExpanded) {
+	    if (this.shouldExpand() && nextProps.context.isMouseInRenderer && !this.state.isExpanded) {
 	      this.setState({ isExpanded: true });
 	    }
 	
-	    if (this.state.isExpanded && !nextProps.isMouseInRenderer) {
+	    if (this.state.isExpanded && !nextProps.context.isMouseInRenderer) {
 	      this.setState({ isExpanded: false });
 	    }
 	  },
@@ -58532,7 +58717,6 @@
 	    var _props = this.props,
 	        mComponentData = _props.mComponentData,
 	        context = _props.context,
-	        isMouseInRenderer = _props.isMouseInRenderer,
 	        className = _props.className,
 	        actions = _props.actions;
 	
@@ -58542,8 +58726,7 @@
 	        key: child.id,
 	        actions: actions,
 	        mComponentData: child,
-	        context: context,
-	        isMouseInRenderer: isMouseInRenderer
+	        context: context
 	      });
 	    });
 	
@@ -58708,7 +58891,7 @@
 	      'hovered-component': !isActiveComponent && hoveredComponentId === mComponentData.id
 	    };
 	
-	    var onClick = function onClick() {
+	    var onClick = function onClick(e) {
 	      actions.selectComponent(mComponentData.id);
 	      actions.changePanel('ATTRIBUTES', 'right');
 	      e.stopPropagation();
@@ -58852,27 +59035,25 @@
 	  },
 	  render: function render() {
 	    //console.log('STATIC RENDERER RENDER')
-	    // TD: componentTree to renderTree
 	    var _props7 = this.props,
-	        activeView = _props7.activeView,
 	        renderTree = _props7.renderTree,
-	        context = _props7.context,
+	        activeComponentId = _props7.activeComponentId,
+	        hoveredComponentId = _props7.hoveredComponentId,
 	        width = _props7.width,
-	        currentPageId = _props7.currentPageId,
-	        currentPageName = _props7.currentPageName,
-	        pages = _props7.pages,
 	        actions = _props7.actions;
 	
 	    var renderer = void 0;
-	    currentPageName = currentPageName || 'No Page';
 	
 	    if (renderTree) {
-	      var _React$createElement;
-	
-	      renderer = _react2.default.createElement(MComponentDataRenderer, (_React$createElement = {
-	        actions: this.props.actions,
-	        mComponentData: renderTree
-	      }, _defineProperty(_React$createElement, 'actions', actions), _defineProperty(_React$createElement, 'context', context), _defineProperty(_React$createElement, 'isMouseInRenderer', this.state.isMouseInRenderer), _React$createElement));
+	      renderer = _react2.default.createElement(MComponentDataRenderer, {
+	        mComponentData: renderTree,
+	        actions: actions,
+	        context: {
+	          activeComponentId: activeComponentId,
+	          hoveredComponentId: hoveredComponentId,
+	          isMouseInRenderer: this.state.isMouseInRenderer
+	        }
+	      });
 	    }
 	
 	    return _react2.default.createElement(
@@ -58891,75 +59072,13 @@
 	  }
 	});
 	
-	var pageListSelector = (0, _utils.createImmutableJSSelector)(function (state) {
-	  return state.get('pages');
-	}, function (imPages) {
-	  var pages = [];
-	  imPages.forEach(function (page) {
-	    pages.push({
-	      id: page.get('id'),
-	      name: page.get('name')
-	    });
-	  });
-	
-	  return pages;
-	});
-	
-	var contextSelector = (0, _utils.createImmutableJSSelector)([function (state) {
-	  return state.get('hoveredComponentId');
-	}, function (state) {
-	  return state.get('activeComponentId');
-	}, function (state) {
-	  return state.get('selectedComponentViewDropSpot');
-	}], function (hoveredComponentId, activeComponentId, selectedComponentViewDropSpot) {
-	  return {
-	    hoveredComponentId: hoveredComponentId,
-	    activeComponentId: activeComponentId,
-	    selectedComponentViewDropSpot: selectedComponentViewDropSpot
-	  };
-	});
-	
-	// TD: clean up!!
-	var staticRendererSelector = (0, _utils.createImmutableJSSelector)([pageListSelector, function (state) {
-	  return state.getIn(['pages', state.get('currentPageId')]);
-	}, function (state) {
-	  return state.get('componentsMap');
-	}, function (state) {
-	  return state.get('rendererWidth');
-	}, function (state) {
-	  return state.get('activeView');
-	}, contextSelector], function (pages, currentPage, componentsMap, rendererWidth, activeView, context) {
-	  var componentTree = void 0;
-	  if (currentPage) {
-	    var componentTreeId = currentPage.get('componentTreeId');
-	
-	    componentTree = _base_components.ComponentsContainer.getRenderTree(componentsMap, componentTreeId, {
-	      width: rendererWidth,
-	      // TD: track and add states
-	      states: {}
-	    });
-	  }
-	
-	  return {
-	    width: rendererWidth,
-	    componentTree: componentTree,
-	    activeView: activeView,
-	    pages: pages,
-	    currentPageId: currentPage.get('id'),
-	    currentPageName: currentPage.get('name'),
-	    context: context
-	  };
-	});
-	
-	exports.default = (0, _reactRedux.connect)(function (state) {
-	  return staticRendererSelector(state);
-	})(StaticRenderer);
+	exports.default = StaticRenderer;
 
 /***/ },
-/* 220 */
-/*!***************************************!*\
-  !*** ./app/components/PopupSelect.js ***!
-  \***************************************/
+/* 231 */
+/*!****************************!*\
+  !*** ./app/dragManager.js ***!
+  \****************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -58968,404 +59087,96 @@
 	  value: true
 	});
 	
-	var _jquery = __webpack_require__(/*! jquery */ 205);
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	var _react = __webpack_require__(/*! react */ 5);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _classnames = __webpack_require__(/*! classnames */ 162);
-	
-	var _classnames2 = _interopRequireDefault(_classnames);
-	
-	var _utils = __webpack_require__(/*! ../utils */ 203);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var PopupSelect = _react2.default.createClass({
-	  displayName: 'PopupSelect',
-	  getInitialState: function getInitialState() {
-	    return {
-	      isOpen: false
-	    };
-	  },
-	  render: function render() {
-	    var _this = this;
-	
-	    var popup = void 0,
-	        pos = void 0,
-	        margin = 15;
-	    if (this.state.isOpen) {
-	      if (this.el) {
-	        var jqEl = (0, _jquery2.default)(this.el);
-	        var offset = jqEl.offset();
-	        var height = jqEl.height();
-	        pos = {
-	          x: offset.left + jqEl.width() / 2,
-	          y: offset.top + height + margin
-	        };
-	      }
-	
-	      popup = _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement('div', {
-	          onClick: function onClick() {
-	            return _this.setState({ isOpen: false });
-	          },
-	          style: { left: 0, top: 0 },
-	          className: 'absolute w-100 h-100'
-	        }),
-	        _react2.default.cloneElement(this.props.children, pos)
-	      );
-	    }
-	
-	    return _react2.default.createElement(
-	      'div',
-	      { className: 'popup-select' },
-	      _react2.default.createElement(
-	        'div',
-	        {
-	          ref: function ref(_ref) {
-	            _this.el = _ref;
-	          },
-	          className: (0, _classnames2.default)(this.props.className, 'dib'),
-	          onClick: function onClick() {
-	            return _this.setState({ isOpen: true });
-	          }
-	        },
-	        (0, _utils.toTitleCase)(this.props.value),
-	        _react2.default.createElement('img', {
-	          className: 'icon-small dib ph1',
-	          src: 'public/img/assets/down-triangle.svg' })
-	      ),
-	      popup
-	    );
-	  }
-	});
-	
-	exports.default = PopupSelect;
-
-/***/ },
-/* 221 */
-/*!***********************************!*\
-  !*** ./app/components/UpArrow.js ***!
-  \***********************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _react = __webpack_require__(/*! react */ 5);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var UpArrow = function UpArrow(props) {
-	  var fontSize = 16;
-	  return _react2.default.createElement(
-	    "div",
-	    {
-	      style: {
-	        left: props.x,
-	        top: props.y - fontSize / 2,
-	        fontSize: fontSize
-	      },
-	      className: "up-arrow fixed"
-	    },
-	    "\u25B2"
-	  );
-	};
-	
-	exports.default = UpArrow;
-
-/***/ },
-/* 222 */
-/*!*****************************************!*\
-  !*** ./app/containers/ComponentMenu.js ***!
-  \*****************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _react = __webpack_require__(/*! react */ 5);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _reactRedux = __webpack_require__(/*! react-redux */ 163);
-	
-	var _lodash = __webpack_require__(/*! lodash */ 204);
+	var _lodash = __webpack_require__(/*! lodash */ 210);
 	
 	var _lodash2 = _interopRequireDefault(_lodash);
 	
-	var _utils = __webpack_require__(/*! ../utils */ 203);
-	
-	var _base_components = __webpack_require__(/*! ../base_components */ 218);
+	var _utils = __webpack_require__(/*! ./utils */ 214);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var ROOT = 'ROOT';
-	var INSERT_ASSET = 'INSERT_ASSET';
-	var INSERT_COMPONENT = 'INSERT_COMPONENT';
-	
-	function RightTriangle(props) {
-	  var size = 10;
-	  return _react2.default.createElement('img', {
-	    className: props.className,
-	    style: { width: size, height: size },
-	    alt: '',
-	    src: 'public/img/assets/right-triangle.svg' });
-	}
-	
-	var ComponentMenu = _react2.default.createClass({
-	  displayName: 'ComponentMenu',
-	  getInitialState: function getInitialState() {
-	    return {
-	      searchString: '',
-	      openListItem: undefined
-	    };
-	  },
-	  componentDidMount: function componentDidMount() {
-	    var _this = this;
-	
-	    _utils.globalEventManager.addListener('mouseup', function () {
-	      if (_this.props.menu.isOpen) {
-	        _this.props.actions.closeMenu();
-	      }
-	    }, 10000);
-	  },
-	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    if (!nextProps.menu.isOpen && this.state.menuState !== ROOT) {
-	      this.setState({
-	        searchString: '',
-	        openListItem: undefined
-	      });
-	    }
-	  },
-	  closeNestedMenus: function closeNestedMenus() {
-	    if (this.state.openListItem) {
-	      this.setState({ openListItem: undefined });
-	    }
-	  },
-	  render: function render() {
-	    var _this2 = this;
-	
-	    //console.log('COMPONENT_MENU RENDER');
-	    var _props = this.props,
-	        componentIdMapByName = _props.componentIdMapByName,
-	        menu = _props.menu,
-	        assets = _props.assets,
-	        parentId = _props.parentId,
-	        componentIndex = _props.componentIndex;
-	    var componentId = menu.componentId,
-	        isOpen = menu.isOpen,
-	        componentX = menu.componentX,
-	        componentY = menu.componentY;
-	    var _state = this.state,
-	        openListItem = _state.openListItem,
-	        secondaryPosX = _state.secondaryPosX,
-	        secondaryPosY = _state.secondaryPosY;
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } // Taken from https://github.com/zindlerb/apparatus/blob/master/src/View/Manager/DragManager.coffee
 	
 	
-	    var secondaryList = void 0;
-	    var primaryMenuWidth = 150;
+	var Drag = function Drag(mouseDownEvent, spec) {
+	  _classCallCheck(this, Drag);
 	
-	    var sx = {
-	      width: primaryMenuWidth,
-	      position: 'absolute',
-	      left: componentX,
-	      top: componentY
-	    };
+	  _lodash2.default.extend(this, spec);
+	  this.originalX = mouseDownEvent.clientX;
+	  this.originalY = mouseDownEvent.clientY;
 	
-	    var secondaryMenuWidth = 100;
-	    var secondaryListStyle = {
-	      position: 'absolute',
-	      left: secondaryPosX + primaryMenuWidth,
-	      top: secondaryPosY,
-	      width: secondaryMenuWidth
-	    };
-	    var componentList = void 0;
-	
-	    if (isOpen) {
-	      if (openListItem) {
-	        if (openListItem === INSERT_COMPONENT) {
-	          componentList = _lodash2.default.keys(componentIdMapByName).map(function (componentName) {
-	            return _react2.default.createElement(
-	              'li',
-	              {
-	                key: componentName,
-	                onMouseUp: function onMouseUp() {
-	                  _this2.props.actions.addVariant(componentIdMapByName[componentName], parentId, componentIndex);
-	                } },
-	              componentName
-	            );
-	          });
-	        }
-	
-	        if (openListItem === INSERT_ASSET) {
-	          componentList = assets.map(function (asset, ind) {
-	            return _react2.default.createElement(
-	              'li',
-	              {
-	                key: ind,
-	                onMouseUp: function onMouseUp() {
-	                  _this2.props.actions.addVariant(_base_components.image.get('id'), parentId, componentIndex, (0, _base_components.createNewImageSpec)(asset));
-	                } },
-	              asset.name
-	            );
-	          });
-	        }
-	
-	        secondaryList = _react2.default.createElement(
-	          'ul',
-	          { className: 'component-menu', style: secondaryListStyle },
-	          componentList
-	        );
-	      }
-	
-	      if (openListItem === INSERT_ASSET) {
-	        secondaryList = _react2.default.createElement(
-	          'ul',
-	          { className: 'component-menu', style: secondaryListStyle },
-	          componentList
-	        );
-	      }
-	
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(
-	          'ul',
-	          { style: sx, className: 'component-menu' },
-	          _react2.default.createElement(
-	            'li',
-	            {
-	              key: 'DELETE',
-	              onMouseEnter: this.closeNestedMenus,
-	              onMouseUp: function onMouseUp(e) {
-	                _this2.props.actions.deleteComponent(componentId);
-	                _this2.props.actions.closeMenu();
-	                e.stopPropagation();
-	              } },
-	            'Delete',
-	            _react2.default.createElement('i', { className: 'fa fa-trash ph1 fr', 'aria-hidden': 'true' })
-	          ),
-	          _react2.default.createElement(
-	            'li',
-	            {
-	              key: 'MAKE_COMPONENT',
-	              onMouseEnter: this.closeNestedMenus,
-	              onMouseUp: function onMouseUp(e) {
-	                _this2.props.actions.createComponentBlock(componentId);
-	                _this2.props.actions.closeMenu();
-	                e.stopPropagation();
-	              } },
-	            'Make Component',
-	            _react2.default.createElement('i', { className: 'fa fa-id-card-o ph1 fr', 'aria-hidden': 'true' })
-	          ),
-	          _react2.default.createElement(
-	            'li',
-	            {
-	              className: INSERT_COMPONENT,
-	              key: INSERT_COMPONENT,
-	              ref: function ref(_ref) {
-	                _this2._insertComponentEl = _ref;
-	              },
-	              onMouseEnter: function onMouseEnter(e) {
-	                var rect = new _utils.Rect(_this2._insertComponentEl);
-	                _this2.setState({
-	                  openListItem: INSERT_COMPONENT,
-	                  secondaryPosX: rect.x,
-	                  secondaryPosY: rect.y
-	                });
-	                e.stopPropagation();
-	              } },
-	            'Insert Component',
-	            _react2.default.createElement(RightTriangle, { className: 'ph1 fr' })
-	          ),
-	          _react2.default.createElement(
-	            'li',
-	            {
-	              key: INSERT_ASSET,
-	              ref: function ref(_ref2) {
-	                _this2._insertAssetEl = _ref2;
-	              },
-	              onMouseEnter: function onMouseEnter(e) {
-	                var rect = new _utils.Rect(_this2._insertAssetEl);
-	                _this2.setState({
-	                  openListItem: INSERT_ASSET,
-	                  secondaryPosX: rect.x,
-	                  secondaryPosY: rect.y
-	                });
-	                e.stopPropagation();
-	              } },
-	            'Insert Asset',
-	            _react2.default.createElement(RightTriangle, { className: 'ph1 fr' })
-	          )
-	        ),
-	        secondaryList
-	      );
-	    } else {
-	      return _react2.default.createElement('div', null);
-	    }
+	  if (this.consummated === undefined) {
+	    this.consummated = false;
 	  }
-	});
+	};
 	
-	// TD: what is a good pattern to use component map data but not re-render based on its changes??
-	var menuSelector = (0, _utils.createImmutableJSSelector)([function (state) {
-	  return state.get('componentsMap');
-	}, function (state) {
-	  return state.get('menu');
-	}, function (state) {
-	  return state.get('ourComponentBoxes');
-	}, function (state) {
-	  return state.get('yourComponentBoxes');
-	}, function (state) {
-	  return state.get('assets');
-	}], function (componentsMap, menu, ourComponentBoxes, yourComponentBoxes, assets) {
-	  var componentIdMapByName = {};
-	  var menuJs = menu.toJS();
+	var DragManager = function () {
+	  function DragManager() {
+	    _classCallCheck(this, DragManager);
 	
-	  if (menuJs.isOpen) {
-	    // TD: Add selector here
-	    var makeComponentIdMap = function makeComponentIdMap(componentId) {
-	      var name = _base_components.ComponentsContainer.getName(componentsMap, componentId);
-	      componentIdMapByName[name] = componentId;
-	    };
-	
-	    ourComponentBoxes.forEach(makeComponentIdMap);
-	    yourComponentBoxes.forEach(makeComponentIdMap);
-	
-	    return {
-	      menu: menuJs,
-	      componentIdMapByName: componentIdMapByName,
-	      parentId: componentsMap.getIn([menuJs.componentId, 'parentId']),
-	      componentIndex: _base_components.ComponentsContainer.getIndex(componentsMap, menuJs.componentId),
-	      // TD: EXPENSIVE! Remove.
-	      assets: _lodash2.default.toArray(assets.toJS())
-	    };
-	  } else {
-	    return { menu: menuJs };
+	    this.drag = null;
+	    _utils.globalEventManager.addListener('mousemove', this._onMouseMove.bind(this), 1);
+	    _utils.globalEventManager.addListener('mouseup', this._onMouseUp.bind(this), 1);
 	  }
-	});
 	
-	exports.default = (0, _reactRedux.connect)(menuSelector)(ComponentMenu);
+	  _createClass(DragManager, [{
+	    key: 'start',
+	    value: function start(mouseDownEvent, spec) {
+	      this.drag = new Drag(mouseDownEvent, spec);
+	    }
+	  }, {
+	    key: '_onMouseMove',
+	    value: function _onMouseMove(mouseMoveEvent) {
+	      if (!this.drag) return;
+	      if (!this.drag.consummated) {
+	        // Check if we should consummate.
+	        var dx = mouseMoveEvent.clientX - this.drag.originalX;
+	        var dy = mouseMoveEvent.clientY - this.drag.originalY;
+	        var d = Math.max(Math.abs(dx), Math.abs(dy));
+	
+	        if (d > 3) {
+	          this._consummate(mouseMoveEvent);
+	        }
+	      } else if (this.drag.onDrag) {
+	        this.drag.onDrag(mouseMoveEvent);
+	      }
+	    }
+	  }, {
+	    key: '_onMouseUp',
+	    value: function _onMouseUp(mouseUpEvent, cancel) {
+	      if (!this.drag) return;
+	
+	      if (this.drag.onEnd) {
+	        this.drag.onEnd(mouseUpEvent);
+	      }
+	
+	      this.drag = null;
+	
+	      cancel();
+	    }
+	  }, {
+	    key: '_consummate',
+	    value: function _consummate(mouseMoveEvent) {
+	      this.drag.consummated = true;
+	      if (this.drag.onConsummate) {
+	        this.drag.onConsummate(mouseMoveEvent);
+	      }
+	    }
+	  }]);
+	
+	  return DragManager;
+	}();
+	
+	var dragManager = new DragManager();
+	exports.default = dragManager;
 
 /***/ },
-/* 223 */
-/*!**********************************************!*\
-  !*** ./app/components/ViewChoiceDropdown.js ***!
-  \**********************************************/
+/* 232 */
+/*!***********************************!*\
+  !*** ./app/components/Sidebar.js ***!
+  \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -59378,82 +59189,116 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _classnames = __webpack_require__(/*! classnames */ 162);
+	var _classnames = __webpack_require__(/*! classnames */ 218);
 	
 	var _classnames2 = _interopRequireDefault(_classnames);
 	
-	var _PopupSelect = __webpack_require__(/*! ./PopupSelect */ 220);
-	
-	var _PopupSelect2 = _interopRequireDefault(_PopupSelect);
-	
-	var _constants = __webpack_require__(/*! ../constants */ 210);
-	
-	var _UpArrow = __webpack_require__(/*! ./UpArrow */ 221);
-	
-	var _UpArrow2 = _interopRequireDefault(_UpArrow);
+	var _constants = __webpack_require__(/*! ../constants */ 212);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	function ChoiceViewPopup(props) {
-	  var items = [{ text: 'Editor', value: _constants.mainViewTypes.EDITOR }, { text: 'Assets', value: _constants.mainViewTypes.ASSETS }, { text: 'Components', value: _constants.mainViewTypes.COMPONENTS }].map(function (itemData) {
-	    return _react2.default.createElement(
-	      'li',
-	      {
-	        key: itemData.text,
-	        className: (0, _classnames2.default)({
-	          highlighted: itemData.value === props.mainView
-	        }),
-	        onClick: function onClick() {
-	          return props.actions.changeMainView(itemData.value);
-	        } },
-	      itemData.text
-	    );
-	  });
+	var Sidebar = function Sidebar(props) {
+	  var children = props.children,
+	      direction = props.direction;
 	
 	  return _react2.default.createElement(
 	    'div',
-	    null,
-	    _react2.default.createElement(
-	      'div',
-	      {
-	        className: 'popup tl fixed',
-	        style: {
-	          top: props.y,
-	          left: '50%'
-	        } },
-	      _react2.default.createElement(
-	        'ul',
-	        null,
-	        items
-	      )
-	    ),
-	    _react2.default.createElement(_UpArrow2.default, { y: props.y, x: '50%' })
+	    {
+	      className: (0, _classnames2.default)('sidebar h-100 flex-none', direction),
+	      style: { width: _constants.SIDEBAR_WIDTH }
+	    },
+	    children
 	  );
-	}
+	};
 	
-	function ViewChoiceDropdown(props) {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: 'tc' },
-	    _react2.default.createElement(
-	      _PopupSelect2.default,
-	      {
-	        className: 'mv3 w4',
-	        value: props.mainView },
-	      _react2.default.createElement(ChoiceViewPopup, {
-	        mainView: props.mainView,
-	        actions: props.actions
-	      })
-	    )
-	  );
-	}
-	
-	exports.default = ViewChoiceDropdown;
+	exports.default = Sidebar;
 
 /***/ },
-/* 224 */
+/* 233 */
+/*!********************************************!*\
+  !*** ./app/containers/EditorAttributes.js ***!
+  \********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(/*! react */ 5);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _reactRedux = __webpack_require__(/*! react-redux */ 162);
+	
+	var _utils = __webpack_require__(/*! ../utils */ 214);
+	
+	var _base_components = __webpack_require__(/*! ../base_components */ 213);
+	
+	var _Attributes = __webpack_require__(/*! ../components/Attributes */ 234);
+	
+	var _Attributes2 = _interopRequireDefault(_Attributes);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var EditorAttributes = _react2.default.createClass({
+	  displayName: 'EditorAttributes',
+	  render: function render() {
+	    var _props = this.props,
+	        componentName = _props.componentName,
+	        componentType = _props.componentType,
+	        attributes = _props.attributes,
+	        componentId = _props.componentId,
+	        componentState = _props.componentState,
+	        componentBreakpoint = _props.componentBreakpoint,
+	        actions = _props.actions;
+	
+	
+	    return _react2.default.createElement(_Attributes2.default, {
+	      componentName: componentName,
+	      componentType: componentType,
+	      attributes: attributes,
+	      componentId: componentId,
+	      componentState: componentState,
+	      componentBreakpoint: componentBreakpoint,
+	      actions: actions
+	    });
+	  }
+	});
+	
+	var attributesSelector = (0, _utils.createImmutableJSSelector)([function (state) {
+	  return state.get('componentsMap');
+	}, function (state) {
+	  return state.get('activeComponentId');
+	}, function (state) {
+	  return state.get('activeComponentState');
+	}, function (state) {
+	  return state.get('activeComponentBreakpoint');
+	}], function (componentsMap, activeComponentId, activeComponentState, activeComponentBreakpoint) {
+	  if (activeComponentId) {
+	    return {
+	      componentName: _base_components.ComponentsContainer.getName(componentsMap, activeComponentId),
+	      componentType: componentsMap.getIn([activeComponentId, 'componentType']),
+	      attributes: _base_components.ComponentsContainer.getAttributes(componentsMap, activeComponentId, componentsMap, {
+	        state: activeComponentState,
+	        breakpoint: activeComponentBreakpoint
+	      }),
+	      componentId: activeComponentId,
+	      componentState: activeComponentState,
+	      componentBreakpoint: activeComponentBreakpoint
+	    };
+	  } else {
+	    return {};
+	  }
+	});
+	
+	exports.default = (0, _reactRedux.connect)(attributesSelector)(EditorAttributes);
+
+/***/ },
+/* 234 */
 /*!**************************************!*\
-  !*** ./app/containers/Attributes.js ***!
+  !*** ./app/components/Attributes.js ***!
   \**************************************/
 /***/ function(module, exports, __webpack_require__) {
 
@@ -59469,74 +59314,31 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactRedux = __webpack_require__(/*! react-redux */ 163);
-	
-	var _lodash = __webpack_require__(/*! lodash */ 204);
+	var _lodash = __webpack_require__(/*! lodash */ 210);
 	
 	var _lodash2 = _interopRequireDefault(_lodash);
 	
-	var _base_components = __webpack_require__(/*! ../base_components */ 218);
-	
-	var _AttributeField = __webpack_require__(/*! ../components/AttributeField */ 225);
+	var _AttributeField = __webpack_require__(/*! ../components/AttributeField */ 235);
 	
 	var _AttributeField2 = _interopRequireDefault(_AttributeField);
 	
-	var _DivToBottom = __webpack_require__(/*! ../components/DivToBottom */ 456);
+	var _DivToBottom = __webpack_require__(/*! ../components/DivToBottom */ 466);
 	
 	var _DivToBottom2 = _interopRequireDefault(_DivToBottom);
 	
-	var _SidebarHeader = __webpack_require__(/*! ../components/SidebarHeader */ 457);
-	
-	var _SidebarHeader2 = _interopRequireDefault(_SidebarHeader);
-	
-	var _CartoonButton = __webpack_require__(/*! ../components/CartoonButton */ 208);
+	var _CartoonButton = __webpack_require__(/*! ../components/CartoonButton */ 222);
 	
 	var _CartoonButton2 = _interopRequireDefault(_CartoonButton);
 	
-	var _Dropdown = __webpack_require__(/*! ../components/forms/Dropdown */ 455);
+	var _Dropdown = __webpack_require__(/*! ../components/forms/Dropdown */ 465);
 	
 	var _Dropdown2 = _interopRequireDefault(_Dropdown);
 	
-	var _utils = __webpack_require__(/*! ../utils */ 203);
-	
-	var _constants = __webpack_require__(/*! ../constants */ 210);
+	var _constants = __webpack_require__(/*! ../constants */ 212);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-	
-	/*
-	   What does a validation consist of?
-	
-	   valid color types:
-	   #ff0000;
-	   rgb(255, 0, 0);
-	   rgba(255, 0, 0, 0.3);
-	   hsl(120, 100%, 50%);
-	
-	
-	   - a check against the string determining if it is valid
-	   - a error message - error message could also take string and be dependent on it? or
-	
-	   const validations = {
-	   [NUMBER]: {
-	   check(str) {
-	
-	   },
-	   errorMsg(str) {
-	   // no unit
-	   // invalid number
-	   }
-	   },
-	
-	   [COLOR]: {
-	   check(str) {
-	
-	   },
-	   errorMsg: 'Invalid color format. '
-	   },
-	   }
-	 */
 	
 	var LARGE_TEXT = _constants.fieldTypes.LARGE_TEXT,
 	    NUMBER = _constants.fieldTypes.NUMBER,
@@ -59781,36 +59583,10 @@
 	  );
 	};
 	
-	var attributesSelector = (0, _utils.createImmutableJSSelector)([function (state) {
-	  return state.get('componentsMap');
-	}, function (state) {
-	  return state.get('activeComponentId');
-	}, function (state) {
-	  return state.get('activeComponentState');
-	}, function (state) {
-	  return state.get('activeComponentBreakpoint');
-	}], function (componentsMap, activeComponentId, activeComponentState, activeComponentBreakpoint) {
-	  if (activeComponentId) {
-	    return {
-	      componentName: _base_components.ComponentsContainer.getName(componentsMap, activeComponentId),
-	      componentType: componentsMap.getIn([activeComponentId, 'componentType']),
-	      attributes: _base_components.ComponentsContainer.getAttributes(componentsMap, activeComponentId, componentsMap, {
-	        state: activeComponentState,
-	        breakpoint: activeComponentBreakpoint
-	      }),
-	      componentId: activeComponentId,
-	      componentState: activeComponentState,
-	      componentBreakpoint: activeComponentBreakpoint
-	    };
-	  } else {
-	    return {};
-	  }
-	});
-	
-	exports.default = (0, _reactRedux.connect)(attributesSelector)(Attributes);
+	exports.default = Attributes;
 
 /***/ },
-/* 225 */
+/* 235 */
 /*!******************************************!*\
   !*** ./app/components/AttributeField.js ***!
   \******************************************/
@@ -59826,23 +59602,23 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _classnames = __webpack_require__(/*! classnames */ 162);
+	var _classnames = __webpack_require__(/*! classnames */ 218);
 	
 	var _classnames2 = _interopRequireDefault(_classnames);
 	
-	var _reactColor = __webpack_require__(/*! react-color */ 226);
+	var _reactColor = __webpack_require__(/*! react-color */ 236);
 	
-	var _constants = __webpack_require__(/*! ../constants */ 210);
+	var _constants = __webpack_require__(/*! ../constants */ 212);
 	
-	var _TextField = __webpack_require__(/*! ./forms/TextField */ 214);
+	var _TextField = __webpack_require__(/*! ./forms/TextField */ 223);
 	
 	var _TextField2 = _interopRequireDefault(_TextField);
 	
-	var _Dropdown = __webpack_require__(/*! ./forms/Dropdown */ 455);
+	var _Dropdown = __webpack_require__(/*! ./forms/Dropdown */ 465);
 	
 	var _Dropdown2 = _interopRequireDefault(_Dropdown);
 	
-	var _FormLabel = __webpack_require__(/*! ./forms/FormLabel */ 213);
+	var _FormLabel = __webpack_require__(/*! ./forms/FormLabel */ 226);
 	
 	var _FormLabel2 = _interopRequireDefault(_FormLabel);
 	
@@ -59972,7 +59748,7 @@
 	exports.default = AttributeField;
 
 /***/ },
-/* 226 */
+/* 236 */
 /*!************************************!*\
   !*** ./~/react-color/lib/index.js ***!
   \************************************/
@@ -59985,7 +59761,7 @@
 	});
 	exports.default = exports.CustomPicker = exports.TwitterPicker = exports.SwatchesPicker = exports.SliderPicker = exports.SketchPicker = exports.PhotoshopPicker = exports.MaterialPicker = exports.HuePicker = exports.GithubPicker = exports.CompactPicker = exports.ChromePicker = exports.CirclePicker = exports.BlockPicker = exports.AlphaPicker = undefined;
 	
-	var _Alpha = __webpack_require__(/*! ./components/alpha/Alpha */ 227);
+	var _Alpha = __webpack_require__(/*! ./components/alpha/Alpha */ 237);
 	
 	Object.defineProperty(exports, 'AlphaPicker', {
 	  enumerable: true,
@@ -59994,7 +59770,7 @@
 	  }
 	});
 	
-	var _Block = __webpack_require__(/*! ./components/block/Block */ 415);
+	var _Block = __webpack_require__(/*! ./components/block/Block */ 425);
 	
 	Object.defineProperty(exports, 'BlockPicker', {
 	  enumerable: true,
@@ -60003,7 +59779,7 @@
 	  }
 	});
 	
-	var _Circle = __webpack_require__(/*! ./components/circle/Circle */ 417);
+	var _Circle = __webpack_require__(/*! ./components/circle/Circle */ 427);
 	
 	Object.defineProperty(exports, 'CirclePicker', {
 	  enumerable: true,
@@ -60012,7 +59788,7 @@
 	  }
 	});
 	
-	var _Chrome = __webpack_require__(/*! ./components/chrome/Chrome */ 420);
+	var _Chrome = __webpack_require__(/*! ./components/chrome/Chrome */ 430);
 	
 	Object.defineProperty(exports, 'ChromePicker', {
 	  enumerable: true,
@@ -60021,7 +59797,7 @@
 	  }
 	});
 	
-	var _Compact = __webpack_require__(/*! ./components/compact/Compact */ 424);
+	var _Compact = __webpack_require__(/*! ./components/compact/Compact */ 434);
 	
 	Object.defineProperty(exports, 'CompactPicker', {
 	  enumerable: true,
@@ -60030,7 +59806,7 @@
 	  }
 	});
 	
-	var _Github = __webpack_require__(/*! ./components/github/Github */ 433);
+	var _Github = __webpack_require__(/*! ./components/github/Github */ 443);
 	
 	Object.defineProperty(exports, 'GithubPicker', {
 	  enumerable: true,
@@ -60039,7 +59815,7 @@
 	  }
 	});
 	
-	var _Hue = __webpack_require__(/*! ./components/hue/Hue */ 435);
+	var _Hue = __webpack_require__(/*! ./components/hue/Hue */ 445);
 	
 	Object.defineProperty(exports, 'HuePicker', {
 	  enumerable: true,
@@ -60048,7 +59824,7 @@
 	  }
 	});
 	
-	var _Material = __webpack_require__(/*! ./components/material/Material */ 437);
+	var _Material = __webpack_require__(/*! ./components/material/Material */ 447);
 	
 	Object.defineProperty(exports, 'MaterialPicker', {
 	  enumerable: true,
@@ -60057,7 +59833,7 @@
 	  }
 	});
 	
-	var _Photoshop = __webpack_require__(/*! ./components/photoshop/Photoshop */ 438);
+	var _Photoshop = __webpack_require__(/*! ./components/photoshop/Photoshop */ 448);
 	
 	Object.defineProperty(exports, 'PhotoshopPicker', {
 	  enumerable: true,
@@ -60066,7 +59842,7 @@
 	  }
 	});
 	
-	var _Sketch = __webpack_require__(/*! ./components/sketch/Sketch */ 444);
+	var _Sketch = __webpack_require__(/*! ./components/sketch/Sketch */ 454);
 	
 	Object.defineProperty(exports, 'SketchPicker', {
 	  enumerable: true,
@@ -60075,7 +59851,7 @@
 	  }
 	});
 	
-	var _Slider = __webpack_require__(/*! ./components/slider/Slider */ 447);
+	var _Slider = __webpack_require__(/*! ./components/slider/Slider */ 457);
 	
 	Object.defineProperty(exports, 'SliderPicker', {
 	  enumerable: true,
@@ -60084,7 +59860,7 @@
 	  }
 	});
 	
-	var _Swatches = __webpack_require__(/*! ./components/swatches/Swatches */ 451);
+	var _Swatches = __webpack_require__(/*! ./components/swatches/Swatches */ 461);
 	
 	Object.defineProperty(exports, 'SwatchesPicker', {
 	  enumerable: true,
@@ -60093,7 +59869,7 @@
 	  }
 	});
 	
-	var _Twitter = __webpack_require__(/*! ./components/twitter/Twitter */ 454);
+	var _Twitter = __webpack_require__(/*! ./components/twitter/Twitter */ 464);
 	
 	Object.defineProperty(exports, 'TwitterPicker', {
 	  enumerable: true,
@@ -60102,7 +59878,7 @@
 	  }
 	});
 	
-	var _ColorWrap = __webpack_require__(/*! ./components/common/ColorWrap */ 407);
+	var _ColorWrap = __webpack_require__(/*! ./components/common/ColorWrap */ 417);
 	
 	Object.defineProperty(exports, 'CustomPicker', {
 	  enumerable: true,
@@ -60118,7 +59894,7 @@
 	exports.default = _Chrome2.default;
 
 /***/ },
-/* 227 */
+/* 237 */
 /*!*****************************************************!*\
   !*** ./~/react-color/lib/components/alpha/Alpha.js ***!
   \*****************************************************/
@@ -60137,13 +59913,13 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
-	var _AlphaPointer = __webpack_require__(/*! ./AlphaPointer */ 414);
+	var _AlphaPointer = __webpack_require__(/*! ./AlphaPointer */ 424);
 	
 	var _AlphaPointer2 = _interopRequireDefault(_AlphaPointer);
 	
@@ -60198,16 +59974,16 @@
 	exports.default = (0, _common.ColorWrap)(AlphaPicker);
 
 /***/ },
-/* 228 */
+/* 238 */
 /*!************************************!*\
   !*** ./~/reactcss/lib/reactcss.js ***!
   \************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(exports,"__esModule",{value:!0}),exports.ReactCSS=exports.loop=exports.handleActive=exports.handleHover=exports.hover=exports.Component=void 0;var _objectAssign=__webpack_require__(/*! object-assign */ 229),_objectAssign2=_interopRequireDefault(_objectAssign),_flattenNames=__webpack_require__(/*! ./flattenNames */ 230),_flattenNames2=_interopRequireDefault(_flattenNames),_mergeClasses=__webpack_require__(/*! ./mergeClasses */ 345),_mergeClasses2=_interopRequireDefault(_mergeClasses),_autoprefix=__webpack_require__(/*! ./autoprefix */ 378),_autoprefix2=_interopRequireDefault(_autoprefix),_Component2=__webpack_require__(/*! ./deprecated/Component */ 379),_Component3=_interopRequireDefault(_Component2),_hover2=__webpack_require__(/*! ./components/hover */ 391),_hover3=_interopRequireDefault(_hover2),_active=__webpack_require__(/*! ./components/active */ 392),_active2=_interopRequireDefault(_active),_loop2=__webpack_require__(/*! ./loop */ 393),_loop3=_interopRequireDefault(_loop2);exports.Component=_Component3["default"],exports.hover=_hover3["default"],exports.handleHover=_hover3["default"],exports.handleActive=_active2["default"],exports.loop=_loop3["default"];var ReactCSS=exports.ReactCSS=function(e){for(var t=arguments.length,r=Array(t>1?t-1:0),o=1;o<t;o++)r[o-1]=arguments[o];var a=(0,_flattenNames2["default"])(r),s=(0,_mergeClasses2["default"])(e,a);return(0,_autoprefix2["default"])(s)};ReactCSS.m=_objectAssign2["default"],exports["default"]=ReactCSS;
+	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(exports,"__esModule",{value:!0}),exports.ReactCSS=exports.loop=exports.handleActive=exports.handleHover=exports.hover=exports.Component=void 0;var _objectAssign=__webpack_require__(/*! object-assign */ 239),_objectAssign2=_interopRequireDefault(_objectAssign),_flattenNames=__webpack_require__(/*! ./flattenNames */ 240),_flattenNames2=_interopRequireDefault(_flattenNames),_mergeClasses=__webpack_require__(/*! ./mergeClasses */ 355),_mergeClasses2=_interopRequireDefault(_mergeClasses),_autoprefix=__webpack_require__(/*! ./autoprefix */ 388),_autoprefix2=_interopRequireDefault(_autoprefix),_Component2=__webpack_require__(/*! ./deprecated/Component */ 389),_Component3=_interopRequireDefault(_Component2),_hover2=__webpack_require__(/*! ./components/hover */ 401),_hover3=_interopRequireDefault(_hover2),_active=__webpack_require__(/*! ./components/active */ 402),_active2=_interopRequireDefault(_active),_loop2=__webpack_require__(/*! ./loop */ 403),_loop3=_interopRequireDefault(_loop2);exports.Component=_Component3["default"],exports.hover=_hover3["default"],exports.handleHover=_hover3["default"],exports.handleActive=_active2["default"],exports.loop=_loop3["default"];var ReactCSS=exports.ReactCSS=function(e){for(var t=arguments.length,r=Array(t>1?t-1:0),o=1;o<t;o++)r[o-1]=arguments[o];var a=(0,_flattenNames2["default"])(r),s=(0,_mergeClasses2["default"])(e,a);return(0,_autoprefix2["default"])(s)};ReactCSS.m=_objectAssign2["default"],exports["default"]=ReactCSS;
 
 /***/ },
-/* 229 */
+/* 239 */
 /*!*********************************************!*\
   !*** ./~/reactcss/~/object-assign/index.js ***!
   \*********************************************/
@@ -60306,25 +60082,25 @@
 
 
 /***/ },
-/* 230 */
+/* 240 */
 /*!****************************************!*\
   !*** ./~/reactcss/lib/flattenNames.js ***!
   \****************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(exports,"__esModule",{value:!0}),exports.flattenNames=void 0;var _map=__webpack_require__(/*! lodash/map */ 231),_map2=_interopRequireDefault(_map),_isPlainObject=__webpack_require__(/*! lodash/isPlainObject */ 176),_isPlainObject2=_interopRequireDefault(_isPlainObject),_isString=__webpack_require__(/*! lodash/isString */ 344),_isString2=_interopRequireDefault(_isString),flattenNames=exports.flattenNames=function e(t){var i=[];return t.map(function(t){return Array.isArray(t)&&e(t).map(function(e){return i.push(e)}),(0,_isPlainObject2["default"])(t)&&(0,_map2["default"])(t,function(e,t){e===!0&&i.push(t),i.push(t+"-"+e)}),(0,_isString2["default"])(t)&&i.push(t),t}),i};exports["default"]=flattenNames;
+	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(exports,"__esModule",{value:!0}),exports.flattenNames=void 0;var _map=__webpack_require__(/*! lodash/map */ 241),_map2=_interopRequireDefault(_map),_isPlainObject=__webpack_require__(/*! lodash/isPlainObject */ 175),_isPlainObject2=_interopRequireDefault(_isPlainObject),_isString=__webpack_require__(/*! lodash/isString */ 354),_isString2=_interopRequireDefault(_isString),flattenNames=exports.flattenNames=function e(t){var i=[];return t.map(function(t){return Array.isArray(t)&&e(t).map(function(e){return i.push(e)}),(0,_isPlainObject2["default"])(t)&&(0,_map2["default"])(t,function(e,t){e===!0&&i.push(t),i.push(t+"-"+e)}),(0,_isString2["default"])(t)&&i.push(t),t}),i};exports["default"]=flattenNames;
 
 /***/ },
-/* 231 */
+/* 241 */
 /*!*************************!*\
   !*** ./~/lodash/map.js ***!
   \*************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayMap = __webpack_require__(/*! ./_arrayMap */ 232),
-	    baseIteratee = __webpack_require__(/*! ./_baseIteratee */ 233),
-	    baseMap = __webpack_require__(/*! ./_baseMap */ 338),
-	    isArray = __webpack_require__(/*! ./isArray */ 290);
+	var arrayMap = __webpack_require__(/*! ./_arrayMap */ 242),
+	    baseIteratee = __webpack_require__(/*! ./_baseIteratee */ 243),
+	    baseMap = __webpack_require__(/*! ./_baseMap */ 348),
+	    isArray = __webpack_require__(/*! ./isArray */ 300);
 	
 	/**
 	 * Creates an array of values by running each element in `collection` thru
@@ -60377,7 +60153,7 @@
 
 
 /***/ },
-/* 232 */
+/* 242 */
 /*!*******************************!*\
   !*** ./~/lodash/_arrayMap.js ***!
   \*******************************/
@@ -60407,17 +60183,17 @@
 
 
 /***/ },
-/* 233 */
+/* 243 */
 /*!***********************************!*\
   !*** ./~/lodash/_baseIteratee.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseMatches = __webpack_require__(/*! ./_baseMatches */ 234),
-	    baseMatchesProperty = __webpack_require__(/*! ./_baseMatchesProperty */ 319),
-	    identity = __webpack_require__(/*! ./identity */ 334),
-	    isArray = __webpack_require__(/*! ./isArray */ 290),
-	    property = __webpack_require__(/*! ./property */ 335);
+	var baseMatches = __webpack_require__(/*! ./_baseMatches */ 244),
+	    baseMatchesProperty = __webpack_require__(/*! ./_baseMatchesProperty */ 329),
+	    identity = __webpack_require__(/*! ./identity */ 344),
+	    isArray = __webpack_require__(/*! ./isArray */ 300),
+	    property = __webpack_require__(/*! ./property */ 345);
 	
 	/**
 	 * The base implementation of `_.iteratee`.
@@ -60447,15 +60223,15 @@
 
 
 /***/ },
-/* 234 */
+/* 244 */
 /*!**********************************!*\
   !*** ./~/lodash/_baseMatches.js ***!
   \**********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsMatch = __webpack_require__(/*! ./_baseIsMatch */ 235),
-	    getMatchData = __webpack_require__(/*! ./_getMatchData */ 316),
-	    matchesStrictComparable = __webpack_require__(/*! ./_matchesStrictComparable */ 318);
+	var baseIsMatch = __webpack_require__(/*! ./_baseIsMatch */ 245),
+	    getMatchData = __webpack_require__(/*! ./_getMatchData */ 326),
+	    matchesStrictComparable = __webpack_require__(/*! ./_matchesStrictComparable */ 328);
 	
 	/**
 	 * The base implementation of `_.matches` which doesn't clone `source`.
@@ -60478,14 +60254,14 @@
 
 
 /***/ },
-/* 235 */
+/* 245 */
 /*!**********************************!*\
   !*** ./~/lodash/_baseIsMatch.js ***!
   \**********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var Stack = __webpack_require__(/*! ./_Stack */ 236),
-	    baseIsEqual = __webpack_require__(/*! ./_baseIsEqual */ 274);
+	var Stack = __webpack_require__(/*! ./_Stack */ 246),
+	    baseIsEqual = __webpack_require__(/*! ./_baseIsEqual */ 284);
 	
 	/** Used to compose bitmasks for value comparisons. */
 	var COMPARE_PARTIAL_FLAG = 1,
@@ -60549,18 +60325,18 @@
 
 
 /***/ },
-/* 236 */
+/* 246 */
 /*!****************************!*\
   !*** ./~/lodash/_Stack.js ***!
   \****************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var ListCache = __webpack_require__(/*! ./_ListCache */ 237),
-	    stackClear = __webpack_require__(/*! ./_stackClear */ 245),
-	    stackDelete = __webpack_require__(/*! ./_stackDelete */ 246),
-	    stackGet = __webpack_require__(/*! ./_stackGet */ 247),
-	    stackHas = __webpack_require__(/*! ./_stackHas */ 248),
-	    stackSet = __webpack_require__(/*! ./_stackSet */ 249);
+	var ListCache = __webpack_require__(/*! ./_ListCache */ 247),
+	    stackClear = __webpack_require__(/*! ./_stackClear */ 255),
+	    stackDelete = __webpack_require__(/*! ./_stackDelete */ 256),
+	    stackGet = __webpack_require__(/*! ./_stackGet */ 257),
+	    stackHas = __webpack_require__(/*! ./_stackHas */ 258),
+	    stackSet = __webpack_require__(/*! ./_stackSet */ 259);
 	
 	/**
 	 * Creates a stack cache object to store key-value pairs.
@@ -60585,17 +60361,17 @@
 
 
 /***/ },
-/* 237 */
+/* 247 */
 /*!********************************!*\
   !*** ./~/lodash/_ListCache.js ***!
   \********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var listCacheClear = __webpack_require__(/*! ./_listCacheClear */ 238),
-	    listCacheDelete = __webpack_require__(/*! ./_listCacheDelete */ 239),
-	    listCacheGet = __webpack_require__(/*! ./_listCacheGet */ 242),
-	    listCacheHas = __webpack_require__(/*! ./_listCacheHas */ 243),
-	    listCacheSet = __webpack_require__(/*! ./_listCacheSet */ 244);
+	var listCacheClear = __webpack_require__(/*! ./_listCacheClear */ 248),
+	    listCacheDelete = __webpack_require__(/*! ./_listCacheDelete */ 249),
+	    listCacheGet = __webpack_require__(/*! ./_listCacheGet */ 252),
+	    listCacheHas = __webpack_require__(/*! ./_listCacheHas */ 253),
+	    listCacheSet = __webpack_require__(/*! ./_listCacheSet */ 254);
 	
 	/**
 	 * Creates an list cache object.
@@ -60626,7 +60402,7 @@
 
 
 /***/ },
-/* 238 */
+/* 248 */
 /*!*************************************!*\
   !*** ./~/lodash/_listCacheClear.js ***!
   \*************************************/
@@ -60648,13 +60424,13 @@
 
 
 /***/ },
-/* 239 */
+/* 249 */
 /*!**************************************!*\
   !*** ./~/lodash/_listCacheDelete.js ***!
   \**************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var assocIndexOf = __webpack_require__(/*! ./_assocIndexOf */ 240);
+	var assocIndexOf = __webpack_require__(/*! ./_assocIndexOf */ 250);
 	
 	/** Used for built-in method references. */
 	var arrayProto = Array.prototype;
@@ -60692,13 +60468,13 @@
 
 
 /***/ },
-/* 240 */
+/* 250 */
 /*!***********************************!*\
   !*** ./~/lodash/_assocIndexOf.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var eq = __webpack_require__(/*! ./eq */ 241);
+	var eq = __webpack_require__(/*! ./eq */ 251);
 	
 	/**
 	 * Gets the index at which the `key` is found in `array` of key-value pairs.
@@ -60722,7 +60498,7 @@
 
 
 /***/ },
-/* 241 */
+/* 251 */
 /*!************************!*\
   !*** ./~/lodash/eq.js ***!
   \************************/
@@ -60768,13 +60544,13 @@
 
 
 /***/ },
-/* 242 */
+/* 252 */
 /*!***********************************!*\
   !*** ./~/lodash/_listCacheGet.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var assocIndexOf = __webpack_require__(/*! ./_assocIndexOf */ 240);
+	var assocIndexOf = __webpack_require__(/*! ./_assocIndexOf */ 250);
 	
 	/**
 	 * Gets the list cache value for `key`.
@@ -60796,13 +60572,13 @@
 
 
 /***/ },
-/* 243 */
+/* 253 */
 /*!***********************************!*\
   !*** ./~/lodash/_listCacheHas.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var assocIndexOf = __webpack_require__(/*! ./_assocIndexOf */ 240);
+	var assocIndexOf = __webpack_require__(/*! ./_assocIndexOf */ 250);
 	
 	/**
 	 * Checks if a list cache value for `key` exists.
@@ -60821,13 +60597,13 @@
 
 
 /***/ },
-/* 244 */
+/* 254 */
 /*!***********************************!*\
   !*** ./~/lodash/_listCacheSet.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var assocIndexOf = __webpack_require__(/*! ./_assocIndexOf */ 240);
+	var assocIndexOf = __webpack_require__(/*! ./_assocIndexOf */ 250);
 	
 	/**
 	 * Sets the list cache `key` to `value`.
@@ -60856,13 +60632,13 @@
 
 
 /***/ },
-/* 245 */
+/* 255 */
 /*!*********************************!*\
   !*** ./~/lodash/_stackClear.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var ListCache = __webpack_require__(/*! ./_ListCache */ 237);
+	var ListCache = __webpack_require__(/*! ./_ListCache */ 247);
 	
 	/**
 	 * Removes all key-value entries from the stack.
@@ -60880,7 +60656,7 @@
 
 
 /***/ },
-/* 246 */
+/* 256 */
 /*!**********************************!*\
   !*** ./~/lodash/_stackDelete.js ***!
   \**********************************/
@@ -60907,7 +60683,7 @@
 
 
 /***/ },
-/* 247 */
+/* 257 */
 /*!*******************************!*\
   !*** ./~/lodash/_stackGet.js ***!
   \*******************************/
@@ -60930,7 +60706,7 @@
 
 
 /***/ },
-/* 248 */
+/* 258 */
 /*!*******************************!*\
   !*** ./~/lodash/_stackHas.js ***!
   \*******************************/
@@ -60953,15 +60729,15 @@
 
 
 /***/ },
-/* 249 */
+/* 259 */
 /*!*******************************!*\
   !*** ./~/lodash/_stackSet.js ***!
   \*******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var ListCache = __webpack_require__(/*! ./_ListCache */ 237),
-	    Map = __webpack_require__(/*! ./_Map */ 250),
-	    MapCache = __webpack_require__(/*! ./_MapCache */ 259);
+	var ListCache = __webpack_require__(/*! ./_ListCache */ 247),
+	    Map = __webpack_require__(/*! ./_Map */ 260),
+	    MapCache = __webpack_require__(/*! ./_MapCache */ 269);
 	
 	/** Used as the size to enable large array optimizations. */
 	var LARGE_ARRAY_SIZE = 200;
@@ -60996,14 +60772,14 @@
 
 
 /***/ },
-/* 250 */
+/* 260 */
 /*!**************************!*\
   !*** ./~/lodash/_Map.js ***!
   \**************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(/*! ./_getNative */ 251),
-	    root = __webpack_require__(/*! ./_root */ 179);
+	var getNative = __webpack_require__(/*! ./_getNative */ 261),
+	    root = __webpack_require__(/*! ./_root */ 178);
 	
 	/* Built-in method references that are verified to be native. */
 	var Map = getNative(root, 'Map');
@@ -61012,14 +60788,14 @@
 
 
 /***/ },
-/* 251 */
+/* 261 */
 /*!********************************!*\
   !*** ./~/lodash/_getNative.js ***!
   \********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsNative = __webpack_require__(/*! ./_baseIsNative */ 252),
-	    getValue = __webpack_require__(/*! ./_getValue */ 258);
+	var baseIsNative = __webpack_require__(/*! ./_baseIsNative */ 262),
+	    getValue = __webpack_require__(/*! ./_getValue */ 268);
 	
 	/**
 	 * Gets the native function at `key` of `object`.
@@ -61038,16 +60814,16 @@
 
 
 /***/ },
-/* 252 */
+/* 262 */
 /*!***********************************!*\
   !*** ./~/lodash/_baseIsNative.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var isFunction = __webpack_require__(/*! ./isFunction */ 253),
-	    isMasked = __webpack_require__(/*! ./_isMasked */ 255),
-	    isObject = __webpack_require__(/*! ./isObject */ 254),
-	    toSource = __webpack_require__(/*! ./_toSource */ 257);
+	var isFunction = __webpack_require__(/*! ./isFunction */ 263),
+	    isMasked = __webpack_require__(/*! ./_isMasked */ 265),
+	    isObject = __webpack_require__(/*! ./isObject */ 264),
+	    toSource = __webpack_require__(/*! ./_toSource */ 267);
 	
 	/**
 	 * Used to match `RegExp`
@@ -61094,14 +60870,14 @@
 
 
 /***/ },
-/* 253 */
+/* 263 */
 /*!********************************!*\
   !*** ./~/lodash/isFunction.js ***!
   \********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(/*! ./_baseGetTag */ 177),
-	    isObject = __webpack_require__(/*! ./isObject */ 254);
+	var baseGetTag = __webpack_require__(/*! ./_baseGetTag */ 176),
+	    isObject = __webpack_require__(/*! ./isObject */ 264);
 	
 	/** `Object#toString` result references. */
 	var asyncTag = '[object AsyncFunction]',
@@ -61140,7 +60916,7 @@
 
 
 /***/ },
-/* 254 */
+/* 264 */
 /*!******************************!*\
   !*** ./~/lodash/isObject.js ***!
   \******************************/
@@ -61180,13 +60956,13 @@
 
 
 /***/ },
-/* 255 */
+/* 265 */
 /*!*******************************!*\
   !*** ./~/lodash/_isMasked.js ***!
   \*******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var coreJsData = __webpack_require__(/*! ./_coreJsData */ 256);
+	var coreJsData = __webpack_require__(/*! ./_coreJsData */ 266);
 	
 	/** Used to detect methods masquerading as native. */
 	var maskSrcKey = (function() {
@@ -61209,13 +60985,13 @@
 
 
 /***/ },
-/* 256 */
+/* 266 */
 /*!*********************************!*\
   !*** ./~/lodash/_coreJsData.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(/*! ./_root */ 179);
+	var root = __webpack_require__(/*! ./_root */ 178);
 	
 	/** Used to detect overreaching core-js shims. */
 	var coreJsData = root['__core-js_shared__'];
@@ -61224,7 +61000,7 @@
 
 
 /***/ },
-/* 257 */
+/* 267 */
 /*!*******************************!*\
   !*** ./~/lodash/_toSource.js ***!
   \*******************************/
@@ -61259,7 +61035,7 @@
 
 
 /***/ },
-/* 258 */
+/* 268 */
 /*!*******************************!*\
   !*** ./~/lodash/_getValue.js ***!
   \*******************************/
@@ -61281,17 +61057,17 @@
 
 
 /***/ },
-/* 259 */
+/* 269 */
 /*!*******************************!*\
   !*** ./~/lodash/_MapCache.js ***!
   \*******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var mapCacheClear = __webpack_require__(/*! ./_mapCacheClear */ 260),
-	    mapCacheDelete = __webpack_require__(/*! ./_mapCacheDelete */ 268),
-	    mapCacheGet = __webpack_require__(/*! ./_mapCacheGet */ 271),
-	    mapCacheHas = __webpack_require__(/*! ./_mapCacheHas */ 272),
-	    mapCacheSet = __webpack_require__(/*! ./_mapCacheSet */ 273);
+	var mapCacheClear = __webpack_require__(/*! ./_mapCacheClear */ 270),
+	    mapCacheDelete = __webpack_require__(/*! ./_mapCacheDelete */ 278),
+	    mapCacheGet = __webpack_require__(/*! ./_mapCacheGet */ 281),
+	    mapCacheHas = __webpack_require__(/*! ./_mapCacheHas */ 282),
+	    mapCacheSet = __webpack_require__(/*! ./_mapCacheSet */ 283);
 	
 	/**
 	 * Creates a map cache object to store key-value pairs.
@@ -61322,15 +61098,15 @@
 
 
 /***/ },
-/* 260 */
+/* 270 */
 /*!************************************!*\
   !*** ./~/lodash/_mapCacheClear.js ***!
   \************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var Hash = __webpack_require__(/*! ./_Hash */ 261),
-	    ListCache = __webpack_require__(/*! ./_ListCache */ 237),
-	    Map = __webpack_require__(/*! ./_Map */ 250);
+	var Hash = __webpack_require__(/*! ./_Hash */ 271),
+	    ListCache = __webpack_require__(/*! ./_ListCache */ 247),
+	    Map = __webpack_require__(/*! ./_Map */ 260);
 	
 	/**
 	 * Removes all key-value entries from the map.
@@ -61352,17 +61128,17 @@
 
 
 /***/ },
-/* 261 */
+/* 271 */
 /*!***************************!*\
   !*** ./~/lodash/_Hash.js ***!
   \***************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var hashClear = __webpack_require__(/*! ./_hashClear */ 262),
-	    hashDelete = __webpack_require__(/*! ./_hashDelete */ 264),
-	    hashGet = __webpack_require__(/*! ./_hashGet */ 265),
-	    hashHas = __webpack_require__(/*! ./_hashHas */ 266),
-	    hashSet = __webpack_require__(/*! ./_hashSet */ 267);
+	var hashClear = __webpack_require__(/*! ./_hashClear */ 272),
+	    hashDelete = __webpack_require__(/*! ./_hashDelete */ 274),
+	    hashGet = __webpack_require__(/*! ./_hashGet */ 275),
+	    hashHas = __webpack_require__(/*! ./_hashHas */ 276),
+	    hashSet = __webpack_require__(/*! ./_hashSet */ 277);
 	
 	/**
 	 * Creates a hash object.
@@ -61393,13 +61169,13 @@
 
 
 /***/ },
-/* 262 */
+/* 272 */
 /*!********************************!*\
   !*** ./~/lodash/_hashClear.js ***!
   \********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var nativeCreate = __webpack_require__(/*! ./_nativeCreate */ 263);
+	var nativeCreate = __webpack_require__(/*! ./_nativeCreate */ 273);
 	
 	/**
 	 * Removes all key-value entries from the hash.
@@ -61417,13 +61193,13 @@
 
 
 /***/ },
-/* 263 */
+/* 273 */
 /*!***********************************!*\
   !*** ./~/lodash/_nativeCreate.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(/*! ./_getNative */ 251);
+	var getNative = __webpack_require__(/*! ./_getNative */ 261);
 	
 	/* Built-in method references that are verified to be native. */
 	var nativeCreate = getNative(Object, 'create');
@@ -61432,7 +61208,7 @@
 
 
 /***/ },
-/* 264 */
+/* 274 */
 /*!*********************************!*\
   !*** ./~/lodash/_hashDelete.js ***!
   \*********************************/
@@ -61458,13 +61234,13 @@
 
 
 /***/ },
-/* 265 */
+/* 275 */
 /*!******************************!*\
   !*** ./~/lodash/_hashGet.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var nativeCreate = __webpack_require__(/*! ./_nativeCreate */ 263);
+	var nativeCreate = __webpack_require__(/*! ./_nativeCreate */ 273);
 	
 	/** Used to stand-in for `undefined` hash values. */
 	var HASH_UNDEFINED = '__lodash_hash_undefined__';
@@ -61497,13 +61273,13 @@
 
 
 /***/ },
-/* 266 */
+/* 276 */
 /*!******************************!*\
   !*** ./~/lodash/_hashHas.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var nativeCreate = __webpack_require__(/*! ./_nativeCreate */ 263);
+	var nativeCreate = __webpack_require__(/*! ./_nativeCreate */ 273);
 	
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -61529,13 +61305,13 @@
 
 
 /***/ },
-/* 267 */
+/* 277 */
 /*!******************************!*\
   !*** ./~/lodash/_hashSet.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var nativeCreate = __webpack_require__(/*! ./_nativeCreate */ 263);
+	var nativeCreate = __webpack_require__(/*! ./_nativeCreate */ 273);
 	
 	/** Used to stand-in for `undefined` hash values. */
 	var HASH_UNDEFINED = '__lodash_hash_undefined__';
@@ -61561,13 +61337,13 @@
 
 
 /***/ },
-/* 268 */
+/* 278 */
 /*!*************************************!*\
   !*** ./~/lodash/_mapCacheDelete.js ***!
   \*************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var getMapData = __webpack_require__(/*! ./_getMapData */ 269);
+	var getMapData = __webpack_require__(/*! ./_getMapData */ 279);
 	
 	/**
 	 * Removes `key` and its value from the map.
@@ -61588,13 +61364,13 @@
 
 
 /***/ },
-/* 269 */
+/* 279 */
 /*!*********************************!*\
   !*** ./~/lodash/_getMapData.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var isKeyable = __webpack_require__(/*! ./_isKeyable */ 270);
+	var isKeyable = __webpack_require__(/*! ./_isKeyable */ 280);
 	
 	/**
 	 * Gets the data for `map`.
@@ -61615,7 +61391,7 @@
 
 
 /***/ },
-/* 270 */
+/* 280 */
 /*!********************************!*\
   !*** ./~/lodash/_isKeyable.js ***!
   \********************************/
@@ -61639,13 +61415,13 @@
 
 
 /***/ },
-/* 271 */
+/* 281 */
 /*!**********************************!*\
   !*** ./~/lodash/_mapCacheGet.js ***!
   \**********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var getMapData = __webpack_require__(/*! ./_getMapData */ 269);
+	var getMapData = __webpack_require__(/*! ./_getMapData */ 279);
 	
 	/**
 	 * Gets the map value for `key`.
@@ -61664,13 +61440,13 @@
 
 
 /***/ },
-/* 272 */
+/* 282 */
 /*!**********************************!*\
   !*** ./~/lodash/_mapCacheHas.js ***!
   \**********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var getMapData = __webpack_require__(/*! ./_getMapData */ 269);
+	var getMapData = __webpack_require__(/*! ./_getMapData */ 279);
 	
 	/**
 	 * Checks if a map value for `key` exists.
@@ -61689,13 +61465,13 @@
 
 
 /***/ },
-/* 273 */
+/* 283 */
 /*!**********************************!*\
   !*** ./~/lodash/_mapCacheSet.js ***!
   \**********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var getMapData = __webpack_require__(/*! ./_getMapData */ 269);
+	var getMapData = __webpack_require__(/*! ./_getMapData */ 279);
 	
 	/**
 	 * Sets the map `key` to `value`.
@@ -61720,14 +61496,14 @@
 
 
 /***/ },
-/* 274 */
+/* 284 */
 /*!**********************************!*\
   !*** ./~/lodash/_baseIsEqual.js ***!
   \**********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsEqualDeep = __webpack_require__(/*! ./_baseIsEqualDeep */ 275),
-	    isObjectLike = __webpack_require__(/*! ./isObjectLike */ 185);
+	var baseIsEqualDeep = __webpack_require__(/*! ./_baseIsEqualDeep */ 285),
+	    isObjectLike = __webpack_require__(/*! ./isObjectLike */ 184);
 	
 	/**
 	 * The base implementation of `_.isEqual` which supports partial comparisons
@@ -61757,20 +61533,20 @@
 
 
 /***/ },
-/* 275 */
+/* 285 */
 /*!**************************************!*\
   !*** ./~/lodash/_baseIsEqualDeep.js ***!
   \**************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var Stack = __webpack_require__(/*! ./_Stack */ 236),
-	    equalArrays = __webpack_require__(/*! ./_equalArrays */ 276),
-	    equalByTag = __webpack_require__(/*! ./_equalByTag */ 282),
-	    equalObjects = __webpack_require__(/*! ./_equalObjects */ 286),
-	    getTag = __webpack_require__(/*! ./_getTag */ 311),
-	    isArray = __webpack_require__(/*! ./isArray */ 290),
-	    isBuffer = __webpack_require__(/*! ./isBuffer */ 299),
-	    isTypedArray = __webpack_require__(/*! ./isTypedArray */ 302);
+	var Stack = __webpack_require__(/*! ./_Stack */ 246),
+	    equalArrays = __webpack_require__(/*! ./_equalArrays */ 286),
+	    equalByTag = __webpack_require__(/*! ./_equalByTag */ 292),
+	    equalObjects = __webpack_require__(/*! ./_equalObjects */ 296),
+	    getTag = __webpack_require__(/*! ./_getTag */ 321),
+	    isArray = __webpack_require__(/*! ./isArray */ 300),
+	    isBuffer = __webpack_require__(/*! ./isBuffer */ 309),
+	    isTypedArray = __webpack_require__(/*! ./isTypedArray */ 312);
 	
 	/** Used to compose bitmasks for value comparisons. */
 	var COMPARE_PARTIAL_FLAG = 1;
@@ -61849,15 +61625,15 @@
 
 
 /***/ },
-/* 276 */
+/* 286 */
 /*!**********************************!*\
   !*** ./~/lodash/_equalArrays.js ***!
   \**********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var SetCache = __webpack_require__(/*! ./_SetCache */ 277),
-	    arraySome = __webpack_require__(/*! ./_arraySome */ 280),
-	    cacheHas = __webpack_require__(/*! ./_cacheHas */ 281);
+	var SetCache = __webpack_require__(/*! ./_SetCache */ 287),
+	    arraySome = __webpack_require__(/*! ./_arraySome */ 290),
+	    cacheHas = __webpack_require__(/*! ./_cacheHas */ 291);
 	
 	/** Used to compose bitmasks for value comparisons. */
 	var COMPARE_PARTIAL_FLAG = 1,
@@ -61941,15 +61717,15 @@
 
 
 /***/ },
-/* 277 */
+/* 287 */
 /*!*******************************!*\
   !*** ./~/lodash/_SetCache.js ***!
   \*******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var MapCache = __webpack_require__(/*! ./_MapCache */ 259),
-	    setCacheAdd = __webpack_require__(/*! ./_setCacheAdd */ 278),
-	    setCacheHas = __webpack_require__(/*! ./_setCacheHas */ 279);
+	var MapCache = __webpack_require__(/*! ./_MapCache */ 269),
+	    setCacheAdd = __webpack_require__(/*! ./_setCacheAdd */ 288),
+	    setCacheHas = __webpack_require__(/*! ./_setCacheHas */ 289);
 	
 	/**
 	 *
@@ -61977,7 +61753,7 @@
 
 
 /***/ },
-/* 278 */
+/* 288 */
 /*!**********************************!*\
   !*** ./~/lodash/_setCacheAdd.js ***!
   \**********************************/
@@ -62005,7 +61781,7 @@
 
 
 /***/ },
-/* 279 */
+/* 289 */
 /*!**********************************!*\
   !*** ./~/lodash/_setCacheHas.js ***!
   \**********************************/
@@ -62028,7 +61804,7 @@
 
 
 /***/ },
-/* 280 */
+/* 290 */
 /*!********************************!*\
   !*** ./~/lodash/_arraySome.js ***!
   \********************************/
@@ -62060,7 +61836,7 @@
 
 
 /***/ },
-/* 281 */
+/* 291 */
 /*!*******************************!*\
   !*** ./~/lodash/_cacheHas.js ***!
   \*******************************/
@@ -62082,18 +61858,18 @@
 
 
 /***/ },
-/* 282 */
+/* 292 */
 /*!*********************************!*\
   !*** ./~/lodash/_equalByTag.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(/*! ./_Symbol */ 178),
-	    Uint8Array = __webpack_require__(/*! ./_Uint8Array */ 283),
-	    eq = __webpack_require__(/*! ./eq */ 241),
-	    equalArrays = __webpack_require__(/*! ./_equalArrays */ 276),
-	    mapToArray = __webpack_require__(/*! ./_mapToArray */ 284),
-	    setToArray = __webpack_require__(/*! ./_setToArray */ 285);
+	var Symbol = __webpack_require__(/*! ./_Symbol */ 177),
+	    Uint8Array = __webpack_require__(/*! ./_Uint8Array */ 293),
+	    eq = __webpack_require__(/*! ./eq */ 251),
+	    equalArrays = __webpack_require__(/*! ./_equalArrays */ 286),
+	    mapToArray = __webpack_require__(/*! ./_mapToArray */ 294),
+	    setToArray = __webpack_require__(/*! ./_setToArray */ 295);
 	
 	/** Used to compose bitmasks for value comparisons. */
 	var COMPARE_PARTIAL_FLAG = 1,
@@ -62203,13 +61979,13 @@
 
 
 /***/ },
-/* 283 */
+/* 293 */
 /*!*********************************!*\
   !*** ./~/lodash/_Uint8Array.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(/*! ./_root */ 179);
+	var root = __webpack_require__(/*! ./_root */ 178);
 	
 	/** Built-in value references. */
 	var Uint8Array = root.Uint8Array;
@@ -62218,7 +61994,7 @@
 
 
 /***/ },
-/* 284 */
+/* 294 */
 /*!*********************************!*\
   !*** ./~/lodash/_mapToArray.js ***!
   \*********************************/
@@ -62245,7 +62021,7 @@
 
 
 /***/ },
-/* 285 */
+/* 295 */
 /*!*********************************!*\
   !*** ./~/lodash/_setToArray.js ***!
   \*********************************/
@@ -62272,13 +62048,13 @@
 
 
 /***/ },
-/* 286 */
+/* 296 */
 /*!***********************************!*\
   !*** ./~/lodash/_equalObjects.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var getAllKeys = __webpack_require__(/*! ./_getAllKeys */ 287);
+	var getAllKeys = __webpack_require__(/*! ./_getAllKeys */ 297);
 	
 	/** Used to compose bitmasks for value comparisons. */
 	var COMPARE_PARTIAL_FLAG = 1;
@@ -62370,15 +62146,15 @@
 
 
 /***/ },
-/* 287 */
+/* 297 */
 /*!*********************************!*\
   !*** ./~/lodash/_getAllKeys.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetAllKeys = __webpack_require__(/*! ./_baseGetAllKeys */ 288),
-	    getSymbols = __webpack_require__(/*! ./_getSymbols */ 291),
-	    keys = __webpack_require__(/*! ./keys */ 294);
+	var baseGetAllKeys = __webpack_require__(/*! ./_baseGetAllKeys */ 298),
+	    getSymbols = __webpack_require__(/*! ./_getSymbols */ 301),
+	    keys = __webpack_require__(/*! ./keys */ 304);
 	
 	/**
 	 * Creates an array of own enumerable property names and symbols of `object`.
@@ -62395,14 +62171,14 @@
 
 
 /***/ },
-/* 288 */
+/* 298 */
 /*!*************************************!*\
   !*** ./~/lodash/_baseGetAllKeys.js ***!
   \*************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayPush = __webpack_require__(/*! ./_arrayPush */ 289),
-	    isArray = __webpack_require__(/*! ./isArray */ 290);
+	var arrayPush = __webpack_require__(/*! ./_arrayPush */ 299),
+	    isArray = __webpack_require__(/*! ./isArray */ 300);
 	
 	/**
 	 * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
@@ -62424,7 +62200,7 @@
 
 
 /***/ },
-/* 289 */
+/* 299 */
 /*!********************************!*\
   !*** ./~/lodash/_arrayPush.js ***!
   \********************************/
@@ -62453,7 +62229,7 @@
 
 
 /***/ },
-/* 290 */
+/* 300 */
 /*!*****************************!*\
   !*** ./~/lodash/isArray.js ***!
   \*****************************/
@@ -62488,14 +62264,14 @@
 
 
 /***/ },
-/* 291 */
+/* 301 */
 /*!*********************************!*\
   !*** ./~/lodash/_getSymbols.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayFilter = __webpack_require__(/*! ./_arrayFilter */ 292),
-	    stubArray = __webpack_require__(/*! ./stubArray */ 293);
+	var arrayFilter = __webpack_require__(/*! ./_arrayFilter */ 302),
+	    stubArray = __webpack_require__(/*! ./stubArray */ 303);
 	
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -62527,7 +62303,7 @@
 
 
 /***/ },
-/* 292 */
+/* 302 */
 /*!**********************************!*\
   !*** ./~/lodash/_arrayFilter.js ***!
   \**********************************/
@@ -62561,7 +62337,7 @@
 
 
 /***/ },
-/* 293 */
+/* 303 */
 /*!*******************************!*\
   !*** ./~/lodash/stubArray.js ***!
   \*******************************/
@@ -62593,15 +62369,15 @@
 
 
 /***/ },
-/* 294 */
+/* 304 */
 /*!**************************!*\
   !*** ./~/lodash/keys.js ***!
   \**************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayLikeKeys = __webpack_require__(/*! ./_arrayLikeKeys */ 295),
-	    baseKeys = __webpack_require__(/*! ./_baseKeys */ 307),
-	    isArrayLike = __webpack_require__(/*! ./isArrayLike */ 310);
+	var arrayLikeKeys = __webpack_require__(/*! ./_arrayLikeKeys */ 305),
+	    baseKeys = __webpack_require__(/*! ./_baseKeys */ 317),
+	    isArrayLike = __webpack_require__(/*! ./isArrayLike */ 320);
 	
 	/**
 	 * Creates an array of the own enumerable property names of `object`.
@@ -62639,18 +62415,18 @@
 
 
 /***/ },
-/* 295 */
+/* 305 */
 /*!************************************!*\
   !*** ./~/lodash/_arrayLikeKeys.js ***!
   \************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseTimes = __webpack_require__(/*! ./_baseTimes */ 296),
-	    isArguments = __webpack_require__(/*! ./isArguments */ 297),
-	    isArray = __webpack_require__(/*! ./isArray */ 290),
-	    isBuffer = __webpack_require__(/*! ./isBuffer */ 299),
-	    isIndex = __webpack_require__(/*! ./_isIndex */ 301),
-	    isTypedArray = __webpack_require__(/*! ./isTypedArray */ 302);
+	var baseTimes = __webpack_require__(/*! ./_baseTimes */ 306),
+	    isArguments = __webpack_require__(/*! ./isArguments */ 307),
+	    isArray = __webpack_require__(/*! ./isArray */ 300),
+	    isBuffer = __webpack_require__(/*! ./isBuffer */ 309),
+	    isIndex = __webpack_require__(/*! ./_isIndex */ 311),
+	    isTypedArray = __webpack_require__(/*! ./isTypedArray */ 312);
 	
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -62697,7 +62473,7 @@
 
 
 /***/ },
-/* 296 */
+/* 306 */
 /*!********************************!*\
   !*** ./~/lodash/_baseTimes.js ***!
   \********************************/
@@ -62726,14 +62502,14 @@
 
 
 /***/ },
-/* 297 */
+/* 307 */
 /*!*********************************!*\
   !*** ./~/lodash/isArguments.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsArguments = __webpack_require__(/*! ./_baseIsArguments */ 298),
-	    isObjectLike = __webpack_require__(/*! ./isObjectLike */ 185);
+	var baseIsArguments = __webpack_require__(/*! ./_baseIsArguments */ 308),
+	    isObjectLike = __webpack_require__(/*! ./isObjectLike */ 184);
 	
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -62771,14 +62547,14 @@
 
 
 /***/ },
-/* 298 */
+/* 308 */
 /*!**************************************!*\
   !*** ./~/lodash/_baseIsArguments.js ***!
   \**************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(/*! ./_baseGetTag */ 177),
-	    isObjectLike = __webpack_require__(/*! ./isObjectLike */ 185);
+	var baseGetTag = __webpack_require__(/*! ./_baseGetTag */ 176),
+	    isObjectLike = __webpack_require__(/*! ./isObjectLike */ 184);
 	
 	/** `Object#toString` result references. */
 	var argsTag = '[object Arguments]';
@@ -62798,14 +62574,14 @@
 
 
 /***/ },
-/* 299 */
+/* 309 */
 /*!******************************!*\
   !*** ./~/lodash/isBuffer.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(/*! ./_root */ 179),
-	    stubFalse = __webpack_require__(/*! ./stubFalse */ 300);
+	/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(/*! ./_root */ 178),
+	    stubFalse = __webpack_require__(/*! ./stubFalse */ 310);
 	
 	/** Detect free variable `exports`. */
 	var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
@@ -62843,10 +62619,10 @@
 	
 	module.exports = isBuffer;
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../webpack/buildin/module.js */ 188)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../webpack/buildin/module.js */ 187)(module)))
 
 /***/ },
-/* 300 */
+/* 310 */
 /*!*******************************!*\
   !*** ./~/lodash/stubFalse.js ***!
   \*******************************/
@@ -62873,7 +62649,7 @@
 
 
 /***/ },
-/* 301 */
+/* 311 */
 /*!******************************!*\
   !*** ./~/lodash/_isIndex.js ***!
   \******************************/
@@ -62904,15 +62680,15 @@
 
 
 /***/ },
-/* 302 */
+/* 312 */
 /*!**********************************!*\
   !*** ./~/lodash/isTypedArray.js ***!
   \**********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsTypedArray = __webpack_require__(/*! ./_baseIsTypedArray */ 303),
-	    baseUnary = __webpack_require__(/*! ./_baseUnary */ 305),
-	    nodeUtil = __webpack_require__(/*! ./_nodeUtil */ 306);
+	var baseIsTypedArray = __webpack_require__(/*! ./_baseIsTypedArray */ 313),
+	    baseUnary = __webpack_require__(/*! ./_baseUnary */ 315),
+	    nodeUtil = __webpack_require__(/*! ./_nodeUtil */ 316);
 	
 	/* Node.js helper references. */
 	var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
@@ -62940,15 +62716,15 @@
 
 
 /***/ },
-/* 303 */
+/* 313 */
 /*!***************************************!*\
   !*** ./~/lodash/_baseIsTypedArray.js ***!
   \***************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(/*! ./_baseGetTag */ 177),
-	    isLength = __webpack_require__(/*! ./isLength */ 304),
-	    isObjectLike = __webpack_require__(/*! ./isObjectLike */ 185);
+	var baseGetTag = __webpack_require__(/*! ./_baseGetTag */ 176),
+	    isLength = __webpack_require__(/*! ./isLength */ 314),
+	    isObjectLike = __webpack_require__(/*! ./isObjectLike */ 184);
 	
 	/** `Object#toString` result references. */
 	var argsTag = '[object Arguments]',
@@ -63009,7 +62785,7 @@
 
 
 /***/ },
-/* 304 */
+/* 314 */
 /*!******************************!*\
   !*** ./~/lodash/isLength.js ***!
   \******************************/
@@ -63053,7 +62829,7 @@
 
 
 /***/ },
-/* 305 */
+/* 315 */
 /*!********************************!*\
   !*** ./~/lodash/_baseUnary.js ***!
   \********************************/
@@ -63076,13 +62852,13 @@
 
 
 /***/ },
-/* 306 */
+/* 316 */
 /*!*******************************!*\
   !*** ./~/lodash/_nodeUtil.js ***!
   \*******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(/*! ./_freeGlobal */ 180);
+	/* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(/*! ./_freeGlobal */ 179);
 	
 	/** Detect free variable `exports`. */
 	var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
@@ -63105,17 +62881,17 @@
 	
 	module.exports = nodeUtil;
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../webpack/buildin/module.js */ 188)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../webpack/buildin/module.js */ 187)(module)))
 
 /***/ },
-/* 307 */
+/* 317 */
 /*!*******************************!*\
   !*** ./~/lodash/_baseKeys.js ***!
   \*******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var isPrototype = __webpack_require__(/*! ./_isPrototype */ 308),
-	    nativeKeys = __webpack_require__(/*! ./_nativeKeys */ 309);
+	var isPrototype = __webpack_require__(/*! ./_isPrototype */ 318),
+	    nativeKeys = __webpack_require__(/*! ./_nativeKeys */ 319);
 	
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -63147,7 +62923,7 @@
 
 
 /***/ },
-/* 308 */
+/* 318 */
 /*!**********************************!*\
   !*** ./~/lodash/_isPrototype.js ***!
   \**********************************/
@@ -63174,13 +62950,13 @@
 
 
 /***/ },
-/* 309 */
+/* 319 */
 /*!*********************************!*\
   !*** ./~/lodash/_nativeKeys.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var overArg = __webpack_require__(/*! ./_overArg */ 184);
+	var overArg = __webpack_require__(/*! ./_overArg */ 183);
 	
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeKeys = overArg(Object.keys, Object);
@@ -63189,14 +62965,14 @@
 
 
 /***/ },
-/* 310 */
+/* 320 */
 /*!*********************************!*\
   !*** ./~/lodash/isArrayLike.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var isFunction = __webpack_require__(/*! ./isFunction */ 253),
-	    isLength = __webpack_require__(/*! ./isLength */ 304);
+	var isFunction = __webpack_require__(/*! ./isFunction */ 263),
+	    isLength = __webpack_require__(/*! ./isLength */ 314);
 	
 	/**
 	 * Checks if `value` is array-like. A value is considered array-like if it's
@@ -63231,19 +63007,19 @@
 
 
 /***/ },
-/* 311 */
+/* 321 */
 /*!*****************************!*\
   !*** ./~/lodash/_getTag.js ***!
   \*****************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var DataView = __webpack_require__(/*! ./_DataView */ 312),
-	    Map = __webpack_require__(/*! ./_Map */ 250),
-	    Promise = __webpack_require__(/*! ./_Promise */ 313),
-	    Set = __webpack_require__(/*! ./_Set */ 314),
-	    WeakMap = __webpack_require__(/*! ./_WeakMap */ 315),
-	    baseGetTag = __webpack_require__(/*! ./_baseGetTag */ 177),
-	    toSource = __webpack_require__(/*! ./_toSource */ 257);
+	var DataView = __webpack_require__(/*! ./_DataView */ 322),
+	    Map = __webpack_require__(/*! ./_Map */ 260),
+	    Promise = __webpack_require__(/*! ./_Promise */ 323),
+	    Set = __webpack_require__(/*! ./_Set */ 324),
+	    WeakMap = __webpack_require__(/*! ./_WeakMap */ 325),
+	    baseGetTag = __webpack_require__(/*! ./_baseGetTag */ 176),
+	    toSource = __webpack_require__(/*! ./_toSource */ 267);
 	
 	/** `Object#toString` result references. */
 	var mapTag = '[object Map]',
@@ -63298,14 +63074,14 @@
 
 
 /***/ },
-/* 312 */
+/* 322 */
 /*!*******************************!*\
   !*** ./~/lodash/_DataView.js ***!
   \*******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(/*! ./_getNative */ 251),
-	    root = __webpack_require__(/*! ./_root */ 179);
+	var getNative = __webpack_require__(/*! ./_getNative */ 261),
+	    root = __webpack_require__(/*! ./_root */ 178);
 	
 	/* Built-in method references that are verified to be native. */
 	var DataView = getNative(root, 'DataView');
@@ -63314,14 +63090,14 @@
 
 
 /***/ },
-/* 313 */
+/* 323 */
 /*!******************************!*\
   !*** ./~/lodash/_Promise.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(/*! ./_getNative */ 251),
-	    root = __webpack_require__(/*! ./_root */ 179);
+	var getNative = __webpack_require__(/*! ./_getNative */ 261),
+	    root = __webpack_require__(/*! ./_root */ 178);
 	
 	/* Built-in method references that are verified to be native. */
 	var Promise = getNative(root, 'Promise');
@@ -63330,14 +63106,14 @@
 
 
 /***/ },
-/* 314 */
+/* 324 */
 /*!**************************!*\
   !*** ./~/lodash/_Set.js ***!
   \**************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(/*! ./_getNative */ 251),
-	    root = __webpack_require__(/*! ./_root */ 179);
+	var getNative = __webpack_require__(/*! ./_getNative */ 261),
+	    root = __webpack_require__(/*! ./_root */ 178);
 	
 	/* Built-in method references that are verified to be native. */
 	var Set = getNative(root, 'Set');
@@ -63346,14 +63122,14 @@
 
 
 /***/ },
-/* 315 */
+/* 325 */
 /*!******************************!*\
   !*** ./~/lodash/_WeakMap.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(/*! ./_getNative */ 251),
-	    root = __webpack_require__(/*! ./_root */ 179);
+	var getNative = __webpack_require__(/*! ./_getNative */ 261),
+	    root = __webpack_require__(/*! ./_root */ 178);
 	
 	/* Built-in method references that are verified to be native. */
 	var WeakMap = getNative(root, 'WeakMap');
@@ -63362,14 +63138,14 @@
 
 
 /***/ },
-/* 316 */
+/* 326 */
 /*!***********************************!*\
   !*** ./~/lodash/_getMatchData.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var isStrictComparable = __webpack_require__(/*! ./_isStrictComparable */ 317),
-	    keys = __webpack_require__(/*! ./keys */ 294);
+	var isStrictComparable = __webpack_require__(/*! ./_isStrictComparable */ 327),
+	    keys = __webpack_require__(/*! ./keys */ 304);
 	
 	/**
 	 * Gets the property names, values, and compare flags of `object`.
@@ -63395,13 +63171,13 @@
 
 
 /***/ },
-/* 317 */
+/* 327 */
 /*!*****************************************!*\
   !*** ./~/lodash/_isStrictComparable.js ***!
   \*****************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(/*! ./isObject */ 254);
+	var isObject = __webpack_require__(/*! ./isObject */ 264);
 	
 	/**
 	 * Checks if `value` is suitable for strict equality comparisons, i.e. `===`.
@@ -63419,7 +63195,7 @@
 
 
 /***/ },
-/* 318 */
+/* 328 */
 /*!**********************************************!*\
   !*** ./~/lodash/_matchesStrictComparable.js ***!
   \**********************************************/
@@ -63448,19 +63224,19 @@
 
 
 /***/ },
-/* 319 */
+/* 329 */
 /*!******************************************!*\
   !*** ./~/lodash/_baseMatchesProperty.js ***!
   \******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsEqual = __webpack_require__(/*! ./_baseIsEqual */ 274),
-	    get = __webpack_require__(/*! ./get */ 320),
-	    hasIn = __webpack_require__(/*! ./hasIn */ 331),
-	    isKey = __webpack_require__(/*! ./_isKey */ 323),
-	    isStrictComparable = __webpack_require__(/*! ./_isStrictComparable */ 317),
-	    matchesStrictComparable = __webpack_require__(/*! ./_matchesStrictComparable */ 318),
-	    toKey = __webpack_require__(/*! ./_toKey */ 330);
+	var baseIsEqual = __webpack_require__(/*! ./_baseIsEqual */ 284),
+	    get = __webpack_require__(/*! ./get */ 330),
+	    hasIn = __webpack_require__(/*! ./hasIn */ 341),
+	    isKey = __webpack_require__(/*! ./_isKey */ 333),
+	    isStrictComparable = __webpack_require__(/*! ./_isStrictComparable */ 327),
+	    matchesStrictComparable = __webpack_require__(/*! ./_matchesStrictComparable */ 328),
+	    toKey = __webpack_require__(/*! ./_toKey */ 340);
 	
 	/** Used to compose bitmasks for value comparisons. */
 	var COMPARE_PARTIAL_FLAG = 1,
@@ -63490,13 +63266,13 @@
 
 
 /***/ },
-/* 320 */
+/* 330 */
 /*!*************************!*\
   !*** ./~/lodash/get.js ***!
   \*************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGet = __webpack_require__(/*! ./_baseGet */ 321);
+	var baseGet = __webpack_require__(/*! ./_baseGet */ 331);
 	
 	/**
 	 * Gets the value at `path` of `object`. If the resolved value is
@@ -63532,14 +63308,14 @@
 
 
 /***/ },
-/* 321 */
+/* 331 */
 /*!******************************!*\
   !*** ./~/lodash/_baseGet.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var castPath = __webpack_require__(/*! ./_castPath */ 322),
-	    toKey = __webpack_require__(/*! ./_toKey */ 330);
+	var castPath = __webpack_require__(/*! ./_castPath */ 332),
+	    toKey = __webpack_require__(/*! ./_toKey */ 340);
 	
 	/**
 	 * The base implementation of `_.get` without support for default values.
@@ -63565,16 +63341,16 @@
 
 
 /***/ },
-/* 322 */
+/* 332 */
 /*!*******************************!*\
   !*** ./~/lodash/_castPath.js ***!
   \*******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var isArray = __webpack_require__(/*! ./isArray */ 290),
-	    isKey = __webpack_require__(/*! ./_isKey */ 323),
-	    stringToPath = __webpack_require__(/*! ./_stringToPath */ 325),
-	    toString = __webpack_require__(/*! ./toString */ 328);
+	var isArray = __webpack_require__(/*! ./isArray */ 300),
+	    isKey = __webpack_require__(/*! ./_isKey */ 333),
+	    stringToPath = __webpack_require__(/*! ./_stringToPath */ 335),
+	    toString = __webpack_require__(/*! ./toString */ 338);
 	
 	/**
 	 * Casts `value` to a path array if it's not one.
@@ -63595,14 +63371,14 @@
 
 
 /***/ },
-/* 323 */
+/* 333 */
 /*!****************************!*\
   !*** ./~/lodash/_isKey.js ***!
   \****************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var isArray = __webpack_require__(/*! ./isArray */ 290),
-	    isSymbol = __webpack_require__(/*! ./isSymbol */ 324);
+	var isArray = __webpack_require__(/*! ./isArray */ 300),
+	    isSymbol = __webpack_require__(/*! ./isSymbol */ 334);
 	
 	/** Used to match property names within property paths. */
 	var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
@@ -63633,14 +63409,14 @@
 
 
 /***/ },
-/* 324 */
+/* 334 */
 /*!******************************!*\
   !*** ./~/lodash/isSymbol.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(/*! ./_baseGetTag */ 177),
-	    isObjectLike = __webpack_require__(/*! ./isObjectLike */ 185);
+	var baseGetTag = __webpack_require__(/*! ./_baseGetTag */ 176),
+	    isObjectLike = __webpack_require__(/*! ./isObjectLike */ 184);
 	
 	/** `Object#toString` result references. */
 	var symbolTag = '[object Symbol]';
@@ -63671,13 +63447,13 @@
 
 
 /***/ },
-/* 325 */
+/* 335 */
 /*!***********************************!*\
   !*** ./~/lodash/_stringToPath.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var memoizeCapped = __webpack_require__(/*! ./_memoizeCapped */ 326);
+	var memoizeCapped = __webpack_require__(/*! ./_memoizeCapped */ 336);
 	
 	/** Used to match property names within property paths. */
 	var reLeadingDot = /^\./,
@@ -63708,13 +63484,13 @@
 
 
 /***/ },
-/* 326 */
+/* 336 */
 /*!************************************!*\
   !*** ./~/lodash/_memoizeCapped.js ***!
   \************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var memoize = __webpack_require__(/*! ./memoize */ 327);
+	var memoize = __webpack_require__(/*! ./memoize */ 337);
 	
 	/** Used as the maximum memoize cache size. */
 	var MAX_MEMOIZE_SIZE = 500;
@@ -63743,13 +63519,13 @@
 
 
 /***/ },
-/* 327 */
+/* 337 */
 /*!*****************************!*\
   !*** ./~/lodash/memoize.js ***!
   \*****************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var MapCache = __webpack_require__(/*! ./_MapCache */ 259);
+	var MapCache = __webpack_require__(/*! ./_MapCache */ 269);
 	
 	/** Error message constants. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -63825,13 +63601,13 @@
 
 
 /***/ },
-/* 328 */
+/* 338 */
 /*!******************************!*\
   !*** ./~/lodash/toString.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseToString = __webpack_require__(/*! ./_baseToString */ 329);
+	var baseToString = __webpack_require__(/*! ./_baseToString */ 339);
 	
 	/**
 	 * Converts `value` to a string. An empty string is returned for `null`
@@ -63862,16 +63638,16 @@
 
 
 /***/ },
-/* 329 */
+/* 339 */
 /*!***********************************!*\
   !*** ./~/lodash/_baseToString.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(/*! ./_Symbol */ 178),
-	    arrayMap = __webpack_require__(/*! ./_arrayMap */ 232),
-	    isArray = __webpack_require__(/*! ./isArray */ 290),
-	    isSymbol = __webpack_require__(/*! ./isSymbol */ 324);
+	var Symbol = __webpack_require__(/*! ./_Symbol */ 177),
+	    arrayMap = __webpack_require__(/*! ./_arrayMap */ 242),
+	    isArray = __webpack_require__(/*! ./isArray */ 300),
+	    isSymbol = __webpack_require__(/*! ./isSymbol */ 334);
 	
 	/** Used as references for various `Number` constants. */
 	var INFINITY = 1 / 0;
@@ -63908,13 +63684,13 @@
 
 
 /***/ },
-/* 330 */
+/* 340 */
 /*!****************************!*\
   !*** ./~/lodash/_toKey.js ***!
   \****************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var isSymbol = __webpack_require__(/*! ./isSymbol */ 324);
+	var isSymbol = __webpack_require__(/*! ./isSymbol */ 334);
 	
 	/** Used as references for various `Number` constants. */
 	var INFINITY = 1 / 0;
@@ -63938,14 +63714,14 @@
 
 
 /***/ },
-/* 331 */
+/* 341 */
 /*!***************************!*\
   !*** ./~/lodash/hasIn.js ***!
   \***************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseHasIn = __webpack_require__(/*! ./_baseHasIn */ 332),
-	    hasPath = __webpack_require__(/*! ./_hasPath */ 333);
+	var baseHasIn = __webpack_require__(/*! ./_baseHasIn */ 342),
+	    hasPath = __webpack_require__(/*! ./_hasPath */ 343);
 	
 	/**
 	 * Checks if `path` is a direct or inherited property of `object`.
@@ -63981,7 +63757,7 @@
 
 
 /***/ },
-/* 332 */
+/* 342 */
 /*!********************************!*\
   !*** ./~/lodash/_baseHasIn.js ***!
   \********************************/
@@ -64003,18 +63779,18 @@
 
 
 /***/ },
-/* 333 */
+/* 343 */
 /*!******************************!*\
   !*** ./~/lodash/_hasPath.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var castPath = __webpack_require__(/*! ./_castPath */ 322),
-	    isArguments = __webpack_require__(/*! ./isArguments */ 297),
-	    isArray = __webpack_require__(/*! ./isArray */ 290),
-	    isIndex = __webpack_require__(/*! ./_isIndex */ 301),
-	    isLength = __webpack_require__(/*! ./isLength */ 304),
-	    toKey = __webpack_require__(/*! ./_toKey */ 330);
+	var castPath = __webpack_require__(/*! ./_castPath */ 332),
+	    isArguments = __webpack_require__(/*! ./isArguments */ 307),
+	    isArray = __webpack_require__(/*! ./isArray */ 300),
+	    isIndex = __webpack_require__(/*! ./_isIndex */ 311),
+	    isLength = __webpack_require__(/*! ./isLength */ 314),
+	    toKey = __webpack_require__(/*! ./_toKey */ 340);
 	
 	/**
 	 * Checks if `path` exists on `object`.
@@ -64051,7 +63827,7 @@
 
 
 /***/ },
-/* 334 */
+/* 344 */
 /*!******************************!*\
   !*** ./~/lodash/identity.js ***!
   \******************************/
@@ -64081,16 +63857,16 @@
 
 
 /***/ },
-/* 335 */
+/* 345 */
 /*!******************************!*\
   !*** ./~/lodash/property.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseProperty = __webpack_require__(/*! ./_baseProperty */ 336),
-	    basePropertyDeep = __webpack_require__(/*! ./_basePropertyDeep */ 337),
-	    isKey = __webpack_require__(/*! ./_isKey */ 323),
-	    toKey = __webpack_require__(/*! ./_toKey */ 330);
+	var baseProperty = __webpack_require__(/*! ./_baseProperty */ 346),
+	    basePropertyDeep = __webpack_require__(/*! ./_basePropertyDeep */ 347),
+	    isKey = __webpack_require__(/*! ./_isKey */ 333),
+	    toKey = __webpack_require__(/*! ./_toKey */ 340);
 	
 	/**
 	 * Creates a function that returns the value at `path` of a given object.
@@ -64122,7 +63898,7 @@
 
 
 /***/ },
-/* 336 */
+/* 346 */
 /*!***********************************!*\
   !*** ./~/lodash/_baseProperty.js ***!
   \***********************************/
@@ -64145,13 +63921,13 @@
 
 
 /***/ },
-/* 337 */
+/* 347 */
 /*!***************************************!*\
   !*** ./~/lodash/_basePropertyDeep.js ***!
   \***************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGet = __webpack_require__(/*! ./_baseGet */ 321);
+	var baseGet = __webpack_require__(/*! ./_baseGet */ 331);
 	
 	/**
 	 * A specialized version of `baseProperty` which supports deep paths.
@@ -64170,14 +63946,14 @@
 
 
 /***/ },
-/* 338 */
+/* 348 */
 /*!******************************!*\
   !*** ./~/lodash/_baseMap.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseEach = __webpack_require__(/*! ./_baseEach */ 339),
-	    isArrayLike = __webpack_require__(/*! ./isArrayLike */ 310);
+	var baseEach = __webpack_require__(/*! ./_baseEach */ 349),
+	    isArrayLike = __webpack_require__(/*! ./isArrayLike */ 320);
 	
 	/**
 	 * The base implementation of `_.map` without support for iteratee shorthands.
@@ -64201,14 +63977,14 @@
 
 
 /***/ },
-/* 339 */
+/* 349 */
 /*!*******************************!*\
   !*** ./~/lodash/_baseEach.js ***!
   \*******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseForOwn = __webpack_require__(/*! ./_baseForOwn */ 340),
-	    createBaseEach = __webpack_require__(/*! ./_createBaseEach */ 343);
+	var baseForOwn = __webpack_require__(/*! ./_baseForOwn */ 350),
+	    createBaseEach = __webpack_require__(/*! ./_createBaseEach */ 353);
 	
 	/**
 	 * The base implementation of `_.forEach` without support for iteratee shorthands.
@@ -64224,14 +64000,14 @@
 
 
 /***/ },
-/* 340 */
+/* 350 */
 /*!*********************************!*\
   !*** ./~/lodash/_baseForOwn.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseFor = __webpack_require__(/*! ./_baseFor */ 341),
-	    keys = __webpack_require__(/*! ./keys */ 294);
+	var baseFor = __webpack_require__(/*! ./_baseFor */ 351),
+	    keys = __webpack_require__(/*! ./keys */ 304);
 	
 	/**
 	 * The base implementation of `_.forOwn` without support for iteratee shorthands.
@@ -64249,13 +64025,13 @@
 
 
 /***/ },
-/* 341 */
+/* 351 */
 /*!******************************!*\
   !*** ./~/lodash/_baseFor.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var createBaseFor = __webpack_require__(/*! ./_createBaseFor */ 342);
+	var createBaseFor = __webpack_require__(/*! ./_createBaseFor */ 352);
 	
 	/**
 	 * The base implementation of `baseForOwn` which iterates over `object`
@@ -64274,7 +64050,7 @@
 
 
 /***/ },
-/* 342 */
+/* 352 */
 /*!************************************!*\
   !*** ./~/lodash/_createBaseFor.js ***!
   \************************************/
@@ -64308,13 +64084,13 @@
 
 
 /***/ },
-/* 343 */
+/* 353 */
 /*!*************************************!*\
   !*** ./~/lodash/_createBaseEach.js ***!
   \*************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var isArrayLike = __webpack_require__(/*! ./isArrayLike */ 310);
+	var isArrayLike = __webpack_require__(/*! ./isArrayLike */ 320);
 	
 	/**
 	 * Creates a `baseEach` or `baseEachRight` function.
@@ -64349,15 +64125,15 @@
 
 
 /***/ },
-/* 344 */
+/* 354 */
 /*!******************************!*\
   !*** ./~/lodash/isString.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(/*! ./_baseGetTag */ 177),
-	    isArray = __webpack_require__(/*! ./isArray */ 290),
-	    isObjectLike = __webpack_require__(/*! ./isObjectLike */ 185);
+	var baseGetTag = __webpack_require__(/*! ./_baseGetTag */ 176),
+	    isArray = __webpack_require__(/*! ./isArray */ 300),
+	    isObjectLike = __webpack_require__(/*! ./isObjectLike */ 184);
 	
 	/** `Object#toString` result references. */
 	var stringTag = '[object String]';
@@ -64388,22 +64164,22 @@
 
 
 /***/ },
-/* 345 */
+/* 355 */
 /*!****************************************!*\
   !*** ./~/reactcss/lib/mergeClasses.js ***!
   \****************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(exports,"__esModule",{value:!0}),exports.mergeClasses=void 0;var _map=__webpack_require__(/*! lodash/map */ 231),_map2=_interopRequireDefault(_map),_cloneDeep=__webpack_require__(/*! lodash/cloneDeep */ 346),_cloneDeep2=_interopRequireDefault(_cloneDeep),_objectAssign=__webpack_require__(/*! object-assign */ 229),_objectAssign2=_interopRequireDefault(_objectAssign),mergeClasses=exports.mergeClasses=function(e){var t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:[],r=e["default"]&&(0,_cloneDeep2["default"])(e["default"])||{};return t.map(function(t){var s=e[t];return s&&(0,_map2["default"])(s,function(e,t){r[t]||(r[t]={}),(0,_objectAssign2["default"])(r[t],s[t])}),t}),r};exports["default"]=mergeClasses;
+	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(exports,"__esModule",{value:!0}),exports.mergeClasses=void 0;var _map=__webpack_require__(/*! lodash/map */ 241),_map2=_interopRequireDefault(_map),_cloneDeep=__webpack_require__(/*! lodash/cloneDeep */ 356),_cloneDeep2=_interopRequireDefault(_cloneDeep),_objectAssign=__webpack_require__(/*! object-assign */ 239),_objectAssign2=_interopRequireDefault(_objectAssign),mergeClasses=exports.mergeClasses=function(e){var t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:[],r=e["default"]&&(0,_cloneDeep2["default"])(e["default"])||{};return t.map(function(t){var s=e[t];return s&&(0,_map2["default"])(s,function(e,t){r[t]||(r[t]={}),(0,_objectAssign2["default"])(r[t],s[t])}),t}),r};exports["default"]=mergeClasses;
 
 /***/ },
-/* 346 */
+/* 356 */
 /*!*******************************!*\
   !*** ./~/lodash/cloneDeep.js ***!
   \*******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseClone = __webpack_require__(/*! ./_baseClone */ 347);
+	var baseClone = __webpack_require__(/*! ./_baseClone */ 357);
 	
 	/** Used to compose bitmasks for cloning. */
 	var CLONE_DEEP_FLAG = 1,
@@ -64435,31 +64211,31 @@
 
 
 /***/ },
-/* 347 */
+/* 357 */
 /*!********************************!*\
   !*** ./~/lodash/_baseClone.js ***!
   \********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var Stack = __webpack_require__(/*! ./_Stack */ 236),
-	    arrayEach = __webpack_require__(/*! ./_arrayEach */ 348),
-	    assignValue = __webpack_require__(/*! ./_assignValue */ 349),
-	    baseAssign = __webpack_require__(/*! ./_baseAssign */ 352),
-	    baseAssignIn = __webpack_require__(/*! ./_baseAssignIn */ 354),
-	    cloneBuffer = __webpack_require__(/*! ./_cloneBuffer */ 358),
-	    copyArray = __webpack_require__(/*! ./_copyArray */ 359),
-	    copySymbols = __webpack_require__(/*! ./_copySymbols */ 360),
-	    copySymbolsIn = __webpack_require__(/*! ./_copySymbolsIn */ 361),
-	    getAllKeys = __webpack_require__(/*! ./_getAllKeys */ 287),
-	    getAllKeysIn = __webpack_require__(/*! ./_getAllKeysIn */ 363),
-	    getTag = __webpack_require__(/*! ./_getTag */ 311),
-	    initCloneArray = __webpack_require__(/*! ./_initCloneArray */ 364),
-	    initCloneByTag = __webpack_require__(/*! ./_initCloneByTag */ 365),
-	    initCloneObject = __webpack_require__(/*! ./_initCloneObject */ 376),
-	    isArray = __webpack_require__(/*! ./isArray */ 290),
-	    isBuffer = __webpack_require__(/*! ./isBuffer */ 299),
-	    isObject = __webpack_require__(/*! ./isObject */ 254),
-	    keys = __webpack_require__(/*! ./keys */ 294);
+	var Stack = __webpack_require__(/*! ./_Stack */ 246),
+	    arrayEach = __webpack_require__(/*! ./_arrayEach */ 358),
+	    assignValue = __webpack_require__(/*! ./_assignValue */ 359),
+	    baseAssign = __webpack_require__(/*! ./_baseAssign */ 362),
+	    baseAssignIn = __webpack_require__(/*! ./_baseAssignIn */ 364),
+	    cloneBuffer = __webpack_require__(/*! ./_cloneBuffer */ 368),
+	    copyArray = __webpack_require__(/*! ./_copyArray */ 369),
+	    copySymbols = __webpack_require__(/*! ./_copySymbols */ 370),
+	    copySymbolsIn = __webpack_require__(/*! ./_copySymbolsIn */ 371),
+	    getAllKeys = __webpack_require__(/*! ./_getAllKeys */ 297),
+	    getAllKeysIn = __webpack_require__(/*! ./_getAllKeysIn */ 373),
+	    getTag = __webpack_require__(/*! ./_getTag */ 321),
+	    initCloneArray = __webpack_require__(/*! ./_initCloneArray */ 374),
+	    initCloneByTag = __webpack_require__(/*! ./_initCloneByTag */ 375),
+	    initCloneObject = __webpack_require__(/*! ./_initCloneObject */ 386),
+	    isArray = __webpack_require__(/*! ./isArray */ 300),
+	    isBuffer = __webpack_require__(/*! ./isBuffer */ 309),
+	    isObject = __webpack_require__(/*! ./isObject */ 264),
+	    keys = __webpack_require__(/*! ./keys */ 304);
 	
 	/** Used to compose bitmasks for cloning. */
 	var CLONE_DEEP_FLAG = 1,
@@ -64597,7 +64373,7 @@
 
 
 /***/ },
-/* 348 */
+/* 358 */
 /*!********************************!*\
   !*** ./~/lodash/_arrayEach.js ***!
   \********************************/
@@ -64628,14 +64404,14 @@
 
 
 /***/ },
-/* 349 */
+/* 359 */
 /*!**********************************!*\
   !*** ./~/lodash/_assignValue.js ***!
   \**********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseAssignValue = __webpack_require__(/*! ./_baseAssignValue */ 350),
-	    eq = __webpack_require__(/*! ./eq */ 241);
+	var baseAssignValue = __webpack_require__(/*! ./_baseAssignValue */ 360),
+	    eq = __webpack_require__(/*! ./eq */ 251);
 	
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -64665,13 +64441,13 @@
 
 
 /***/ },
-/* 350 */
+/* 360 */
 /*!**************************************!*\
   !*** ./~/lodash/_baseAssignValue.js ***!
   \**************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var defineProperty = __webpack_require__(/*! ./_defineProperty */ 351);
+	var defineProperty = __webpack_require__(/*! ./_defineProperty */ 361);
 	
 	/**
 	 * The base implementation of `assignValue` and `assignMergeValue` without
@@ -64699,13 +64475,13 @@
 
 
 /***/ },
-/* 351 */
+/* 361 */
 /*!*************************************!*\
   !*** ./~/lodash/_defineProperty.js ***!
   \*************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(/*! ./_getNative */ 251);
+	var getNative = __webpack_require__(/*! ./_getNative */ 261);
 	
 	var defineProperty = (function() {
 	  try {
@@ -64719,14 +64495,14 @@
 
 
 /***/ },
-/* 352 */
+/* 362 */
 /*!*********************************!*\
   !*** ./~/lodash/_baseAssign.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(/*! ./_copyObject */ 353),
-	    keys = __webpack_require__(/*! ./keys */ 294);
+	var copyObject = __webpack_require__(/*! ./_copyObject */ 363),
+	    keys = __webpack_require__(/*! ./keys */ 304);
 	
 	/**
 	 * The base implementation of `_.assign` without support for multiple sources
@@ -64745,14 +64521,14 @@
 
 
 /***/ },
-/* 353 */
+/* 363 */
 /*!*********************************!*\
   !*** ./~/lodash/_copyObject.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var assignValue = __webpack_require__(/*! ./_assignValue */ 349),
-	    baseAssignValue = __webpack_require__(/*! ./_baseAssignValue */ 350);
+	var assignValue = __webpack_require__(/*! ./_assignValue */ 359),
+	    baseAssignValue = __webpack_require__(/*! ./_baseAssignValue */ 360);
 	
 	/**
 	 * Copies properties of `source` to `object`.
@@ -64794,14 +64570,14 @@
 
 
 /***/ },
-/* 354 */
+/* 364 */
 /*!***********************************!*\
   !*** ./~/lodash/_baseAssignIn.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(/*! ./_copyObject */ 353),
-	    keysIn = __webpack_require__(/*! ./keysIn */ 355);
+	var copyObject = __webpack_require__(/*! ./_copyObject */ 363),
+	    keysIn = __webpack_require__(/*! ./keysIn */ 365);
 	
 	/**
 	 * The base implementation of `_.assignIn` without support for multiple sources
@@ -64820,15 +64596,15 @@
 
 
 /***/ },
-/* 355 */
+/* 365 */
 /*!****************************!*\
   !*** ./~/lodash/keysIn.js ***!
   \****************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayLikeKeys = __webpack_require__(/*! ./_arrayLikeKeys */ 295),
-	    baseKeysIn = __webpack_require__(/*! ./_baseKeysIn */ 356),
-	    isArrayLike = __webpack_require__(/*! ./isArrayLike */ 310);
+	var arrayLikeKeys = __webpack_require__(/*! ./_arrayLikeKeys */ 305),
+	    baseKeysIn = __webpack_require__(/*! ./_baseKeysIn */ 366),
+	    isArrayLike = __webpack_require__(/*! ./isArrayLike */ 320);
 	
 	/**
 	 * Creates an array of the own and inherited enumerable property names of `object`.
@@ -64861,15 +64637,15 @@
 
 
 /***/ },
-/* 356 */
+/* 366 */
 /*!*********************************!*\
   !*** ./~/lodash/_baseKeysIn.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(/*! ./isObject */ 254),
-	    isPrototype = __webpack_require__(/*! ./_isPrototype */ 308),
-	    nativeKeysIn = __webpack_require__(/*! ./_nativeKeysIn */ 357);
+	var isObject = __webpack_require__(/*! ./isObject */ 264),
+	    isPrototype = __webpack_require__(/*! ./_isPrototype */ 318),
+	    nativeKeysIn = __webpack_require__(/*! ./_nativeKeysIn */ 367);
 	
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -64903,7 +64679,7 @@
 
 
 /***/ },
-/* 357 */
+/* 367 */
 /*!***********************************!*\
   !*** ./~/lodash/_nativeKeysIn.js ***!
   \***********************************/
@@ -64932,13 +64708,13 @@
 
 
 /***/ },
-/* 358 */
+/* 368 */
 /*!**********************************!*\
   !*** ./~/lodash/_cloneBuffer.js ***!
   \**********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(/*! ./_root */ 179);
+	/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(/*! ./_root */ 178);
 	
 	/** Detect free variable `exports`. */
 	var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
@@ -64974,10 +64750,10 @@
 	
 	module.exports = cloneBuffer;
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../webpack/buildin/module.js */ 188)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../webpack/buildin/module.js */ 187)(module)))
 
 /***/ },
-/* 359 */
+/* 369 */
 /*!********************************!*\
   !*** ./~/lodash/_copyArray.js ***!
   \********************************/
@@ -65006,14 +64782,14 @@
 
 
 /***/ },
-/* 360 */
+/* 370 */
 /*!**********************************!*\
   !*** ./~/lodash/_copySymbols.js ***!
   \**********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(/*! ./_copyObject */ 353),
-	    getSymbols = __webpack_require__(/*! ./_getSymbols */ 291);
+	var copyObject = __webpack_require__(/*! ./_copyObject */ 363),
+	    getSymbols = __webpack_require__(/*! ./_getSymbols */ 301);
 	
 	/**
 	 * Copies own symbols of `source` to `object`.
@@ -65031,14 +64807,14 @@
 
 
 /***/ },
-/* 361 */
+/* 371 */
 /*!************************************!*\
   !*** ./~/lodash/_copySymbolsIn.js ***!
   \************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(/*! ./_copyObject */ 353),
-	    getSymbolsIn = __webpack_require__(/*! ./_getSymbolsIn */ 362);
+	var copyObject = __webpack_require__(/*! ./_copyObject */ 363),
+	    getSymbolsIn = __webpack_require__(/*! ./_getSymbolsIn */ 372);
 	
 	/**
 	 * Copies own and inherited symbols of `source` to `object`.
@@ -65056,16 +64832,16 @@
 
 
 /***/ },
-/* 362 */
+/* 372 */
 /*!***********************************!*\
   !*** ./~/lodash/_getSymbolsIn.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayPush = __webpack_require__(/*! ./_arrayPush */ 289),
-	    getPrototype = __webpack_require__(/*! ./_getPrototype */ 183),
-	    getSymbols = __webpack_require__(/*! ./_getSymbols */ 291),
-	    stubArray = __webpack_require__(/*! ./stubArray */ 293);
+	var arrayPush = __webpack_require__(/*! ./_arrayPush */ 299),
+	    getPrototype = __webpack_require__(/*! ./_getPrototype */ 182),
+	    getSymbols = __webpack_require__(/*! ./_getSymbols */ 301),
+	    stubArray = __webpack_require__(/*! ./stubArray */ 303);
 	
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeGetSymbols = Object.getOwnPropertySymbols;
@@ -65090,15 +64866,15 @@
 
 
 /***/ },
-/* 363 */
+/* 373 */
 /*!***********************************!*\
   !*** ./~/lodash/_getAllKeysIn.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetAllKeys = __webpack_require__(/*! ./_baseGetAllKeys */ 288),
-	    getSymbolsIn = __webpack_require__(/*! ./_getSymbolsIn */ 362),
-	    keysIn = __webpack_require__(/*! ./keysIn */ 355);
+	var baseGetAllKeys = __webpack_require__(/*! ./_baseGetAllKeys */ 298),
+	    getSymbolsIn = __webpack_require__(/*! ./_getSymbolsIn */ 372),
+	    keysIn = __webpack_require__(/*! ./keysIn */ 365);
 	
 	/**
 	 * Creates an array of own and inherited enumerable property names and
@@ -65116,7 +64892,7 @@
 
 
 /***/ },
-/* 364 */
+/* 374 */
 /*!*************************************!*\
   !*** ./~/lodash/_initCloneArray.js ***!
   \*************************************/
@@ -65151,19 +64927,19 @@
 
 
 /***/ },
-/* 365 */
+/* 375 */
 /*!*************************************!*\
   !*** ./~/lodash/_initCloneByTag.js ***!
   \*************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var cloneArrayBuffer = __webpack_require__(/*! ./_cloneArrayBuffer */ 366),
-	    cloneDataView = __webpack_require__(/*! ./_cloneDataView */ 367),
-	    cloneMap = __webpack_require__(/*! ./_cloneMap */ 368),
-	    cloneRegExp = __webpack_require__(/*! ./_cloneRegExp */ 371),
-	    cloneSet = __webpack_require__(/*! ./_cloneSet */ 372),
-	    cloneSymbol = __webpack_require__(/*! ./_cloneSymbol */ 374),
-	    cloneTypedArray = __webpack_require__(/*! ./_cloneTypedArray */ 375);
+	var cloneArrayBuffer = __webpack_require__(/*! ./_cloneArrayBuffer */ 376),
+	    cloneDataView = __webpack_require__(/*! ./_cloneDataView */ 377),
+	    cloneMap = __webpack_require__(/*! ./_cloneMap */ 378),
+	    cloneRegExp = __webpack_require__(/*! ./_cloneRegExp */ 381),
+	    cloneSet = __webpack_require__(/*! ./_cloneSet */ 382),
+	    cloneSymbol = __webpack_require__(/*! ./_cloneSymbol */ 384),
+	    cloneTypedArray = __webpack_require__(/*! ./_cloneTypedArray */ 385);
 	
 	/** `Object#toString` result references. */
 	var boolTag = '[object Boolean]',
@@ -65240,13 +65016,13 @@
 
 
 /***/ },
-/* 366 */
+/* 376 */
 /*!***************************************!*\
   !*** ./~/lodash/_cloneArrayBuffer.js ***!
   \***************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var Uint8Array = __webpack_require__(/*! ./_Uint8Array */ 283);
+	var Uint8Array = __webpack_require__(/*! ./_Uint8Array */ 293);
 	
 	/**
 	 * Creates a clone of `arrayBuffer`.
@@ -65265,13 +65041,13 @@
 
 
 /***/ },
-/* 367 */
+/* 377 */
 /*!************************************!*\
   !*** ./~/lodash/_cloneDataView.js ***!
   \************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var cloneArrayBuffer = __webpack_require__(/*! ./_cloneArrayBuffer */ 366);
+	var cloneArrayBuffer = __webpack_require__(/*! ./_cloneArrayBuffer */ 376);
 	
 	/**
 	 * Creates a clone of `dataView`.
@@ -65290,15 +65066,15 @@
 
 
 /***/ },
-/* 368 */
+/* 378 */
 /*!*******************************!*\
   !*** ./~/lodash/_cloneMap.js ***!
   \*******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var addMapEntry = __webpack_require__(/*! ./_addMapEntry */ 369),
-	    arrayReduce = __webpack_require__(/*! ./_arrayReduce */ 370),
-	    mapToArray = __webpack_require__(/*! ./_mapToArray */ 284);
+	var addMapEntry = __webpack_require__(/*! ./_addMapEntry */ 379),
+	    arrayReduce = __webpack_require__(/*! ./_arrayReduce */ 380),
+	    mapToArray = __webpack_require__(/*! ./_mapToArray */ 294);
 	
 	/** Used to compose bitmasks for cloning. */
 	var CLONE_DEEP_FLAG = 1;
@@ -65321,7 +65097,7 @@
 
 
 /***/ },
-/* 369 */
+/* 379 */
 /*!**********************************!*\
   !*** ./~/lodash/_addMapEntry.js ***!
   \**********************************/
@@ -65345,7 +65121,7 @@
 
 
 /***/ },
-/* 370 */
+/* 380 */
 /*!**********************************!*\
   !*** ./~/lodash/_arrayReduce.js ***!
   \**********************************/
@@ -65380,7 +65156,7 @@
 
 
 /***/ },
-/* 371 */
+/* 381 */
 /*!**********************************!*\
   !*** ./~/lodash/_cloneRegExp.js ***!
   \**********************************/
@@ -65406,15 +65182,15 @@
 
 
 /***/ },
-/* 372 */
+/* 382 */
 /*!*******************************!*\
   !*** ./~/lodash/_cloneSet.js ***!
   \*******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var addSetEntry = __webpack_require__(/*! ./_addSetEntry */ 373),
-	    arrayReduce = __webpack_require__(/*! ./_arrayReduce */ 370),
-	    setToArray = __webpack_require__(/*! ./_setToArray */ 285);
+	var addSetEntry = __webpack_require__(/*! ./_addSetEntry */ 383),
+	    arrayReduce = __webpack_require__(/*! ./_arrayReduce */ 380),
+	    setToArray = __webpack_require__(/*! ./_setToArray */ 295);
 	
 	/** Used to compose bitmasks for cloning. */
 	var CLONE_DEEP_FLAG = 1;
@@ -65437,7 +65213,7 @@
 
 
 /***/ },
-/* 373 */
+/* 383 */
 /*!**********************************!*\
   !*** ./~/lodash/_addSetEntry.js ***!
   \**********************************/
@@ -65461,13 +65237,13 @@
 
 
 /***/ },
-/* 374 */
+/* 384 */
 /*!**********************************!*\
   !*** ./~/lodash/_cloneSymbol.js ***!
   \**********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(/*! ./_Symbol */ 178);
+	var Symbol = __webpack_require__(/*! ./_Symbol */ 177);
 	
 	/** Used to convert symbols to primitives and strings. */
 	var symbolProto = Symbol ? Symbol.prototype : undefined,
@@ -65488,13 +65264,13 @@
 
 
 /***/ },
-/* 375 */
+/* 385 */
 /*!**************************************!*\
   !*** ./~/lodash/_cloneTypedArray.js ***!
   \**************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var cloneArrayBuffer = __webpack_require__(/*! ./_cloneArrayBuffer */ 366);
+	var cloneArrayBuffer = __webpack_require__(/*! ./_cloneArrayBuffer */ 376);
 	
 	/**
 	 * Creates a clone of `typedArray`.
@@ -65513,15 +65289,15 @@
 
 
 /***/ },
-/* 376 */
+/* 386 */
 /*!**************************************!*\
   !*** ./~/lodash/_initCloneObject.js ***!
   \**************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseCreate = __webpack_require__(/*! ./_baseCreate */ 377),
-	    getPrototype = __webpack_require__(/*! ./_getPrototype */ 183),
-	    isPrototype = __webpack_require__(/*! ./_isPrototype */ 308);
+	var baseCreate = __webpack_require__(/*! ./_baseCreate */ 387),
+	    getPrototype = __webpack_require__(/*! ./_getPrototype */ 182),
+	    isPrototype = __webpack_require__(/*! ./_isPrototype */ 318);
 	
 	/**
 	 * Initializes an object clone.
@@ -65540,13 +65316,13 @@
 
 
 /***/ },
-/* 377 */
+/* 387 */
 /*!*********************************!*\
   !*** ./~/lodash/_baseCreate.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(/*! ./isObject */ 254);
+	var isObject = __webpack_require__(/*! ./isObject */ 264);
 	
 	/** Built-in value references. */
 	var objectCreate = Object.create;
@@ -65579,61 +65355,61 @@
 
 
 /***/ },
-/* 378 */
+/* 388 */
 /*!**************************************!*\
   !*** ./~/reactcss/lib/autoprefix.js ***!
   \**************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(exports,"__esModule",{value:!0}),exports.autoprefix=void 0;var _map=__webpack_require__(/*! lodash/map */ 231),_map2=_interopRequireDefault(_map),_objectAssign=__webpack_require__(/*! object-assign */ 229),_objectAssign2=_interopRequireDefault(_objectAssign),transforms={borderRadius:function(e){return{msBorderRadius:e,MozBorderRadius:e,OBorderRadius:e,WebkitBorderRadius:e,borderRadius:e}},boxShadow:function(e){return{msBoxShadow:e,MozBoxShadow:e,OBoxShadow:e,WebkitBoxShadow:e,boxShadow:e}},userSelect:function(e){return{WebkitTouchCallout:e,KhtmlUserSelect:e,MozUserSelect:e,msUserSelect:e,WebkitUserSelect:e,userSelect:e}},flex:function(e){return{WebkitBoxFlex:e,MozBoxFlex:e,WebkitFlex:e,msFlex:e,flex:e}},flexBasis:function(e){return{WebkitFlexBasis:e,flexBasis:e}},justifyContent:function(e){return{WebkitJustifyContent:e,justifyContent:e}},transition:function(e){return{msTransition:e,MozTransition:e,OTransition:e,WebkitTransition:e,transition:e}},transform:function(e){return{msTransform:e,MozTransform:e,OTransform:e,WebkitTransform:e,transform:e}},absolute:function(e){var t=e&&e.split(" ");return{position:"absolute",top:t&&t[0],right:t&&t[1],bottom:t&&t[2],left:t&&t[3]}},extend:function(e,t){var r=t[e];return r?r:{extend:e}}},autoprefix=exports.autoprefix=function(e){var t={};return(0,_map2["default"])(e,function(e,r){var o={};(0,_map2["default"])(e,function(e,t){var r=transforms[t];r?(0,_objectAssign2["default"])(o,r(e)):o[t]=e}),t[r]=o}),t};exports["default"]=autoprefix;
+	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(exports,"__esModule",{value:!0}),exports.autoprefix=void 0;var _map=__webpack_require__(/*! lodash/map */ 241),_map2=_interopRequireDefault(_map),_objectAssign=__webpack_require__(/*! object-assign */ 239),_objectAssign2=_interopRequireDefault(_objectAssign),transforms={borderRadius:function(e){return{msBorderRadius:e,MozBorderRadius:e,OBorderRadius:e,WebkitBorderRadius:e,borderRadius:e}},boxShadow:function(e){return{msBoxShadow:e,MozBoxShadow:e,OBoxShadow:e,WebkitBoxShadow:e,boxShadow:e}},userSelect:function(e){return{WebkitTouchCallout:e,KhtmlUserSelect:e,MozUserSelect:e,msUserSelect:e,WebkitUserSelect:e,userSelect:e}},flex:function(e){return{WebkitBoxFlex:e,MozBoxFlex:e,WebkitFlex:e,msFlex:e,flex:e}},flexBasis:function(e){return{WebkitFlexBasis:e,flexBasis:e}},justifyContent:function(e){return{WebkitJustifyContent:e,justifyContent:e}},transition:function(e){return{msTransition:e,MozTransition:e,OTransition:e,WebkitTransition:e,transition:e}},transform:function(e){return{msTransform:e,MozTransform:e,OTransform:e,WebkitTransform:e,transform:e}},absolute:function(e){var t=e&&e.split(" ");return{position:"absolute",top:t&&t[0],right:t&&t[1],bottom:t&&t[2],left:t&&t[3]}},extend:function(e,t){var r=t[e];return r?r:{extend:e}}},autoprefix=exports.autoprefix=function(e){var t={};return(0,_map2["default"])(e,function(e,r){var o={};(0,_map2["default"])(e,function(e,t){var r=transforms[t];r?(0,_objectAssign2["default"])(o,r(e)):o[t]=e}),t[r]=o}),t};exports["default"]=autoprefix;
 
 /***/ },
-/* 379 */
+/* 389 */
 /*!************************************************!*\
   !*** ./~/reactcss/lib/deprecated/Component.js ***!
   \************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function _possibleConstructorReturn(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function _inherits(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}Object.defineProperty(exports,"__esModule",{value:!0}),exports.ReactCSSComponent=void 0;var _createClass=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),_react=__webpack_require__(/*! react */ 5),_react2=_interopRequireDefault(_react),_inline=__webpack_require__(/*! ./inline */ 380),_inline2=_interopRequireDefault(_inline),_once=__webpack_require__(/*! lodash/once */ 386),_once2=_interopRequireDefault(_once),warning=(0,_once2["default"])(function(){return console.warn("Extending ReactCSS.Component\n  is deprecated in ReactCSS 1.0.0")}),ReactCSSComponent=exports.ReactCSSComponent=function(e){function t(){return _classCallCheck(this,t),_possibleConstructorReturn(this,(t.__proto__||Object.getPrototypeOf(t)).apply(this,arguments))}return _inherits(t,e),_createClass(t,[{key:"css",value:function(e){return warning(),_inline2["default"].call(this,e)}},{key:"styles",value:function(){return this.css()}}]),t}(_react2["default"].Component);ReactCSSComponent.contextTypes={mixins:_react2["default"].PropTypes.object},exports["default"]=ReactCSSComponent;
+	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function _possibleConstructorReturn(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function _inherits(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}Object.defineProperty(exports,"__esModule",{value:!0}),exports.ReactCSSComponent=void 0;var _createClass=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),_react=__webpack_require__(/*! react */ 5),_react2=_interopRequireDefault(_react),_inline=__webpack_require__(/*! ./inline */ 390),_inline2=_interopRequireDefault(_inline),_once=__webpack_require__(/*! lodash/once */ 396),_once2=_interopRequireDefault(_once),warning=(0,_once2["default"])(function(){return console.warn("Extending ReactCSS.Component\n  is deprecated in ReactCSS 1.0.0")}),ReactCSSComponent=exports.ReactCSSComponent=function(e){function t(){return _classCallCheck(this,t),_possibleConstructorReturn(this,(t.__proto__||Object.getPrototypeOf(t)).apply(this,arguments))}return _inherits(t,e),_createClass(t,[{key:"css",value:function(e){return warning(),_inline2["default"].call(this,e)}},{key:"styles",value:function(){return this.css()}}]),t}(_react2["default"].Component);ReactCSSComponent.contextTypes={mixins:_react2["default"].PropTypes.object},exports["default"]=ReactCSSComponent;
 
 /***/ },
-/* 380 */
+/* 390 */
 /*!*********************************************!*\
   !*** ./~/reactcss/lib/deprecated/inline.js ***!
   \*********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}var _isObject=__webpack_require__(/*! lodash/isObject */ 254),_isObject2=_interopRequireDefault(_isObject),_checkClassStructure=__webpack_require__(/*! ./check-class-structure */ 381),_checkClassStructure2=_interopRequireDefault(_checkClassStructure),_combine=__webpack_require__(/*! ./combine */ 382),_combine2=_interopRequireDefault(_combine);module.exports=function(e){var s=this,t=[];if(!this.classes)throw console.warn("Define this.classes on `"+this.constructor.name+"`");(0,_checkClassStructure2["default"])(this.classes());var r=function(e,r){s.classes()[e]?t.push(s.classes()[e]):e&&r&&r.warn===!0&&console.warn("The `"+e+"` css class does not exist on `"+s.constructor.name+"`")};r("default");for(var i in this.props){var c=this.props[i];(0,_isObject2["default"])(c)||(c===!0?(r(i),r(i+"-true")):r(c?i+"-"+c:i+"-false"))}if(this.props&&this.props.activeBounds)for(var o=0;o<this.props.activeBounds.length;o++){var n=this.props.activeBounds[o];r(n)}for(var a in e){var u=e[a];u===!0&&r(a,{warn:!0})}var l={};return this.context&&this.context.mixins&&(l=this.context.mixins),(0,_combine2["default"])(t,l)};
+	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}var _isObject=__webpack_require__(/*! lodash/isObject */ 264),_isObject2=_interopRequireDefault(_isObject),_checkClassStructure=__webpack_require__(/*! ./check-class-structure */ 391),_checkClassStructure2=_interopRequireDefault(_checkClassStructure),_combine=__webpack_require__(/*! ./combine */ 392),_combine2=_interopRequireDefault(_combine);module.exports=function(e){var s=this,t=[];if(!this.classes)throw console.warn("Define this.classes on `"+this.constructor.name+"`");(0,_checkClassStructure2["default"])(this.classes());var r=function(e,r){s.classes()[e]?t.push(s.classes()[e]):e&&r&&r.warn===!0&&console.warn("The `"+e+"` css class does not exist on `"+s.constructor.name+"`")};r("default");for(var i in this.props){var c=this.props[i];(0,_isObject2["default"])(c)||(c===!0?(r(i),r(i+"-true")):r(c?i+"-"+c:i+"-false"))}if(this.props&&this.props.activeBounds)for(var o=0;o<this.props.activeBounds.length;o++){var n=this.props.activeBounds[o];r(n)}for(var a in e){var u=e[a];u===!0&&r(a,{warn:!0})}var l={};return this.context&&this.context.mixins&&(l=this.context.mixins),(0,_combine2["default"])(t,l)};
 
 /***/ },
-/* 381 */
+/* 391 */
 /*!************************************************************!*\
   !*** ./~/reactcss/lib/deprecated/check-class-structure.js ***!
   \************************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(exports,"__esModule",{value:!0}),exports.checkClassStructure=void 0;var _map=__webpack_require__(/*! lodash/map */ 231),_map2=_interopRequireDefault(_map),_isObject=__webpack_require__(/*! lodash/isObject */ 254),_isObject2=_interopRequireDefault(_isObject),checkClassStructure=exports.checkClassStructure=function(e){(0,_map2["default"])(e,function(t,s){e.hasOwnProperty(s)&&((0,_isObject2["default"])(t)?(0,_map2["default"])(t,function(e,u){t.hasOwnProperty(u)&&((0,_isObject2["default"])(e)||console.warn("Make sure the value of the element `"+s+"`\n                is an object of css. You passed it `"+t+"`"))}):console.warn("Make sure the value of `"+s+"` is an object of\n          html elements. You passed it `"+t+"`"))})};exports["default"]=checkClassStructure;
+	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(exports,"__esModule",{value:!0}),exports.checkClassStructure=void 0;var _map=__webpack_require__(/*! lodash/map */ 241),_map2=_interopRequireDefault(_map),_isObject=__webpack_require__(/*! lodash/isObject */ 264),_isObject2=_interopRequireDefault(_isObject),checkClassStructure=exports.checkClassStructure=function(e){(0,_map2["default"])(e,function(t,s){e.hasOwnProperty(s)&&((0,_isObject2["default"])(t)?(0,_map2["default"])(t,function(e,u){t.hasOwnProperty(u)&&((0,_isObject2["default"])(e)||console.warn("Make sure the value of the element `"+s+"`\n                is an object of css. You passed it `"+t+"`"))}):console.warn("Make sure the value of `"+s+"` is an object of\n          html elements. You passed it `"+t+"`"))})};exports["default"]=checkClassStructure;
 
 /***/ },
-/* 382 */
+/* 392 */
 /*!**********************************************!*\
   !*** ./~/reactcss/lib/deprecated/combine.js ***!
   \**********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(exports,"__esModule",{value:!0}),exports.combine=void 0;var _merge=__webpack_require__(/*! ./merge */ 383),_merge2=_interopRequireDefault(_merge),_transformMixins=__webpack_require__(/*! ./transform-mixins */ 385),_transformMixins2=_interopRequireDefault(_transformMixins),combine=exports.combine=function(e,r){var i=(0,_merge2["default"])(e);return(0,_transformMixins2["default"])(i,r)};exports["default"]=combine;
+	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(exports,"__esModule",{value:!0}),exports.combine=void 0;var _merge=__webpack_require__(/*! ./merge */ 393),_merge2=_interopRequireDefault(_merge),_transformMixins=__webpack_require__(/*! ./transform-mixins */ 395),_transformMixins2=_interopRequireDefault(_transformMixins),combine=exports.combine=function(e,r){var i=(0,_merge2["default"])(e);return(0,_transformMixins2["default"])(i,r)};exports["default"]=combine;
 
 /***/ },
-/* 383 */
+/* 393 */
 /*!********************************************!*\
   !*** ./~/reactcss/lib/deprecated/merge.js ***!
   \********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(exports,"__esModule",{value:!0});var _merge=__webpack_require__(/*! merge */ 384),_merge2=_interopRequireDefault(_merge),_isObject=__webpack_require__(/*! lodash/isObject */ 254),_isObject2=_interopRequireDefault(_isObject),merge=function(e){return(0,_isObject2["default"])(e)&&!Array.isArray(e)?e:1===e.length?e[0]:_merge2["default"].recursive.apply(void 0,e)};exports["default"]=merge;
+	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(exports,"__esModule",{value:!0});var _merge=__webpack_require__(/*! merge */ 394),_merge2=_interopRequireDefault(_merge),_isObject=__webpack_require__(/*! lodash/isObject */ 264),_isObject2=_interopRequireDefault(_isObject),merge=function(e){return(0,_isObject2["default"])(e)&&!Array.isArray(e)?e:1===e.length?e[0]:_merge2["default"].recursive.apply(void 0,e)};exports["default"]=merge;
 
 /***/ },
-/* 384 */
+/* 394 */
 /*!**************************!*\
   !*** ./~/merge/merge.js ***!
   \**************************/
@@ -65814,25 +65590,25 @@
 		}
 	
 	})(typeof module === 'object' && module && typeof module.exports === 'object' && module.exports);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../webpack/buildin/module.js */ 188)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../webpack/buildin/module.js */ 187)(module)))
 
 /***/ },
-/* 385 */
+/* 395 */
 /*!*******************************************************!*\
   !*** ./~/reactcss/lib/deprecated/transform-mixins.js ***!
   \*******************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}var _isObject=__webpack_require__(/*! lodash/isObject */ 254),_isObject2=_interopRequireDefault(_isObject),_merge=__webpack_require__(/*! merge */ 384),_merge2=_interopRequireDefault(_merge),localProps={borderRadius:function(e){if(null!==e)return{msBorderRadius:e,MozBorderRadius:e,OBorderRadius:e,WebkitBorderRadius:e,borderRadius:e}},boxShadow:function(e){if(null!==e)return{msBoxShadow:e,MozBoxShadow:e,OBoxShadow:e,WebkitBoxShadow:e,boxShadow:e}},userSelect:function(e){if(null!==e)return{WebkitTouchCallout:e,KhtmlUserSelect:e,MozUserSelect:e,msUserSelect:e,WebkitUserSelect:e,userSelect:e}},flex:function(e){if(null!==e)return{WebkitBoxFlex:e,MozBoxFlex:e,WebkitFlex:e,msFlex:e,flex:e}},flexBasis:function(e){if(null!==e)return{WebkitFlexBasis:e,flexBasis:e}},justifyContent:function(e){if(null!==e)return{WebkitJustifyContent:e,justifyContent:e}},transition:function(e){if(null!==e)return{msTransition:e,MozTransition:e,OTransition:e,WebkitTransition:e,transition:e}},transform:function(e){if(null!==e)return{msTransform:e,MozTransform:e,OTransform:e,WebkitTransform:e,transform:e}},Absolute:function(e){if(null!==e){var r=e.split(" ");return{position:"absolute",top:r[0],right:r[1],bottom:r[2],left:r[3]}}},Extend:function(e,r){var t=r[e];if(t)return t}},transform=function e(r,t,n){var i=(0,_merge2["default"])(t,localProps),o={};for(var u in r){var s=r[u];if((0,_isObject2["default"])(s)&&!Array.isArray(s))o[u]=e(s,t,r);else if(i[u]){var l=i[u](s,n);for(var a in l){var f=l[a];o[a]=f}}else o[u]=s}return o};module.exports=function(e,r,t){return transform(e,r,t)};
+	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}var _isObject=__webpack_require__(/*! lodash/isObject */ 264),_isObject2=_interopRequireDefault(_isObject),_merge=__webpack_require__(/*! merge */ 394),_merge2=_interopRequireDefault(_merge),localProps={borderRadius:function(e){if(null!==e)return{msBorderRadius:e,MozBorderRadius:e,OBorderRadius:e,WebkitBorderRadius:e,borderRadius:e}},boxShadow:function(e){if(null!==e)return{msBoxShadow:e,MozBoxShadow:e,OBoxShadow:e,WebkitBoxShadow:e,boxShadow:e}},userSelect:function(e){if(null!==e)return{WebkitTouchCallout:e,KhtmlUserSelect:e,MozUserSelect:e,msUserSelect:e,WebkitUserSelect:e,userSelect:e}},flex:function(e){if(null!==e)return{WebkitBoxFlex:e,MozBoxFlex:e,WebkitFlex:e,msFlex:e,flex:e}},flexBasis:function(e){if(null!==e)return{WebkitFlexBasis:e,flexBasis:e}},justifyContent:function(e){if(null!==e)return{WebkitJustifyContent:e,justifyContent:e}},transition:function(e){if(null!==e)return{msTransition:e,MozTransition:e,OTransition:e,WebkitTransition:e,transition:e}},transform:function(e){if(null!==e)return{msTransform:e,MozTransform:e,OTransform:e,WebkitTransform:e,transform:e}},Absolute:function(e){if(null!==e){var r=e.split(" ");return{position:"absolute",top:r[0],right:r[1],bottom:r[2],left:r[3]}}},Extend:function(e,r){var t=r[e];if(t)return t}},transform=function e(r,t,n){var i=(0,_merge2["default"])(t,localProps),o={};for(var u in r){var s=r[u];if((0,_isObject2["default"])(s)&&!Array.isArray(s))o[u]=e(s,t,r);else if(i[u]){var l=i[u](s,n);for(var a in l){var f=l[a];o[a]=f}}else o[u]=s}return o};module.exports=function(e,r,t){return transform(e,r,t)};
 
 /***/ },
-/* 386 */
+/* 396 */
 /*!**************************!*\
   !*** ./~/lodash/once.js ***!
   \**************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var before = __webpack_require__(/*! ./before */ 387);
+	var before = __webpack_require__(/*! ./before */ 397);
 	
 	/**
 	 * Creates a function that is restricted to invoking `func` once. Repeat calls
@@ -65860,13 +65636,13 @@
 
 
 /***/ },
-/* 387 */
+/* 397 */
 /*!****************************!*\
   !*** ./~/lodash/before.js ***!
   \****************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var toInteger = __webpack_require__(/*! ./toInteger */ 388);
+	var toInteger = __webpack_require__(/*! ./toInteger */ 398);
 	
 	/** Error message constants. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -65909,13 +65685,13 @@
 
 
 /***/ },
-/* 388 */
+/* 398 */
 /*!*******************************!*\
   !*** ./~/lodash/toInteger.js ***!
   \*******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var toFinite = __webpack_require__(/*! ./toFinite */ 389);
+	var toFinite = __webpack_require__(/*! ./toFinite */ 399);
 	
 	/**
 	 * Converts `value` to an integer.
@@ -65954,13 +65730,13 @@
 
 
 /***/ },
-/* 389 */
+/* 399 */
 /*!******************************!*\
   !*** ./~/lodash/toFinite.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var toNumber = __webpack_require__(/*! ./toNumber */ 390);
+	var toNumber = __webpack_require__(/*! ./toNumber */ 400);
 	
 	/** Used as references for various `Number` constants. */
 	var INFINITY = 1 / 0,
@@ -66005,14 +65781,14 @@
 
 
 /***/ },
-/* 390 */
+/* 400 */
 /*!******************************!*\
   !*** ./~/lodash/toNumber.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(/*! ./isObject */ 254),
-	    isSymbol = __webpack_require__(/*! ./isSymbol */ 324);
+	var isObject = __webpack_require__(/*! ./isObject */ 264),
+	    isSymbol = __webpack_require__(/*! ./isSymbol */ 334);
 	
 	/** Used as references for various `Number` constants. */
 	var NAN = 0 / 0;
@@ -66080,7 +65856,7 @@
 
 
 /***/ },
-/* 391 */
+/* 401 */
 /*!********************************************!*\
   !*** ./~/reactcss/lib/components/hover.js ***!
   \********************************************/
@@ -66089,7 +65865,7 @@
 	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function _possibleConstructorReturn(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function _inherits(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}Object.defineProperty(exports,"__esModule",{value:!0}),exports.hover=void 0;var _extends=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var o in r)Object.prototype.hasOwnProperty.call(r,o)&&(e[o]=r[o])}return e},_react=__webpack_require__(/*! react */ 5),_react2=_interopRequireDefault(_react),hover=exports.hover=function(e){var t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:"span";return function(r){function o(){var r,n,u,a;_classCallCheck(this,o);for(var s=arguments.length,c=Array(s),i=0;i<s;i++)c[i]=arguments[i];return n=u=_possibleConstructorReturn(this,(r=o.__proto__||Object.getPrototypeOf(o)).call.apply(r,[this].concat(c))),u.state={hover:!1},u.handleMouseOver=function(){return u.setState({hover:!0})},u.handleMouseOut=function(){return u.setState({hover:!1})},u.render=function(){return _react2["default"].createElement(t,{onMouseOver:u.handleMouseOver,onMouseOut:u.handleMouseOut},_react2["default"].createElement(e,_extends({},u.props,u.state)))},a=n,_possibleConstructorReturn(u,a)}return _inherits(o,r),o}(_react2["default"].Component)};exports["default"]=hover;
 
 /***/ },
-/* 392 */
+/* 402 */
 /*!*********************************************!*\
   !*** ./~/reactcss/lib/components/active.js ***!
   \*********************************************/
@@ -66098,7 +65874,7 @@
 	"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function _possibleConstructorReturn(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function _inherits(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}Object.defineProperty(exports,"__esModule",{value:!0}),exports.active=void 0;var _extends=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var n in r)Object.prototype.hasOwnProperty.call(r,n)&&(e[n]=r[n])}return e},_react=__webpack_require__(/*! react */ 5),_react2=_interopRequireDefault(_react),active=exports.active=function(e){var t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:"span";return function(r){function n(){var r,o,a,c;_classCallCheck(this,n);for(var u=arguments.length,s=Array(u),i=0;i<u;i++)s[i]=arguments[i];return o=a=_possibleConstructorReturn(this,(r=n.__proto__||Object.getPrototypeOf(n)).call.apply(r,[this].concat(s))),a.state={active:!1},a.handleMouseDown=function(){return a.setState({active:!0})},a.handleMouseUp=function(){return a.setState({active:!1})},a.render=function(){return _react2["default"].createElement(t,{onMouseDown:a.handleMouseDown,onMouseUp:a.handleMouseUp},_react2["default"].createElement(e,_extends({},a.props,a.state)))},c=o,_possibleConstructorReturn(a,c)}return _inherits(n,r),n}(_react2["default"].Component)};exports["default"]=active;
 
 /***/ },
-/* 393 */
+/* 403 */
 /*!********************************!*\
   !*** ./~/reactcss/lib/loop.js ***!
   \********************************/
@@ -66107,7 +65883,7 @@
 	"use strict";Object.defineProperty(exports,"__esModule",{value:!0});var loopable=function(e,t){var l={},o=function(e){var t=!(arguments.length>1&&void 0!==arguments[1])||arguments[1];l[e]=t};return 0===e&&o("first-child"),e===t-1&&o("last-child"),(0===e||e%2===0)&&o("even"),1===Math.abs(e%2)&&o("odd"),o("nth-child",e),l};exports["default"]=loopable;
 
 /***/ },
-/* 394 */
+/* 404 */
 /*!******************************************************!*\
   !*** ./~/react-color/lib/components/common/index.js ***!
   \******************************************************/
@@ -66119,7 +65895,7 @@
 	  value: true
 	});
 	
-	var _Alpha = __webpack_require__(/*! ./Alpha */ 395);
+	var _Alpha = __webpack_require__(/*! ./Alpha */ 405);
 	
 	Object.defineProperty(exports, 'Alpha', {
 	  enumerable: true,
@@ -66128,7 +65904,7 @@
 	  }
 	});
 	
-	var _Checkboard = __webpack_require__(/*! ./Checkboard */ 397);
+	var _Checkboard = __webpack_require__(/*! ./Checkboard */ 407);
 	
 	Object.defineProperty(exports, 'Checkboard', {
 	  enumerable: true,
@@ -66137,7 +65913,7 @@
 	  }
 	});
 	
-	var _EditableInput = __webpack_require__(/*! ./EditableInput */ 399);
+	var _EditableInput = __webpack_require__(/*! ./EditableInput */ 409);
 	
 	Object.defineProperty(exports, 'EditableInput', {
 	  enumerable: true,
@@ -66146,7 +65922,7 @@
 	  }
 	});
 	
-	var _Hue = __webpack_require__(/*! ./Hue */ 400);
+	var _Hue = __webpack_require__(/*! ./Hue */ 410);
 	
 	Object.defineProperty(exports, 'Hue', {
 	  enumerable: true,
@@ -66155,7 +65931,7 @@
 	  }
 	});
 	
-	var _Saturation = __webpack_require__(/*! ./Saturation */ 402);
+	var _Saturation = __webpack_require__(/*! ./Saturation */ 412);
 	
 	Object.defineProperty(exports, 'Saturation', {
 	  enumerable: true,
@@ -66164,7 +65940,7 @@
 	  }
 	});
 	
-	var _ColorWrap = __webpack_require__(/*! ./ColorWrap */ 407);
+	var _ColorWrap = __webpack_require__(/*! ./ColorWrap */ 417);
 	
 	Object.defineProperty(exports, 'ColorWrap', {
 	  enumerable: true,
@@ -66173,7 +65949,7 @@
 	  }
 	});
 	
-	var _Swatch = __webpack_require__(/*! ./Swatch */ 413);
+	var _Swatch = __webpack_require__(/*! ./Swatch */ 423);
 	
 	Object.defineProperty(exports, 'Swatch', {
 	  enumerable: true,
@@ -66185,7 +65961,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /***/ },
-/* 395 */
+/* 405 */
 /*!******************************************************!*\
   !*** ./~/react-color/lib/components/common/Alpha.js ***!
   \******************************************************/
@@ -66206,15 +65982,15 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _alpha = __webpack_require__(/*! ../../helpers/alpha */ 396);
+	var _alpha = __webpack_require__(/*! ../../helpers/alpha */ 406);
 	
 	var alpha = _interopRequireWildcard(_alpha);
 	
-	var _Checkboard = __webpack_require__(/*! ./Checkboard */ 397);
+	var _Checkboard = __webpack_require__(/*! ./Checkboard */ 407);
 	
 	var _Checkboard2 = _interopRequireDefault(_Checkboard);
 	
@@ -66350,7 +66126,7 @@
 	exports.default = Alpha;
 
 /***/ },
-/* 396 */
+/* 406 */
 /*!********************************************!*\
   !*** ./~/react-color/lib/helpers/alpha.js ***!
   \********************************************/
@@ -66414,7 +66190,7 @@
 	}
 
 /***/ },
-/* 397 */
+/* 407 */
 /*!***********************************************************!*\
   !*** ./~/react-color/lib/components/common/Checkboard.js ***!
   \***********************************************************/
@@ -66431,11 +66207,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _checkboard = __webpack_require__(/*! ../../helpers/checkboard */ 398);
+	var _checkboard = __webpack_require__(/*! ../../helpers/checkboard */ 408);
 	
 	var checkboard = _interopRequireWildcard(_checkboard);
 	
@@ -66471,7 +66247,7 @@
 	exports.default = Checkboard;
 
 /***/ },
-/* 398 */
+/* 408 */
 /*!*************************************************!*\
   !*** ./~/react-color/lib/helpers/checkboard.js ***!
   \*************************************************/
@@ -66513,7 +66289,7 @@
 	}
 
 /***/ },
-/* 399 */
+/* 409 */
 /*!**************************************************************!*\
   !*** ./~/react-color/lib/components/common/EditableInput.js ***!
   \**************************************************************/
@@ -66532,7 +66308,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -66700,7 +66476,7 @@
 	exports.default = EditableInput;
 
 /***/ },
-/* 400 */
+/* 410 */
 /*!****************************************************!*\
   !*** ./~/react-color/lib/components/common/Hue.js ***!
   \****************************************************/
@@ -66719,11 +66495,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _hue = __webpack_require__(/*! ../../helpers/hue */ 401);
+	var _hue = __webpack_require__(/*! ../../helpers/hue */ 411);
 	
 	var hue = _interopRequireWildcard(_hue);
 	
@@ -66843,7 +66619,7 @@
 	exports.default = Hue;
 
 /***/ },
-/* 401 */
+/* 411 */
 /*!******************************************!*\
   !*** ./~/react-color/lib/helpers/hue.js ***!
   \******************************************/
@@ -66909,7 +66685,7 @@
 	}
 
 /***/ },
-/* 402 */
+/* 412 */
 /*!***********************************************************!*\
   !*** ./~/react-color/lib/components/common/Saturation.js ***!
   \***********************************************************/
@@ -66928,15 +66704,15 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _throttle = __webpack_require__(/*! lodash/throttle */ 403);
+	var _throttle = __webpack_require__(/*! lodash/throttle */ 413);
 	
 	var _throttle2 = _interopRequireDefault(_throttle);
 	
-	var _saturation = __webpack_require__(/*! ../../helpers/saturation */ 406);
+	var _saturation = __webpack_require__(/*! ../../helpers/saturation */ 416);
 	
 	var saturation = _interopRequireWildcard(_saturation);
 	
@@ -67068,14 +66844,14 @@
 	exports.default = Saturation;
 
 /***/ },
-/* 403 */
+/* 413 */
 /*!******************************!*\
   !*** ./~/lodash/throttle.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var debounce = __webpack_require__(/*! ./debounce */ 404),
-	    isObject = __webpack_require__(/*! ./isObject */ 254);
+	var debounce = __webpack_require__(/*! ./debounce */ 414),
+	    isObject = __webpack_require__(/*! ./isObject */ 264);
 	
 	/** Error message constants. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -67146,15 +66922,15 @@
 
 
 /***/ },
-/* 404 */
+/* 414 */
 /*!******************************!*\
   !*** ./~/lodash/debounce.js ***!
   \******************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(/*! ./isObject */ 254),
-	    now = __webpack_require__(/*! ./now */ 405),
-	    toNumber = __webpack_require__(/*! ./toNumber */ 390);
+	var isObject = __webpack_require__(/*! ./isObject */ 264),
+	    now = __webpack_require__(/*! ./now */ 415),
+	    toNumber = __webpack_require__(/*! ./toNumber */ 400);
 	
 	/** Error message constants. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -67343,13 +67119,13 @@
 
 
 /***/ },
-/* 405 */
+/* 415 */
 /*!*************************!*\
   !*** ./~/lodash/now.js ***!
   \*************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(/*! ./_root */ 179);
+	var root = __webpack_require__(/*! ./_root */ 178);
 	
 	/**
 	 * Gets the timestamp of the number of milliseconds that have elapsed since
@@ -67375,7 +67151,7 @@
 
 
 /***/ },
-/* 406 */
+/* 416 */
 /*!*************************************************!*\
   !*** ./~/react-color/lib/helpers/saturation.js ***!
   \*************************************************/
@@ -67419,7 +67195,7 @@
 	}
 
 /***/ },
-/* 407 */
+/* 417 */
 /*!**********************************************************!*\
   !*** ./~/react-color/lib/components/common/ColorWrap.js ***!
   \**********************************************************/
@@ -67440,11 +67216,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _debounce = __webpack_require__(/*! lodash/debounce */ 404);
+	var _debounce = __webpack_require__(/*! lodash/debounce */ 414);
 	
 	var _debounce2 = _interopRequireDefault(_debounce);
 	
-	var _color = __webpack_require__(/*! ../../helpers/color */ 408);
+	var _color = __webpack_require__(/*! ../../helpers/color */ 418);
 	
 	var _color2 = _interopRequireDefault(_color);
 	
@@ -67517,7 +67293,7 @@
 	exports.default = ColorWrap;
 
 /***/ },
-/* 408 */
+/* 418 */
 /*!********************************************!*\
   !*** ./~/react-color/lib/helpers/color.js ***!
   \********************************************/
@@ -67530,11 +67306,11 @@
 	});
 	exports.red = undefined;
 	
-	var _each = __webpack_require__(/*! lodash/each */ 409);
+	var _each = __webpack_require__(/*! lodash/each */ 419);
 	
 	var _each2 = _interopRequireDefault(_each);
 	
-	var _tinycolor = __webpack_require__(/*! ../../modules/tinycolor2 */ 412);
+	var _tinycolor = __webpack_require__(/*! ../../modules/tinycolor2 */ 422);
 	
 	var _tinycolor2 = _interopRequireDefault(_tinycolor);
 	
@@ -67585,26 +67361,26 @@
 	};
 
 /***/ },
-/* 409 */
+/* 419 */
 /*!**************************!*\
   !*** ./~/lodash/each.js ***!
   \**************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(/*! ./forEach */ 410);
+	module.exports = __webpack_require__(/*! ./forEach */ 420);
 
 
 /***/ },
-/* 410 */
+/* 420 */
 /*!*****************************!*\
   !*** ./~/lodash/forEach.js ***!
   \*****************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayEach = __webpack_require__(/*! ./_arrayEach */ 348),
-	    baseEach = __webpack_require__(/*! ./_baseEach */ 339),
-	    castFunction = __webpack_require__(/*! ./_castFunction */ 411),
-	    isArray = __webpack_require__(/*! ./isArray */ 290);
+	var arrayEach = __webpack_require__(/*! ./_arrayEach */ 358),
+	    baseEach = __webpack_require__(/*! ./_baseEach */ 349),
+	    castFunction = __webpack_require__(/*! ./_castFunction */ 421),
+	    isArray = __webpack_require__(/*! ./isArray */ 300);
 	
 	/**
 	 * Iterates over elements of `collection` and invokes `iteratee` for each element.
@@ -67645,13 +67421,13 @@
 
 
 /***/ },
-/* 411 */
+/* 421 */
 /*!***********************************!*\
   !*** ./~/lodash/_castFunction.js ***!
   \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var identity = __webpack_require__(/*! ./identity */ 334);
+	var identity = __webpack_require__(/*! ./identity */ 344);
 	
 	/**
 	 * Casts `value` to `identity` if it's not a function.
@@ -67668,7 +67444,7 @@
 
 
 /***/ },
-/* 412 */
+/* 422 */
 /*!***************************************************!*\
   !*** ./~/react-color/modules/tinycolor2/index.js ***!
   \***************************************************/
@@ -68843,7 +68619,7 @@
 
 
 /***/ },
-/* 413 */
+/* 423 */
 /*!*******************************************************!*\
   !*** ./~/react-color/lib/components/common/Swatch.js ***!
   \*******************************************************/
@@ -68860,7 +68636,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -68869,7 +68645,9 @@
 	var Swatch = exports.Swatch = function Swatch(_ref) {
 	  var color = _ref.color,
 	      style = _ref.style,
-	      onClick = _ref.onClick;
+	      onClick = _ref.onClick,
+	      _ref$title = _ref.title,
+	      title = _ref$title === undefined ? color : _ref$title;
 	
 	  var styles = (0, _reactcss2.default)({
 	    'default': {
@@ -68889,13 +68667,13 @@
 	    return onClick(color, e);
 	  };
 	
-	  return _react2.default.createElement('div', { style: styles.swatch, onClick: handleClick });
+	  return _react2.default.createElement('div', { style: styles.swatch, onClick: handleClick, title: title });
 	};
 	
 	exports.default = Swatch;
 
 /***/ },
-/* 414 */
+/* 424 */
 /*!************************************************************!*\
   !*** ./~/react-color/lib/components/alpha/AlphaPointer.js ***!
   \************************************************************/
@@ -68912,7 +68690,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -68945,7 +68723,7 @@
 	exports.default = AlphaPointer;
 
 /***/ },
-/* 415 */
+/* 425 */
 /*!*****************************************************!*\
   !*** ./~/react-color/lib/components/block/Block.js ***!
   \*****************************************************/
@@ -68962,17 +68740,17 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _color = __webpack_require__(/*! ../../helpers/color */ 408);
+	var _color = __webpack_require__(/*! ../../helpers/color */ 418);
 	
 	var _color2 = _interopRequireDefault(_color);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
-	var _BlockSwatches = __webpack_require__(/*! ./BlockSwatches */ 416);
+	var _BlockSwatches = __webpack_require__(/*! ./BlockSwatches */ 426);
 	
 	var _BlockSwatches2 = _interopRequireDefault(_BlockSwatches);
 	
@@ -69083,7 +68861,7 @@
 	exports.default = (0, _common.ColorWrap)(Block);
 
 /***/ },
-/* 416 */
+/* 426 */
 /*!*************************************************************!*\
   !*** ./~/react-color/lib/components/block/BlockSwatches.js ***!
   \*************************************************************/
@@ -69100,15 +68878,15 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _map = __webpack_require__(/*! lodash/map */ 231);
+	var _map = __webpack_require__(/*! lodash/map */ 241);
 	
 	var _map2 = _interopRequireDefault(_map);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -69153,7 +68931,7 @@
 	exports.default = BlockSwatches;
 
 /***/ },
-/* 417 */
+/* 427 */
 /*!*******************************************************!*\
   !*** ./~/react-color/lib/components/circle/Circle.js ***!
   \*******************************************************/
@@ -69170,23 +68948,25 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _map = __webpack_require__(/*! lodash/map */ 231);
+	var _map = __webpack_require__(/*! lodash/map */ 241);
 	
 	var _map2 = _interopRequireDefault(_map);
 	
-	var _materialColors = __webpack_require__(/*! material-colors */ 418);
+	var _materialColors = __webpack_require__(/*! material-colors */ 428);
 	
-	var _materialColors2 = _interopRequireDefault(_materialColors);
+	var material = _interopRequireWildcard(_materialColors);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
-	var _CircleSwatch = __webpack_require__(/*! ./CircleSwatch */ 419);
+	var _CircleSwatch = __webpack_require__(/*! ./CircleSwatch */ 429);
 	
 	var _CircleSwatch2 = _interopRequireDefault(_CircleSwatch);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -69234,13 +69014,13 @@
 	  width: '252px',
 	  circleSize: 28,
 	  circleSpacing: 14,
-	  colors: [_materialColors2.default.red['500'], _materialColors2.default.pink['500'], _materialColors2.default.purple['500'], _materialColors2.default.deepPurple['500'], _materialColors2.default.indigo['500'], _materialColors2.default.blue['500'], _materialColors2.default.lightBlue['500'], _materialColors2.default.cyan['500'], _materialColors2.default.teal['500'], _materialColors2.default.green['500'], _materialColors2.default.lightGreen['500'], _materialColors2.default.lime['500'], _materialColors2.default.yellow['500'], _materialColors2.default.amber['500'], _materialColors2.default.orange['500'], _materialColors2.default.deepOrange['500'], _materialColors2.default.brown['500'], _materialColors2.default.blueGrey['500']]
+	  colors: [material.red['500'], material.pink['500'], material.purple['500'], material.deepPurple['500'], material.indigo['500'], material.blue['500'], material.lightBlue['500'], material.cyan['500'], material.teal['500'], material.green['500'], material.lightGreen['500'], material.lime['500'], material.yellow['500'], material.amber['500'], material.orange['500'], material.deepOrange['500'], material.brown['500'], material.blueGrey['500']]
 	};
 	
 	exports.default = (0, _common.ColorWrap)(Circle);
 
 /***/ },
-/* 418 */
+/* 428 */
 /*!******************************************!*\
   !*** ./~/material-colors/dist/colors.js ***!
   \******************************************/
@@ -69260,7 +69040,7 @@
 
 
 /***/ },
-/* 419 */
+/* 429 */
 /*!*************************************************************!*\
   !*** ./~/react-color/lib/components/circle/CircleSwatch.js ***!
   \*************************************************************/
@@ -69277,11 +69057,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -69337,7 +69117,7 @@
 	exports.default = (0, _reactcss.hover)(CircleSwatch);
 
 /***/ },
-/* 420 */
+/* 430 */
 /*!*******************************************************!*\
   !*** ./~/react-color/lib/components/chrome/Chrome.js ***!
   \*******************************************************/
@@ -69354,21 +69134,21 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
-	var _ChromeFields = __webpack_require__(/*! ./ChromeFields */ 421);
+	var _ChromeFields = __webpack_require__(/*! ./ChromeFields */ 431);
 	
 	var _ChromeFields2 = _interopRequireDefault(_ChromeFields);
 	
-	var _ChromePointer = __webpack_require__(/*! ./ChromePointer */ 422);
+	var _ChromePointer = __webpack_require__(/*! ./ChromePointer */ 432);
 	
 	var _ChromePointer2 = _interopRequireDefault(_ChromePointer);
 	
-	var _ChromePointerCircle = __webpack_require__(/*! ./ChromePointerCircle */ 423);
+	var _ChromePointerCircle = __webpack_require__(/*! ./ChromePointerCircle */ 433);
 	
 	var _ChromePointerCircle2 = _interopRequireDefault(_ChromePointerCircle);
 	
@@ -69535,7 +69315,7 @@
 	exports.default = (0, _common.ColorWrap)(Chrome);
 
 /***/ },
-/* 421 */
+/* 431 */
 /*!*************************************************************!*\
   !*** ./~/react-color/lib/components/chrome/ChromeFields.js ***!
   \*************************************************************/
@@ -69554,15 +69334,15 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _color = __webpack_require__(/*! ../../helpers/color */ 408);
+	var _color = __webpack_require__(/*! ../../helpers/color */ 418);
 	
 	var _color2 = _interopRequireDefault(_color);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -69885,7 +69665,7 @@
 	exports.default = ChromeFields;
 
 /***/ },
-/* 422 */
+/* 432 */
 /*!**************************************************************!*\
   !*** ./~/react-color/lib/components/chrome/ChromePointer.js ***!
   \**************************************************************/
@@ -69902,7 +69682,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -69928,7 +69708,7 @@
 	exports.default = ChromePointer;
 
 /***/ },
-/* 423 */
+/* 433 */
 /*!********************************************************************!*\
   !*** ./~/react-color/lib/components/chrome/ChromePointerCircle.js ***!
   \********************************************************************/
@@ -69945,7 +69725,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -69970,7 +69750,7 @@
 	exports.default = ChromePointerCircle;
 
 /***/ },
-/* 424 */
+/* 434 */
 /*!*********************************************************!*\
   !*** ./~/react-color/lib/components/compact/Compact.js ***!
   \*********************************************************/
@@ -69987,27 +69767,27 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _map = __webpack_require__(/*! lodash/map */ 231);
+	var _map = __webpack_require__(/*! lodash/map */ 241);
 	
 	var _map2 = _interopRequireDefault(_map);
 	
-	var _color = __webpack_require__(/*! ../../helpers/color */ 408);
+	var _color = __webpack_require__(/*! ../../helpers/color */ 418);
 	
 	var _color2 = _interopRequireDefault(_color);
 	
-	var _reactMaterialDesign = __webpack_require__(/*! ../../../modules/react-material-design */ 425);
+	var _reactMaterialDesign = __webpack_require__(/*! ../../../modules/react-material-design */ 435);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
-	var _CompactColor = __webpack_require__(/*! ./CompactColor */ 431);
+	var _CompactColor = __webpack_require__(/*! ./CompactColor */ 441);
 	
 	var _CompactColor2 = _interopRequireDefault(_CompactColor);
 	
-	var _CompactFields = __webpack_require__(/*! ./CompactFields */ 432);
+	var _CompactFields = __webpack_require__(/*! ./CompactFields */ 442);
 	
 	var _CompactFields2 = _interopRequireDefault(_CompactFields);
 	
@@ -70079,7 +69859,7 @@
 	exports.default = (0, _common.ColorWrap)(Compact);
 
 /***/ },
-/* 425 */
+/* 435 */
 /*!**************************************************************!*\
   !*** ./~/react-color/modules/react-material-design/index.js ***!
   \**************************************************************/
@@ -70093,15 +69873,15 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _libComponentsRaised = __webpack_require__(/*! ./lib/components/Raised */ 426);
+	var _libComponentsRaised = __webpack_require__(/*! ./lib/components/Raised */ 436);
 	
 	var _libComponentsRaised2 = _interopRequireDefault(_libComponentsRaised);
 	
-	var _libComponentsTile = __webpack_require__(/*! ./lib/components/Tile */ 427);
+	var _libComponentsTile = __webpack_require__(/*! ./lib/components/Tile */ 437);
 	
 	var _libComponentsTile2 = _interopRequireDefault(_libComponentsTile);
 	
-	var _libComponentsTabs = __webpack_require__(/*! ./lib/components/Tabs */ 428);
+	var _libComponentsTabs = __webpack_require__(/*! ./lib/components/Tabs */ 438);
 	
 	var _libComponentsTabs2 = _interopRequireDefault(_libComponentsTabs);
 	
@@ -70111,7 +69891,7 @@
 
 
 /***/ },
-/* 426 */
+/* 436 */
 /*!******************************************************************************!*\
   !*** ./~/react-color/modules/react-material-design/lib/components/Raised.js ***!
   \******************************************************************************/
@@ -70130,7 +69910,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -70244,7 +70024,7 @@
 	exports.default = Raised;
 
 /***/ },
-/* 427 */
+/* 437 */
 /*!****************************************************************************!*\
   !*** ./~/react-color/modules/react-material-design/lib/components/Tile.js ***!
   \****************************************************************************/
@@ -70265,7 +70045,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -70379,7 +70159,7 @@
 	exports.default = Tile;
 
 /***/ },
-/* 428 */
+/* 438 */
 /*!****************************************************************************!*\
   !*** ./~/react-color/modules/react-material-design/lib/components/Tabs.js ***!
   \****************************************************************************/
@@ -70397,19 +70177,19 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _isString = __webpack_require__(/*! lodash/isString */ 344);
+	var _isString = __webpack_require__(/*! lodash/isString */ 354);
 	
 	var _isString2 = _interopRequireDefault(_isString);
 	
-	var _Tab = __webpack_require__(/*! ./Tab */ 429);
+	var _Tab = __webpack_require__(/*! ./Tab */ 439);
 	
 	var _Tab2 = _interopRequireDefault(_Tab);
 	
-	var _Link = __webpack_require__(/*! ./Link */ 430);
+	var _Link = __webpack_require__(/*! ./Link */ 440);
 	
 	var _Link2 = _interopRequireDefault(_Link);
 	
@@ -70649,7 +70429,7 @@
 	exports.default = Tabs;
 
 /***/ },
-/* 429 */
+/* 439 */
 /*!***************************************************************************!*\
   !*** ./~/react-color/modules/react-material-design/lib/components/Tab.js ***!
   \***************************************************************************/
@@ -70667,7 +70447,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -70751,7 +70531,7 @@
 	exports.default = Tab;
 
 /***/ },
-/* 430 */
+/* 440 */
 /*!****************************************************************************!*\
   !*** ./~/react-color/modules/react-material-design/lib/components/Link.js ***!
   \****************************************************************************/
@@ -70769,7 +70549,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _isString = __webpack_require__(/*! lodash/isString */ 344);
+	var _isString = __webpack_require__(/*! lodash/isString */ 354);
 	
 	var _isString2 = _interopRequireDefault(_isString);
 	
@@ -70839,7 +70619,7 @@
 	exports.default = Link;
 
 /***/ },
-/* 431 */
+/* 441 */
 /*!**************************************************************!*\
   !*** ./~/react-color/lib/components/compact/CompactColor.js ***!
   \**************************************************************/
@@ -70856,7 +70636,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -70915,7 +70695,7 @@
 	exports.default = CompactColor;
 
 /***/ },
-/* 432 */
+/* 442 */
 /*!***************************************************************!*\
   !*** ./~/react-color/lib/components/compact/CompactFields.js ***!
   \***************************************************************/
@@ -70932,11 +70712,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -71056,7 +70836,7 @@
 	exports.default = CompactFields;
 
 /***/ },
-/* 433 */
+/* 443 */
 /*!*******************************************************!*\
   !*** ./~/react-color/lib/components/github/Github.js ***!
   \*******************************************************/
@@ -71073,17 +70853,17 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _map = __webpack_require__(/*! lodash/map */ 231);
+	var _map = __webpack_require__(/*! lodash/map */ 241);
 	
 	var _map2 = _interopRequireDefault(_map);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
-	var _GithubSwatch = __webpack_require__(/*! ./GithubSwatch */ 434);
+	var _GithubSwatch = __webpack_require__(/*! ./GithubSwatch */ 444);
 	
 	var _GithubSwatch2 = _interopRequireDefault(_GithubSwatch);
 	
@@ -71177,7 +70957,7 @@
 	exports.default = (0, _common.ColorWrap)(Github);
 
 /***/ },
-/* 434 */
+/* 444 */
 /*!*************************************************************!*\
   !*** ./~/react-color/lib/components/github/GithubSwatch.js ***!
   \*************************************************************/
@@ -71194,11 +70974,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -71234,7 +71014,7 @@
 	exports.default = (0, _reactcss.hover)(GithubSwatch);
 
 /***/ },
-/* 435 */
+/* 445 */
 /*!*************************************************!*\
   !*** ./~/react-color/lib/components/hue/Hue.js ***!
   \*************************************************/
@@ -71253,13 +71033,13 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
-	var _HuePointer = __webpack_require__(/*! ./HuePointer */ 436);
+	var _HuePointer = __webpack_require__(/*! ./HuePointer */ 446);
 	
 	var _HuePointer2 = _interopRequireDefault(_HuePointer);
 	
@@ -71308,7 +71088,7 @@
 	exports.default = (0, _common.ColorWrap)(HuePicker);
 
 /***/ },
-/* 436 */
+/* 446 */
 /*!********************************************************!*\
   !*** ./~/react-color/lib/components/hue/HuePointer.js ***!
   \********************************************************/
@@ -71325,7 +71105,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -71358,7 +71138,7 @@
 	exports.default = SliderPointer;
 
 /***/ },
-/* 437 */
+/* 447 */
 /*!***********************************************************!*\
   !*** ./~/react-color/lib/components/material/Material.js ***!
   \***********************************************************/
@@ -71375,17 +71155,17 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _color = __webpack_require__(/*! ../../helpers/color */ 408);
+	var _color = __webpack_require__(/*! ../../helpers/color */ 418);
 	
 	var _color2 = _interopRequireDefault(_color);
 	
-	var _reactMaterialDesign = __webpack_require__(/*! ../../../modules/react-material-design */ 425);
+	var _reactMaterialDesign = __webpack_require__(/*! ../../../modules/react-material-design */ 435);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -71529,7 +71309,7 @@
 	exports.default = (0, _common.ColorWrap)(Material);
 
 /***/ },
-/* 438 */
+/* 448 */
 /*!*************************************************************!*\
   !*** ./~/react-color/lib/components/photoshop/Photoshop.js ***!
   \*************************************************************/
@@ -71548,29 +71328,29 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
-	var _PhotoshopFields = __webpack_require__(/*! ./PhotoshopFields */ 439);
+	var _PhotoshopFields = __webpack_require__(/*! ./PhotoshopFields */ 449);
 	
 	var _PhotoshopFields2 = _interopRequireDefault(_PhotoshopFields);
 	
-	var _PhotoshopPointerCircle = __webpack_require__(/*! ./PhotoshopPointerCircle */ 440);
+	var _PhotoshopPointerCircle = __webpack_require__(/*! ./PhotoshopPointerCircle */ 450);
 	
 	var _PhotoshopPointerCircle2 = _interopRequireDefault(_PhotoshopPointerCircle);
 	
-	var _PhotoshopPointer = __webpack_require__(/*! ./PhotoshopPointer */ 441);
+	var _PhotoshopPointer = __webpack_require__(/*! ./PhotoshopPointer */ 451);
 	
 	var _PhotoshopPointer2 = _interopRequireDefault(_PhotoshopPointer);
 	
-	var _PhotoshopButton = __webpack_require__(/*! ./PhotoshopButton */ 442);
+	var _PhotoshopButton = __webpack_require__(/*! ./PhotoshopButton */ 452);
 	
 	var _PhotoshopButton2 = _interopRequireDefault(_PhotoshopButton);
 	
-	var _PhotoshopPreviews = __webpack_require__(/*! ./PhotoshopPreviews */ 443);
+	var _PhotoshopPreviews = __webpack_require__(/*! ./PhotoshopPreviews */ 453);
 	
 	var _PhotoshopPreviews2 = _interopRequireDefault(_PhotoshopPreviews);
 	
@@ -71730,7 +71510,7 @@
 	exports.default = (0, _common.ColorWrap)(Photoshop);
 
 /***/ },
-/* 439 */
+/* 449 */
 /*!*******************************************************************!*\
   !*** ./~/react-color/lib/components/photoshop/PhotoshopFields.js ***!
   \*******************************************************************/
@@ -71747,15 +71527,15 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _color = __webpack_require__(/*! ../../helpers/color */ 408);
+	var _color = __webpack_require__(/*! ../../helpers/color */ 418);
 	
 	var _color2 = _interopRequireDefault(_color);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -71931,7 +71711,7 @@
 	exports.default = PhotoshopPicker;
 
 /***/ },
-/* 440 */
+/* 450 */
 /*!**************************************************************************!*\
   !*** ./~/react-color/lib/components/photoshop/PhotoshopPointerCircle.js ***!
   \**************************************************************************/
@@ -71948,7 +71728,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -71980,7 +71760,7 @@
 	exports.default = PhotoshopPointerCircle;
 
 /***/ },
-/* 441 */
+/* 451 */
 /*!********************************************************************!*\
   !*** ./~/react-color/lib/components/photoshop/PhotoshopPointer.js ***!
   \********************************************************************/
@@ -71997,7 +71777,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -72063,7 +71843,7 @@
 	exports.default = PhotoshopPointerCircle;
 
 /***/ },
-/* 442 */
+/* 452 */
 /*!*******************************************************************!*\
   !*** ./~/react-color/lib/components/photoshop/PhotoshopButton.js ***!
   \*******************************************************************/
@@ -72080,7 +71860,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -72125,7 +71905,7 @@
 	exports.default = PhotoshopBotton;
 
 /***/ },
-/* 443 */
+/* 453 */
 /*!*********************************************************************!*\
   !*** ./~/react-color/lib/components/photoshop/PhotoshopPreviews.js ***!
   \*********************************************************************/
@@ -72142,7 +71922,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -72203,7 +71983,7 @@
 	exports.default = PhotoshopPreviews;
 
 /***/ },
-/* 444 */
+/* 454 */
 /*!*******************************************************!*\
   !*** ./~/react-color/lib/components/sketch/Sketch.js ***!
   \*******************************************************/
@@ -72220,17 +72000,17 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
-	var _SketchFields = __webpack_require__(/*! ./SketchFields */ 445);
+	var _SketchFields = __webpack_require__(/*! ./SketchFields */ 455);
 	
 	var _SketchFields2 = _interopRequireDefault(_SketchFields);
 	
-	var _SketchPresetColors = __webpack_require__(/*! ./SketchPresetColors */ 446);
+	var _SketchPresetColors = __webpack_require__(/*! ./SketchPresetColors */ 456);
 	
 	var _SketchPresetColors2 = _interopRequireDefault(_SketchPresetColors);
 	
@@ -72388,7 +72168,7 @@
 	exports.default = (0, _common.ColorWrap)(Sketch);
 
 /***/ },
-/* 445 */
+/* 455 */
 /*!*************************************************************!*\
   !*** ./~/react-color/lib/components/sketch/SketchFields.js ***!
   \*************************************************************/
@@ -72405,15 +72185,15 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _color = __webpack_require__(/*! ../../helpers/color */ 408);
+	var _color = __webpack_require__(/*! ../../helpers/color */ 418);
 	
 	var _color2 = _interopRequireDefault(_color);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -72566,7 +72346,7 @@
 	exports.default = ShetchFields;
 
 /***/ },
-/* 446 */
+/* 456 */
 /*!*******************************************************************!*\
   !*** ./~/react-color/lib/components/sketch/SketchPresetColors.js ***!
   \*******************************************************************/
@@ -72579,19 +72359,17 @@
 	});
 	exports.SketchPresetColors = undefined;
 	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
 	var _react = __webpack_require__(/*! react */ 5);
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _map = __webpack_require__(/*! lodash/map */ 231);
-	
-	var _map2 = _interopRequireDefault(_map);
-	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -72606,7 +72384,8 @@
 	        padding: '10px 0 0 10px',
 	        borderTop: '1px solid #eee',
 	        display: 'flex',
-	        flexWrap: 'wrap'
+	        flexWrap: 'wrap',
+	        position: 'relative'
 	      },
 	      swatchWrap: {
 	        width: '16px',
@@ -72637,24 +72416,30 @@
 	  return _react2.default.createElement(
 	    'div',
 	    { style: styles.colors, className: 'flexbox-fix' },
-	    (0, _map2.default)(colors, function (c) {
+	    colors.map(function (colorObjOrString) {
+	      var c = typeof colorObjOrString === 'string' ? { color: colorObjOrString } : colorObjOrString;
 	      return _react2.default.createElement(
 	        'div',
-	        { key: c, style: styles.swatchWrap },
-	        _react2.default.createElement(_common.Swatch, {
-	          color: c,
+	        { key: c.color, style: styles.swatchWrap },
+	        _react2.default.createElement(_common.Swatch, _extends({}, c, {
 	          style: styles.swatch,
 	          onClick: handleClick
-	        })
+	        }))
 	      );
 	    })
 	  );
+	};
+	SketchPresetColors.propTypes = {
+	  colors: _react2.default.PropTypes.arrayOf(_react2.default.PropTypes.oneOfType([_react2.default.PropTypes.string, _react2.default.PropTypes.shape({
+	    color: _react2.default.PropTypes.string,
+	    title: _react2.default.PropTypes.string
+	  })]))
 	};
 	
 	exports.default = SketchPresetColors;
 
 /***/ },
-/* 447 */
+/* 457 */
 /*!*******************************************************!*\
   !*** ./~/react-color/lib/components/slider/Slider.js ***!
   \*******************************************************/
@@ -72671,17 +72456,17 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
-	var _SliderSwatches = __webpack_require__(/*! ./SliderSwatches */ 448);
+	var _SliderSwatches = __webpack_require__(/*! ./SliderSwatches */ 458);
 	
 	var _SliderSwatches2 = _interopRequireDefault(_SliderSwatches);
 	
-	var _SliderPointer = __webpack_require__(/*! ./SliderPointer */ 450);
+	var _SliderPointer = __webpack_require__(/*! ./SliderPointer */ 460);
 	
 	var _SliderPointer2 = _interopRequireDefault(_SliderPointer);
 	
@@ -72732,7 +72517,7 @@
 	exports.default = (0, _common.ColorWrap)(Slider);
 
 /***/ },
-/* 448 */
+/* 458 */
 /*!***************************************************************!*\
   !*** ./~/react-color/lib/components/slider/SliderSwatches.js ***!
   \***************************************************************/
@@ -72749,11 +72534,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _SliderSwatch = __webpack_require__(/*! ./SliderSwatch */ 449);
+	var _SliderSwatch = __webpack_require__(/*! ./SliderSwatch */ 459);
 	
 	var _SliderSwatch2 = _interopRequireDefault(_SliderSwatch);
 	
@@ -72842,7 +72627,7 @@
 	exports.default = SliderSwatches;
 
 /***/ },
-/* 449 */
+/* 459 */
 /*!*************************************************************!*\
   !*** ./~/react-color/lib/components/slider/SliderSwatch.js ***!
   \*************************************************************/
@@ -72859,7 +72644,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -72914,7 +72699,7 @@
 	exports.default = SliderSwatch;
 
 /***/ },
-/* 450 */
+/* 460 */
 /*!**************************************************************!*\
   !*** ./~/react-color/lib/components/slider/SliderPointer.js ***!
   \**************************************************************/
@@ -72931,7 +72716,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -72957,7 +72742,7 @@
 	exports.default = SliderPointer;
 
 /***/ },
-/* 451 */
+/* 461 */
 /*!***********************************************************!*\
   !*** ./~/react-color/lib/components/swatches/Swatches.js ***!
   \***********************************************************/
@@ -72974,29 +72759,31 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _map = __webpack_require__(/*! lodash/map */ 231);
+	var _map = __webpack_require__(/*! lodash/map */ 241);
 	
 	var _map2 = _interopRequireDefault(_map);
 	
-	var _color = __webpack_require__(/*! ../../helpers/color */ 408);
+	var _color = __webpack_require__(/*! ../../helpers/color */ 418);
 	
 	var _color2 = _interopRequireDefault(_color);
 	
-	var _materialColors = __webpack_require__(/*! material-colors */ 418);
+	var _materialColors = __webpack_require__(/*! material-colors */ 428);
 	
-	var _materialColors2 = _interopRequireDefault(_materialColors);
+	var material = _interopRequireWildcard(_materialColors);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
-	var _reactMaterialDesign = __webpack_require__(/*! ../../../modules/react-material-design */ 425);
+	var _reactMaterialDesign = __webpack_require__(/*! ../../../modules/react-material-design */ 435);
 	
-	var _SwatchesGroup = __webpack_require__(/*! ./SwatchesGroup */ 452);
+	var _SwatchesGroup = __webpack_require__(/*! ./SwatchesGroup */ 462);
 	
 	var _SwatchesGroup2 = _interopRequireDefault(_SwatchesGroup);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -73064,13 +72851,13 @@
 	Swatches.defaultProps = {
 	  width: 320,
 	  height: 240,
-	  colors: [[_materialColors2.default.red['900'], _materialColors2.default.red['700'], _materialColors2.default.red['500'], _materialColors2.default.red['300'], _materialColors2.default.red['100']], [_materialColors2.default.pink['900'], _materialColors2.default.pink['700'], _materialColors2.default.pink['500'], _materialColors2.default.pink['300'], _materialColors2.default.pink['100']], [_materialColors2.default.purple['900'], _materialColors2.default.purple['700'], _materialColors2.default.purple['500'], _materialColors2.default.purple['300'], _materialColors2.default.purple['100']], [_materialColors2.default.deepPurple['900'], _materialColors2.default.deepPurple['700'], _materialColors2.default.deepPurple['500'], _materialColors2.default.deepPurple['300'], _materialColors2.default.deepPurple['100']], [_materialColors2.default.indigo['900'], _materialColors2.default.indigo['700'], _materialColors2.default.indigo['500'], _materialColors2.default.indigo['300'], _materialColors2.default.indigo['100']], [_materialColors2.default.blue['900'], _materialColors2.default.blue['700'], _materialColors2.default.blue['500'], _materialColors2.default.blue['300'], _materialColors2.default.blue['100']], [_materialColors2.default.lightBlue['900'], _materialColors2.default.lightBlue['700'], _materialColors2.default.lightBlue['500'], _materialColors2.default.lightBlue['300'], _materialColors2.default.lightBlue['100']], [_materialColors2.default.cyan['900'], _materialColors2.default.cyan['700'], _materialColors2.default.cyan['500'], _materialColors2.default.cyan['300'], _materialColors2.default.cyan['100']], [_materialColors2.default.teal['900'], _materialColors2.default.teal['700'], _materialColors2.default.teal['500'], _materialColors2.default.teal['300'], _materialColors2.default.teal['100']], ['#194D33', _materialColors2.default.green['700'], _materialColors2.default.green['500'], _materialColors2.default.green['300'], _materialColors2.default.green['100']], [_materialColors2.default.lightGreen['900'], _materialColors2.default.lightGreen['700'], _materialColors2.default.lightGreen['500'], _materialColors2.default.lightGreen['300'], _materialColors2.default.lightGreen['100']], [_materialColors2.default.lime['900'], _materialColors2.default.lime['700'], _materialColors2.default.lime['500'], _materialColors2.default.lime['300'], _materialColors2.default.lime['100']], [_materialColors2.default.yellow['900'], _materialColors2.default.yellow['700'], _materialColors2.default.yellow['500'], _materialColors2.default.yellow['300'], _materialColors2.default.yellow['100']], [_materialColors2.default.amber['900'], _materialColors2.default.amber['700'], _materialColors2.default.amber['500'], _materialColors2.default.amber['300'], _materialColors2.default.amber['100']], [_materialColors2.default.orange['900'], _materialColors2.default.orange['700'], _materialColors2.default.orange['500'], _materialColors2.default.orange['300'], _materialColors2.default.orange['100']], [_materialColors2.default.deepOrange['900'], _materialColors2.default.deepOrange['700'], _materialColors2.default.deepOrange['500'], _materialColors2.default.deepOrange['300'], _materialColors2.default.deepOrange['100']], [_materialColors2.default.brown['900'], _materialColors2.default.brown['700'], _materialColors2.default.brown['500'], _materialColors2.default.brown['300'], _materialColors2.default.brown['100']], [_materialColors2.default.blueGrey['900'], _materialColors2.default.blueGrey['700'], _materialColors2.default.blueGrey['500'], _materialColors2.default.blueGrey['300'], _materialColors2.default.blueGrey['100']], ['#000000', '#525252', '#969696', '#D9D9D9', '#FFFFFF']]
+	  colors: [[material.red['900'], material.red['700'], material.red['500'], material.red['300'], material.red['100']], [material.pink['900'], material.pink['700'], material.pink['500'], material.pink['300'], material.pink['100']], [material.purple['900'], material.purple['700'], material.purple['500'], material.purple['300'], material.purple['100']], [material.deepPurple['900'], material.deepPurple['700'], material.deepPurple['500'], material.deepPurple['300'], material.deepPurple['100']], [material.indigo['900'], material.indigo['700'], material.indigo['500'], material.indigo['300'], material.indigo['100']], [material.blue['900'], material.blue['700'], material.blue['500'], material.blue['300'], material.blue['100']], [material.lightBlue['900'], material.lightBlue['700'], material.lightBlue['500'], material.lightBlue['300'], material.lightBlue['100']], [material.cyan['900'], material.cyan['700'], material.cyan['500'], material.cyan['300'], material.cyan['100']], [material.teal['900'], material.teal['700'], material.teal['500'], material.teal['300'], material.teal['100']], ['#194D33', material.green['700'], material.green['500'], material.green['300'], material.green['100']], [material.lightGreen['900'], material.lightGreen['700'], material.lightGreen['500'], material.lightGreen['300'], material.lightGreen['100']], [material.lime['900'], material.lime['700'], material.lime['500'], material.lime['300'], material.lime['100']], [material.yellow['900'], material.yellow['700'], material.yellow['500'], material.yellow['300'], material.yellow['100']], [material.amber['900'], material.amber['700'], material.amber['500'], material.amber['300'], material.amber['100']], [material.orange['900'], material.orange['700'], material.orange['500'], material.orange['300'], material.orange['100']], [material.deepOrange['900'], material.deepOrange['700'], material.deepOrange['500'], material.deepOrange['300'], material.deepOrange['100']], [material.brown['900'], material.brown['700'], material.brown['500'], material.brown['300'], material.brown['100']], [material.blueGrey['900'], material.blueGrey['700'], material.blueGrey['500'], material.blueGrey['300'], material.blueGrey['100']], ['#000000', '#525252', '#969696', '#D9D9D9', '#FFFFFF']]
 	};
 	
 	exports.default = (0, _common.ColorWrap)(Swatches);
 
 /***/ },
-/* 452 */
+/* 462 */
 /*!****************************************************************!*\
   !*** ./~/react-color/lib/components/swatches/SwatchesGroup.js ***!
   \****************************************************************/
@@ -73087,15 +72874,15 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _map = __webpack_require__(/*! lodash/map */ 231);
+	var _map = __webpack_require__(/*! lodash/map */ 241);
 	
 	var _map2 = _interopRequireDefault(_map);
 	
-	var _SwatchesColor = __webpack_require__(/*! ./SwatchesColor */ 453);
+	var _SwatchesColor = __webpack_require__(/*! ./SwatchesColor */ 463);
 	
 	var _SwatchesColor2 = _interopRequireDefault(_SwatchesColor);
 	
@@ -73136,7 +72923,7 @@
 	exports.default = SwatchesGroup;
 
 /***/ },
-/* 453 */
+/* 463 */
 /*!****************************************************************!*\
   !*** ./~/react-color/lib/components/swatches/SwatchesColor.js ***!
   \****************************************************************/
@@ -73153,7 +72940,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
@@ -73230,7 +73017,7 @@
 	exports.default = SwatchesColor;
 
 /***/ },
-/* 454 */
+/* 464 */
 /*!*********************************************************!*\
   !*** ./~/react-color/lib/components/twitter/Twitter.js ***!
   \*********************************************************/
@@ -73247,19 +73034,19 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactcss = __webpack_require__(/*! reactcss */ 228);
+	var _reactcss = __webpack_require__(/*! reactcss */ 238);
 	
 	var _reactcss2 = _interopRequireDefault(_reactcss);
 	
-	var _map = __webpack_require__(/*! lodash/map */ 231);
+	var _map = __webpack_require__(/*! lodash/map */ 241);
 	
 	var _map2 = _interopRequireDefault(_map);
 	
-	var _color = __webpack_require__(/*! ../../helpers/color */ 408);
+	var _color = __webpack_require__(/*! ../../helpers/color */ 418);
 	
 	var _color2 = _interopRequireDefault(_color);
 	
-	var _common = __webpack_require__(/*! ../common */ 394);
+	var _common = __webpack_require__(/*! ../common */ 404);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -73419,7 +73206,7 @@
 	exports.default = (0, _common.ColorWrap)(Twitter);
 
 /***/ },
-/* 455 */
+/* 465 */
 /*!******************************************!*\
   !*** ./app/components/forms/Dropdown.js ***!
   \******************************************/
@@ -73435,11 +73222,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _lodash = __webpack_require__(/*! lodash */ 204);
+	var _lodash = __webpack_require__(/*! lodash */ 210);
 	
 	var _lodash2 = _interopRequireDefault(_lodash);
 	
-	var _classnames = __webpack_require__(/*! classnames */ 162);
+	var _classnames = __webpack_require__(/*! classnames */ 218);
 	
 	var _classnames2 = _interopRequireDefault(_classnames);
 	
@@ -73490,7 +73277,7 @@
 	exports.default = Dropdown;
 
 /***/ },
-/* 456 */
+/* 466 */
 /*!***************************************!*\
   !*** ./app/components/DivToBottom.js ***!
   \***************************************/
@@ -73502,7 +73289,7 @@
 	  value: true
 	});
 	
-	var _lodash = __webpack_require__(/*! lodash */ 204);
+	var _lodash = __webpack_require__(/*! lodash */ 210);
 	
 	var _lodash2 = _interopRequireDefault(_lodash);
 	
@@ -73510,7 +73297,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _jquery = __webpack_require__(/*! jquery */ 205);
+	var _jquery = __webpack_require__(/*! jquery */ 215);
 	
 	var _jquery2 = _interopRequireDefault(_jquery);
 	
@@ -73556,39 +73343,10 @@
 	exports.default = DivToBottom;
 
 /***/ },
-/* 457 */
+/* 467 */
 /*!*****************************************!*\
-  !*** ./app/components/SidebarHeader.js ***!
+  !*** ./app/components/ComponentMenu.js ***!
   \*****************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _react = __webpack_require__(/*! react */ 5);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function SidebarHeader(props) {
-	  return _react2.default.createElement(
-	    "h2",
-	    { className: "f4 mt3 mb2 tc" },
-	    props.text
-	  );
-	}
-	
-	exports.default = SidebarHeader;
-
-/***/ },
-/* 458 */
-/*!**************************************!*\
-  !*** ./app/containers/AssetsView.js ***!
-  \**************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -73601,205 +73359,390 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _lodash = __webpack_require__(/*! lodash */ 204);
+	var _reactRedux = __webpack_require__(/*! react-redux */ 162);
+	
+	var _lodash = __webpack_require__(/*! lodash */ 210);
 	
 	var _lodash2 = _interopRequireDefault(_lodash);
 	
-	var _reactRedux = __webpack_require__(/*! react-redux */ 163);
+	var _utils = __webpack_require__(/*! ../utils */ 214);
 	
-	var _electron = __webpack_require__(/*! electron */ 3);
-	
-	var _utils = __webpack_require__(/*! ../utils */ 203);
-	
-	var _ViewChoiceDropdown = __webpack_require__(/*! ../components/ViewChoiceDropdown */ 223);
-	
-	var _ViewChoiceDropdown2 = _interopRequireDefault(_ViewChoiceDropdown);
-	
-	var _CartoonButton = __webpack_require__(/*! ../components/CartoonButton */ 208);
-	
-	var _CartoonButton2 = _interopRequireDefault(_CartoonButton);
-	
-	var _TextField = __webpack_require__(/*! ../components/forms/TextField */ 214);
-	
-	var _TextField2 = _interopRequireDefault(_TextField);
+	var _base_components = __webpack_require__(/*! ../base_components */ 213);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var dialog = _electron.remote.dialog;
+	var ROOT = 'ROOT';
+	var INSERT_ASSET = 'INSERT_ASSET';
+	var INSERT_COMPONENT = 'INSERT_COMPONENT';
 	
-	var AssetIcon = _react2.default.createClass({
-	  displayName: 'AssetIcon',
+	function RightTriangle(props) {
+	  var size = 10;
+	  return _react2.default.createElement('img', {
+	    className: props.className,
+	    style: { width: size, height: size },
+	    alt: '',
+	    src: 'public/img/assets/right-triangle.svg' });
+	}
+	
+	var ComponentMenu = _react2.default.createClass({
+	  displayName: 'ComponentMenu',
 	  getInitialState: function getInitialState() {
 	    return {
-	      isHovering: false,
-	      isEditing: false
+	      searchString: '',
+	      openListItem: undefined
 	    };
 	  },
-	  render: function render() {
+	  componentDidMount: function componentDidMount() {
 	    var _this = this;
 	
-	    var _props = this.props,
-	        asset = _props.asset,
-	        actions = _props.actions;
-	    var _state = this.state,
-	        isEditing = _state.isEditing,
-	        isHovering = _state.isHovering;
-	    var name = asset.name,
-	        src = asset.src;
-	
-	    var editBar = void 0,
-	        input = void 0;
-	
-	    if (this.state.isHovering) {
-	      editBar = _react2.default.createElement(
-	        'div',
-	        { className: 'asset-edit-bar' },
-	        _react2.default.createElement('i', {
-	          className: 'fa fa-pencil-square-o ml2 v-mid',
-	          onClick: function onClick() {
-	            _this.setState({ isEditing: true });
-	          }
-	        }),
-	        _react2.default.createElement('i', {
-	          className: 'fa fa-trash ml2 v-mid',
-	          onClick: function onClick() {
-	            _this.props.actions.deleteAsset(asset.id);
-	          }
-	        })
-	      );
-	    }
-	
-	    if (isEditing) {
-	      input = _react2.default.createElement(_TextField2.default, {
-	        onSubmit: function onSubmit(value) {
-	          console.log('submit');
-	          _this.setState({ isEditing: false });
-	          actions.updateAssetName(asset.id, value);
-	        },
-	        value: asset.name
+	    _utils.globalEventManager.addListener('mouseup', function () {
+	      if (_this.props.menu.isOpen) {
+	        _this.props.actions.closeMenu();
+	      }
+	    }, 10000);
+	  },
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    if (!nextProps.menu.isOpen && this.state.menuState !== ROOT) {
+	      this.setState({
+	        searchString: '',
+	        openListItem: undefined
 	      });
-	    } else {
-	      input = _react2.default.createElement(
-	        'span',
-	        null,
-	        name
-	      );
 	    }
-	
-	    return _react2.default.createElement(
-	      'div',
-	      {
-	        className: 'asset-icon',
-	        onMouseEnter: function onMouseEnter() {
-	          _this.setState({ isHovering: true });
-	        },
-	        onMouseLeave: function onMouseLeave() {
-	          _this.setState({ isHovering: false });
-	        }
-	      },
-	      _react2.default.createElement('img', { src: src }),
-	      input,
-	      editBar
-	    );
-	  }
-	});
-	
-	/*
-	
-	   <EditableText
-	   value=
-	   onSubmit={(value) => {
-	   actions.updateAssetName(asset.id, value)
-	   }}
-	   />
-	
-	*/
-	
-	var AssetsView = _react2.default.createClass({
-	  displayName: 'AssetsView',
+	  },
+	  closeNestedMenus: function closeNestedMenus() {
+	    if (this.state.openListItem) {
+	      this.setState({ openListItem: undefined });
+	    }
+	  },
 	  render: function render() {
 	    var _this2 = this;
 	
-	    //console.log('ASSETS VIEW RENDER');
+	    //console.log('COMPONENT_MENU RENDER');
+	    var _props = this.props,
+	        componentIdMapByName = _props.componentIdMapByName,
+	        menu = _props.menu,
+	        assets = _props.assets,
+	        parentId = _props.parentId,
+	        componentIndex = _props.componentIndex;
+	    var componentId = menu.componentId,
+	        isOpen = menu.isOpen,
+	        componentX = menu.componentX,
+	        componentY = menu.componentY;
+	    var _state = this.state,
+	        openListItem = _state.openListItem,
+	        secondaryPosX = _state.secondaryPosX,
+	        secondaryPosY = _state.secondaryPosY;
 	
-	    var _props2 = this.props,
-	        actions = _props2.actions,
-	        currentMainView = _props2.currentMainView,
-	        assets = _props2.assets;
 	
-	    var icons = assets.map(function (asset) {
-	      return _react2.default.createElement(AssetIcon, { asset: asset, actions: actions });
-	    });
+	    var secondaryList = void 0;
+	    var primaryMenuWidth = 150;
 	
-	    if (icons.length === 0) {
-	      icons = _react2.default.createElement(
+	    var sx = {
+	      width: primaryMenuWidth,
+	      position: 'absolute',
+	      left: componentX,
+	      top: componentY
+	    };
+	
+	    var secondaryMenuWidth = 100;
+	    var secondaryListStyle = {
+	      position: 'absolute',
+	      left: secondaryPosX + primaryMenuWidth,
+	      top: secondaryPosY,
+	      width: secondaryMenuWidth
+	    };
+	    var componentList = void 0;
+	
+	    if (isOpen) {
+	      if (openListItem) {
+	        if (openListItem === INSERT_COMPONENT) {
+	          componentList = _lodash2.default.keys(componentIdMapByName).map(function (componentName) {
+	            return _react2.default.createElement(
+	              'li',
+	              {
+	                key: componentName,
+	                onMouseUp: function onMouseUp() {
+	                  _this2.props.actions.addVariant(componentIdMapByName[componentName], parentId, componentIndex);
+	                } },
+	              componentName
+	            );
+	          });
+	        }
+	
+	        if (openListItem === INSERT_ASSET) {
+	          componentList = assets.map(function (asset, ind) {
+	            return _react2.default.createElement(
+	              'li',
+	              {
+	                key: ind,
+	                onMouseUp: function onMouseUp() {
+	                  _this2.props.actions.addVariant(_base_components.image.get('id'), parentId, componentIndex, (0, _base_components.createNewImageSpec)(asset));
+	                } },
+	              asset.name
+	            );
+	          });
+	        }
+	
+	        secondaryList = _react2.default.createElement(
+	          'ul',
+	          { className: 'component-menu', style: secondaryListStyle },
+	          componentList
+	        );
+	      }
+	
+	      if (openListItem === INSERT_ASSET) {
+	        secondaryList = _react2.default.createElement(
+	          'ul',
+	          { className: 'component-menu', style: secondaryListStyle },
+	          componentList
+	        );
+	      }
+	
+	      return _react2.default.createElement(
 	        'div',
-	        { className: 'mt6 tc w-100' },
+	        null,
 	        _react2.default.createElement(
-	          'span',
-	          { className: 'f3 hint' },
-	          'No assets. Click import to add some.'
-	        )
-	      );
-	    }
-	
-	    return _react2.default.createElement(
-	      'div',
-	      { className: 'h-100' },
-	      _react2.default.createElement(_ViewChoiceDropdown2.default, {
-	        mainView: currentMainView,
-	        actions: actions
-	      }),
-	      _react2.default.createElement(
-	        'div',
-	        { className: 'mh5 card' },
-	        _react2.default.createElement(
-	          'h1',
-	          { className: 'dib ma0' },
-	          'Images'
+	          'ul',
+	          { style: sx, className: 'component-menu' },
+	          _react2.default.createElement(
+	            'li',
+	            {
+	              key: 'DELETE',
+	              onMouseEnter: this.closeNestedMenus,
+	              onMouseUp: function onMouseUp(e) {
+	                _this2.props.actions.deleteComponent(componentId);
+	                _this2.props.actions.closeMenu();
+	                e.stopPropagation();
+	              } },
+	            'Delete',
+	            _react2.default.createElement('i', { className: 'fa fa-trash ph1 fr', 'aria-hidden': 'true' })
+	          ),
+	          _react2.default.createElement(
+	            'li',
+	            {
+	              key: 'MAKE_COMPONENT',
+	              onMouseEnter: this.closeNestedMenus,
+	              onMouseUp: function onMouseUp(e) {
+	                _this2.props.actions.createComponentBlock(componentId);
+	                _this2.props.actions.closeMenu();
+	                e.stopPropagation();
+	              } },
+	            'Make Component',
+	            _react2.default.createElement('i', { className: 'fa fa-id-card-o ph1 fr', 'aria-hidden': 'true' })
+	          ),
+	          _react2.default.createElement(
+	            'li',
+	            {
+	              className: INSERT_COMPONENT,
+	              key: INSERT_COMPONENT,
+	              ref: function ref(_ref) {
+	                _this2._insertComponentEl = _ref;
+	              },
+	              onMouseEnter: function onMouseEnter(e) {
+	                var rect = new _utils.Rect(_this2._insertComponentEl);
+	                _this2.setState({
+	                  openListItem: INSERT_COMPONENT,
+	                  secondaryPosX: rect.x,
+	                  secondaryPosY: rect.y
+	                });
+	                e.stopPropagation();
+	              } },
+	            'Insert Component',
+	            _react2.default.createElement(RightTriangle, { className: 'ph1 fr' })
+	          ),
+	          _react2.default.createElement(
+	            'li',
+	            {
+	              key: INSERT_ASSET,
+	              ref: function ref(_ref2) {
+	                _this2._insertAssetEl = _ref2;
+	              },
+	              onMouseEnter: function onMouseEnter(e) {
+	                var rect = new _utils.Rect(_this2._insertAssetEl);
+	                _this2.setState({
+	                  openListItem: INSERT_ASSET,
+	                  secondaryPosX: rect.x,
+	                  secondaryPosY: rect.y
+	                });
+	                e.stopPropagation();
+	              } },
+	            'Insert Asset',
+	            _react2.default.createElement(RightTriangle, { className: 'ph1 fr' })
+	          )
 	        ),
-	        _react2.default.createElement(_CartoonButton2.default, {
-	          className: 'v-mid mh2 mb2',
-	          text: 'Import',
-	          onClick: function onClick() {
-	            dialog.showOpenDialog({
-	              title: 'Select an asset to import',
-	              properties: ['openFile'],
-	              filters: [{
-	                name: 'asset file',
-	                extensions: ['jpeg', 'png', 'gif', 'svg']
-	              }]
-	            }, function (filenames) {
-	              if (!filenames) return;
-	              _this2.props.actions.addAsset(filenames[0]);
-	            });
-	          }
-	        }),
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'flex flex-wrap' },
-	          icons
-	        )
-	      )
-	    );
+	        secondaryList
+	      );
+	    } else {
+	      return _react2.default.createElement('div', null);
+	    }
 	  }
 	});
 	
-	var assetsSelector = (0, _utils.createImmutableJSSelector)([function (state) {
-	  return state.get('assets');
+	// TD: what is a good pattern to use component map data but not re-render based on its changes??
+	var menuSelector = (0, _utils.createImmutableJSSelector)([function (state) {
+	  return state.get('componentsMap');
 	}, function (state) {
-	  return state.get('currentMainView');
-	}], function (assets, currentMainView) {
+	  return state.get('menu');
+	}, function (state) {
+	  return state.get('ourComponentBoxes');
+	}, function (state) {
+	  return state.get('yourComponentBoxes');
+	}, function (state) {
+	  return state.get('assets');
+	}], function (componentsMap, menu, ourComponentBoxes, yourComponentBoxes, assets) {
+	  var componentIdMapByName = {};
+	  var menuJs = menu.toJS();
+	
+	  if (menuJs.isOpen) {
+	    // TD: Add selector here
+	    var makeComponentIdMap = function makeComponentIdMap(componentId) {
+	      var name = _base_components.ComponentsContainer.getName(componentsMap, componentId);
+	      componentIdMapByName[name] = componentId;
+	    };
+	
+	    ourComponentBoxes.forEach(makeComponentIdMap);
+	    yourComponentBoxes.forEach(makeComponentIdMap);
+	
+	    return {
+	      menu: menuJs,
+	      componentIdMapByName: componentIdMapByName,
+	      parentId: componentsMap.getIn([menuJs.componentId, 'parentId']),
+	      componentIndex: _base_components.ComponentsContainer.getIndex(componentsMap, menuJs.componentId),
+	      // TD: EXPENSIVE! Remove.
+	      assets: _lodash2.default.toArray(assets.toJS())
+	    };
+	  } else {
+	    return { menu: menuJs };
+	  }
+	});
+	
+	exports.default = (0, _reactRedux.connect)(menuSelector)(ComponentMenu);
+
+/***/ },
+/* 468 */
+/*!*****************************************!*\
+  !*** ./app/containers/OpenSiteModal.js ***!
+  \*****************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(/*! react */ 5);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _reactRedux = __webpack_require__(/*! react-redux */ 162);
+	
+	var _utils = __webpack_require__(/*! ../utils */ 214);
+	
+	var _CartoonButton = __webpack_require__(/*! ../components/CartoonButton */ 222);
+	
+	var _CartoonButton2 = _interopRequireDefault(_CartoonButton);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function SiteItem(props) {
+	  return _react2.default.createElement(
+	    'div',
+	    { className: 'site-item', onClick: props.onClick },
+	    _react2.default.createElement('i', { className: 'fa fa-files-o', 'aria-hidden': 'true' }),
+	    props.name
+	  );
+	}
+	
+	var OpenSiteModal = _react2.default.createClass({
+	  displayName: 'OpenSiteModal',
+	  render: function render() {
+	    var _this = this;
+	
+	    //console.log('OPEN SITE MODAL RENDER')
+	    var recentSitesBlock = void 0;
+	    var recentSites = this.props.recentSites;
+	
+	
+	    if (recentSites.length) {
+	      var recentSiteItems = recentSites.map(function (recentSite) {
+	        return _react2.default.createElement(SiteItem, {
+	          name: recentSite.name,
+	          onClick: function onClick() {
+	            return _this.props.actions.loadSite(recentSite.path);
+	          }
+	        });
+	      });
+	
+	      recentSitesBlock = _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	          'h2',
+	          null,
+	          'Recent Sites'
+	        ),
+	        recentSiteItems
+	      );
+	    }
+	
+	    if (this.props.isOpen) {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'dark-background' },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'modal-card' },
+	          _react2.default.createElement(
+	            'h1',
+	            { className: 'tc f1 mt0' },
+	            'Sites'
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'tc' },
+	            _react2.default.createElement(_CartoonButton2.default, {
+	              text: 'New',
+	              onClick: function onClick() {
+	                return (0, _utils.saveSiteAsDialog)(_this.props.actions);
+	              },
+	              size: 'medium'
+	            }),
+	            _react2.default.createElement(_CartoonButton2.default, {
+	              className: 'ml2',
+	              text: 'Open',
+	              onClick: function onClick() {
+	                return (0, _utils.loadSiteDialog)(_this.props.actions);
+	              },
+	              size: 'medium'
+	            })
+	          ),
+	          recentSitesBlock
+	        )
+	      );
+	    } else {
+	      return _react2.default.createElement('div', null);
+	    }
+	  }
+	});
+	
+	var siteModalSelector = (0, _utils.createImmutableJSSelector)([function (state) {
+	  return state.getIn(['fileMetadata', 'dirname']);
+	}, function (state) {
+	  return state.get('recentSites');
+	}], function (dirname, recentSites) {
 	  return {
-	    currentMainView: currentMainView,
-	    assets: _lodash2.default.toArray(assets.toJS())
+	    isOpen: !dirname,
+	    recentSites: recentSites.toJS()
 	  };
 	});
 	
-	exports.default = (0, _reactRedux.connect)(assetsSelector)(AssetsView);
+	exports.default = (0, _reactRedux.connect)(function (state) {
+	  return siteModalSelector(state);
+	})(OpenSiteModal);
 
 /***/ },
-/* 459 */
+/* 469 */
 /*!*******************************!*\
   !*** ./public/scss/main.scss ***!
   \*******************************/
@@ -73808,17 +73751,17 @@
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(/*! !./../../~/css-loader!./../../~/sass-loader!./main.scss */ 460);
+	var content = __webpack_require__(/*! !../../~/css-loader!../../~/sass-loader!./main.scss */ 470);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(/*! ./../../~/style-loader/addStyles.js */ 462)(content, {});
+	var update = __webpack_require__(/*! ../../~/style-loader/addStyles.js */ 472)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./main.scss", function() {
-				var newContent = require("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./main.scss");
+			module.hot.accept("!!../../node_modules/css-loader/index.js!../../node_modules/sass-loader/index.js!./main.scss", function() {
+				var newContent = require("!!../../node_modules/css-loader/index.js!../../node_modules/sass-loader/index.js!./main.scss");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -73828,13 +73771,13 @@
 	}
 
 /***/ },
-/* 460 */
+/* 470 */
 /*!**************************************************************!*\
   !*** ./~/css-loader!./~/sass-loader!./public/scss/main.scss ***!
   \**************************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(/*! ./../../~/css-loader/lib/css-base.js */ 461)();
+	exports = module.exports = __webpack_require__(/*! ../../~/css-loader/lib/css-base.js */ 471)();
 	// imports
 	
 	
@@ -73845,7 +73788,7 @@
 
 
 /***/ },
-/* 461 */
+/* 471 */
 /*!**************************************!*\
   !*** ./~/css-loader/lib/css-base.js ***!
   \**************************************/
@@ -73904,7 +73847,7 @@
 
 
 /***/ },
-/* 462 */
+/* 472 */
 /*!*************************************!*\
   !*** ./~/style-loader/addStyles.js ***!
   \*************************************/
@@ -73923,7 +73866,7 @@
 			};
 		},
 		isOldIE = memoize(function() {
-			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
+			return /msie [6-9]\b/.test(self.navigator.userAgent.toLowerCase());
 		}),
 		getHeadElement = memoize(function () {
 			return document.head || document.getElementsByTagName("head")[0];
@@ -74159,190 +74102,25 @@
 
 
 /***/ },
-/* 463 */
-/*!***************************************!*\
-  !*** ./~/human-readable-ids/index.js ***!
-  \***************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/*jshint -W054 */
-	;(function (exports) {
-	  'use strict';
-	
-	  var lists = exports.humanReadableIds || __webpack_require__(/*! ./lists */ 464)
-	    , shuffle = exports.knuthShuffle || __webpack_require__(/*! knuth-shuffle */ 467).knuthShuffle
-	    , animals = []
-	    , adjectives = []
-	    , numbers = []
-	    ;
-	
-	  function genNumbers() {
-	    var i = 2
-	      ;
-	
-	    numbers = [];
-	    numbers.push(0);
-	    // 1 is not plural, so we skip it
-	    for (i = 2; i <= 100; i += 1) {
-	      numbers.push(i);
-	    }
-	
-	    return shuffle(numbers);
-	  }
-	
-	  function random() {
-	    if (!adjectives.length) {
-	      adjectives = shuffle(lists.adjectives.slice(0));
-	    }
-	    if (!animals.length) {
-	      animals = shuffle(lists.animals.slice(0));
-	    }
-	    if (!numbers.length) {
-	      numbers = shuffle(genNumbers());
-	    }
-	
-	    return adjectives.pop()
-	      + '-' + animals.pop()
-	      + '-' + numbers.pop()
-	      ;
-	  }
-	
-	  exports.humanReadableIds = { random: random };
-	  exports.hri = exports.humanReadableIds;
-	
-	}('undefined' !== typeof exports && exports || new Function('return this')()));
-
-
-/***/ },
-/* 464 */
-/*!***************************************!*\
-  !*** ./~/human-readable-ids/lists.js ***!
-  \***************************************/
+/* 473 */
+/*!******************************************!*\
+  !*** ./app/containers/ComponentsView.js ***!
+  \******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	module.exports = {
-	  animals: __webpack_require__(/*! ./assets/animals */ 465).humanReadableIds.animals
-	, adjectives: __webpack_require__(/*! ./assets/adjectives */ 466).humanReadableIds.adjectives
-	};
+	var _react = __webpack_require__(/*! react */ 5);
+	
+	var _react2 = _interopRequireDefault(_react);
 
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /***/ },
-/* 465 */
-/*!************************************************!*\
-  !*** ./~/human-readable-ids/assets/animals.js ***!
-  \************************************************/
-/***/ function(module, exports) {
-
-	/*jshint -W054 */
-	;(function (exports) {
-	  'use strict';
-	
-	  exports.humanReadableIds = exports.humanReadableIds || {};
-	  exports.humanReadableIds.animals = ["ape","baboon","badger","bat","bear","bird","bobcat","bulldog","bullfrog","cat","catfish","cheetah","chicken","chipmunk","cobra","cougar","cow","crab","deer","dingo","dodo","dog","dolphin","donkey","dragon","dragonfly","duck","eagle","earwig","eel","elephant","emu","falcon","fireant","firefox","fish","fly","fox","frog","gecko","goat","goose","grasshopper","horse","hound","husky","impala","insect","jellyfish","kangaroo","ladybug","liger","lion","lionfish","lizard","mayfly","mole","monkey","moose","moth","mouse","mule","newt","octopus","otter","owl","panda","panther","parrot","penguin","pig","puma","pug","quail","rabbit","rat","rattlesnake","robin","seahorse","sheep","shrimp","skunk","sloth","snail","snake","squid","starfish","stingray","swan","termite","tiger","treefrog","turkey","turtle","vampirebat","walrus","warthog","wasp","wolverine","wombat","yak","zebra"];
-	}('undefined' !== typeof exports && exports || new Function('return this')()));
-
-
-/***/ },
-/* 466 */
-/*!***************************************************!*\
-  !*** ./~/human-readable-ids/assets/adjectives.js ***!
-  \***************************************************/
-/***/ function(module, exports) {
-
-	/*jshint -W054 */
-	;(function (exports) {
-	  'use strict';
-	
-	  exports.humanReadableIds = exports.humanReadableIds || {};
-	  exports.humanReadableIds.adjectives = ["afraid","ancient","angry","average","bad","big","bitter","black","blue","brave","breezy","bright","brown","calm","chatty","chilly","clever","cold","cowardly","cuddly","curly","curvy","dangerous","dry","dull","empty","evil","fast","fat","fluffy","foolish","fresh","friendly","funny","fuzzy","gentle","giant","good","great","green","grumpy","happy","hard","heavy","helpless","honest","horrible","hot","hungry","itchy","jolly","kind","lazy","light","little","loud","lovely","lucky","massive","mean","mighty","modern","moody","nasty","neat","nervous","new","nice","odd","old","orange","ordinary","perfect","pink","plastic","polite","popular","pretty","proud","purple","quick","quiet","rare","red","rotten","rude","selfish","serious","shaggy","sharp","short","shy","silent","silly","slimy","slippery","smart","smooth","soft","sour","spicy","splendid","spotty","stale","strange","strong","stupid","sweet","swift","tall","tame","tasty","tender","terrible","thin","tidy","tiny","tough","tricky","ugly","unlucky","warm","weak","wet","white","wicked","wise","witty","wonderful","yellow","young"];
-	}('undefined' !== typeof exports && exports || new Function('return this')()));
-
-
-/***/ },
-/* 467 */
-/*!**********************************!*\
-  !*** ./~/knuth-shuffle/index.js ***!
-  \**********************************/
-/***/ function(module, exports) {
-
-	/*jshint -W054 */
-	(function (exports) {
-	  'use strict';
-	
-	  // http://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
-	  function shuffle(array) {
-	    var currentIndex = array.length
-	      , temporaryValue
-	      , randomIndex
-	      ;
-	
-	    // While there remain elements to shuffle...
-	    while (0 !== currentIndex) {
-	
-	      // Pick a remaining element...
-	      randomIndex = Math.floor(Math.random() * currentIndex);
-	      currentIndex -= 1;
-	
-	      // And swap it with the current element.
-	      temporaryValue = array[currentIndex];
-	      array[currentIndex] = array[randomIndex];
-	      array[randomIndex] = temporaryValue;
-	    }
-	
-	    return array;
-	  }
-	
-	  exports.knuthShuffle = shuffle;
-	}('undefined' !== typeof exports && exports || 'undefined' !== typeof window && window || global));
-
-
-/***/ },
-/* 468 */
-/*!***********************!*\
-  !*** external "path" ***!
-  \***********************/
-/***/ function(module, exports) {
-
-	module.exports = require("path");
-
-/***/ },
-/* 469 */
-/*!************************************!*\
-  !*** ./~/redux-thunk/lib/index.js ***!
-  \************************************/
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	exports.__esModule = true;
-	function createThunkMiddleware(extraArgument) {
-	  return function (_ref) {
-	    var dispatch = _ref.dispatch,
-	        getState = _ref.getState;
-	    return function (next) {
-	      return function (action) {
-	        if (typeof action === 'function') {
-	          return action(dispatch, getState, extraArgument);
-	        }
-	
-	        return next(action);
-	      };
-	    };
-	  };
-	}
-	
-	var thunk = createThunkMiddleware();
-	thunk.withExtraArgument = createThunkMiddleware;
-	
-	exports['default'] = thunk;
-
-/***/ },
-/* 470 */
-/*!***************************!*\
-  !*** ./app/serializer.js ***!
-  \***************************/
+/* 474 */
+/*!*******************************************!*\
+  !*** ./app/containers/EditorLeftPanel.js ***!
+  \*******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -74351,213 +74129,126 @@
 	  value: true
 	});
 	
-	var _lodash = __webpack_require__(/*! lodash */ 204);
+	var _react = __webpack_require__(/*! react */ 5);
 	
-	var _lodash2 = _interopRequireDefault(_lodash);
+	var _react2 = _interopRequireDefault(_react);
 	
-	var _immutable = __webpack_require__(/*! immutable */ 206);
+	var _FormLabel = __webpack_require__(/*! ../components/forms/FormLabel */ 226);
 	
-	var _immutable2 = _interopRequireDefault(_immutable);
+	var _FormLabel2 = _interopRequireDefault(_FormLabel);
+	
+	var _TextField = __webpack_require__(/*! ../components/forms/TextField */ 223);
+	
+	var _TextField2 = _interopRequireDefault(_TextField);
+	
+	var _ComponentTreeContainer = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"../components/ComponentTreeContainer\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	
+	var _ComponentTreeContainer2 = _interopRequireDefault(_ComponentTreeContainer);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	function serializerFactory() {
-	  var serializableKeys = ['siteName', 'pages', 'componentMap', 'ourComponentBoxes', 'yourComponentBoxes', 'currentPageId', 'assets', 'componentsMap', 'recentSites'];
-	
-	  function serialize(state) {
-	    var serializableState = _lodash2.default.pick(state.toJS(), serializableKeys);
-	    return JSON.stringify(serializableState);
-	  }
-	
-	  function deserialize(jsonState) {
-	    return _immutable2.default.fromJS(JSON.parse(jsonState));
-	  }
-	
-	  return { serialize: serialize, deserialize: deserialize };
-	}
-	
-	var serializer = serializerFactory();
-	
-	exports.default = serializer;
-
-/***/ },
-/* 471 */
-/*!********************************************************!*\
-  !*** ./app/stateManagers/componentTreeStateManager.js ***!
-  \********************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.componentTreeReducer = exports.componentTreeActions = undefined;
-	
-	var _componentTreeReducer;
-	
-	var _constants = __webpack_require__(/*! ../constants */ 210);
-	
-	var _base_components = __webpack_require__(/*! ../base_components */ 218);
-	
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-	
-	var UNHOVER_COMPONENT = 'UNHOVER_COMPONENT';
-	var HOVER_COMPONENT = 'HOVER_COMPONENT';
-	
-	var ADD_VARIANT = 'ADD_VARIANT';
-	var MOVE_COMPONENT = 'MOVE_COMPONENT';
-	var DELETE_COMPONENT = 'DELETE_COMPONENT';
-	
-	var SELECT_COMPONENT = 'SELECT_COMPONENT';
-	
-	var CHANGE_COMPONENT_NAME = 'CHANGE_COMPONENT_NAME';
-	var CREATE_COMPONENT_BLOCK = 'CREATE_COMPONENT_BLOCK';
-	var SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
-	
-	// test for optional argument
-	var componentTreeActions = exports.componentTreeActions = {
-	  moveComponent: function moveComponent(componentId, parentComponentId, insertionIndex) {
-	    return {
-	      type: MOVE_COMPONENT,
-	      componentId: componentId,
-	      parentComponentId: parentComponentId,
-	      insertionIndex: insertionIndex
-	    };
-	  },
-	  addVariant: function addVariant(componentId, parentComponentId, insertionIndex, spec) {
-	    return {
-	      type: ADD_VARIANT,
-	      componentId: componentId,
-	      parentComponentId: parentComponentId,
-	      insertionIndex: insertionIndex,
-	      spec: spec || {}
-	    };
-	  },
-	  deleteComponent: function deleteComponent(componentId) {
-	    return {
-	      type: DELETE_COMPONENT,
-	      componentId: componentId
-	    };
-	  },
-	  selectComponent: function selectComponent(componentId) {
-	    return {
-	      type: SELECT_COMPONENT,
-	      componentId: componentId,
-	      _noUndo: true
-	    };
-	  },
-	  hoverComponent: function hoverComponent(componentId) {
-	    return {
-	      type: HOVER_COMPONENT,
-	      componentId: componentId,
-	      _noUndo: true
-	    };
-	  },
-	  unHoverComponent: function unHoverComponent() {
-	    return {
-	      type: UNHOVER_COMPONENT,
-	      _noUndo: true
-	    };
-	  },
-	  changeComponentName: function changeComponentName(componentId, newName) {
-	    return {
-	      type: CHANGE_COMPONENT_NAME,
-	      componentId: componentId,
-	      newName: newName
-	    };
-	  },
-	  createComponentBlock: function createComponentBlock(newBlockId) {
-	    return {
-	      type: CREATE_COMPONENT_BLOCK,
-	      newBlockId: newBlockId
-	    };
-	  },
-	  setComponentAttribute: function setComponentAttribute(componentId, attrKey, newAttrValue) {
-	    return {
-	      type: SET_COMPONENT_ATTRIBUTE,
-	      componentId: componentId,
-	      attrKey: attrKey,
-	      newAttrValue: newAttrValue
-	    };
-	  }
+	var panelTypes = {
+	  TREE: 'TREE',
+	  DETAILS: 'DETAILS'
 	};
 	
-	var componentTreeReducer = exports.componentTreeReducer = (_componentTreeReducer = {}, _defineProperty(_componentTreeReducer, ADD_VARIANT, function (state, action) {
-	  var componentId = action.componentId,
-	      parentComponentId = action.parentComponentId,
-	      insertionIndex = action.insertionIndex,
-	      spec = action.spec;
+	var EditorLeftPanel = _react2.default.createClass({
+	  displayName: 'EditorLeftPanel',
+	  getInitialState: function getInitialState() {
+	    return {
+	      activePanel: panelTypes.TREE
+	    };
+	  },
+	  render: function render() {
+	    var _this = this;
 	
-	  var componentsContainer = new _base_components.ComponentsContainer(state.get('componentsMap'));
+	    var _props = this.props,
+	        actions = _props.actions,
+	        renderTree = _props.renderTree,
+	        currentPage = _props.currentPage,
+	        activeComponentId = _props.activeComponentId,
+	        hoveredComponentId = _props.hoveredComponentId;
+	    var activePanel = this.state.activePanel;
 	
-	  var variantId = componentsContainer.createVariant(componentId, spec);
 	
-	  componentsContainer.addChild(parentComponentId, variantId, insertionIndex);
-	
-	  return state.set('componentsMap', componentsContainer.components);
-	}), _defineProperty(_componentTreeReducer, MOVE_COMPONENT, function (state, action) {
-	  return state.set('componentsMap', _base_components.ComponentsContainer.moveComponent(state.get('componentsMap'), action.componentId, action.parentComponentId, action.insertionIndex));
-	}), _defineProperty(_componentTreeReducer, DELETE_COMPONENT, function (state, action) {
-	  var componentId = action.componentId;
-	
-	  var componentsContainer = new _base_components.ComponentsContainer(state.get('componentsMap'));
-	  componentsContainer.deleteComponent(componentId);
-	
-	  return state.updateIn(['activeComponentId'], function (activeComponentId) {
-	    if (activeComponentId === componentId) {
-	      return undefined;
+	    if (!currentPage) {
+	      leftPanel = _react2.default.createElement(
+	        'h2',
+	        { className: 'suggestion' },
+	        'No Page Selected'
+	      );
 	    } else {
-	      return activeComponentId;
+	      if (activeLeftPanel === leftPanelTypes.DETAILS) {
+	        var inputs = [{ name: 'name', key: 'metaName' }, { name: 'url', key: 'url' }, { name: 'author', key: 'author' }, { name: 'title', key: 'title' }, { name: 'description', key: 'description', large: true }, { name: 'keywords', key: 'keywords', large: true }].map(function (input) {
+	          return _react2.default.createElement(
+	            _FormLabel2.default,
+	            { name: input.name },
+	            _react2.default.createElement(_TextField2.default, {
+	              key: input.key,
+	              value: currentPage.get(input.key),
+	              onSubmit: function onSubmit(value) {
+	                _this.props.actions.setPageValue(input.key, value);
+	              },
+	              isLarge: input.large
+	            })
+	          );
+	        });
+	
+	        body = _react2.default.createElement(
+	          'div',
+	          null,
+	          inputs
+	        );
+	      } else if (activeLeftPanel === leftPanelTypes.TREE) {
+	        body = _react2.default.createElement(_ComponentTreeContainer2.default, {
+	          actions: actions,
+	          renderTree: renderTree,
+	          activeComponentId: activeComponentId,
+	          hoveredComponentId: hoveredComponentId
+	        });
+	      }
+	
+	      return _react2.default.createElement(
+	        Sidebar,
+	        { direction: 'left' },
+	        _react2.default.createElement(
+	          'div',
+	          null,
+	          _react2.default.createElement(HorizontalSelect, {
+	            className: 'w-100',
+	            options: [{ value: leftPanelTypes.TREE, text: 'Tree' }, { value: leftPanelTypes.DETAILS, text: 'Page Settings' }],
+	            activePanel: this.props.activePanel,
+	            onClick: function onClick(value) {
+	              _this.setState({ activePanel: value });
+	            }
+	          }),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'ph1' },
+	            body
+	          )
+	        )
+	      );
 	    }
-	  }).set('componentsMap', componentsContainer.components);
-	}), _defineProperty(_componentTreeReducer, SELECT_COMPONENT, function (state, action) {
-	  return state.merge({
-	    activeComponentState: _constants.NONE,
-	    activeComponentBreakpoint: _constants.NONE,
-	    activeComponentId: action.componentId
-	  });
-	}), _defineProperty(_componentTreeReducer, CHANGE_COMPONENT_NAME, function (state, action) {
-	  return state.setIn(['componentsMap', action.componentId, 'name'], action.newName);
-	}), _defineProperty(_componentTreeReducer, CREATE_COMPONENT_BLOCK, function (state, action) {
-	  var newBlockId = action.newBlockId;
+	  }
+	});
 	
+	var editorLeftPanelSelector = createImmutableJSSelector([function (state) {
+	  return state.getIn(['pages', state.get('currentPageId')]);
+	}, function (state) {
+	  return state.get('activeComponentId');
+	}, function (state) {
+	  return state.get('hoveredComponentId');
+	}, renderTreeSelector], function (renderTree, currentPage, activeComponentId, hoveredComponentId) {
+	  return {
+	    renderTree: renderTree,
+	    currentPage: currentPage,
+	    activeComponentId: activeComponentId,
+	    hoveredComponentId: hoveredComponentId
+	  };
+	});
 	
-	  var newComponentsMap = state.get('componentsMap').withMutations(function (componentsMap) {
-	    var componentsContainer = new _base_components.ComponentsContainer(componentsMap);
-	    var newBlockParentId = componentsMap.getIn([newBlockId, 'parentId']);
-	    componentsMap.mergeIn([newBlockId], { name: 'New Component', parentId: undefined });
-	
-	    var variantId = componentsContainer.createVariant(newBlockId, {
-	      parentId: newBlockParentId
-	    });
-	
-	    componentsMap.updateIn([newBlockParentId, 'childIds'], function (childIds) {
-	      return childIds.map(function (childId) {
-	        if (childId === newBlockId) {
-	          return variantId;
-	        } else {
-	          return childId;
-	        }
-	      });
-	    });
-	  });
-	
-	  return state.update('yourComponentBoxes', function (yourComponentBoxes) {
-	    return yourComponentBoxes.push(newBlockId);
-	  }).set('componentsMap', newComponentsMap);
-	}), _defineProperty(_componentTreeReducer, SET_COMPONENT_ATTRIBUTE, function (state, action) {
-	  return state.update('componentsMap', function (componentsMap) {
-	    return _base_components.ComponentsContainer.setAttribute(componentsMap, action.componentId, action.attrKey, action.newAttrValue, {
-	      breakpoint: state.get('activeComponentBreakpoint'),
-	      state: state.get('activeComponentState')
-	    });
-	  });
-	}), _defineProperty(_componentTreeReducer, UNHOVER_COMPONENT, function (state) {
-	  return state.set('hoveredComponentId', undefined);
-	}), _defineProperty(_componentTreeReducer, HOVER_COMPONENT, function (state, action) {
-	  return state.set('hoveredComponentId', action.componentId);
-	}), _componentTreeReducer);
+	exports.default = connect(editorLeftPanelSelector)(EditorLeftPanel);
 
 /***/ }
 /******/ ]);

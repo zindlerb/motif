@@ -23,7 +23,7 @@ const AssetIcon = React.createClass({
     const { name, src } = asset;
     let editBar, input;
 
-    if (this.state.isHovering) {
+    if (isHovering) {
       editBar = (
         <div className="asset-edit-bar">
           <i
@@ -50,7 +50,7 @@ const AssetIcon = React.createClass({
                 this.setState({ isEditing: false });
                 actions.updateAssetName(asset.id, value);
               }}
-            value={ asset.name }
+            value={asset.name}
         />
       );
     } else {

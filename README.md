@@ -12,9 +12,11 @@ $ npm run start
 and
 
 ``` shell
-$ npm run build
+$ npm run dev
 ```
 in another terminal
 
 For Tests run
+``` shell
 $ npm run test
+```

@@ -557,6 +557,8 @@ export class ComponentsContainer {
       // need to use attr getter
       return `<img class="${id}" src="${attributes.src}" />`;
     }
+
+    throw new Error('Invalid Component Type ' + componentType);
   }
 
   getCss(componentId) {

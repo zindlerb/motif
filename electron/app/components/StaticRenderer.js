@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import _ from 'lodash';
 import classnames from 'classnames';
 import $ from 'jquery';
@@ -7,17 +6,11 @@ import $ from 'jquery';
 import dragManager from '../dragManager';
 import {
   attributeStateTypes,
-  ComponentsContainer
 } from '../base_components';
 import {
   componentTypes,
   SIDEBAR_WIDTH
 } from '../constants';
-import { focusRefCallback, createImmutableJSSelector } from '../utils';
-import HorizontalSelect from '../components/HorizontalSelect';
-import FormLabel from '../components/forms/FormLabel';
-import PopupSelect from '../components/PopupSelect';
-import UpArrow from '../components/UpArrow';
 
 const RootClassReact = function (props) {
   const {
@@ -26,7 +19,6 @@ const RootClassReact = function (props) {
     className,
     context,
     actions,
-    isMouseInRenderer
   } = props;
 
   const children = _.map(mComponentData.children, function (child) {
@@ -36,7 +28,6 @@ const RootClassReact = function (props) {
           mComponentData={child}
           context={context}
           actions={actions}
-          isMouseInRenderer={isMouseInRenderer}
       />);
   });
 
@@ -58,11 +49,11 @@ const ContainerClassReact = React.createClass({
   },
 
   componentWillReceiveProps(nextProps) {
-    if (this.shouldExpand() && nextProps.isMouseInRenderer && !this.state.isExpanded) {
+    if (this.shouldExpand() && nextProps.context.isMouseInRenderer && !this.state.isExpanded) {
       this.setState({ isExpanded: true });
     }
 
-    if (this.state.isExpanded && !nextProps.isMouseInRenderer) {
+    if (this.state.isExpanded && !nextProps.context.isMouseInRenderer) {
       this.setState({ isExpanded: false });
     }
   },
@@ -83,7 +74,6 @@ const ContainerClassReact = React.createClass({
     const {
       mComponentData,
       context,
-      isMouseInRenderer,
       className,
       actions
     } = this.props;
@@ -95,7 +85,6 @@ const ContainerClassReact = React.createClass({
             actions={actions}
             mComponentData={child}
             context={context}
-            isMouseInRenderer={isMouseInRenderer}
         />
       );
     });
@@ -236,7 +225,7 @@ const MComponentDataRenderer = React.createClass({
       )
     };
 
-    const onClick = () => {
+    const onClick = (e) => {
       actions.selectComponent(mComponentData.id);
       actions.changePanel('ATTRIBUTES', 'right');
       e.stopPropagation();
@@ -396,28 +385,25 @@ const StaticRenderer = React.createClass({
 
   render() {
     //console.log('STATIC RENDERER RENDER')
-    // TD: componentTree to renderTree
     let {
-      activeView,
       renderTree,
-      context,
+      activeComponentId,
+      hoveredComponentId,
       width,
-      currentPageId,
-      currentPageName,
-      pages,
       actions
     } = this.props;
     let renderer;
-    currentPageName = currentPageName || 'No Page';
 
     if (renderTree) {
       renderer = (
         <MComponentDataRenderer
-            actions={this.props.actions}
             mComponentData={renderTree}
             actions={actions}
-            context={context}
-            isMouseInRenderer={this.state.isMouseInRenderer}
+            context={{
+              activeComponentId,
+              hoveredComponentId,
+              isMouseInRenderer: this.state.isMouseInRenderer
+            }}
         />
       );
     }
@@ -438,74 +424,4 @@ const StaticRenderer = React.createClass({
   },
 });
 
-const pageListSelector = createImmutableJSSelector(
-  state => state.get('pages'),
-  (imPages) => {
-    let pages = [];
-    imPages.forEach((page) => {
-      pages.push({
-        id: page.get('id'),
-        name: page.get('name')
-      })
-    });
-
-    return pages;
-  }
-);
-
-const contextSelector = createImmutableJSSelector(
-  [
-    state => state.get('hoveredComponentId'),
-    state => state.get('activeComponentId'),
-    state => state.get('selectedComponentViewDropSpot')
-  ],
-  (hoveredComponentId, activeComponentId, selectedComponentViewDropSpot) => {
-    return {
-      hoveredComponentId,
-      activeComponentId,
-      selectedComponentViewDropSpot
-    }
-  }
-);
-
-// TD: clean up!!
-const staticRendererSelector = createImmutableJSSelector(
-  [
-    pageListSelector,
-    state => state.getIn(['pages', state.get('currentPageId')]),
-    state => state.get('componentsMap'),
-    state => state.get('rendererWidth'),
-    state => state.get('activeView'),
-    contextSelector
-  ],
-  (pages, currentPage, componentsMap, rendererWidth, activeView, context) => {
-    let componentTree;
-    if (currentPage) {
-      let componentTreeId = currentPage.get('componentTreeId');
-
-      componentTree = ComponentsContainer.getRenderTree(
-        componentsMap,
-        componentTreeId,
-        {
-          width: rendererWidth,
-          // TD: track and add states
-          states: {}
-        }
-      );
-    }
-
-    return {
-      width: rendererWidth,
-      componentTree,
-      activeView,
-      pages,
-      currentPageId: currentPage.get('id'),
-      currentPageName: currentPage.get('name'),
-      context
-    }
-  }
-)
-
-export default connect(function (state) {
-  return staticRendererSelector(state);
-})(StaticRenderer);
+export default StaticRenderer;

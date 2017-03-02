@@ -1,14 +1,10 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import { ComponentsContainer } from '../base_components';
 import AttributeField from '../components/AttributeField';
 import DivToBottom from '../components/DivToBottom';
-import SidebarHeader from '../components/SidebarHeader';
 import CartoonButton from '../components/CartoonButton';
 import Dropdown from '../components/forms/Dropdown';
-import { createImmutableJSSelector } from '../utils';
 import {
   fieldTypes,
   componentTypes,
@@ -16,39 +12,6 @@ import {
   stateTypes,
   breakpointTypes
 } from '../constants';
-
-/*
-   What does a validation consist of?
-
-   valid color types:
-   #ff0000;
-   rgb(255, 0, 0);
-   rgba(255, 0, 0, 0.3);
-   hsl(120, 100%, 50%);
-
-
-   - a check against the string determining if it is valid
-   - a error message - error message could also take string and be dependent on it? or
-
-   const validations = {
-   [NUMBER]: {
-   check(str) {
-
-   },
-   errorMsg(str) {
-   // no unit
-   // invalid number
-   }
-   },
-
-   [COLOR]: {
-   check(str) {
-
-   },
-   errorMsg: 'Invalid color format. '
-   },
-   }
- */
 
 const {
   LARGE_TEXT,
@@ -362,41 +325,4 @@ const Attributes = function (props) {
   );
 }
 
-const attributesSelector = createImmutableJSSelector(
-  [
-    state => state.get('componentsMap'),
-    state => state.get('activeComponentId'),
-    state => state.get('activeComponentState'),
-    state => state.get('activeComponentBreakpoint'),
-  ],
-  (componentsMap, activeComponentId,
-   activeComponentState, activeComponentBreakpoint) => {
-     if (activeComponentId) {
-       return {
-         componentName: ComponentsContainer.getName(
-           componentsMap,
-           activeComponentId
-         ),
-         componentType: componentsMap.getIn([
-           activeComponentId,
-           'componentType'
-         ]),
-         attributes: ComponentsContainer.getAttributes(
-           componentsMap,
-           activeComponentId,
-           componentsMap,
-           {
-             state: activeComponentState,
-             breakpoint: activeComponentBreakpoint,
-           }),
-         componentId: activeComponentId,
-         componentState: activeComponentState,
-         componentBreakpoint: activeComponentBreakpoint,
-       }
-     } else {
-       return {};
-     }
-  }
-)
-
-export default connect(attributesSelector)(Attributes);
+export default Attributes;

@@ -234,7 +234,7 @@ window.logger = function logger(...args) {
 
 export function escapeHtml(str) {
   // From: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
-  var div = document.createElement('div');
+  const div = document.createElement('div');
   div.appendChild(document.createTextNode(str));
   return div.innerHTML;
 }

@@ -6,7 +6,7 @@ const Sidebar = function (props) {
   const { children, direction } = props;
   return (
     <div
-        className={classnames("sidebar h-100 flex-none", direction)}
+        className={classnames('sidebar h-100 flex-none', direction)}
         style={{ width: SIDEBAR_WIDTH }}
     >
       { children }
