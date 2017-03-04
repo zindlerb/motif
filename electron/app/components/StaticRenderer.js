@@ -305,6 +305,7 @@ const DragHandle = React.createClass({
       actions
     } = this.props;
     // add a drag manager for listening and unlistening to events
+    const that = this;
     dragManager.start(e, {
       dragType: 'resize',
       initialX: e.clientX,
@@ -320,7 +321,7 @@ const DragHandle = React.createClass({
 
         if (this.newWidth > 30 &&
             this.newWidth < ($(window).width() - (SIDEBAR_WIDTH * 2) - 80)) {
-          actions.setRendererWidth(this.newWidth);
+          that.props.setRendererWidth(this.newWidth);
         }
       },
       onEnd: () => {
@@ -390,6 +391,7 @@ const StaticRenderer = React.createClass({
       activeComponentId,
       hoveredComponentId,
       width,
+      setRendererWidth,
       actions
     } = this.props;
     let renderer;
@@ -417,8 +419,18 @@ const StaticRenderer = React.createClass({
           className={classnames('renderer-container flex-auto m-auto relative static-view-border')}
       >
         {renderer}
-        <DragHandle direction="left" rendererWidth={width} actions={actions} />
-        <DragHandle direction="right" rendererWidth={width} actions={actions} />
+        <DragHandle
+            direction="left"
+            rendererWidth={width}
+            setRendererWidth={setRendererWidth}
+            actions={actions}
+        />
+        <DragHandle
+            direction="right"
+            rendererWidth={width}
+            setRendererWidth={setRendererWidth}
+            actions={actions}
+        />
       </div>
     );
   },

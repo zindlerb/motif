@@ -4,6 +4,7 @@ import _ from 'lodash';
 import classnames from 'classnames';
 
 import { wasRightButtonPressed } from '../utils';
+import { componentTypes } from '../constants';
 import TreeItem from './TreeItem';
 
 const Spacer = function (props) {
@@ -54,19 +55,20 @@ function checkActive(parentId, dropPoint, ind) {
 const ComponentTree = React.createClass({
   shouldComponentUpdate(nextProps) {
     // TD: change this so there is less coupling with container
-    if (nextProps.isDragging) {
+    if (nextProps.isDragging && nextProps.shouldNotUpdate) {
       // Assumes component tree cannot change mid drag
-      return nextProps.shouldUpdate;
+      return false;
     } else {
       return true;
     }
   },
   render() {
     let children;
-    let afterSpacer, beforeSpacer, afterSpacerInd;
+    let afterSpacer, beforeSpacer, afterSpacerInd, treeItemElement;
     let {
       context,
       node,
+      containerMethods,
       actions
     } = this.props;
 
@@ -76,6 +78,10 @@ const ComponentTree = React.createClass({
       activeComponentId,
       hoveredComponentId
     } = context;
+
+    const isOpen = context.openComponents[node.id];
+    const isRoot = node.componentType === componentTypes.ROOT;
+    const isEmpty = node.children.length == 0;
 
     if (node.parent) {
       if (node.index === 0) {
@@ -108,22 +114,30 @@ const ComponentTree = React.createClass({
       );
     }
 
-    children = (
-      <TreeChildren
-          parentId={node.id}
-          children={node.children}
-          context={context}
-          actions={actions}
-      />
-    );
+    if (isRoot || isEmpty || isOpen ) {
+      children = (
+        <TreeChildren
+            parentId={node.id}
+            children={node.children}
+            containerMethods={containerMethods}
+            context={context}
+            actions={actions}
+        />
+      );
+    }
+
 
     const treeItemIsActive = node.id === activeComponentId;
     const treeItemIsHovered = node.id === hoveredComponentId;
 
-    return (
-      <div>
-        {beforeSpacer}
+    if (!isRoot) {
+      treeItemElement = (
         <TreeItem
+            isContainer={node.componentType === componentTypes.CONTAINER}
+            isEmpty={isEmpty}
+            isOpen={isOpen}
+            nodeId={node.id}
+            toggleTreeItem={containerMethods.toggleTreeItem}
             className={classnames('c-grab', {
                 isActive: treeItemIsActive,
                 isHovered: !treeItemIsActive && treeItemIsHovered
@@ -145,7 +159,7 @@ const ComponentTree = React.createClass({
                 const target = $(e.target);
                 const targetPos = target.position();
 
-                context.beginDrag(
+                containerMethods.beginDrag(
                   e,
                   node,
                   target.width(),
@@ -156,6 +170,13 @@ const ComponentTree = React.createClass({
         >
           {node.name}
         </TreeItem>
+      );
+    }
+
+    return (
+      <div>
+        {beforeSpacer}
+        {treeItemElement}
         {children}
         {afterSpacer}
       </div>
@@ -166,12 +187,13 @@ const ComponentTree = React.createClass({
 const TreeChildren = React.createClass({
   render() {
     let emptySpacer;
-    const { parentId, context } = this.props;
+    const { parentId, context, actions, containerMethods } = this.props;
     const children = _.map(this.props.children, (child) => {
       return (
         <ComponentTree
-            context={this.props.context}
-            actions={this.props.actions}
+            containerMethods={containerMethods}
+            context={context}
+            actions={actions}
             node={child}
             key={child.id}
         />

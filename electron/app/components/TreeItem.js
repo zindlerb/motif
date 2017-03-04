@@ -1,20 +1,48 @@
 import React from 'react';
 import classnames from 'classnames';
 
-const TreeItem = function (props) {
+function Arrow(props) {
   return (
     <span
-        className={classnames(
-            'treeItem w-100 pv1 db',
-            props.className,
-          )}
+        onClick={props.onClick}
+        className={classnames('collapsableArrow c-pointer', { open: props.isOpen })}>
+      &#x25ba;
+    </span>
+  );
+}
+
+const TreeItem = function(props) {
+  let arrow;
+  if (props.isContainer) {
+    arrow = (
+      <Arrow
+          isOpen={props.isEmpty || props.isOpen}
+          onClick={(e) => {
+              if (!props.isEmpty) {
+                props.toggleTreeItem(props.nodeId)
+              }
+              e.stopPropagation();
+            }}
+      />
+    );
+  }
+
+  return (
+    <div
         onMouseDown={props.onMouseDown}
         onMouseUp={props.onMouseUp}
         onMouseEnter={props.onMouseEnter}
         onMouseLeave={props.onMouseLeave}
-    >
-      {props.children}
-    </span>
+        className={classnames(
+        'treeItem pv1',
+        props.className,
+      )}>
+      {arrow}
+      <span>
+        {props.children}
+      </span>
+    </div>
+
   );
 }
 

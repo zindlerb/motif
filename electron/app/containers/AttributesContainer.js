@@ -5,7 +5,7 @@ import { createImmutableJSSelector } from '../utils';
 import { ComponentsContainer } from '../base_components';
 import Attributes from '../components/Attributes';
 
-const EditorAttributes = React.createClass({
+const AttributesContainer = React.createClass({
   render() {
     const {
       componentName,
@@ -68,4 +68,4 @@ const attributesSelector = createImmutableJSSelector(
    }
 );
 
-export default connect(attributesSelector)(EditorAttributes);
+export default connect(attributesSelector)(AttributesContainer);

@@ -11,7 +11,7 @@ const PopupSelect = React.createClass({
     }
   },
   render() {
-    let popup, pos, margin = 15;
+    let popup, pos, margin = 15, displayText = this.props.value;
     if (this.state.isOpen) {
       if (this.el) {
         let jqEl = $(this.el);
@@ -35,14 +35,18 @@ const PopupSelect = React.createClass({
       )
     }
 
+    if (!this.props.value) {
+      displayText = this.props.emptyText || 'No Item Selected';
+    }
+
     return (
       <div className="popup-select">
         <div
             ref={(ref) => { this.el = ref }}
-            className={classnames(this.props.className, 'dib')}
+            className={classnames(this.props.className, 'dib', )}
             onClick={() => this.setState({ isOpen: true })}
         >
-          {toTitleCase(this.props.value)}
+          <span className={classnames({ unselected: !this.props.value })}>{toTitleCase(displayText)}</span>
           <img
               className="icon-small dib ph1"
               src="public/img/assets/down-triangle.svg" />

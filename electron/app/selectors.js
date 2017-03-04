@@ -3,7 +3,7 @@ import { createImmutableJSSelector } from './utils';
 
 export const renderTreeSelector = createImmutableJSSelector(
   [
-    state => state.getIn(['pages', state.get('currentPageId'), 'componentTreeId']),
+    state => state.getIn(['pages', state.getIn(['editorView', 'currentPageId']), 'componentTreeId']),
     state => state.get('componentsMap'),
   ],
   (componentTreeId, componentsMap) => {
@@ -11,17 +11,22 @@ export const renderTreeSelector = createImmutableJSSelector(
   }
 );
 
-export const contextSelector = createImmutableJSSelector(
+export const componentTreeMetadataSelector = createImmutableJSSelector(
   [
     state => state.get('hoveredComponentId'),
     state => state.get('activeComponentId'),
-    state => state.get('selectedComponentViewDropSpot')
+    state => state.get('activeComponentBreakpoint'),
+    state => state.get('activeComponentState'),
   ],
-  (hoveredComponentId, activeComponentId, selectedComponentViewDropSpot) => {
-    return {
-      hoveredComponentId,
-      activeComponentId,
-      selectedComponentViewDropSpot
-    }
+  (hoveredComponentId,
+   activeComponentId,
+   activeComponentBreakpoint,
+   activeComponentState) => {
+     return {
+       hoveredComponentId,
+       activeComponentId,
+       activeComponentBreakpoint,
+       activeComponentState
+     }
   }
-);
+)

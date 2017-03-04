@@ -8,7 +8,6 @@ function serializerFactory() {
     'componentMap',
     'ourComponentBoxes',
     'yourComponentBoxes',
-    'currentPageId',
     'assets',
     'componentsMap',
     'recentSites'

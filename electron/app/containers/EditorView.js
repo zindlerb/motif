@@ -5,7 +5,7 @@ import ViewChoiceDropdown from '../components/ViewChoiceDropdown';
 import PagesDropdown from './PagesDropdown';
 import EditorRenderer from './EditorRenderer';
 import Sidebar from '../components/Sidebar';
-import EditorAttributes from './EditorAttributes';
+import AttributesContainer from './AttributesContainer';
 import EditorLeftPanel from './EditorLeftPanel';
 import ComponentMenu from '../components/ComponentMenu';
 import OpenSiteModal from '../containers/OpenSiteModal';
@@ -17,21 +17,23 @@ const EditorView = React.createClass({
       currentMainView
     } = this.props;
 
+    //console.log('EditorView Render');
+
     return (
       <div className={classnames('flex h-100')}>
         <Sidebar direction="left">
-          <EditorLeftPanel />
+          <EditorLeftPanel actions={actions} />
         </Sidebar>
         <div className="flex-auto flex flex-column h-100 mh4 relative">
           <ViewChoiceDropdown
               mainView={currentMainView}
               actions={actions}
           />
-          <PagesDropdown />
-          <EditorRenderer />
+          <PagesDropdown actions={actions} />
+          <EditorRenderer actions={actions} />
         </div>
         <Sidebar direction="right">
-          <EditorAttributes />
+          <AttributesContainer actions={actions} />
         </Sidebar>
         <ComponentMenu actions={actions} />
         <OpenSiteModal actions={actions} />

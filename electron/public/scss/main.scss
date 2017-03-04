@@ -252,8 +252,10 @@ body {
 }
 
 .drag-handle {
+  outline-width: 0px;
   position: absolute;
   top: 40%;
+  transform: translateY(-50%);
   z-index: 0;
 }
 
@@ -406,10 +408,7 @@ body {
 .renderer-container {
   background-color: white;
   border: 1px solid $border;
-}
-
-.suggestion {
-  color: light-gray;
+  min-height: 200px;
 }
 
 .spacer {
@@ -423,6 +422,18 @@ transition: margin-top .5s, border-width .5s;
   color: #A2A2A2;
 }
 
+.unselected {
+  color: #adadad;
+}
+
 .state-dropdown {
   width: 6rem;
+}
+
+.collapsableArrow {
+  display: inline-block;
+  -webkit-transition: -webkit-transform .5s;
+  &.open {
+    -webkit-transform: rotate(90deg);
+  }
 }

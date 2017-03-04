@@ -17,6 +17,7 @@ const EditorRenderer = React.createClass({
     return (
       <StaticRenderer
           actions={actions}
+          setRendererWidth={actions.setEditorViewWidth}
           renderTree={renderTree}
           hoveredComponentId={hoveredComponentId}
           activeComponentId={activeComponentId}
@@ -31,7 +32,7 @@ const editorRendererSelector = createImmutableJSSelector(
     renderTreeSelector,
     state => state.get('hoveredComponentId'),
     state => state.get('activeComponentId'),
-    state => state.get('rendererWidth')
+    state => state.getIn(['editorView', 'rendererWidth'])
   ],
   (renderTree, hoveredComponentId, activeComponentId, width) => {
     return {

@@ -2,43 +2,9 @@ import React from 'react';
 import classnames from 'classnames';
 
 import PopupSelect from './PopupSelect';
+import SimplePopupSelectDropdown from './SimplePopupSelectDropdown';
 import { mainViewTypes } from '../constants';
 import UpArrow from './UpArrow';
-
-function ChoiceViewPopup(props) {
-  const items = [
-    { text: 'Editor', value: mainViewTypes.EDITOR },
-    { text: 'Assets', value: mainViewTypes.ASSETS },
-    { text: 'Components', value: mainViewTypes.COMPONENTS },
-  ].map(function (itemData) {
-    return (
-      <li
-          key={itemData.text}
-          className={classnames({
-              highlighted: itemData.value === props.mainView
-            })}
-          onClick={() => props.actions.changeMainView(itemData.value)}>
-        {itemData.text}
-      </li>
-    );
-  });
-
-  return (
-    <div>
-      <div
-          className="popup tl fixed"
-          style={{
-            top: props.y,
-            left: '50%'
-          }}>
-        <ul>
-          {items}
-        </ul>
-      </div>
-      <UpArrow y={props.y} x="50%" />
-    </div>
-  );
-}
 
 function ViewChoiceDropdown(props) {
   return (
@@ -46,9 +12,14 @@ function ViewChoiceDropdown(props) {
     <PopupSelect
         className="mv3 w4"
         value={props.mainView}>
-      <ChoiceViewPopup
-          mainView={props.mainView}
-          actions={props.actions}
+      <SimplePopupSelectDropdown
+          items={[
+            { text: 'Editor', value: mainViewTypes.EDITOR },
+            { text: 'Assets', value: mainViewTypes.ASSETS },
+            { text: 'Components', value: mainViewTypes.COMPONENTS },
+          ]}
+          activeValue={props.mainView}
+          onClick={value => props.actions.changeMainView(value)}
       />
     </PopupSelect>
     </div>

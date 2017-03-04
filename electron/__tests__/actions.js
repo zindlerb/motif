@@ -10,7 +10,7 @@ describe('make component block', () => {
   const currentPageId = state.get('currentPageId');
   const rootComponentTreeId = state.getIn([
     'pages',
-    state.get('currentPageId'),
+    state.getIn(['editorView', 'currentPageId']),
     'componentTreeId'
   ]);
 

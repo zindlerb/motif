@@ -5,11 +5,17 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { connect, Provider } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import classnames from 'classnames';
 
 import { store, actions } from './stateManager';
 import AssetsView from './containers/AssetsView';
 import EditorView from './containers/EditorView';
-import ComponentsView from './containers/ComponentsView';
+import Sidebar from './components/Sidebar';
+import ComponentsViewTree from './containers/ComponentsViewTree';
+import ComponentsViewRenderer from './containers/ComponentsViewRenderer';
+import AttributesContainer from './containers/AttributesContainer';
+import Arrow from './components/Arrow';
+
 import {
   saveSiteAsDialog,
   loadSiteDialog,
@@ -127,7 +133,17 @@ const App = React.createClass({
     } else if (mainViewTypes.ASSETS === currentMainView) {
       view = <AssetsView actions={actions} />;
     } else if (mainViewTypes.COMPONENTS === currentMainView) {
-      view = <ComponentsView actions={actions} />;
+      view = (
+        <div className={classnames('flex h-100')}>
+          <Sidebar direction="left">
+            <ComponentsViewTree actions={actions} />
+          </Sidebar>
+          <ComponentsViewRenderer actions={actions} />
+          <Sidebar direction="right">
+            <AttributesContainer actions={actions} />
+          </Sidebar>
+        </div>
+      );
     }
 
     return (
@@ -137,6 +153,11 @@ const App = React.createClass({
     );
   },
 });
+
+/*
+   <ComponentsViewAttributes />
+   <ComponentsViewTree />
+*/
 
 const appSelector = createImmutableJSSelector(
   state => state.get('currentMainView'),

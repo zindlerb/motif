@@ -40,24 +40,30 @@ let initialState = Immutable.fromJS({
   yourComponentBoxes: [],
   pages: {},
   assets: {},
-  currentPageId: undefined,
+
   activeComponentId: undefined,
+  activeComponentBreakpoint: NONE,
+  activeComponentState: NONE,
   hoveredComponentId: undefined,
 
-  activeView: 'MINIMAL',
-  activeBreakpoint: 'NONE',
-  activeLeftPanel: 'TREE',
-  activeRightPanel: 'DETAILS',
   currentMainView: mainViewTypes.EDITOR,
   menu: { isOpen: false },
 
   componentsMap: defaultComponentsMap,
 
-  activeComponentBreakpoint: NONE,
-  activeComponentState: NONE,
+  // TD: rename!!
+  currentComponentIdComponentsView: undefined,
 
   // TD: dynamically set initial renderer width
-  rendererWidth: 200,
+  editorView: {
+    currentPageId: undefined,
+    rendererWidth: 200,
+  },
+
+  componentsView: {
+    currentComponentId: header.get('id'),
+    rendererWidth: 200,
+  },
 
   fileMetadata: {},
   componentMap: defaultComponentsMap
@@ -95,7 +101,9 @@ const DELETE_ASSET = 'DELETE_ASSET';
 
 const EXPORT_SITE = 'EXPORT_SITE';
 
-const SET_RENDERER_WIDTH = 'SET_RENDERER_WIDTH';
+const SET_COMPONENTS_VIEW_WIDTH = 'SET_COMPONTS_VIEW_WIDTH';
+const SET_EDITOR_VIEW_WIDTH = 'SET_RENDERER_WIDTH';
+const SET_CURRENT_COMPONENT_ID = 'SET_CURRENT_COMPONENT_ID';
 
 function writeSiteFile(dirname, state, cb) {
   fs.writeFile(
@@ -110,6 +118,13 @@ function writeSiteFile(dirname, state, cb) {
 }
 
 export const actions = Object.assign({
+  setCurrentComponentId(id) {
+    return {
+      type: SET_CURRENT_COMPONENT_ID,
+      id
+    }
+  },
+
   undo() {
     return {
       type: UNDO,
@@ -250,9 +265,16 @@ export const actions = Object.assign({
       _noUndo: true
     }
   },
-  setRendererWidth(newWidth) {
+  setComponentsViewWidth(newWidth) {
     return {
-      type: SET_RENDERER_WIDTH,
+      type: SET_COMPONENTS_VIEW_WIDTH,
+      newWidth,
+      _noUndo: true
+    }
+  },
+  setEditorViewWidth(newWidth) {
+    return {
+      type: SET_EDITOR_VIEW_WIDTH,
       newWidth,
       _noUndo: true
     }
@@ -351,6 +373,7 @@ const reducerObj = Object.assign({
     redoStack.push(stateToUndoFormat(state));
     return undoFormatToState(undoStack.pop(), state);
   },
+
   [REDO](state) {
     if (redoStack.length) {
       undoStack.push(stateToUndoFormat(state));
@@ -359,10 +382,14 @@ const reducerObj = Object.assign({
 
     return state;
   },
+
   [SET_PAGE_VALUE](state, action) {
-    return state.updateIn(['pages', state.get('currentPageId')], (currentPage) => {
-      return currentPage.set(action.key, action.newValue);
-    });
+    return state.updateIn(
+      ['pages', state.getIn(['editorView', 'currentPageId'])],
+      (currentPage) => {
+        return currentPage.set(action.key, action.newValue);
+      }
+    );
   },
 
   [OPEN_MENU](state, action) {
@@ -394,9 +421,9 @@ const reducerObj = Object.assign({
     return state.update('pages', (pages) => {
       return pages.delete(action.pageId);
     }).update((state) => {
-      if (state.get('currentPageId') === action.pageId) {
-        return state.set(
-          'currentPageId',
+      if (state.getIn(['editorView', 'currentPageId']) === action.pageId) {
+        return state.setIn(
+          ['editorView', 'currentPageId'],
           state.get('pages').keys().next().value
         );
       } else {
@@ -418,7 +445,7 @@ const reducerObj = Object.assign({
       componentTreeId: rvId,
     });
 
-    return state.set('currentPageId', newPageId)
+    return state.setIn(['editorView', 'currentPageId'], newPageId)
                 .update('pages', (pages) => {
                   return pages.set(newPageId, newPage);
                 })
@@ -434,7 +461,10 @@ const reducerObj = Object.assign({
   },
 
   [CHANGE_PAGE](state, action) {
-    return state.set('currentPageId', action.pageId);
+    return state.setIn(
+      ['editorView', 'currentPageId'],
+      action.pageId
+    );
   },
 
   [ADD_ASSET](state, action) {
@@ -449,8 +479,12 @@ const reducerObj = Object.assign({
     });
   },
 
-  [SET_RENDERER_WIDTH](state, action) {
-    return state.set('rendererWidth', action.newWidth);
+  [SET_EDITOR_VIEW_WIDTH](state, action) {
+    return state.setIn(['editorView', 'rendererWidth'], action.newWidth);
+  },
+
+  [SET_COMPONENTS_VIEW_WIDTH](state, action) {
+    return state.setIn(['componentsView', 'rendererWidth'], action.newWidth);
   },
 
   [SET_ACTIVE_COMPONENT_STATE](state, action) {
@@ -470,7 +504,10 @@ const reducerObj = Object.assign({
        TD: Add recent sites
      */
     return state.merge(state, serializer.deserialize(action.fileStr))
-                .setIn(['fileMetadata', 'dirname'], action.dirname);
+                .setIn(['fileMetadata', 'dirname'], action.dirname)
+                .update((state) => {
+                  return state.setIn(['editorView', 'currentPageId'], state.get('pages').first().get('id'));
+                });
   },
 
   [CHANGE_MAIN_VIEW](state, action) {
@@ -488,6 +525,9 @@ const reducerObj = Object.assign({
     const newState = state.deleteIn(['assets', action.assetId]);
     writeSiteFile(newState.getIn(['fileMetadata', 'dirname']), newState);
     return newState;
+  },
+  [SET_CURRENT_COMPONENT_ID](state, action) {
+    return state.setIn(['componentsView', 'currentComponentId'], action.id);
   }
 }, componentTreeReducer);
 

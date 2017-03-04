@@ -21,6 +21,7 @@ const PagesDropdown = React.createClass({
     return (
       <FormLabel className="mh2" name="Page">
         <PopupSelect
+            emptyText="Select A Page"
             value={currentPageName}
             className="f6 pv1">
           <PagesPopup
@@ -45,13 +46,13 @@ const pagesSelector = createImmutableJSSelector(
 const pagesDropdownSelector = createImmutableJSSelector(
   [
     pagesSelector,
-    state => state.getIn(['pages', state.get('currentPageId')])
+    state => state.getIn(['pages', state.getIn(['editorView', 'currentPageId'])])
   ],
   (pages, currentPage) => {
     return {
       pages,
-      currentPageName: currentPage.get('name'),
-      currentPageId: currentPage.get('id'),
+      currentPageName: currentPage && currentPage.get('name'),
+      currentPageId: currentPage && currentPage.get('id'),
     };
   }
 )

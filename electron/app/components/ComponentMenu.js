@@ -259,6 +259,6 @@ const menuSelector = createImmutableJSSelector(
       return { menu: menuJs };
     }
   }
-)
+);
 
 export default connect(menuSelector)(ComponentMenu);
