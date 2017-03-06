@@ -1,10 +1,8 @@
 import React from 'react';
-import classnames from 'classnames';
 
 import PopupSelect from './PopupSelect';
 import SimplePopupSelectDropdown from './SimplePopupSelectDropdown';
 import { mainViewTypes } from '../constants';
-import UpArrow from './UpArrow';
 
 function ViewChoiceDropdown(props) {
   return (

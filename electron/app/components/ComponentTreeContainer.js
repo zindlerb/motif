@@ -30,14 +30,128 @@ function DragShadow(props) {
   );
 }
 
-/*
+class DropSpots {
+  constructor() {
+    this.dropSpots = [];
+    this.prevClosestYIndex;
+  }
 
-   What determines if something is open?
-     - isOpen
-     - isEmpty
-     - isRoot
+  addDropSpot(parentId, nodeIndex, isDraggedComponent) {
+    const el = $('.treeDropSpot_' + parentId + '_' + nodeIndex);
+    const w = el.width();
+    const pos = el.offset();
 
-*/
+    this.dropSpots.push({
+      id: guid(),
+      insertionIndex: nodeIndex,
+      parentId,
+      getY: () => {
+        return el.offset().top;
+      },
+      points: [
+        { x: pos.left, y: pos.top },
+        { x: pos.left + w, y: pos.top }
+      ],
+      isDraggedComponent
+    });
+  }
+
+  sort() {
+    this.dropSpots = _.sortBy(this.dropSpots, function (dropSpot) {
+      return dropSpot.getY();
+    });
+  }
+
+  findClosestYIndex(mouseY) {
+    let closestIndex, direction, minDist;
+    if (this.prevClosestYIndex) {
+      closestIndex = this.prevClosestYIndex;
+      direction = mouseY >= this.dropSpots[closestIndex].getY() ? 'right' : 'left';
+    } else {
+      closestIndex = 0;
+      direction = 'right';
+    }
+
+    minDist = Math.abs(this.dropSpots[closestIndex].getY() - mouseY);
+
+    let dspotDistFromMouse;
+    if (direction === 'right') {
+      for (; closestIndex < this.dropSpots.length - 1; closestIndex++) {
+        dspotDistFromMouse = Math.abs(this.dropSpots[closestIndex + 1].getY() - mouseY);
+        if (dspotDistFromMouse < minDist) {
+          minDist = dspotDistFromMouse;
+        } else {
+          break;
+        }
+      }
+    } else {
+      for (; closestIndex > 0; closestIndex--) {
+        dspotDistFromMouse = Math.abs(this.dropSpots[closestIndex - 1].getY() - mouseY);
+        if (dspotDistFromMouse < minDist) {
+          minDist = dspotDistFromMouse;
+        } else {
+          break;
+        }
+      }
+    }
+
+    this.prevClosestYIndex = closestIndex;
+    return closestIndex;
+  }
+}
+
+const renderTreeMethods = {
+  walkTree(renderTree, func, openComponents, ...internal) {
+    const isChild = internal[0];
+    let isCanceled = false, isOpen, isEmpty;
+
+    if (isChild) {
+      func(renderTree, () => { isCanceled = true });
+    }
+
+    renderTree.children.forEach((child) => {
+      // TD: clean up
+      isOpen = openComponents[child.id];
+      isEmpty = !child.children.length;
+
+      if (!isCanceled && (isOpen || isEmpty)) {
+        this.walkTree(child, func, openComponents, true);
+      }
+    });
+  },
+
+  getSortedDropSpots(renderTree, openComponents, draggedComponentId) {
+    const dropSpots = new DropSpots();
+
+    this.walkTree(renderTree, (node, cancel) => {
+      let nodeParentId = node.parentId;
+      let nodeId = node.id;
+      let ind = node.index;
+
+      const isDraggedComponent = nodeId === draggedComponentId;
+      // Before
+      if (ind === 0) {
+        dropSpots.addDropSpot(nodeParentId, ind, isDraggedComponent);
+      }
+
+      // After
+      dropSpots.addDropSpot(nodeParentId, ind + 1, isDraggedComponent)
+
+      if (nodeId === draggedComponentId) {
+        // Can't drag component inside itself
+        cancel();
+      } else if (node.componentType === componentTypes.CONTAINER &&
+                 node.children.length === 0) {
+        // Inside
+        dropSpots.addDropSpot(nodeId, 0, false);
+      }
+    }, openComponents);
+
+    dropSpots.sort();
+
+    return dropSpots;
+  }
+};
 
 const ComponentTreeContainer = React.createClass({
   getInitialState() {
@@ -49,31 +163,22 @@ const ComponentTreeContainer = React.createClass({
     }
   },
 
-  walkRenderTree(renderTree, func, ...internal) {
-    const isChild = internal[0];
-    let isCanceled = false, isOpen, isEmpty, isRoot;
-
-    if (isChild) {
-      func(renderTree, () => { isCanceled = true });
-    }
-
-    renderTree.children.forEach((child) => {
-      // TD: clean up
-      isOpen = this.state.openComponents[child.id];
-      isEmpty = !child.children.length;
-      isRoot = child.componentType === componentTypes.ROOT;
-
-      if (!isCanceled && (isOpen || isEmpty || isRoot)) {
-        this.walkRenderTree(child, func, true);
-      }
-    });
-  },
-
   beginDrag(e, node, itemWidth, itemX, itemY) {
     const that = this;
     dragManager.start(e, {
       dragType: 'treeItem',
       onConsummate(e) {
+        const dropSpots = renderTreeMethods.getSortedDropSpots(
+          that.props.renderTree,
+          that.state.openComponents,
+          node.id,
+        );
+
+        console.log(dropSpots);
+        console.log(dropSpots.dropSpots.map((dspot) => {
+          return dspot.getY();
+        }));
+
         that.setState({
           isDragging: true,
           dragData: {
@@ -83,37 +188,81 @@ const ComponentTreeContainer = React.createClass({
             shadowOffsetX: e.clientX - itemX,
             shadowOffsetY: e.clientY - itemY,
             x: e.clientX,
-            y: e.clientY
+            y: e.clientY,
+            draggedComponentId: node.id,
+            dropSpotsCache: dropSpots
           }
         });
-
-        that.initializeDropSpots(
-          node.id,
-          node.parentId,
-          node.index
-        );
       },
       onDrag(e) {
         const pos = {
           x: e.clientX,
           y: e.clientY
         };
-        that.updateDropSpots(pos);
+
+        const { closestYInd, dropSpotsCache } = that.state.dragData;
+        const newClosestYInd = dropSpotsCache.findClosestYIndex(pos.y);
+
+        console.log(dropSpotsCache.dropSpots.map((dspot) => {
+          return dspot.getY();
+        }));
+
+        console.log('y', pos.y, 'closestYInd', newClosestYInd);
+
+        if (newClosestYInd === closestYInd) {
+          that.setState({
+            dragData: Object.assign(
+              that.state.dragData,
+              {
+                shouldNotUpdate: true,
+                x: pos.x,
+                y: pos.y
+              }
+            )
+          });
+
+          return;
+        }
+
+        const newActiveDropSpot = dropSpotsCache.dropSpots[newClosestYInd];
+        const newNearDropSpots = [];
+
+        if (dropSpotsCache.dropSpots[newClosestYInd - 1]) {
+          newNearDropSpots.push(dropSpotsCache.dropSpots[newClosestYInd - 1]);
+        }
+
+        if (dropSpotsCache.dropSpots[newClosestYInd + 1]) {
+          newNearDropSpots.push(dropSpotsCache.dropSpots[newClosestYInd + 1]);
+        }
+
+        that.setState({
+          dragData: Object.assign(
+            that.state.dragData,
+            {
+              closestYInd: newClosestYInd,
+              activeDropSpot: newActiveDropSpot,
+              nearDropSpots: newNearDropSpots,
+              shouldNotUpdate: false,
+              x: pos.x,
+              y: pos.y
+            }
+          )
+        });
       },
       onEnd() {
-        const { closestInsertionPoints } = that.state.dragData;
-        if (closestInsertionPoints &&
-            closestInsertionPoints.length) {
-          const closestInsertionPoint = closestInsertionPoints[0];
-          // TD: refactor. I'm unhappy with the open/close setup
-          if (closestInsertionPoint.isEmptyChild) {
-            that.toggleTreeItem(closestInsertionPoint.parentId);
+        const { activeDropSpot } = that.state.dragData;
+        if (activeDropSpot) {
+          const { parentId, insertionIndex } = activeDropSpot;
+
+          // Initialize Empty Component
+          if (insertionIndex === 0 && !that.state.openComponents[parentId]) {
+            that.toggleTreeItem(parentId);
           }
 
           that.props.actions.moveComponent(
             node.id,
-            closestInsertionPoint.parentId,
-            closestInsertionPoint.insertionIndex,
+            parentId,
+            insertionIndex,
           );
         }
 
@@ -122,147 +271,6 @@ const ComponentTreeContainer = React.createClass({
           dragData: {}
         })
       }
-    });
-  },
-
-  initializeDropSpots(
-    draggedComponentId,
-    draggedComponentParentId,
-    draggedComponentIndex
-  ) {
-    let insertionPoints = [];
-    const beforeComponentIndex = draggedComponentIndex;
-    const afterComponentIndex = beforeComponentIndex + 1;
-
-    function getInsertionPoint(nodeId, nodeIndex, parentId) {
-      let el;
-      if (!nodeId) {
-        el = $('.treeDropSpot_' + parentId + '_emptyChild');
-      } else {
-        el = $('.treeDropSpot_' + nodeId + '_' + nodeIndex);
-      }
-
-      const w = el.width();
-      const pos = el.offset();
-
-      return {
-        id: guid(),
-        isEmptyChild: !nodeId,
-        insertionIndex: nodeIndex,
-        parentId,
-        getY: () => {
-          return el.offset().top;
-        },
-        points: [
-          { x: pos.left, y: pos.top },
-          { x: pos.left + w, y: pos.top }
-        ],
-        isDraggedComponent: (
-          parentId === draggedComponentParentId &&
-          (nodeIndex === beforeComponentIndex || nodeIndex === afterComponentIndex)
-        )
-      };
-    }
-
-    this.walkRenderTree(this.props.renderTree, (node, cancel) => {
-      // Before
-      let nodeParentId = node.parentId;
-      let nodeId = node.id;
-      let ind = node.index;
-
-      if (ind === 0) {
-        insertionPoints.push(getInsertionPoint(nodeId, ind, nodeParentId));
-      }
-
-      // After
-      insertionPoints.push(getInsertionPoint(nodeId, ind + 1, nodeParentId));
-
-      if (nodeId === draggedComponentId) {
-        // Can't drag component inside itself
-        cancel();
-      } else if (node.componentType === componentTypes.CONTAINER &&
-                 node.children.length === 0) {
-        // Inside
-        insertionPoints.push(getInsertionPoint(undefined, 0, nodeId));
-      }
-    });
-
-    insertionPoints = _.sortBy(insertionPoints, function (insertionPoint) {
-      return insertionPoint.getY();
-    });
-
-    this.setState({
-      dragData: Object.assign(
-        this.state.dragData,
-        {
-          draggedComponentId,
-          insertionPointCache: insertionPoints
-        }
-      )
-    });
-  },
-
-  binarySearchClosestIndex(insertionPoints, y) {
-    let bounds = { left: 0, right: insertionPoints.length - 1 };
-    let middle, direction;
-
-    while (bounds.left <= bounds.right) {
-      middle = Math.floor((bounds.right + bounds.left) / 2);
-      let pointY = insertionPoints[middle].getY();
-      direction = y > pointY ? 'right' : 'left';
-
-      if ((bounds.right - bounds.left) === 1) {
-        middle = bounds[direction];
-        break;
-      } else if (direction === 'left') {
-        bounds.right = middle - 1;
-      } else {
-        bounds.left = middle + 1;
-      }
-    }
-
-    return middle;
-  },
-
-  updateDropSpots(pos) {
-    // Binary search to find 3 closest nodes
-    const insertionPoints = this.state.dragData.insertionPointCache;
-    let shouldNotUpdate = false;
-
-    const closestYInd = this.binarySearchClosestIndex(insertionPoints, pos.y);
-
-    const newClosestInsertionPoints = [
-      closestYInd,
-      closestYInd - 1,
-      closestYInd + 1
-    ].reduce((closestInsertionPoints, ind) => {
-      if (insertionPoints[ind]) {
-        closestInsertionPoints.push(insertionPoints[ind]);
-      }
-
-      return closestInsertionPoints;
-    }, []);
-
-    if (this.state.dragData.closestInsertionPoints && this.state.dragData.closestInsertionPoints.length) {
-      shouldNotUpdate = _.every(
-        this.state.dragData.closestInsertionPoints,
-        (stateInsertionPoint, ind) => {
-          return stateInsertionPoint.id === newClosestInsertionPoints[ind].id;
-        }
-      );
-    }
-
-    this.setState({
-      dragData: Object.assign(
-        {},
-        this.state.dragData,
-        {
-          closestInsertionPoints: newClosestInsertionPoints,
-          shouldNotUpdate,
-          x: pos.x,
-          y: pos.y
-        }
-      )
     });
   },
 
@@ -298,12 +306,11 @@ const ComponentTreeContainer = React.createClass({
       x,
       y,
       nodeText,
+      activeDropSpot,
+      nearDropSpots
     } = dragData
 
     let shadow, hintText;
-
-    const closestInsertionPoints = this.state.dragData.closestInsertionPoints || [];
-
     if (isDragging) {
       shadow = (
         <DragShadow
@@ -337,8 +344,8 @@ const ComponentTreeContainer = React.createClass({
               toggleTreeItem: this.toggleTreeItem
             }}
             context={{
-              otherPossibleTreeViewDropSpots: _.tail(closestInsertionPoints),
-              selectedTreeViewDropSpot: _.first(closestInsertionPoints),
+              nearDropSpots,
+              activeDropSpot,
               activeComponentId,
               hoveredComponentId,
               openComponents

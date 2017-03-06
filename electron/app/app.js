@@ -14,7 +14,6 @@ import Sidebar from './components/Sidebar';
 import ComponentsViewTree from './containers/ComponentsViewTree';
 import ComponentsViewRenderer from './containers/ComponentsViewRenderer';
 import AttributesContainer from './containers/AttributesContainer';
-import Arrow from './components/Arrow';
 
 import {
   saveSiteAsDialog,

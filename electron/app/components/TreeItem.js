@@ -11,7 +11,7 @@ function Arrow(props) {
   );
 }
 
-const TreeItem = function(props) {
+const TreeItem = function (props) {
   let arrow;
   if (props.isContainer) {
     arrow = (

@@ -113,10 +113,6 @@
 	
 	var _AttributesContainer2 = _interopRequireDefault(_AttributesContainer);
 	
-	var _Arrow = __webpack_require__(/*! ./components/Arrow */ 477);
-	
-	var _Arrow2 = _interopRequireDefault(_Arrow);
-	
 	var _utils = __webpack_require__(/*! ./utils */ 215);
 	
 	var _constants = __webpack_require__(/*! ./constants */ 213);
@@ -23891,9 +23887,9 @@
 	      }
 	
 	      _fs2.default.access(dirname, function (err) {
-	        if (err && err.code === "ENOENT") {
-	          return _fs2.default.mkdir(dirname, function () {
-	            writeSiteFile(dirname, getState(), function (err) {
+	        if (err && err.code === 'ENOENT') {
+	          _fs2.default.mkdir(dirname, function () {
+	            writeSiteFile(dirname, getState(), function () {
 	              _fs2.default.mkdir(_path2.default.join(dirname, 'assets'), function (err) {
 	                finished(err, dispatch);
 	              });
@@ -24148,7 +24144,7 @@
 	  return newState;
 	}), _defineProperty(_Object$assign, SET_CURRENT_COMPONENT_ID, function (state, action) {
 	  return state.setIn(['componentsView', 'currentComponentId'], action.id);
-	}), _Object$assign), _componentTreeStateManager.componentTreeReducer);
+	}), _defineProperty(_Object$assign, EXPORT_SITE, function () {}), _Object$assign), _componentTreeStateManager.componentTreeReducer);
 	
 	function reducer(state, action) {
 	  //  console.log(action.type, action, state.toJS());
@@ -57645,7 +57641,6 @@
 	    if (isEditing) {
 	      input = _react2.default.createElement(_TextField2.default, {
 	        onSubmit: function onSubmit(value) {
-	          console.log('submit');
 	          _this.setState({ isEditing: false });
 	          actions.updateAssetName(asset.id, value);
 	        },
@@ -57788,10 +57783,6 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _classnames = __webpack_require__(/*! classnames */ 200);
-	
-	var _classnames2 = _interopRequireDefault(_classnames);
-	
 	var _PopupSelect = __webpack_require__(/*! ./PopupSelect */ 220);
 	
 	var _PopupSelect2 = _interopRequireDefault(_PopupSelect);
@@ -57801,10 +57792,6 @@
 	var _SimplePopupSelectDropdown2 = _interopRequireDefault(_SimplePopupSelectDropdown);
 	
 	var _constants = __webpack_require__(/*! ../constants */ 213);
-	
-	var _UpArrow = __webpack_require__(/*! ./UpArrow */ 222);
-	
-	var _UpArrow2 = _interopRequireDefault(_UpArrow);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -57918,7 +57905,8 @@
 	        },
 	        _react2.default.createElement(
 	          'span',
-	          { className: (0, _classnames2.default)({ unselected: !this.props.value }) },
+	          {
+	            className: (0, _classnames2.default)({ unselected: !this.props.value }) },
 	          (0, _utils.toTitleCase)(displayText)
 	        ),
 	        _react2.default.createElement('img', {
@@ -59082,8 +59070,7 @@
 	    var diff = void 0;
 	    var _props6 = this.props,
 	        direction = _props6.direction,
-	        rendererWidth = _props6.rendererWidth,
-	        actions = _props6.actions;
+	        rendererWidth = _props6.rendererWidth;
 	    // add a drag manager for listening and unlistening to events
 	
 	    var that = this;
@@ -73633,6 +73620,8 @@
 	  value: true
 	});
 	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
 	var _react = __webpack_require__(/*! react */ 5);
 	
 	var _react2 = _interopRequireDefault(_react);
@@ -73665,6 +73654,8 @@
 	
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
 	function DragShadow(props) {
 	  var padding = 100;
 	  var sx = {
@@ -73686,14 +73677,140 @@
 	  );
 	}
 	
-	/*
+	var DropSpots = function () {
+	  function DropSpots() {
+	    _classCallCheck(this, DropSpots);
 	
-	   What determines if something is open?
-	     - isOpen
-	     - isEmpty
-	     - isRoot
+	    this.dropSpots = [];
+	    this.prevClosestYIndex;
+	  }
 	
-	*/
+	  _createClass(DropSpots, [{
+	    key: 'addDropSpot',
+	    value: function addDropSpot(parentId, nodeIndex, isDraggedComponent) {
+	      var el = (0, _jquery2.default)('.treeDropSpot_' + parentId + '_' + nodeIndex);
+	      var w = el.width();
+	      var pos = el.offset();
+	
+	      this.dropSpots.push({
+	        id: (0, _utils.guid)(),
+	        insertionIndex: nodeIndex,
+	        parentId: parentId,
+	        getY: function getY() {
+	          return el.offset().top;
+	        },
+	        points: [{ x: pos.left, y: pos.top }, { x: pos.left + w, y: pos.top }],
+	        isDraggedComponent: isDraggedComponent
+	      });
+	    }
+	  }, {
+	    key: 'sort',
+	    value: function sort() {
+	      this.dropSpots = _lodash2.default.sortBy(this.dropSpots, function (dropSpot) {
+	        return dropSpot.getY();
+	      });
+	    }
+	  }, {
+	    key: 'findClosestYIndex',
+	    value: function findClosestYIndex(mouseY) {
+	      var closestIndex = void 0,
+	          direction = void 0,
+	          minDist = void 0;
+	      if (this.prevClosestYIndex) {
+	        closestIndex = this.prevClosestYIndex;
+	        direction = mouseY >= this.dropSpots[closestIndex].getY() ? 'right' : 'left';
+	      } else {
+	        closestIndex = 0;
+	        direction = 'right';
+	      }
+	
+	      minDist = Math.abs(this.dropSpots[closestIndex].getY() - mouseY);
+	
+	      var dspotDistFromMouse = void 0;
+	      if (direction === 'right') {
+	        for (; closestIndex < this.dropSpots.length - 1; closestIndex++) {
+	          dspotDistFromMouse = Math.abs(this.dropSpots[closestIndex + 1].getY() - mouseY);
+	          if (dspotDistFromMouse < minDist) {
+	            minDist = dspotDistFromMouse;
+	          } else {
+	            break;
+	          }
+	        }
+	      } else {
+	        for (; closestIndex > 0; closestIndex--) {
+	          dspotDistFromMouse = Math.abs(this.dropSpots[closestIndex - 1].getY() - mouseY);
+	          if (dspotDistFromMouse < minDist) {
+	            minDist = dspotDistFromMouse;
+	          } else {
+	            break;
+	          }
+	        }
+	      }
+	
+	      this.prevClosestYIndex = closestIndex;
+	      return closestIndex;
+	    }
+	  }]);
+	
+	  return DropSpots;
+	}();
+	
+	var renderTreeMethods = {
+	  walkTree: function walkTree(renderTree, func, openComponents) {
+	    var _this = this;
+	
+	    var isChild = arguments.length <= 3 ? undefined : arguments[3];
+	    var isCanceled = false,
+	        isOpen = void 0,
+	        isEmpty = void 0;
+	
+	    if (isChild) {
+	      func(renderTree, function () {
+	        isCanceled = true;
+	      });
+	    }
+	
+	    renderTree.children.forEach(function (child) {
+	      // TD: clean up
+	      isOpen = openComponents[child.id];
+	      isEmpty = !child.children.length;
+	
+	      if (!isCanceled && (isOpen || isEmpty)) {
+	        _this.walkTree(child, func, openComponents, true);
+	      }
+	    });
+	  },
+	  getSortedDropSpots: function getSortedDropSpots(renderTree, openComponents, draggedComponentId) {
+	    var dropSpots = new DropSpots();
+	
+	    this.walkTree(renderTree, function (node, cancel) {
+	      var nodeParentId = node.parentId;
+	      var nodeId = node.id;
+	      var ind = node.index;
+	
+	      var isDraggedComponent = nodeId === draggedComponentId;
+	      // Before
+	      if (ind === 0) {
+	        dropSpots.addDropSpot(nodeParentId, ind, isDraggedComponent);
+	      }
+	
+	      // After
+	      dropSpots.addDropSpot(nodeParentId, ind + 1, isDraggedComponent);
+	
+	      if (nodeId === draggedComponentId) {
+	        // Can't drag component inside itself
+	        cancel();
+	      } else if (node.componentType === _constants.componentTypes.CONTAINER && node.children.length === 0) {
+	        // Inside
+	        dropSpots.addDropSpot(nodeId, 0, false);
+	      }
+	    }, openComponents);
+	
+	    dropSpots.sort();
+	
+	    return dropSpots;
+	  }
+	};
 	
 	var ComponentTreeContainer = _react2.default.createClass({
 	  displayName: 'ComponentTreeContainer',
@@ -73705,37 +73822,18 @@
 	      openComponents: {}
 	    };
 	  },
-	  walkRenderTree: function walkRenderTree(renderTree, func) {
-	    var _this = this;
-	
-	    var isChild = arguments.length <= 2 ? undefined : arguments[2];
-	    var isCanceled = false,
-	        isOpen = void 0,
-	        isEmpty = void 0,
-	        isRoot = void 0;
-	
-	    if (isChild) {
-	      func(renderTree, function () {
-	        isCanceled = true;
-	      });
-	    }
-	
-	    renderTree.children.forEach(function (child) {
-	      // TD: clean up
-	      isOpen = _this.state.openComponents[child.id];
-	      isEmpty = !child.children.length;
-	      isRoot = child.componentType === _constants.componentTypes.ROOT;
-	
-	      if (!isCanceled && (isOpen || isEmpty || isRoot)) {
-	        _this.walkRenderTree(child, func, true);
-	      }
-	    });
-	  },
 	  beginDrag: function beginDrag(e, node, itemWidth, itemX, itemY) {
 	    var that = this;
 	    _dragManager2.default.start(e, {
 	      dragType: 'treeItem',
 	      onConsummate: function onConsummate(e) {
+	        var dropSpots = renderTreeMethods.getSortedDropSpots(that.props.renderTree, that.state.openComponents, node.id);
+	
+	        console.log(dropSpots);
+	        console.log(dropSpots.dropSpots.map(function (dspot) {
+	          return dspot.getY();
+	        }));
+	
 	        that.setState({
 	          isDragging: true,
 	          dragData: {
@@ -73745,30 +73843,78 @@
 	            shadowOffsetX: e.clientX - itemX,
 	            shadowOffsetY: e.clientY - itemY,
 	            x: e.clientX,
-	            y: e.clientY
+	            y: e.clientY,
+	            draggedComponentId: node.id,
+	            dropSpotsCache: dropSpots
 	          }
 	        });
-	
-	        that.initializeDropSpots(node.id, node.parentId, node.index);
 	      },
 	      onDrag: function onDrag(e) {
 	        var pos = {
 	          x: e.clientX,
 	          y: e.clientY
 	        };
-	        that.updateDropSpots(pos);
+	
+	        var _that$state$dragData = that.state.dragData,
+	            closestYInd = _that$state$dragData.closestYInd,
+	            dropSpotsCache = _that$state$dragData.dropSpotsCache;
+	
+	        var newClosestYInd = dropSpotsCache.findClosestYIndex(pos.y);
+	
+	        console.log(dropSpotsCache.dropSpots.map(function (dspot) {
+	          return dspot.getY();
+	        }));
+	
+	        console.log('y', pos.y, 'closestYInd', newClosestYInd);
+	
+	        if (newClosestYInd === closestYInd) {
+	          that.setState({
+	            dragData: Object.assign(that.state.dragData, {
+	              shouldNotUpdate: true,
+	              x: pos.x,
+	              y: pos.y
+	            })
+	          });
+	
+	          return;
+	        }
+	
+	        var newActiveDropSpot = dropSpotsCache.dropSpots[newClosestYInd];
+	        var newNearDropSpots = [];
+	
+	        if (dropSpotsCache.dropSpots[newClosestYInd - 1]) {
+	          newNearDropSpots.push(dropSpotsCache.dropSpots[newClosestYInd - 1]);
+	        }
+	
+	        if (dropSpotsCache.dropSpots[newClosestYInd + 1]) {
+	          newNearDropSpots.push(dropSpotsCache.dropSpots[newClosestYInd + 1]);
+	        }
+	
+	        that.setState({
+	          dragData: Object.assign(that.state.dragData, {
+	            closestYInd: newClosestYInd,
+	            activeDropSpot: newActiveDropSpot,
+	            nearDropSpots: newNearDropSpots,
+	            shouldNotUpdate: false,
+	            x: pos.x,
+	            y: pos.y
+	          })
+	        });
 	      },
 	      onEnd: function onEnd() {
-	        var closestInsertionPoints = that.state.dragData.closestInsertionPoints;
+	        var activeDropSpot = that.state.dragData.activeDropSpot;
 	
-	        if (closestInsertionPoints && closestInsertionPoints.length) {
-	          var closestInsertionPoint = closestInsertionPoints[0];
-	          // TD: refactor. I'm unhappy with the open/close setup
-	          if (closestInsertionPoint.isEmptyChild) {
-	            that.toggleTreeItem(closestInsertionPoint.parentId);
+	        if (activeDropSpot) {
+	          var parentId = activeDropSpot.parentId,
+	              insertionIndex = activeDropSpot.insertionIndex;
+	
+	          // Initialize Empty Component
+	
+	          if (insertionIndex === 0 && !that.state.openComponents[parentId]) {
+	            that.toggleTreeItem(parentId);
 	          }
 	
-	          that.props.actions.moveComponent(node.id, closestInsertionPoint.parentId, closestInsertionPoint.insertionIndex);
+	          that.props.actions.moveComponent(node.id, parentId, insertionIndex);
 	        }
 	
 	        that.setState({
@@ -73776,120 +73922,6 @@
 	          dragData: {}
 	        });
 	      }
-	    });
-	  },
-	  initializeDropSpots: function initializeDropSpots(draggedComponentId, draggedComponentParentId, draggedComponentIndex) {
-	    var insertionPoints = [];
-	    var beforeComponentIndex = draggedComponentIndex;
-	    var afterComponentIndex = beforeComponentIndex + 1;
-	
-	    function getInsertionPoint(nodeId, nodeIndex, parentId) {
-	      var el = void 0;
-	      if (!nodeId) {
-	        el = (0, _jquery2.default)('.treeDropSpot_' + parentId + '_emptyChild');
-	      } else {
-	        el = (0, _jquery2.default)('.treeDropSpot_' + nodeId + '_' + nodeIndex);
-	      }
-	
-	      var w = el.width();
-	      var pos = el.offset();
-	
-	      return {
-	        id: (0, _utils.guid)(),
-	        isEmptyChild: !nodeId,
-	        insertionIndex: nodeIndex,
-	        parentId: parentId,
-	        getY: function getY() {
-	          return el.offset().top;
-	        },
-	        points: [{ x: pos.left, y: pos.top }, { x: pos.left + w, y: pos.top }],
-	        isDraggedComponent: parentId === draggedComponentParentId && (nodeIndex === beforeComponentIndex || nodeIndex === afterComponentIndex)
-	      };
-	    }
-	
-	    this.walkRenderTree(this.props.renderTree, function (node, cancel) {
-	      // Before
-	      var nodeParentId = node.parentId;
-	      var nodeId = node.id;
-	      var ind = node.index;
-	
-	      if (ind === 0) {
-	        insertionPoints.push(getInsertionPoint(nodeId, ind, nodeParentId));
-	      }
-	
-	      // After
-	      insertionPoints.push(getInsertionPoint(nodeId, ind + 1, nodeParentId));
-	
-	      if (nodeId === draggedComponentId) {
-	        // Can't drag component inside itself
-	        cancel();
-	      } else if (node.componentType === _constants.componentTypes.CONTAINER && node.children.length === 0) {
-	        // Inside
-	        insertionPoints.push(getInsertionPoint(undefined, 0, nodeId));
-	      }
-	    });
-	
-	    insertionPoints = _lodash2.default.sortBy(insertionPoints, function (insertionPoint) {
-	      return insertionPoint.getY();
-	    });
-	
-	    this.setState({
-	      dragData: Object.assign(this.state.dragData, {
-	        draggedComponentId: draggedComponentId,
-	        insertionPointCache: insertionPoints
-	      })
-	    });
-	  },
-	  binarySearchClosestIndex: function binarySearchClosestIndex(insertionPoints, y) {
-	    var bounds = { left: 0, right: insertionPoints.length - 1 };
-	    var middle = void 0,
-	        direction = void 0;
-	
-	    while (bounds.left <= bounds.right) {
-	      middle = Math.floor((bounds.right + bounds.left) / 2);
-	      var pointY = insertionPoints[middle].getY();
-	      direction = y > pointY ? 'right' : 'left';
-	
-	      if (bounds.right - bounds.left === 1) {
-	        middle = bounds[direction];
-	        break;
-	      } else if (direction === 'left') {
-	        bounds.right = middle - 1;
-	      } else {
-	        bounds.left = middle + 1;
-	      }
-	    }
-	
-	    return middle;
-	  },
-	  updateDropSpots: function updateDropSpots(pos) {
-	    // Binary search to find 3 closest nodes
-	    var insertionPoints = this.state.dragData.insertionPointCache;
-	    var shouldNotUpdate = false;
-	
-	    var closestYInd = this.binarySearchClosestIndex(insertionPoints, pos.y);
-	
-	    var newClosestInsertionPoints = [closestYInd, closestYInd - 1, closestYInd + 1].reduce(function (closestInsertionPoints, ind) {
-	      if (insertionPoints[ind]) {
-	        closestInsertionPoints.push(insertionPoints[ind]);
-	      }
-	
-	      return closestInsertionPoints;
-	    }, []);
-	
-	    if (this.state.dragData.closestInsertionPoints && this.state.dragData.closestInsertionPoints.length) {
-	      shouldNotUpdate = _lodash2.default.every(this.state.dragData.closestInsertionPoints, function (stateInsertionPoint, ind) {
-	        return stateInsertionPoint.id === newClosestInsertionPoints[ind].id;
-	      });
-	    }
-	
-	    this.setState({
-	      dragData: Object.assign({}, this.state.dragData, {
-	        closestInsertionPoints: newClosestInsertionPoints,
-	        shouldNotUpdate: shouldNotUpdate,
-	        x: pos.x,
-	        y: pos.y
-	      })
 	    });
 	  },
 	  toggleTreeItem: function toggleTreeItem(nodeId) {
@@ -73914,14 +73946,13 @@
 	        shadowOffsetY = dragData.shadowOffsetY,
 	        x = dragData.x,
 	        y = dragData.y,
-	        nodeText = dragData.nodeText;
+	        nodeText = dragData.nodeText,
+	        activeDropSpot = dragData.activeDropSpot,
+	        nearDropSpots = dragData.nearDropSpots;
 	
 	
 	    var shadow = void 0,
 	        hintText = void 0;
-	
-	    var closestInsertionPoints = this.state.dragData.closestInsertionPoints || [];
-	
 	    if (isDragging) {
 	      shadow = _react2.default.createElement(
 	        DragShadow,
@@ -73962,8 +73993,8 @@
 	          toggleTreeItem: this.toggleTreeItem
 	        },
 	        context: {
-	          otherPossibleTreeViewDropSpots: _lodash2.default.tail(closestInsertionPoints),
-	          selectedTreeViewDropSpot: _lodash2.default.first(closestInsertionPoints),
+	          nearDropSpots: nearDropSpots,
+	          activeDropSpot: activeDropSpot,
 	          activeComponentId: activeComponentId,
 	          hoveredComponentId: hoveredComponentId,
 	          openComponents: openComponents
@@ -74081,51 +74112,60 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var Spacer = function Spacer(props) {
-	  var sx = void 0,
-	      indexMarker = void 0;
-	  var index = props.index,
-	      nodeId = props.nodeId,
-	      isActive = props.isActive,
-	      isNear = props.isNear;
+	var Spacer = _react2.default.createClass({
+	  displayName: 'Spacer',
+	  checkActive: function checkActive(dropPoint) {
+	    if (!dropPoint) {
+	      return false;
+	    }
 	
+	    return dropPoint.parentId === this.props.parentId && dropPoint.insertionIndex === this.props.index && !dropPoint.isDraggedComponent;
+	  },
+	  render: function render() {
+	    var _this = this;
 	
-	  if (isActive) {
-	    sx = {
-	      border: '1px solid #FF8D80',
-	      marginTop: 1
-	    };
-	  } else if (isNear) {
-	    sx = {
-	      border: '1px solid #FFDCD8',
-	      marginTop: 1
-	    };
-	  } else {
-	    sx = {
-	      border: '0px solid #FFDCD8',
-	      height: 1
-	    };
+	    var sx = void 0,
+	        indexMarker = void 0;
+	    var _props = this.props,
+	        index = _props.index,
+	        parentId = _props.parentId,
+	        activeDropSpot = _props.activeDropSpot,
+	        nearDropSpots = _props.nearDropSpots;
+	
+	    var isActive = this.checkActive(activeDropSpot);
+	    var isNear = _lodash2.default.some(nearDropSpots, function (dspot) {
+	      return _this.checkActive(dspot);
+	    });
+	
+	    if (isActive) {
+	      sx = {
+	        border: '1px solid #FF8D80',
+	        marginTop: 1
+	      };
+	    } else if (isNear) {
+	      sx = {
+	        border: '1px solid #FFDCD8',
+	        marginTop: 1
+	      };
+	    } else {
+	      sx = {
+	        border: '0px solid #FFDCD8',
+	        height: 1
+	      };
+	    }
+	
+	    if (index === undefined) {
+	      indexMarker = 'emptyChild';
+	    } else {
+	      indexMarker = index;
+	    }
+	
+	    return _react2.default.createElement('div', {
+	      style: sx,
+	      className: 'spacer treeDropSpot_' + parentId + '_' + indexMarker
+	    });
 	  }
-	
-	  if (index === undefined) {
-	    indexMarker = 'emptyChild';
-	  } else {
-	    indexMarker = index;
-	  }
-	
-	  return _react2.default.createElement('div', {
-	    style: sx,
-	    className: 'spacer treeDropSpot_' + nodeId + '_' + indexMarker
-	  });
-	};
-	
-	function checkActive(parentId, dropPoint, ind) {
-	  if (!dropPoint) {
-	    return false;
-	  }
-	
-	  return dropPoint.parentId === parentId && dropPoint.insertionIndex === ind && !dropPoint.isDraggedComponent;
-	}
+	});
 	
 	var ComponentTree = _react2.default.createClass({
 	  displayName: 'ComponentTree',
@@ -74141,55 +74181,57 @@
 	  render: function render() {
 	    var children = void 0;
 	    var afterSpacer = void 0,
-	        beforeSpacer = void 0,
 	        afterSpacerInd = void 0,
+	        beforeSpacer = void 0,
 	        treeItemElement = void 0;
-	    var _props = this.props,
-	        context = _props.context,
-	        node = _props.node,
-	        containerMethods = _props.containerMethods,
-	        actions = _props.actions;
-	    var otherPossibleTreeViewDropSpots = context.otherPossibleTreeViewDropSpots,
-	        selectedTreeViewDropSpot = context.selectedTreeViewDropSpot,
+	    var _props2 = this.props,
+	        context = _props2.context,
+	        node = _props2.node,
+	        containerMethods = _props2.containerMethods,
+	        actions = _props2.actions;
+	    var activeDropSpot = context.activeDropSpot,
+	        nearDropSpots = context.nearDropSpots,
 	        activeComponentId = context.activeComponentId,
 	        hoveredComponentId = context.hoveredComponentId;
 	
 	
 	    var isOpen = context.openComponents[node.id];
 	    var isRoot = node.componentType === _constants.componentTypes.ROOT;
-	    var isEmpty = node.children.length == 0;
+	    var isEmpty = node.children.length === 0;
 	
-	    if (node.parent) {
-	      if (node.index === 0) {
-	        beforeSpacer = _react2.default.createElement(Spacer, {
-	          nodeId: node.id,
-	          index: node.index,
-	          isActive: checkActive(node.parent.id, selectedTreeViewDropSpot, 0),
-	          isNear: _lodash2.default.some(otherPossibleTreeViewDropSpots, function (dspot) {
-	            return checkActive(node.parent.id, dspot, 0);
-	          })
-	        });
-	      }
-	
+	    if (node.parentId) {
 	      afterSpacerInd = node.index + 1;
 	      afterSpacer = _react2.default.createElement(Spacer, {
-	        nodeId: node.id,
+	        parentId: node.parentId,
 	        index: afterSpacerInd,
-	        isActive: checkActive(node.parent.id, selectedTreeViewDropSpot, afterSpacerInd),
-	        isNear: _lodash2.default.some(otherPossibleTreeViewDropSpots, function (dspot) {
-	          return checkActive(node.parent.id, dspot, afterSpacerInd);
-	        })
+	        activeDropSpot: activeDropSpot,
+	        nearDropSpots: nearDropSpots
+	
 	      });
 	    }
 	
 	    if (isRoot || isEmpty || isOpen) {
-	      children = _react2.default.createElement(TreeChildren, {
-	        parentId: node.id,
-	        children: node.children,
-	        containerMethods: containerMethods,
-	        context: context,
-	        actions: actions
+	      var childItems = _lodash2.default.map(node.children, function (child) {
+	        return _react2.default.createElement(ComponentTree, {
+	          containerMethods: containerMethods,
+	          context: context,
+	          actions: actions,
+	          node: child,
+	          key: child.id
+	        });
 	      });
+	
+	      children = _react2.default.createElement(
+	        'div',
+	        { className: 'ml2' },
+	        _react2.default.createElement(Spacer, {
+	          parentId: node.id,
+	          index: 0,
+	          activeDropSpot: context.activeDropSpot,
+	          nearDropSpots: context.nearDropSpots
+	        }),
+	        childItems
+	      );
 	    }
 	
 	    var treeItemIsActive = node.id === activeComponentId;
@@ -74235,49 +74277,9 @@
 	    return _react2.default.createElement(
 	      'div',
 	      null,
-	      beforeSpacer,
 	      treeItemElement,
 	      children,
 	      afterSpacer
-	    );
-	  }
-	});
-	
-	var TreeChildren = _react2.default.createClass({
-	  displayName: 'TreeChildren',
-	  render: function render() {
-	    var emptySpacer = void 0;
-	    var _props2 = this.props,
-	        parentId = _props2.parentId,
-	        context = _props2.context,
-	        actions = _props2.actions,
-	        containerMethods = _props2.containerMethods;
-	
-	    var children = _lodash2.default.map(this.props.children, function (child) {
-	      return _react2.default.createElement(ComponentTree, {
-	        containerMethods: containerMethods,
-	        context: context,
-	        actions: actions,
-	        node: child,
-	        key: child.id
-	      });
-	    });
-	
-	    if (this.props.children.length === 0) {
-	      emptySpacer = _react2.default.createElement(Spacer, {
-	        nodeId: this.props.parentId,
-	        isActive: checkActive(parentId, context.selectedTreeViewDropSpot, 0),
-	        isNear: _lodash2.default.some(context.otherPossibleTreeViewDropSpots, function (dspot) {
-	          return checkActive(parentId, dspot, 0);
-	        })
-	      });
-	    }
-	
-	    return _react2.default.createElement(
-	      'div',
-	      { className: 'ml2' },
-	      emptySpacer,
-	      children
 	    );
 	  }
 	});
@@ -74875,7 +74877,7 @@
 	
 	var _SimplePopupSelectDropdown2 = _interopRequireDefault(_SimplePopupSelectDropdown);
 	
-	var _PopupSelect = __webpack_require__(/*! ../components/PopupSelect.js */ 220);
+	var _PopupSelect = __webpack_require__(/*! ../components/PopupSelect */ 220);
 	
 	var _PopupSelect2 = _interopRequireDefault(_PopupSelect);
 	
@@ -74988,74 +74990,7 @@
 	exports.default = (0, _reactRedux.connect)(componentViewRendererSelector)(ComponentViewRenderer);
 
 /***/ },
-/* 477 */
-/*!*********************************!*\
-  !*** ./app/components/Arrow.js ***!
-  \*********************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _react = __webpack_require__(/*! react */ 5);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var Arrow = function Arrow(props) {
-	  var sx = void 0,
-	      char = void 0;
-	  if (props.size) {
-	    sx = {
-	      fontSize: props.size
-	    };
-	  }
-	
-	  if (props.direction === 'up') {
-	    char = _react2.default.createElement(
-	      'span',
-	      null,
-	      '\u25B2'
-	    );
-	  } else if (props.direction === 'down') {
-	    char = _react2.default.createElement(
-	      'span',
-	      null,
-	      '\u25BC'
-	    );
-	  } else if (props.direction === 'left') {
-	    char = _react2.default.createElement(
-	      'span',
-	      null,
-	      '\u25C0'
-	    );
-	  } else if (props.direction === 'right') {
-	    char = _react2.default.createElement(
-	      'span',
-	      null,
-	      '\u25BA'
-	    );
-	  }
-	
-	  console.log('arrow render');
-	
-	  return _react2.default.createElement(
-	    'div',
-	    {
-	      style: sx,
-	      className: props.className
-	    },
-	    char
-	  );
-	};
-	
-	exports.default = Arrow;
-
-/***/ },
+/* 477 */,
 /* 478 */
 /*!*******************************!*\
   !*** ./public/scss/main.scss ***!

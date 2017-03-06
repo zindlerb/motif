@@ -213,9 +213,9 @@ export const actions = Object.assign({
       }
 
       fs.access(dirname, (err) => {
-        if (err && err.code === "ENOENT") {
-          return fs.mkdir(dirname, () => {
-            writeSiteFile(dirname, getState(), (err) => {
+        if (err && err.code === 'ENOENT') {
+          fs.mkdir(dirname, () => {
+            writeSiteFile(dirname, getState(), () => {
               fs.mkdir(path.join(dirname, 'assets'), (err) => {
                 finished(err, dispatch);
               });
@@ -528,6 +528,8 @@ const reducerObj = Object.assign({
   },
   [SET_CURRENT_COMPONENT_ID](state, action) {
     return state.setIn(['componentsView', 'currentComponentId'], action.id);
+  },
+  [EXPORT_SITE]() {
   }
 }, componentTreeReducer);
 

@@ -8,7 +8,7 @@ import StaticRenderer from '../components/StaticRenderer';
 import ViewChoiceDropdown from '../components/ViewChoiceDropdown';
 import FormLabel from '../components/forms/FormLabel';
 import SimplePopupSelectDropdown from '../components/SimplePopupSelectDropdown';
-import PopupSelect from '../components/PopupSelect.js';
+import PopupSelect from '../components/PopupSelect';
 
 const ComponentsDropdown = React.createClass({
   render() {

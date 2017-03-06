@@ -302,7 +302,6 @@ const DragHandle = React.createClass({
     const {
       direction,
       rendererWidth,
-      actions
     } = this.props;
     // add a drag manager for listening and unlistening to events
     const that = this;

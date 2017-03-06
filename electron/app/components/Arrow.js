@@ -18,8 +18,6 @@ const Arrow = function (props) {
     char = <span>&#x25ba;</span>;
   }
 
-  console.log('arrow render');
-
   return (
     <div
         style={sx}
