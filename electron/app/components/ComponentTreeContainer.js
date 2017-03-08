@@ -103,21 +103,19 @@ class DropSpots {
 const renderTreeMethods = {
   walkTree(renderTree, func, openComponents, ...internal) {
     const isChild = internal[0];
-    let isCanceled = false, isOpen, isEmpty;
+    let isCanceled = false, isOpen = openComponents[renderTree.id];
 
     if (isChild) {
       func(renderTree, () => { isCanceled = true });
     }
 
-    renderTree.children.forEach((child) => {
-      // TD: clean up
-      isOpen = openComponents[child.id];
-      isEmpty = !child.children.length;
-
-      if (!isCanceled && (isOpen || isEmpty)) {
-        this.walkTree(child, func, openComponents, true);
-      }
-    });
+    if (isOpen || renderTree.componentType === componentTypes.ROOT) {
+      renderTree.children.forEach((child) => {
+        if (!isCanceled) {
+          this.walkTree(child, func, openComponents, true);
+        }
+      });
+    }
   },
 
   getSortedDropSpots(renderTree, openComponents, draggedComponentId) {
@@ -174,11 +172,6 @@ const ComponentTreeContainer = React.createClass({
           node.id,
         );
 
-        console.log(dropSpots);
-        console.log(dropSpots.dropSpots.map((dspot) => {
-          return dspot.getY();
-        }));
-
         that.setState({
           isDragging: true,
           dragData: {
@@ -202,12 +195,6 @@ const ComponentTreeContainer = React.createClass({
 
         const { closestYInd, dropSpotsCache } = that.state.dragData;
         const newClosestYInd = dropSpotsCache.findClosestYIndex(pos.y);
-
-        console.log(dropSpotsCache.dropSpots.map((dspot) => {
-          return dspot.getY();
-        }));
-
-        console.log('y', pos.y, 'closestYInd', newClosestYInd);
 
         if (newClosestYInd === closestYInd) {
           that.setState({
@@ -251,7 +238,8 @@ const ComponentTreeContainer = React.createClass({
       },
       onEnd() {
         const { activeDropSpot } = that.state.dragData;
-        if (activeDropSpot) {
+
+        if (activeDropSpot && !activeDropSpot.isDraggedComponent) {
           const { parentId, insertionIndex } = activeDropSpot;
 
           // Initialize Empty Component

@@ -46,7 +46,7 @@ const ComponentViewRenderer = React.createClass({
       rendererWidth,
       actions
     } = this.props;
-    //TD: Add props to components dropdown
+
     return (
       <div className="flex-auto flex flex-column h-100 mh4 relative mv4">
         <ViewChoiceDropdown

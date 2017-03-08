@@ -54,6 +54,7 @@ describe('createVariant', () => {
     var hvvId = components.getIn([cvvId, 'childIds', 0]);
     expect(hvvId).toBeDefined();
     expect(components.getIn([hvvId, 'masterId'])).toBe(hvId);
+    expect(componentsContainer.getName(hvvId)).toBe('Header');
   });
 });
 

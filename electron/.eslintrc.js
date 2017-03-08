@@ -32,7 +32,6 @@ module.exports = {
     "react/jsx-indent-props": 0,
     "no-inner-declarations": 1,
     "import/no-extraneous-dependencies": 1,
-    // Remove later
     "jsx-a11y/img-has-alt": 0,
     "prefer-const": 0,
     "comma-dangle": 0,
@@ -42,8 +41,6 @@ module.exports = {
     "import/prefer-default-export": 0,
     "class-methods-use-this": 1,
     "react/no-did-mount-set-state": 1,
-
-    // Possibly add back in later
     "react/prefer-stateless-function": 0,
     "indent": 0,
     "react/jsx-indent-props": 0,
@@ -52,9 +49,6 @@ module.exports = {
     "react/jsx-indent": 0,
     "arrow-body-style": 0,
     "spaced-comment": 0,
-
-
-    // Def add back in later
     "semi": 0,
     "react/jsx-boolean-value": 0
   },

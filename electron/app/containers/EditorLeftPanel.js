@@ -75,8 +75,6 @@ const EditorLeftPanel = React.createClass({
       );
     }
 
-    //console.log('Editor Left Panel Render');
-
     return (
       <div>
         <HorizontalSelect

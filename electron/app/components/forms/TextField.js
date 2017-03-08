@@ -131,5 +131,3 @@ const TextField = React.createClass({
 });
 
 export default TextField;
-
-// track mouse in leave - if inside then we know not to let the blur event go through.

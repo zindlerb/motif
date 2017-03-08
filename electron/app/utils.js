@@ -67,7 +67,6 @@ export function minDistanceBetweenPointAndLine(p, line) {
   const x2 = line[1].x;
   const y2 = line[1].y;
 
-  /* TD: Why does this work? */
   const A = x - x1;
   const B = y - y1;
   const C = x2 - x1;

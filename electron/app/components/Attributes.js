@@ -5,6 +5,7 @@ import AttributeField from '../components/AttributeField';
 import DivToBottom from '../components/DivToBottom';
 import CartoonButton from '../components/CartoonButton';
 import Dropdown from '../components/forms/Dropdown';
+import TextField from '../components/forms/TextField';
 import {
   fieldTypes,
   componentTypes,
@@ -236,6 +237,37 @@ const fields = {
   ]
 }
 
+const EditableName = React.createClass({
+  getInitialState() {
+    return {
+      tempText: '',
+      isEditing: false
+    }
+  },
+  render() {
+    if (this.state.isEditing) {
+      return (
+        <TextField
+            value={this.props.name}
+            className={this.props.className}
+            onSubmit={(value) => {
+                this.setState({ isEditing: false });
+                this.props.actions.changeComponentName(this.props.componentId, value);
+              }}
+        />
+      );
+    } else {
+      return (
+        <span
+            className={this.props.className}
+            onClick={() => this.setState({ isEditing: true })}>
+          {this.props.name}
+        </span>
+      );
+    }
+  }
+});
+
 const Attributes = function (props) {
   const {
     componentName,
@@ -249,7 +281,7 @@ const Attributes = function (props) {
 
   //console.log('ATTRIBUTES RENDER');
 
-  let body, attributeFields = []
+  let body, attributeFields = [], buttons;
 
   if (componentId) {
     _.forEach(fields[componentType], (field) => {
@@ -264,25 +296,38 @@ const Attributes = function (props) {
       );
     });
 
+    if (props.showButtons) {
+      buttons = (
+        <div className="mb3 tc">
+          <CartoonButton
+              className="mr1"
+              onClick={() => {
+                  props.actions.createComponentBlock(componentId);
+                }}
+              text="Make Component"
+          />
+          <CartoonButton
+              onClick={() => { props.actions.syncComponent(componentId); }}
+              disabled={props.isSynced}
+              text="Sync"
+          />
+        </div>
+      );
+    }
+
+
     body = (
       <div className="ph2">
         <div className="mb3 mt2">
           <div className="tc">
-            <span className="mv2 dib f5">{componentName}</span>
-          </div>
-          <div className="mb3 tc">
-            <CartoonButton
-                className="mr1"
-                onClick={() => {
-                    props.actions.createComponentBlock(componentId);
-                  }}
-                text="Make Component"
-            />
-            <CartoonButton
-                onClick={() => { props.actions.syncComponent(componentId); }}
-                text="Sync"
+            <EditableName
+                componentId={componentId}
+                className="mv2 dib f5 interactive"
+                actions={actions}
+                name={componentName}
             />
           </div>
+          { buttons }
           <span className="mb2 dib">State:</span>
           <Dropdown
               className="state-dropdown fr"

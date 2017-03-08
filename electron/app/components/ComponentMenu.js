@@ -222,7 +222,6 @@ const ComponentMenu = React.createClass({
   }
 });
 
-// TD: what is a good pattern to use component map data but not re-render based on its changes??
 const menuSelector = createImmutableJSSelector(
   [
     state => state.get('componentsMap'),

@@ -70,21 +70,8 @@ const AssetIcon = React.createClass({
   }
 });
 
-/*
-
-   <EditableText
-   value=
-   onSubmit={(value) => {
-   actions.updateAssetName(asset.id, value)
-   }}
-   />
-
-*/
-
 const AssetsView = React.createClass({
   render() {
-    //console.log('ASSETS VIEW RENDER');
-
     const { actions, currentMainView, assets } = this.props;
     let icons = assets.map((asset) => {
       return <AssetIcon asset={asset} actions={actions} />

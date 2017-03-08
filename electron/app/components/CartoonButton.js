@@ -2,12 +2,16 @@ import React from 'react';
 import classnames from 'classnames';
 
 function CartoonButton(props) {
-  const { text, onClick, className, size } = props;
+  const { text, onClick, className, size, disabled } = props;
 
   return (
     <button
-        onClick={onClick}
-        className={classnames(className, 'cartoon-button', size)}>
+        onClick={(e) => {
+            if (!disabled) {
+              onClick(e)
+            }
+          }}
+        className={classnames(className, 'cartoon-button', size, { disabled: disabled })}>
       {text}
     </button>
   );

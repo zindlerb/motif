@@ -17,8 +17,6 @@ const EditorView = React.createClass({
       currentMainView
     } = this.props;
 
-    //console.log('EditorView Render');
-
     return (
       <div className={classnames('flex h-100')}>
         <Sidebar direction="left">

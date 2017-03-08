@@ -39,7 +39,8 @@ export function createComponentData(componentType, spec) {
     defaultAttributes: spec.defaultAttributes || {},
     id: spec.id || guid(),
     states: spec.states || {},
-    breakpoints: spec.breakpoints || {}
+    breakpoints: spec.breakpoints || {},
+    isSynced: true
   });
 }
 
@@ -54,6 +55,7 @@ const defaultAttributes = {
 
 export const root = createComponentData(ROOT, {
   id: ROOT,
+  name: 'Root',
   defaultAttributes: {
     height: '100%'
   }
@@ -110,6 +112,28 @@ export class ComponentsContainer {
   }
 
   //  Write
+  commitChanges(componentId) {
+    this.components = ComponentsContainer.commitChanges(this.components, componentId);
+  }
+
+  static commitChanges(componentsMap, componentId) {
+    const component = componentsMap.get(componentId);
+    const parentComponent = componentsMap.get(component.get('parentId'));
+
+    const newParentComponent = parentComponent.updateIn(['defaultAttributes'], (defaultAttrs) => {
+      return defaultAttrs.merge(component.get('defaultAttributes'));
+    }).updateIn(['states'], (states) => {
+      return states.mergeDeep(component.get('states'));
+    }).updateIn(['breakpoints'], (breakpoints) => {
+      return breakpoints.mergeDeep(component.get('breakpoints'));
+    });
+
+    const newComponent = component.set('isSynced', true);
+
+    return componentsMap.set(parentComponent.get('id'), newParentComponent)
+                        .set(component.get('id'), newComponent);
+  }
+
   createVariant(masterId, spec) {
     const variantId = guid();
     this.components = ComponentsContainer.createVariant(this.components, variantId, masterId, spec);
@@ -234,6 +258,15 @@ export class ComponentsContainer {
       let movedComponent = components.get(movedComponentId);
       let movedComponentParent = components.get(movedComponent.get('parentId'));
 
+      if (movedComponentParent.get('id') === newParentId) {
+        const movedComponentIndex = ComponentsContainer.getIndex(componentsMap, movedComponentId);
+
+        if (movedComponentIndex < insertionIndex) {
+          // Moved component will shift all the indexes after it.
+          insertionIndex--;
+        }
+      }
+
       components.set(
         movedComponentParent.get('id'),
         movedComponentParent.update('childIds', (childIds) => {
@@ -291,7 +324,7 @@ export class ComponentsContainer {
         component = component.setIn(['defaultAttributes', attributeName], newValue);
       }
 
-      return components.set(componentId, component);
+      return components.set(componentId, component.set('isSynced', false));
     });
   }
 
@@ -339,7 +372,7 @@ export class ComponentsContainer {
   static getName(componentsMap, componentId) {
     let component = componentsMap.get(componentId);
     if (!component.get('name')) {
-      return componentsMap.get(component.get('masterId')).get('name');
+      return ComponentsContainer.getName(componentsMap, component.get('masterId'));
     } else {
       return component.get('name');
     }
@@ -418,21 +451,6 @@ export class ComponentsContainer {
   }
 
   static getRenderTree(componentsMap, componentId, context, index) {
-    /*
-
-       context: {
-       states: { id of component and state} - only if not none
-       width
-       }
-
-       component stuff with:
-       sx
-       htmlProperties
-
-       Later delete stuff
-     */
-
-    // TD: if I only take certain properties I can make this cheaper
     if (componentId) {
       let componentJs = componentsMap.get(componentId).toJS();
       let breakpoint = NONE;
@@ -483,35 +501,6 @@ export class ComponentsContainer {
     } else {
       return null;
     }
-  }
-
-  hydrateComponent(componentId) {
-    return ComponentsContainer.hydrateComponent(this.components, componentId);
-  }
-
-  static hydrateComponent(componentsMap, componentId) {
-    // returns component with all ids replaced with references to the component
-    /*
-       adds props;
-       index
-     */
-    let componentJs = componentsMap.get(componentId).toJS();
-    componentJs.index = ComponentsContainer.getIndex(componentsMap, componentJs.id);
-
-    componentJs.parent = componentsMap.get(componentJs.parentId).toJS();
-    componentJs.master = componentsMap.get(componentJs.masterId).toJS();
-    componentJs.children = [];
-    componentJs.variants = [];
-
-    componentJs.childIds.forEach((childId) => {
-      componentJs.children.push(componentsMap.get(childId).toJs());
-    });
-
-    componentJs.variantIds.forEach((variantId) => {
-      componentJs.variants.push(componentsMap.get(variantId).toJs());
-    });
-
-    return componentJs;
   }
 
   getIndex(componentId) {

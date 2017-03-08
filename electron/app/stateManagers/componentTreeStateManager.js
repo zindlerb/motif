@@ -1,3 +1,5 @@
+import { hri } from 'human-readable-ids';
+
 import { NONE } from '../constants';
 import { ComponentsContainer } from '../base_components';
 
@@ -13,8 +15,8 @@ const SELECT_COMPONENT = 'SELECT_COMPONENT';
 const CHANGE_COMPONENT_NAME = 'CHANGE_COMPONENT_NAME';
 const CREATE_COMPONENT_BLOCK = 'CREATE_COMPONENT_BLOCK';
 const SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
+const SYNC_COMPONENT = 'SYNC_COMPONENT';
 
-// test for optional argument
 export const componentTreeActions = {
   moveComponent(componentId, parentComponentId, insertionIndex) {
     return {
@@ -23,6 +25,13 @@ export const componentTreeActions = {
       parentComponentId,
       insertionIndex
     };
+  },
+
+  syncComponent(componentId) {
+    return {
+      type: SYNC_COMPONENT,
+      componentId
+    }
   },
 
   addVariant(componentId, parentComponentId, insertionIndex, spec) {
@@ -91,6 +100,13 @@ export const componentTreeActions = {
 };
 
 export const componentTreeReducer = {
+  [SYNC_COMPONENT](state, action) {
+    return state.set(
+      'componentsMap',
+      ComponentsContainer.commitChanges(state.get('componentsMap'), action.componentId)
+    );
+  },
+
   [ADD_VARIANT](state, action) {
     let { componentId, parentComponentId, insertionIndex, spec } = action;
     let componentsContainer = new ComponentsContainer(state.get('componentsMap'));
@@ -147,16 +163,17 @@ export const componentTreeReducer = {
 
   [CREATE_COMPONENT_BLOCK](state, action) {
     const { newBlockId } = action;
+    let variantId;
 
     const newComponentsMap = state.get('componentsMap').withMutations((componentsMap) => {
       const componentsContainer = new ComponentsContainer(componentsMap);
       const newBlockParentId = componentsMap.getIn([newBlockId, 'parentId']);
       componentsMap.mergeIn(
         [newBlockId],
-        { name: 'New Component', parentId: undefined }
+        { name: hri.random(), parentId: undefined }
       );
 
-      const variantId = componentsContainer.createVariant(newBlockId, {
+      variantId = componentsContainer.createVariant(newBlockId, {
         parentId: newBlockParentId
       });
 
@@ -173,7 +190,7 @@ export const componentTreeReducer = {
 
     return state.update('yourComponentBoxes', (yourComponentBoxes) => {
       return yourComponentBoxes.push(newBlockId);
-    }).set('componentsMap', newComponentsMap);
+    }).set('componentsMap', newComponentsMap).set('activeComponentId', variantId);
   },
 
   [SET_COMPONENT_ATTRIBUTE](state, action) {

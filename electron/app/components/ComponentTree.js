@@ -67,7 +67,7 @@ const ComponentTree = React.createClass({
   },
   render() {
     let children;
-    let afterSpacer, afterSpacerInd, beforeSpacer, treeItemElement;
+    let afterSpacer, afterSpacerInd, treeItemElement;
     let {
       context,
       node,

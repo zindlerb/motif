@@ -120,7 +120,6 @@ const App = React.createClass({
   },
 
   render() {
-    //console.log('APP RENDER');
     let view;
     let {
       currentMainView,

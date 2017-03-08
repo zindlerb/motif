@@ -384,7 +384,6 @@ const StaticRenderer = React.createClass({
   },
 
   render() {
-    //console.log('STATIC RENDERER RENDER')
     let {
       renderTree,
       activeComponentId,

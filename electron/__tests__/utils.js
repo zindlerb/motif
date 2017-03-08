@@ -3,7 +3,6 @@ var Immutable = require('immutable');
 var { createImmutableJSSelector } = require('../app/utils.js');
 
 describe('createImmutableJSSelector', () => {
-  // Should have a times computed props triggered inside func
   var wasCalled = false;
   var selector = createImmutableJSSelector(
     [
