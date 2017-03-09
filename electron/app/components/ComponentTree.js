@@ -146,12 +146,16 @@ const ComponentTree = React.createClass({
                 if (wasRightButtonPressed(e)) {
                   actions.openMenu(
                     node.id,
+                    node.parentId,
+                    node.index + 1,
                     e.clientX,
                     e.clientY
                   );
                 } else {
                   actions.selectComponent(node.id);
                 }
+
+                e.stopPropagation();
               }}
             onMouseDown={(e) => {
                 const target = $(e.target);

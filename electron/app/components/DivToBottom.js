@@ -10,14 +10,18 @@ const DivToBottom = React.createClass({
   },
 
   componentDidMount() {
-    const resize = _.debounce(() => {
+    this.resize = _.debounce(() => {
       this.setState(
         { height: this.getHeight() }
       );
     }, 500);
 
     this.setState({ height: this.getHeight() });
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', this.resize);
+  },
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.resize);
   },
 
   getHeight() {

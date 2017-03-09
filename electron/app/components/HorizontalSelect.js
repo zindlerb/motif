@@ -18,7 +18,6 @@ export default function HorizontalSelect(props) {
     let content;
     const headerClick = function (e) {
       props.onClick(option.value);
-      e.stopPropagation();
     };
 
     if (option.faClass) {

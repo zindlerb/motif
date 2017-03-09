@@ -111,49 +111,6 @@ export function wasRightButtonPressed(e) {
   return isRightMB;
 }
 
-
-class GlobalEventManager {
-  // Lower priority fires first
-  // Event listeners are passed (browserEvent, cancel)
-  // Cancel acts like prevent default
-  constructor() {
-    this.events = {};
-  }
-
-  addListener(eventName, listener, priority) {
-    if (!this.events[eventName]) {
-      window.addEventListener(eventName, (e) => {
-        let isCanceled = false;
-        let cancel = () => { isCanceled = true; };
-
-        let eventArr = this.events[eventName];
-        for (let i = 0; i < eventArr.length; i++) {
-          if (!isCanceled) {
-            eventArr[i].listener(e, cancel);
-          }
-        }
-      });
-
-      this.events[eventName] = [];
-    }
-
-    const id = guid();
-
-    this.events[eventName].push({ listener, priority, id });
-    this.events[eventName] = _.sortBy(this.events[eventName], (ev) => { ev.priority; });
-
-    return id
-  }
-
-  removeListener(eventName, id) {
-    return _.remove(this.events[eventName], (listener) => {
-      return listener.id === id;
-    }).length > 0;
-  }
-}
-
-export const globalEventManager = new GlobalEventManager();
-
 export function saveSiteAsDialog(actions) {
   dialog.showSaveDialog({
     title: 'Save Site As',

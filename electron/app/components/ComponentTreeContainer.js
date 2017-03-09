@@ -1,9 +1,10 @@
 import React from 'react';
 import $ from 'jquery';
 import _ from 'lodash';
+import mousetrap from 'mousetrap';
 
 import dragManager from '../dragManager';
-import { guid } from '../utils';
+import { guid, wasRightButtonPressed } from '../utils';
 import { componentTypes } from '../constants';
 
 import TreeItem from './TreeItem';
@@ -159,6 +160,14 @@ const ComponentTreeContainer = React.createClass({
       hasOpenedMenu: false,
       openComponents: {}
     }
+  },
+
+  componentDidMount() {
+    mousetrap.bind(['backspace', 'del'], () => {
+      if (this.props.activeComponentId) {
+        this.props.actions.deleteComponent(this.props.activeComponentId);
+      }
+    }, 'keyup');
   },
 
   beginDrag(e, node, itemWidth, itemX, itemY) {
@@ -320,7 +329,21 @@ const ComponentTreeContainer = React.createClass({
     }
 
     return (
-      <div>
+      <div
+          className="h-100"
+          onMouseUp={(e) => {
+              if (wasRightButtonPressed(e)) {
+                actions.openMenu(
+                  undefined,
+                  renderTree.id,
+                  renderTree.children.length,
+                  e.clientX,
+                  e.clientY
+                );
+                e.stopPropagation();
+              }
+            }}
+      >
         { hintText }
         <ComponentTree
             node={renderTree}

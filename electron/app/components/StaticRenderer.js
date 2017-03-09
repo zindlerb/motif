@@ -228,7 +228,6 @@ const MComponentDataRenderer = React.createClass({
     const onClick = (e) => {
       actions.selectComponent(mComponentData.id);
       actions.changePanel('ATTRIBUTES', 'right');
-      e.stopPropagation();
     }
 
     if (componentType === componentTypes.ROOT) {

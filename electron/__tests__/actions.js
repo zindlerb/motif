@@ -28,8 +28,8 @@ describe('make component block', () => {
 
   store.dispatch(actions.createComponentBlock(newBlockId));
 
-  it('Correctly Sets the Name', () => {
+  it('Removes parent', () => {
     const state = store.getState();
-    expect(ComponentsContainer.getName(state.get('componentsMap'), newBlockId)).toBe('New Component');
+    expect(state.getIn(['componentsMap', newBlockId, 'parentId'])).toBeUndefined();
   });
 });

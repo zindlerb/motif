@@ -1,6 +1,5 @@
 import fs from 'fs';
 import { remote } from 'electron';
-import mousetrap from 'mousetrap';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { connect, Provider } from 'react-redux';
@@ -14,6 +13,7 @@ import Sidebar from './components/Sidebar';
 import ComponentsViewTree from './containers/ComponentsViewTree';
 import ComponentsViewRenderer from './containers/ComponentsViewRenderer';
 import AttributesContainer from './containers/AttributesContainer';
+import ComponentMenu from './components/ComponentMenu';
 
 import {
   saveSiteAsDialog,
@@ -29,11 +29,7 @@ const { Menu, dialog } = remote;
 const App = React.createClass({
   componentDidMount() {
     const { actions } = this.props;
-    mousetrap.bind(['backspace', 'del'], () => {
-      if (this.props.activeComponent) {
-        this.props.deleteComponent(this.props.activeComponent);
-      }
-    }, 'keyup');
+
 
     const reloadDirname = '/Users/brianzindler/Documents/reload';
 
@@ -147,15 +143,11 @@ const App = React.createClass({
     return (
       <div className="h-100">
         { view }
+        <ComponentMenu actions={actions} />
       </div>
     );
   },
 });
-
-/*
-   <ComponentsViewAttributes />
-   <ComponentsViewTree />
-*/
 
 const appSelector = createImmutableJSSelector(
   state => state.get('currentMainView'),

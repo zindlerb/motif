@@ -118,9 +118,9 @@ export class ComponentsContainer {
 
   static commitChanges(componentsMap, componentId) {
     const component = componentsMap.get(componentId);
-    const parentComponent = componentsMap.get(component.get('parentId'));
+    const masterComponent = componentsMap.get(component.get('masterId'));
 
-    const newParentComponent = parentComponent.updateIn(['defaultAttributes'], (defaultAttrs) => {
+    const newMasterComponent = masterComponent.updateIn(['defaultAttributes'], (defaultAttrs) => {
       return defaultAttrs.merge(component.get('defaultAttributes'));
     }).updateIn(['states'], (states) => {
       return states.mergeDeep(component.get('states'));
@@ -130,7 +130,7 @@ export class ComponentsContainer {
 
     const newComponent = component.set('isSynced', true);
 
-    return componentsMap.set(parentComponent.get('id'), newParentComponent)
+    return componentsMap.set(masterComponent.get('id'), newMasterComponent)
                         .set(component.get('id'), newComponent);
   }
 
@@ -297,7 +297,10 @@ export class ComponentsContainer {
   static setAttribute(componentsMap, componentId, attributeName, newValue, attributeOptions) {
     return componentsMap.withMutations((components) => {
       let component = components.get(componentId);
-      const { state, breakpoint } = attributeOptions || {};
+      const { state, breakpoint } = attributeOptions || {
+        state: NONE,
+        breakpoint: NONE
+      };
       let attributeType, attributeOption;
 
       if (state !== NONE) {

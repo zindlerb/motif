@@ -1,10 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import classnames from 'classnames';
 
 import {
   Rect,
-  globalEventManager,
   createImmutableJSSelector
 } from '../utils';
 
@@ -37,12 +37,13 @@ const ComponentMenu = React.createClass({
     };
   },
 
+  //TD: cleanup event
   componentDidMount() {
-    globalEventManager.addListener('mouseup', () => {
+    window.addEventListener('mouseup', () => {
       if (this.props.menu.isOpen) {
         this.props.actions.closeMenu();
       }
-    }, 10000);
+    });
   },
 
   componentWillReceiveProps(nextProps) {
@@ -66,15 +67,16 @@ const ComponentMenu = React.createClass({
       componentIdMapByName,
       menu,
       assets,
-      parentId,
-      componentIndex
+      isRootComponentBox
     } = this.props;
 
     let {
       componentId,
+      parentId,
+      insertionIndex,
       isOpen,
-      componentX,
-      componentY
+      mouseX,
+      mouseY
     } = menu;
 
     let {
@@ -89,8 +91,8 @@ const ComponentMenu = React.createClass({
     let sx = {
       width: primaryMenuWidth,
       position: 'absolute',
-      left: componentX,
-      top: componentY
+      left: mouseX,
+      top: mouseY
     };
 
     let secondaryMenuWidth = 100;
@@ -113,7 +115,7 @@ const ComponentMenu = React.createClass({
                       this.props.actions.addVariant(
                         componentIdMapByName[componentName],
                         parentId,
-                        componentIndex
+                        insertionIndex
                       );
                     }}>
                 {componentName}
@@ -131,7 +133,7 @@ const ComponentMenu = React.createClass({
                       this.props.actions.addVariant(
                         image.get('id'),
                         parentId,
-                        componentIndex,
+                        insertionIndex,
                         createNewImageSpec(asset)
                       );
                     }}>
@@ -156,30 +158,41 @@ const ComponentMenu = React.createClass({
         );
       }
 
+      // TD: refactor to li with real disable
       return (
         <div>
           <ul style={sx} className="component-menu">
             <li
                 key={'DELETE'}
+                className={classnames({ disabled: !componentId || isRootComponentBox })}
                 onMouseEnter={this.closeNestedMenus}
                 onMouseUp={(e) => {
-                    this.props.actions.deleteComponent(componentId);
-                    this.props.actions.closeMenu();
+                    if (componentId && !isRootComponentBox) {
+                      this.props.actions.deleteComponent(componentId);
+                      this.props.actions.closeMenu();
+                    }
                     e.stopPropagation();
                   }}>
-              Delete
-              <i className="fa fa-trash ph1 fr" aria-hidden="true" />
+              <span>
+                Delete
+                <i className="fa fa-trash ph1 fr" aria-hidden="true" />
+              </span>
             </li>
             <li
                 key={'MAKE_COMPONENT'}
+                className={classnames({ disabled: !componentId })}
                 onMouseEnter={this.closeNestedMenus}
                 onMouseUp={(e) => {
-                    this.props.actions.createComponentBlock(componentId);
-                    this.props.actions.closeMenu();
+                    if (componentId) {
+                      this.props.actions.createComponentBlock(componentId);
+                      this.props.actions.closeMenu();
+                    }
                     e.stopPropagation();
                   }}>
-              Make Component
-              <i className="fa fa-id-card-o ph1 fr" aria-hidden="true" />
+              <span>
+                Make Component
+                <i className="fa fa-id-card-o ph1 fr" aria-hidden="true" />
+              </span>
             </li>
             <li
                 className={INSERT_COMPONENT}
@@ -194,23 +207,30 @@ const ComponentMenu = React.createClass({
                     });
                     e.stopPropagation();
                   }}>
-              Insert Component
-              <RightTriangle className="ph1 fr" />
+              <span>
+                Insert Component
+                <RightTriangle className="ph1 fr" />
+              </span>
             </li>
             <li
                 key={INSERT_ASSET}
+                className={classnames({ disabled: !assets.length })}
                 ref={(ref) => { this._insertAssetEl = ref }}
                 onMouseEnter={(e) => {
-                    let rect = new Rect(this._insertAssetEl);
-                    this.setState({
-                      openListItem: INSERT_ASSET,
-                      secondaryPosX: rect.x,
-                      secondaryPosY: rect.y,
-                    });
+                    if (assets.length) {
+                      let rect = new Rect(this._insertAssetEl);
+                      this.setState({
+                        openListItem: INSERT_ASSET,
+                        secondaryPosX: rect.x,
+                        secondaryPosY: rect.y,
+                      });
+                    }
                     e.stopPropagation();
                   }}>
-              Insert Asset
-              <RightTriangle className="ph1 fr" />
+              <span>
+                Insert Asset
+                <RightTriangle className="ph1 fr" />
+              </span>
             </li>
           </ul>
           {secondaryList}
@@ -228,36 +248,38 @@ const menuSelector = createImmutableJSSelector(
     state => state.get('menu'),
     state => state.get('ourComponentBoxes'),
     state => state.get('yourComponentBoxes'),
-    state => state.get('assets')
+    state => state.get('assets'),
   ],
-  (componentsMap, menu, ourComponentBoxes, yourComponentBoxes, assets) => {
-    let componentIdMapByName = {};
-    let menuJs = menu.toJS()
+  (componentsMap, menu, ourComponentBoxes,
+   yourComponentBoxes, assets) => {
+     let componentIdMapByName = {};
+     let menuJs = menu.toJS()
 
-    if (menuJs.isOpen) {
-      // TD: Add selector here
-      const makeComponentIdMap = (componentId) => {
-        let name = ComponentsContainer.getName(componentsMap, componentId);
-        componentIdMapByName[name] = componentId;
-      }
+     if (menuJs.isOpen) {
+       // TD: Add selector here
+       const makeComponentIdMap = (componentId) => {
+         let name = ComponentsContainer.getName(componentsMap, componentId);
+         componentIdMapByName[name] = componentId;
+       }
 
-      ourComponentBoxes.forEach(makeComponentIdMap);
-      yourComponentBoxes.forEach(makeComponentIdMap);
+       ourComponentBoxes.forEach(makeComponentIdMap);
+       yourComponentBoxes.forEach(makeComponentIdMap);
 
-      return {
-        menu: menuJs,
-        componentIdMapByName,
-        parentId: componentsMap.getIn([
-          menuJs.componentId, 'parentId'
-        ]),
-        componentIndex: ComponentsContainer.getIndex(componentsMap, menuJs.componentId),
-        // TD: EXPENSIVE! Remove.
-        assets: _.toArray(assets.toJS())
-      }
-    } else {
-      return { menu: menuJs };
-    }
-  }
+       return {
+         menu: menuJs,
+         componentIdMapByName,
+         isRootComponentBox: (
+           menuJs.componentId &&
+           (yourComponentBoxes.includes(menuJs.componentId) ||
+           ourComponentBoxes.includes(menuJs.componentId))
+         ),
+         // TD: EXPENSIVE! Remove.
+         assets: _.toArray(assets.toJS())
+       }
+     } else {
+       return { menu: menuJs };
+     }
+   }
 );
 
 export default connect(menuSelector)(ComponentMenu);

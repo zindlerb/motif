@@ -256,3 +256,25 @@ describe('getHtml', () => {
     expect($($.parseHTML(htmlStr)[0]).attr('class')).toBe(vcId);
   });
 });
+
+describe('commitChanges', () => {
+  var compC = new ComponentsContainer(defaultComponentsMap);
+  var vcId = compC.createVariant(container.get('id'));
+
+  it('updates isSynced', () => {
+    compC.setAttribute(vcId, 'backgroundColor', 'pink');
+    expect(compC.components.getIn([vcId, 'isSynced'])).toBeFalsy();
+  });
+
+  it('commits changes', () => {
+    compC.commitChanges(vcId);
+    expect(compC.components.getIn([vcId, 'isSynced'])).toBeTruthy();
+    expect(compC.components.getIn(
+      [
+        container.get('id'),
+        'defaultAttributes',
+        'backgroundColor'
+      ]
+    )).toBe('pink');
+  });
+});

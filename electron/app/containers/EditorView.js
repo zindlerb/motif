@@ -7,7 +7,6 @@ import EditorRenderer from './EditorRenderer';
 import Sidebar from '../components/Sidebar';
 import AttributesContainer from './AttributesContainer';
 import EditorLeftPanel from './EditorLeftPanel';
-import ComponentMenu from '../components/ComponentMenu';
 import OpenSiteModal from '../containers/OpenSiteModal';
 
 const EditorView = React.createClass({
@@ -33,7 +32,6 @@ const EditorView = React.createClass({
         <Sidebar direction="right">
           <AttributesContainer actions={actions} />
         </Sidebar>
-        <ComponentMenu actions={actions} />
         <OpenSiteModal actions={actions} />
       </div>
     );

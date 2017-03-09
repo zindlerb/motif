@@ -11,7 +11,7 @@ function CartoonButton(props) {
               onClick(e)
             }
           }}
-        className={classnames(className, 'cartoon-button', size, { disabled: disabled })}>
+        className={classnames(className, 'cartoon-button', size, { disabled })}>
       {text}
     </button>
   );

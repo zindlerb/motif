@@ -17,8 +17,8 @@ class Drag {
 class DragManager {
   constructor() {
     this.drag = null;
-    globalEventManager.addListener('mousemove', this._onMouseMove.bind(this), 1);
-    globalEventManager.addListener('mouseup', this._onMouseUp.bind(this), 1);
+    window.addEventListener('mousemove', this._onMouseMove.bind(this), true);
+    window.addEventListener('mouseup', this._onMouseUp.bind(this), true);
   }
 
   start(mouseDownEvent, spec) {
@@ -41,7 +41,7 @@ class DragManager {
     }
   }
 
-  _onMouseUp(mouseUpEvent, cancel) {
+  _onMouseUp(mouseUpEvent) {
     if (!this.drag) return;
 
     if (this.drag.onEnd) {
@@ -49,8 +49,6 @@ class DragManager {
     }
 
     this.drag = null;
-
-    cancel();
   }
 
   _consummate(mouseMoveEvent) {

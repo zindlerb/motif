@@ -50,7 +50,7 @@
 	'use strict';
 	
 	__webpack_require__(/*! ./app.js */ 1);
-	__webpack_require__(/*! ../public/scss/main.scss */ 478);
+	__webpack_require__(/*! ../public/scss/main.scss */ 477);
 
 /***/ },
 /* 1 */
@@ -66,10 +66,6 @@
 	var _fs2 = _interopRequireDefault(_fs);
 	
 	var _electron = __webpack_require__(/*! electron */ 3);
-	
-	var _mousetrap = __webpack_require__(/*! mousetrap */ 4);
-	
-	var _mousetrap2 = _interopRequireDefault(_mousetrap);
 	
 	var _react = __webpack_require__(/*! react */ 5);
 	
@@ -113,6 +109,10 @@
 	
 	var _AttributesContainer2 = _interopRequireDefault(_AttributesContainer);
 	
+	var _ComponentMenu = __webpack_require__(/*! ./components/ComponentMenu */ 473);
+	
+	var _ComponentMenu2 = _interopRequireDefault(_ComponentMenu);
+	
 	var _utils = __webpack_require__(/*! ./utils */ 215);
 	
 	var _constants = __webpack_require__(/*! ./constants */ 213);
@@ -130,11 +130,6 @@
 	
 	    var actions = this.props.actions;
 	
-	    _mousetrap2.default.bind(['backspace', 'del'], function () {
-	      if (_this.props.activeComponent) {
-	        _this.props.deleteComponent(_this.props.activeComponent);
-	      }
-	    }, 'keyup');
 	
 	    var reloadDirname = '/Users/brianzindler/Documents/reload';
 	
@@ -234,15 +229,11 @@
 	    return _react2.default.createElement(
 	      'div',
 	      { className: 'h-100' },
-	      view
+	      view,
+	      _react2.default.createElement(_ComponentMenu2.default, { actions: actions })
 	    );
 	  }
 	});
-	
-	/*
-	   <ComponentsViewAttributes />
-	   <ComponentsViewTree />
-	*/
 	
 	var appSelector = (0, _utils.createImmutableJSSelector)(function (state) {
 	  return state.get('currentMainView');
@@ -23950,12 +23941,14 @@
 	      _noUndo: true
 	    };
 	  },
-	  openMenu: function openMenu(componentId, componentX, componentY) {
+	  openMenu: function openMenu(componentId, parentId, insertionIndex, mouseX, mouseY) {
 	    return {
 	      type: OPEN_MENU,
 	      componentId: componentId,
-	      componentX: componentX,
-	      componentY: componentY,
+	      parentId: parentId,
+	      insertionIndex: insertionIndex,
+	      mouseX: mouseX,
+	      mouseY: mouseY,
 	      _noUndo: true
 	    };
 	  },
@@ -24048,12 +24041,20 @@
 	  });
 	}), _defineProperty(_Object$assign, OPEN_MENU, function (state, action) {
 	  // TD: maybe move to local state?
+	  var componentId = action.componentId,
+	      parentId = action.parentId,
+	      insertionIndex = action.insertionIndex,
+	      mouseX = action.mouseX,
+	      mouseY = action.mouseY;
+	
 	  return state.update('menu', function (menu) {
 	    return menu.merge({
 	      isOpen: true,
-	      componentId: action.componentId,
-	      componentX: action.componentX,
-	      componentY: action.componentY
+	      componentId: componentId,
+	      parentId: parentId,
+	      insertionIndex: insertionIndex,
+	      mouseX: mouseX,
+	      mouseY: mouseY
 	    });
 	  });
 	}), _defineProperty(_Object$assign, CLOSE_MENU, function (state) {
@@ -24130,7 +24131,7 @@
 	    return state.setIn(['editorView', 'currentPageId'], state.get('pages').first().get('id'));
 	  });
 	}), _defineProperty(_Object$assign, CHANGE_MAIN_VIEW, function (state, action) {
-	  return state.set('currentMainView', action.newView);
+	  return state.set('currentMainView', action.newView).set('activeComponentId', undefined);
 	}), _defineProperty(_Object$assign, UPDATE_ASSET_NAME, function (state, action) {
 	  return state.update('assets', function (assets) {
 	    return assets.setIn([action.assetId, 'name'], action.newName);
@@ -46928,9 +46929,9 @@
 	    key: 'commitChanges',
 	    value: function commitChanges(componentsMap, componentId) {
 	      var component = componentsMap.get(componentId);
-	      var parentComponent = componentsMap.get(component.get('parentId'));
+	      var masterComponent = componentsMap.get(component.get('masterId'));
 	
-	      var newParentComponent = parentComponent.updateIn(['defaultAttributes'], function (defaultAttrs) {
+	      var newMasterComponent = masterComponent.updateIn(['defaultAttributes'], function (defaultAttrs) {
 	        return defaultAttrs.merge(component.get('defaultAttributes'));
 	      }).updateIn(['states'], function (states) {
 	        return states.mergeDeep(component.get('states'));
@@ -46940,7 +46941,7 @@
 	
 	      var newComponent = component.set('isSynced', true);
 	
-	      return componentsMap.set(parentComponent.get('id'), newParentComponent).set(component.get('id'), newComponent);
+	      return componentsMap.set(masterComponent.get('id'), newMasterComponent).set(component.get('id'), newComponent);
 	    }
 	  }, {
 	    key: 'createVariant',
@@ -47050,7 +47051,10 @@
 	      return componentsMap.withMutations(function (components) {
 	        var component = components.get(componentId);
 	
-	        var _ref = attributeOptions || {},
+	        var _ref = attributeOptions || {
+	          state: _constants.NONE,
+	          breakpoint: _constants.NONE
+	        },
 	            state = _ref.state,
 	            breakpoint = _ref.breakpoint;
 	
@@ -47313,7 +47317,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.createImmutableJSSelector = exports.globalEventManager = exports.Rect = undefined;
+	exports.createImmutableJSSelector = exports.Rect = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -47468,62 +47472,6 @@
 	
 	  return isRightMB;
 	}
-	
-	var GlobalEventManager = function () {
-	  // Lower priority fires first
-	  // Event listeners are passed (browserEvent, cancel)
-	  // Cancel acts like prevent default
-	  function GlobalEventManager() {
-	    _classCallCheck(this, GlobalEventManager);
-	
-	    this.events = {};
-	  }
-	
-	  _createClass(GlobalEventManager, [{
-	    key: 'addListener',
-	    value: function addListener(eventName, listener, priority) {
-	      var _this = this;
-	
-	      if (!this.events[eventName]) {
-	        window.addEventListener(eventName, function (e) {
-	          var isCanceled = false;
-	          var cancel = function cancel() {
-	            isCanceled = true;
-	          };
-	
-	          var eventArr = _this.events[eventName];
-	          for (var i = 0; i < eventArr.length; i++) {
-	            if (!isCanceled) {
-	              eventArr[i].listener(e, cancel);
-	            }
-	          }
-	        });
-	
-	        this.events[eventName] = [];
-	      }
-	
-	      var id = guid();
-	
-	      this.events[eventName].push({ listener: listener, priority: priority, id: id });
-	      this.events[eventName] = _lodash2.default.sortBy(this.events[eventName], function (ev) {
-	        ev.priority;
-	      });
-	
-	      return id;
-	    }
-	  }, {
-	    key: 'removeListener',
-	    value: function removeListener(eventName, id) {
-	      return _lodash2.default.remove(this.events[eventName], function (listener) {
-	        return listener.id === id;
-	      }).length > 0;
-	    }
-	  }]);
-	
-	  return GlobalEventManager;
-	}();
-	
-	var globalEventManager = exports.globalEventManager = new GlobalEventManager();
 	
 	function saveSiteAsDialog(actions) {
 	  dialog.showSaveDialog({
@@ -57865,8 +57813,7 @@
 	          onClick: function onClick() {
 	            return _this.setState({ isOpen: false });
 	          },
-	          style: { left: 0, top: 0 },
-	          className: 'absolute w-100 h-100'
+	          className: 'page-blanket'
 	        }),
 	        _react2.default.cloneElement(this.props.children, pos)
 	      );
@@ -58285,10 +58232,6 @@
 	
 	var _EditorLeftPanel2 = _interopRequireDefault(_EditorLeftPanel);
 	
-	var _ComponentMenu = __webpack_require__(/*! ../components/ComponentMenu */ 473);
-	
-	var _ComponentMenu2 = _interopRequireDefault(_ComponentMenu);
-	
 	var _OpenSiteModal = __webpack_require__(/*! ../containers/OpenSiteModal */ 474);
 	
 	var _OpenSiteModal2 = _interopRequireDefault(_OpenSiteModal);
@@ -58326,7 +58269,6 @@
 	        { direction: 'right' },
 	        _react2.default.createElement(_AttributesContainer2.default, { actions: actions })
 	      ),
-	      _react2.default.createElement(_ComponentMenu2.default, { actions: actions }),
 	      _react2.default.createElement(_OpenSiteModal2.default, { actions: actions })
 	    );
 	  }
@@ -58993,7 +58935,6 @@
 	    var onClick = function onClick(e) {
 	      actions.selectComponent(mComponentData.id);
 	      actions.changePanel('ATTRIBUTES', 'right');
-	      e.stopPropagation();
 	    };
 	
 	    if (componentType === _constants.componentTypes.ROOT) {
@@ -59226,8 +59167,8 @@
 	    _classCallCheck(this, DragManager);
 	
 	    this.drag = null;
-	    _utils.globalEventManager.addListener('mousemove', this._onMouseMove.bind(this), 1);
-	    _utils.globalEventManager.addListener('mouseup', this._onMouseUp.bind(this), 1);
+	    window.addEventListener('mousemove', this._onMouseMove.bind(this), true);
+	    window.addEventListener('mouseup', this._onMouseUp.bind(this), true);
 	  }
 	
 	  _createClass(DragManager, [{
@@ -59254,7 +59195,7 @@
 	    }
 	  }, {
 	    key: '_onMouseUp',
-	    value: function _onMouseUp(mouseUpEvent, cancel) {
+	    value: function _onMouseUp(mouseUpEvent) {
 	      if (!this.drag) return;
 	
 	      if (this.drag.onEnd) {
@@ -59262,8 +59203,6 @@
 	      }
 	
 	      this.drag = null;
-	
-	      cancel();
 	    }
 	  }, {
 	    key: '_consummate',
@@ -73478,12 +73417,15 @@
 	  componentDidMount: function componentDidMount() {
 	    var _this = this;
 	
-	    var resize = _lodash2.default.debounce(function () {
+	    this.resize = _lodash2.default.debounce(function () {
 	      _this.setState({ height: _this.getHeight() });
 	    }, 500);
 	
 	    this.setState({ height: this.getHeight() });
-	    window.addEventListener('resize', resize);
+	    window.addEventListener('resize', this.resize);
+	  },
+	  componentWillUnmount: function componentWillUnmount() {
+	    window.removeEventListener('resize', this.resize);
 	  },
 	  getHeight: function getHeight() {
 	    return document.documentElement.clientHeight - (0, _jquery2.default)(this._el).offset().top;
@@ -73613,7 +73555,7 @@
 	
 	    return _react2.default.createElement(
 	      'div',
-	      null,
+	      { className: 'h-100 flex flex-column' },
 	      _react2.default.createElement(_HorizontalSelect2.default, {
 	        className: 'w-100',
 	        options: [{ value: panelTypes.TREE, text: 'Tree' }, { value: panelTypes.DETAILS, text: 'Page Settings' }],
@@ -73624,7 +73566,7 @@
 	      }),
 	      _react2.default.createElement(
 	        'div',
-	        { className: 'ph1' },
+	        { className: 'ph1 f-grow' },
 	        body
 	      )
 	    );
@@ -73674,6 +73616,10 @@
 	var _lodash = __webpack_require__(/*! lodash */ 211);
 	
 	var _lodash2 = _interopRequireDefault(_lodash);
+	
+	var _mousetrap = __webpack_require__(/*! mousetrap */ 4);
+	
+	var _mousetrap2 = _interopRequireDefault(_mousetrap);
 	
 	var _dragManager = __webpack_require__(/*! ../dragManager */ 232);
 	
@@ -73860,6 +73806,15 @@
 	      openComponents: {}
 	    };
 	  },
+	  componentDidMount: function componentDidMount() {
+	    var _this2 = this;
+	
+	    _mousetrap2.default.bind(['backspace', 'del'], function () {
+	      if (_this2.props.activeComponentId) {
+	        _this2.props.actions.deleteComponent(_this2.props.activeComponentId);
+	      }
+	    }, 'keyup');
+	  },
 	  beginDrag: function beginDrag(e, node, itemWidth, itemX, itemY) {
 	    var that = this;
 	    _dragManager2.default.start(e, {
@@ -74009,7 +73964,15 @@
 	
 	    return _react2.default.createElement(
 	      'div',
-	      null,
+	      {
+	        className: 'h-100',
+	        onMouseUp: function onMouseUp(e) {
+	          if ((0, _utils.wasRightButtonPressed)(e)) {
+	            actions.openMenu(undefined, renderTree.id, renderTree.children.length, e.clientX, e.clientY);
+	            e.stopPropagation();
+	          }
+	        }
+	      },
 	      hintText,
 	      _react2.default.createElement(_ComponentTree2.default, {
 	        node: renderTree,
@@ -74285,10 +74248,12 @@
 	          },
 	          onMouseUp: function onMouseUp(e) {
 	            if ((0, _utils.wasRightButtonPressed)(e)) {
-	              actions.openMenu(node.id, e.clientX, e.clientY);
+	              actions.openMenu(node.id, node.parentId, node.index + 1, e.clientX, e.clientY);
 	            } else {
 	              actions.selectComponent(node.id);
 	            }
+	
+	            e.stopPropagation();
 	          },
 	          onMouseDown: function onMouseDown(e) {
 	            var target = (0, _jquery2.default)(e.target);
@@ -74357,7 +74322,6 @@
 	    var content = void 0;
 	    var headerClick = function headerClick(e) {
 	      props.onClick(option.value);
-	      e.stopPropagation();
 	    };
 	
 	    if (option.faClass) {
@@ -74421,6 +74385,10 @@
 	
 	var _lodash2 = _interopRequireDefault(_lodash);
 	
+	var _classnames = __webpack_require__(/*! classnames */ 200);
+	
+	var _classnames2 = _interopRequireDefault(_classnames);
+	
 	var _utils = __webpack_require__(/*! ../utils */ 215);
 	
 	var _base_components = __webpack_require__(/*! ../base_components */ 214);
@@ -74448,14 +74416,17 @@
 	      openListItem: undefined
 	    };
 	  },
+	
+	
+	  //TD: cleanup event
 	  componentDidMount: function componentDidMount() {
 	    var _this = this;
 	
-	    _utils.globalEventManager.addListener('mouseup', function () {
+	    window.addEventListener('mouseup', function () {
 	      if (_this.props.menu.isOpen) {
 	        _this.props.actions.closeMenu();
 	      }
-	    }, 10000);
+	    });
 	  },
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
 	    if (!nextProps.menu.isOpen && this.state.menuState !== ROOT) {
@@ -74478,12 +74449,13 @@
 	        componentIdMapByName = _props.componentIdMapByName,
 	        menu = _props.menu,
 	        assets = _props.assets,
-	        parentId = _props.parentId,
-	        componentIndex = _props.componentIndex;
+	        isRootComponentBox = _props.isRootComponentBox;
 	    var componentId = menu.componentId,
+	        parentId = menu.parentId,
+	        insertionIndex = menu.insertionIndex,
 	        isOpen = menu.isOpen,
-	        componentX = menu.componentX,
-	        componentY = menu.componentY;
+	        mouseX = menu.mouseX,
+	        mouseY = menu.mouseY;
 	    var _state = this.state,
 	        openListItem = _state.openListItem,
 	        secondaryPosX = _state.secondaryPosX,
@@ -74496,8 +74468,8 @@
 	    var sx = {
 	      width: primaryMenuWidth,
 	      position: 'absolute',
-	      left: componentX,
-	      top: componentY
+	      left: mouseX,
+	      top: mouseY
 	    };
 	
 	    var secondaryMenuWidth = 100;
@@ -74518,7 +74490,7 @@
 	              {
 	                key: componentName,
 	                onMouseUp: function onMouseUp() {
-	                  _this2.props.actions.addVariant(componentIdMapByName[componentName], parentId, componentIndex);
+	                  _this2.props.actions.addVariant(componentIdMapByName[componentName], parentId, insertionIndex);
 	                } },
 	              componentName
 	            );
@@ -74532,7 +74504,7 @@
 	              {
 	                key: ind,
 	                onMouseUp: function onMouseUp() {
-	                  _this2.props.actions.addVariant(_base_components.image.get('id'), parentId, componentIndex, (0, _base_components.createNewImageSpec)(asset));
+	                  _this2.props.actions.addVariant(_base_components.image.get('id'), parentId, insertionIndex, (0, _base_components.createNewImageSpec)(asset));
 	                } },
 	              asset.name
 	            );
@@ -74554,6 +74526,7 @@
 	        );
 	      }
 	
+	      // TD: refactor to li with real disable
 	      return _react2.default.createElement(
 	        'div',
 	        null,
@@ -74564,27 +74537,41 @@
 	            'li',
 	            {
 	              key: 'DELETE',
+	              className: (0, _classnames2.default)({ disabled: !componentId || isRootComponentBox }),
 	              onMouseEnter: this.closeNestedMenus,
 	              onMouseUp: function onMouseUp(e) {
-	                _this2.props.actions.deleteComponent(componentId);
-	                _this2.props.actions.closeMenu();
+	                if (componentId && !isRootComponentBox) {
+	                  _this2.props.actions.deleteComponent(componentId);
+	                  _this2.props.actions.closeMenu();
+	                }
 	                e.stopPropagation();
 	              } },
-	            'Delete',
-	            _react2.default.createElement('i', { className: 'fa fa-trash ph1 fr', 'aria-hidden': 'true' })
+	            _react2.default.createElement(
+	              'span',
+	              null,
+	              'Delete',
+	              _react2.default.createElement('i', { className: 'fa fa-trash ph1 fr', 'aria-hidden': 'true' })
+	            )
 	          ),
 	          _react2.default.createElement(
 	            'li',
 	            {
 	              key: 'MAKE_COMPONENT',
+	              className: (0, _classnames2.default)({ disabled: !componentId }),
 	              onMouseEnter: this.closeNestedMenus,
 	              onMouseUp: function onMouseUp(e) {
-	                _this2.props.actions.createComponentBlock(componentId);
-	                _this2.props.actions.closeMenu();
+	                if (componentId) {
+	                  _this2.props.actions.createComponentBlock(componentId);
+	                  _this2.props.actions.closeMenu();
+	                }
 	                e.stopPropagation();
 	              } },
-	            'Make Component',
-	            _react2.default.createElement('i', { className: 'fa fa-id-card-o ph1 fr', 'aria-hidden': 'true' })
+	            _react2.default.createElement(
+	              'span',
+	              null,
+	              'Make Component',
+	              _react2.default.createElement('i', { className: 'fa fa-id-card-o ph1 fr', 'aria-hidden': 'true' })
+	            )
 	          ),
 	          _react2.default.createElement(
 	            'li',
@@ -74603,27 +74590,38 @@
 	                });
 	                e.stopPropagation();
 	              } },
-	            'Insert Component',
-	            _react2.default.createElement(RightTriangle, { className: 'ph1 fr' })
+	            _react2.default.createElement(
+	              'span',
+	              null,
+	              'Insert Component',
+	              _react2.default.createElement(RightTriangle, { className: 'ph1 fr' })
+	            )
 	          ),
 	          _react2.default.createElement(
 	            'li',
 	            {
 	              key: INSERT_ASSET,
+	              className: (0, _classnames2.default)({ disabled: !assets.length }),
 	              ref: function ref(_ref2) {
 	                _this2._insertAssetEl = _ref2;
 	              },
 	              onMouseEnter: function onMouseEnter(e) {
-	                var rect = new _utils.Rect(_this2._insertAssetEl);
-	                _this2.setState({
-	                  openListItem: INSERT_ASSET,
-	                  secondaryPosX: rect.x,
-	                  secondaryPosY: rect.y
-	                });
+	                if (assets.length) {
+	                  var rect = new _utils.Rect(_this2._insertAssetEl);
+	                  _this2.setState({
+	                    openListItem: INSERT_ASSET,
+	                    secondaryPosX: rect.x,
+	                    secondaryPosY: rect.y
+	                  });
+	                }
 	                e.stopPropagation();
 	              } },
-	            'Insert Asset',
-	            _react2.default.createElement(RightTriangle, { className: 'ph1 fr' })
+	            _react2.default.createElement(
+	              'span',
+	              null,
+	              'Insert Asset',
+	              _react2.default.createElement(RightTriangle, { className: 'ph1 fr' })
+	            )
 	          )
 	        ),
 	        secondaryList
@@ -74661,8 +74659,7 @@
 	    return {
 	      menu: menuJs,
 	      componentIdMapByName: componentIdMapByName,
-	      parentId: componentsMap.getIn([menuJs.componentId, 'parentId']),
-	      componentIndex: _base_components.ComponentsContainer.getIndex(componentsMap, menuJs.componentId),
+	      isRootComponentBox: menuJs.componentId && (yourComponentBoxes.includes(menuJs.componentId) || ourComponentBoxes.includes(menuJs.componentId)),
 	      // TD: EXPENSIVE! Remove.
 	      assets: _lodash2.default.toArray(assets.toJS())
 	    };
@@ -75015,8 +75012,7 @@
 	exports.default = (0, _reactRedux.connect)(componentViewRendererSelector)(ComponentViewRenderer);
 
 /***/ },
-/* 477 */,
-/* 478 */
+/* 477 */
 /*!*******************************!*\
   !*** ./public/scss/main.scss ***!
   \*******************************/
@@ -75025,10 +75021,10 @@
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(/*! !../../~/css-loader!../../~/sass-loader!./main.scss */ 479);
+	var content = __webpack_require__(/*! !../../~/css-loader!../../~/sass-loader!./main.scss */ 478);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(/*! ../../~/style-loader/addStyles.js */ 481)(content, {});
+	var update = __webpack_require__(/*! ../../~/style-loader/addStyles.js */ 480)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -75045,24 +75041,24 @@
 	}
 
 /***/ },
-/* 479 */
+/* 478 */
 /*!**************************************************************!*\
   !*** ./~/css-loader!./~/sass-loader!./public/scss/main.scss ***!
   \**************************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(/*! ../../~/css-loader/lib/css-base.js */ 480)();
+	exports = module.exports = __webpack_require__(/*! ../../~/css-loader/lib/css-base.js */ 479)();
 	// imports
 	
 	
 	// module
-	exports.push([module.id, "/* Colors */\n/* SPACING */\n/* TYPE SCALE */\n/* Utils */\n.bright-background {\n  background-color: #f99063; }\n\n.c-pointer {\n  cursor: pointer; }\n\n.c-default {\n  cursor: default; }\n\n.c-grab {\n  cursor: -webkit-grab; }\n\n.c-grabbing {\n  cursor: -webkit-grabbing !important; }\n\n.hidden {\n  visibility: hidden !important; }\n\n.click-through {\n  pointer-events: none; }\n\n.pointer-auto {\n  pointer-events: auto; }\n\nbody * {\n  font-family: 'Fira Sans', sans-serif;\n  /* Make things not selectable */\n  -webkit-touch-callout: none;\n  /* iOS Safari */\n  -webkit-user-select: none;\n  /* Chrome/Safari/Opera */\n  -khtml-user-select: none;\n  /* Konqueror */\n  -moz-user-select: none;\n  /* Firefox */\n  -ms-user-select: none;\n  /* Internet Explorer/Edge */\n  user-select: none;\n  /* Non-prefixed version, currently\n                                  not supported by any browser */ }\n\n.highlightBottom {\n  border-bottom-width: 1px;\n  border-style: solid; }\n\n.sibling {\n  border-color: #42f4a4 !important; }\n\n.child {\n  border-color: pink !important; }\n\n.highlightBottom.before {\n  border-bottom-width: 0px;\n  border-top-width: 1px;\n  border-color: #42f4a4 !important; }\n\n.bg-lightGray {\n  background-color: lightGray; }\n\n.sidebar {\n  background-color: white;\n  border-right: 1px solid #BDBDBD;\n  border-left: 1px solid #BDBDBD; }\n  .sidebar.left {\n    box-shadow: 1px 0px 5px #cacaca; }\n  .sidebar.right {\n    box-shadow: -1px 0px 5px #cacaca; }\n\ni {\n  color: #434343; }\n\nbody {\n  background-color: #f4f4f4; }\n\n/* COMPONENTS */\n.horizontal-select {\n  border-bottom: 1px solid #BDBDBD;\n  background-color: white; }\n  .horizontal-select.border {\n    border: 1px solid #BDBDBD;\n    border-radius: 3px; }\n  .horizontal-select .icon {\n    font-size: 25px;\n    /* looks right */ }\n  .horizontal-select .img {\n    height: 20px; }\n\n.highlighted {\n  background-color: #EBEBEB; }\n\n.componentBlock {\n  /* looks right */ }\n\n.draggableShadow {\n  box-shadow: 1px 1px 3px grey; }\n\n.m-auto {\n  margin-left: auto;\n  margin-right: auto; }\n\n.active-component {\n  border: 3px solid #f99063 !important; }\n\n.hovered-component {\n  border: 3px solid #f5f5f5 !important; }\n\n.treeItem.isHovered:not(.root) {\n  background-color: #f5f5f5; }\n\n.treeItem.isActive {\n  background-color: #EBEBEB; }\n\n.expandable-element {\n  /* height: 0px; */\n  /* -webkit-transition: 500ms; */\n  /* transition: height 500ms; */ }\n\n.expandable-element.expanded {\n  height: 30px !important;\n  margin: 5px !important; }\n\n/* View Modes */\n.static-view-border * {\n  outline: 1px solid gray; }\n\n.list {\n  position: relative; }\n\n.editSymbol {\n  position: absolute;\n  right: 8px; }\n\n.cartoon-button {\n  font-size: 0.875rem;\n  padding: 0.25rem 0.5rem;\n  position: relative;\n  display: inline-block;\n  border-radius: 8px;\n  background: #F2F2F2;\n  box-shadow: 0 3px #B3B3B3;\n  border: 1px solid #C3C3C3;\n  cursor: pointer; }\n  .cartoon-button.medium {\n    font-size: 1.5rem;\n    padding: 0.5rem 1rem; }\n  .cartoon-button.disabled {\n    opacity: .45; }\n\n.cartoon-button:not(.disabled):hover {\n  top: 1px;\n  box-shadow: 0 2px #B3B3B3; }\n\n.cartoon-button:not(.disabled):active {\n  top: 3px;\n  box-shadow: 0 0px #B3B3B3; }\n\n.cartoon-button:focus {\n  outline: 0; }\n\n.page-item.highlighted:hover {\n  background-color: #EBEBEB; }\n\n.page-item:hover {\n  background-color: #f5f5f5; }\n\n.f7 {\n  font-size: .75rem; }\n\n.justify-center {\n  justify-content: center; }\n\n.align-center {\n  align-items: center; }\n\n.drag-handle {\n  outline-width: 0px;\n  position: absolute;\n  top: 40%;\n  transform: translateY(-50%);\n  z-index: 0; }\n\n.root-component {\n  outline: 0px solid gray !important; }\n\n/* COMPONENTS */\n/* Menu */\n.component-menu, .autocomplete {\n  border: 1px solid #BDBDBD;\n  border-radius: 3px;\n  box-shadow: 1px 1px 3px #BDBDBD;\n  background-color: white; }\n  .component-menu li, .autocomplete li {\n    font-size: 0.75rem;\n    border-bottom: 1px solid #BDBDBD;\n    cursor: pointer;\n    padding: 0.25rem; }\n  .component-menu li:hover, .autocomplete li:hover {\n    opacity: .6;\n    background-color: #EBEBEB; }\n  .component-menu li:last-child, .autocomplete li:last-child {\n    border-bottom: 0px; }\n\n.autocomplete {\n  max-height: 300px;\n  overflow: auto; }\n\n/* TD: combine with modal card */\n.card {\n  padding: 2rem;\n  height: 85%;\n  background-color: white;\n  border-radius: 24px;\n  border: 1px solid #888888;\n  box-shadow: 1px 1px 5px #888888; }\n\n.modal-card {\n  left: 50%;\n  top: 30%;\n  position: absolute;\n  background: white;\n  width: 32rem;\n  border: 1px solid black;\n  box-shadow: 1px 1px 1px black;\n  padding: 2rem 0.5rem;\n  border-radius: 24px;\n  /* bring your own prefixes */\n  transform: translate(-50%, -50%); }\n\n.dark-background {\n  position: absolute;\n  left: 0px;\n  top: 0px;\n  width: 100%;\n  height: 100%;\n  background-color: rgba(0, 0, 0, 0.85); }\n\n.asset-icon {\n  position: relative;\n  width: 100px;\n  margin: 1rem; }\n  .asset-icon img {\n    width: 100px;\n    height: 100px; }\n  .asset-icon i {\n    cursor: pointer; }\n  .asset-icon .asset-edit-bar {\n    position: absolute;\n    height: 20px;\n    top: 80px;\n    opacity: .85;\n    background-color: #E4E4E4;\n    width: 100%; }\n\n.editable-text:hover {\n  border: 1px solid #f2f2f2;\n  opacity: .75; }\n\n.icon-small {\n  width: 10px; }\n\n.popup-select {\n  cursor: pointer; }\n\n.popup {\n  z-index: 1;\n  background-color: white;\n  border-radius: 3px;\n  border: 1px solid #BDBDBD;\n  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);\n  transform: translateX(-50%); }\n  .popup ul {\n    font-size: 1rem;\n    padding: 0.5rem 0px; }\n  .popup i {\n    font-size: 18px;\n    margin-right: 0.5rem;\n    margin-top: 0.5rem; }\n  .popup li {\n    cursor: pointer;\n    padding: 0.25rem 1rem; }\n  .popup li:not(.highlighted):hover {\n    background-color: #f5f5f5; }\n\n.up-arrow {\n  z-index: 2;\n  display: inline-block;\n  line-height: 0.7;\n  text-shadow: 0px -2px 0px #BDBDBD, 0px -2px 2px #BDBDBD;\n  transform: translateX(-50%) scale(2, 1);\n  color: white; }\n\n.renderer-container {\n  background-color: white;\n  border: 1px solid #BDBDBD;\n  min-height: 200px; }\n\n.spacer {\n  /*\n-webkit-transition: margin-top .5s, border-width .5s;\ntransition: margin-top .5s, border-width .5s;\n */ }\n\n.hint {\n  color: #A2A2A2; }\n\n.unselected {\n  color: #adadad; }\n\n.state-dropdown {\n  width: 6rem; }\n\n.collapsableArrow {\n  display: inline-block;\n  -webkit-transition: -webkit-transform .5s; }\n  .collapsableArrow.open {\n    -webkit-transform: rotate(90deg); }\n\n.interactive:hover {\n  opacity: 0.7; }\n", ""]);
+	exports.push([module.id, "/* Colors */\n/* SPACING */\n/* TYPE SCALE */\n/* Utils */\n.bright-background {\n  background-color: #f99063; }\n\n.c-pointer {\n  cursor: pointer; }\n\n.c-default {\n  cursor: default; }\n\n.c-grab {\n  cursor: -webkit-grab; }\n\n.c-grabbing {\n  cursor: -webkit-grabbing !important; }\n\n.hidden {\n  visibility: hidden !important; }\n\n.click-through {\n  pointer-events: none; }\n\n.pointer-auto {\n  pointer-events: auto; }\n\nbody * {\n  font-family: 'Fira Sans', sans-serif;\n  /* Make things not selectable */\n  -webkit-touch-callout: none;\n  /* iOS Safari */\n  -webkit-user-select: none;\n  /* Chrome/Safari/Opera */\n  -khtml-user-select: none;\n  /* Konqueror */\n  -moz-user-select: none;\n  /* Firefox */\n  -ms-user-select: none;\n  /* Internet Explorer/Edge */\n  user-select: none;\n  /* Non-prefixed version, currently\n                                  not supported by any browser */ }\n\n.highlightBottom {\n  border-bottom-width: 1px;\n  border-style: solid; }\n\n.sibling {\n  border-color: #42f4a4 !important; }\n\n.child {\n  border-color: pink !important; }\n\n.highlightBottom.before {\n  border-bottom-width: 0px;\n  border-top-width: 1px;\n  border-color: #42f4a4 !important; }\n\n.bg-lightGray {\n  background-color: lightGray; }\n\n.sidebar {\n  background-color: white;\n  border-right: 1px solid #BDBDBD;\n  border-left: 1px solid #BDBDBD; }\n  .sidebar.left {\n    box-shadow: 1px 0px 5px #cacaca; }\n  .sidebar.right {\n    box-shadow: -1px 0px 5px #cacaca; }\n\ni {\n  color: #434343; }\n\nbody {\n  background-color: #f4f4f4; }\n\n/* COMPONENTS */\n.horizontal-select {\n  border-bottom: 1px solid #BDBDBD;\n  background-color: white; }\n  .horizontal-select.border {\n    border: 1px solid #BDBDBD;\n    border-radius: 3px; }\n  .horizontal-select .icon {\n    font-size: 25px;\n    /* looks right */ }\n  .horizontal-select .img {\n    height: 20px; }\n\n.highlighted {\n  background-color: #EBEBEB; }\n\n.componentBlock {\n  /* looks right */ }\n\n.draggableShadow {\n  box-shadow: 1px 1px 3px grey; }\n\n.m-auto {\n  margin-left: auto;\n  margin-right: auto; }\n\n.active-component {\n  border: 3px solid #f99063 !important; }\n\n.hovered-component {\n  border: 3px solid #f5f5f5 !important; }\n\n.treeItem.isHovered:not(.root) {\n  background-color: #f5f5f5; }\n\n.treeItem.isActive {\n  background-color: #EBEBEB; }\n\n.expandable-element {\n  /* height: 0px; */\n  /* -webkit-transition: 500ms; */\n  /* transition: height 500ms; */ }\n\n.expandable-element.expanded {\n  height: 30px !important;\n  margin: 5px !important; }\n\n/* View Modes */\n.static-view-border * {\n  outline: 1px solid gray; }\n\n.list {\n  position: relative; }\n\n.editSymbol {\n  position: absolute;\n  right: 8px; }\n\n.cartoon-button {\n  font-size: 0.875rem;\n  padding: 0.25rem 0.5rem;\n  position: relative;\n  display: inline-block;\n  border-radius: 8px;\n  background: #F2F2F2;\n  box-shadow: 0 3px #B3B3B3;\n  border: 1px solid #C3C3C3;\n  cursor: pointer; }\n  .cartoon-button.medium {\n    font-size: 1.5rem;\n    padding: 0.5rem 1rem; }\n  .cartoon-button.disabled {\n    opacity: .45; }\n\n.cartoon-button:not(.disabled):hover {\n  top: 1px;\n  box-shadow: 0 2px #B3B3B3; }\n\n.cartoon-button:not(.disabled):active {\n  top: 3px;\n  box-shadow: 0 0px #B3B3B3; }\n\n.cartoon-button:focus {\n  outline: 0; }\n\n.page-item.highlighted:hover {\n  background-color: #EBEBEB; }\n\n.page-item:hover {\n  background-color: #f5f5f5; }\n\n.f7 {\n  font-size: .75rem; }\n\n.justify-center {\n  justify-content: center; }\n\n.align-center {\n  align-items: center; }\n\n.drag-handle {\n  outline-width: 0px;\n  position: absolute;\n  top: 40%;\n  transform: translateY(-50%);\n  z-index: 0; }\n\n.root-component {\n  outline: 0px solid gray !important; }\n\n/* COMPONENTS */\n/* Menu */\n.component-menu, .autocomplete {\n  border: 1px solid #BDBDBD;\n  border-radius: 3px;\n  box-shadow: 1px 1px 3px #BDBDBD;\n  background-color: white; }\n  .component-menu li.disabled > span, .autocomplete li.disabled > span {\n    opacity: .3; }\n  .component-menu li, .autocomplete li {\n    font-size: 0.75rem;\n    border-bottom: 1px solid #BDBDBD;\n    cursor: pointer;\n    padding: 0.25rem; }\n  .component-menu li:not(.disabled):hover, .autocomplete li:not(.disabled):hover {\n    opacity: .9;\n    background-color: #EBEBEB; }\n  .component-menu li:last-child, .autocomplete li:last-child {\n    border-bottom: 0px; }\n\n.autocomplete {\n  max-height: 300px;\n  overflow: auto; }\n\n/* TD: combine with modal card */\n.card {\n  padding: 2rem;\n  height: 85%;\n  background-color: white;\n  border-radius: 24px;\n  border: 1px solid #888888;\n  box-shadow: 1px 1px 5px #888888; }\n\n.modal-card {\n  left: 50%;\n  top: 30%;\n  position: absolute;\n  background: white;\n  width: 32rem;\n  border: 1px solid black;\n  box-shadow: 1px 1px 1px black;\n  padding: 2rem 0.5rem;\n  border-radius: 24px;\n  /* bring your own prefixes */\n  transform: translate(-50%, -50%); }\n\n.dark-background {\n  position: absolute;\n  left: 0px;\n  top: 0px;\n  width: 100%;\n  height: 100%;\n  background-color: rgba(0, 0, 0, 0.85); }\n\n.asset-icon {\n  position: relative;\n  width: 100px;\n  margin: 1rem; }\n  .asset-icon img {\n    width: 100px;\n    height: 100px; }\n  .asset-icon i {\n    cursor: pointer; }\n  .asset-icon .asset-edit-bar {\n    position: absolute;\n    height: 20px;\n    top: 80px;\n    opacity: .85;\n    background-color: #E4E4E4;\n    width: 100%; }\n\n.editable-text:hover {\n  border: 1px solid #f2f2f2;\n  opacity: .75; }\n\n.icon-small {\n  width: 10px; }\n\n.popup-select {\n  cursor: pointer; }\n  .popup-select .page-blanket {\n    cursor: default;\n    position: fixed;\n    top: 0px;\n    left: 0px;\n    height: 100%;\n    width: 100%;\n    z-index: 49; }\n  .popup-select .up-arrow {\n    z-index: 51;\n    display: inline-block;\n    line-height: 0.7;\n    text-shadow: 0px -2px 0px #BDBDBD, 0px -2px 2px #BDBDBD;\n    transform: translateX(-50%) scale(2, 1);\n    color: white; }\n\n.popup {\n  z-index: 50;\n  background-color: white;\n  border-radius: 3px;\n  border: 1px solid #BDBDBD;\n  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);\n  transform: translateX(-50%); }\n  .popup ul {\n    font-size: 1rem;\n    padding: 0.5rem 0px; }\n  .popup i {\n    font-size: 18px;\n    margin-right: 0.5rem;\n    margin-top: 0.5rem; }\n  .popup li {\n    cursor: pointer;\n    padding: 0.25rem 1rem; }\n  .popup li:not(.highlighted):hover {\n    background-color: #f5f5f5; }\n\n.renderer-container {\n  background-color: white;\n  border: 1px solid #BDBDBD;\n  min-height: 200px; }\n\n.spacer {\n  /*\n-webkit-transition: margin-top .5s, border-width .5s;\ntransition: margin-top .5s, border-width .5s;\n */ }\n\n.hint {\n  color: #A2A2A2; }\n\n.unselected {\n  color: #adadad; }\n\n.state-dropdown {\n  width: 6rem; }\n\n.collapsableArrow {\n  display: inline-block;\n  -webkit-transition: -webkit-transform .5s; }\n  .collapsableArrow.open {\n    -webkit-transform: rotate(90deg); }\n\n.interactive:hover {\n  opacity: 0.7; }\n\n.f-grow {\n  flex: 1 1; }\n\n.top-index {\n  z-index: 100; }\n", ""]);
 	
 	// exports
 
 
 /***/ },
-/* 480 */
+/* 479 */
 /*!**************************************!*\
   !*** ./~/css-loader/lib/css-base.js ***!
   \**************************************/
@@ -75121,7 +75117,7 @@
 
 
 /***/ },
-/* 481 */
+/* 480 */
 /*!*************************************!*\
   !*** ./~/style-loader/addStyles.js ***!
   \*************************************/

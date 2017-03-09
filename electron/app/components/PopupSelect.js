@@ -27,8 +27,7 @@ const PopupSelect = React.createClass({
         <div>
           <div
               onClick={() => this.setState({ isOpen: false })}
-              style={{ left: 0, top: 0 }}
-              className="absolute w-100 h-100"
+              className="page-blanket"
           />
           {React.cloneElement(this.props.children, pos)}
         </div>

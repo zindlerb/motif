@@ -279,12 +279,14 @@ export const actions = Object.assign({
       _noUndo: true
     }
   },
-  openMenu(componentId, componentX, componentY) {
+  openMenu(componentId, parentId, insertionIndex, mouseX, mouseY) {
     return {
       type: OPEN_MENU,
       componentId,
-      componentX,
-      componentY,
+      parentId,
+      insertionIndex,
+      mouseX,
+      mouseY,
       _noUndo: true
     };
   },
@@ -394,12 +396,15 @@ const reducerObj = Object.assign({
 
   [OPEN_MENU](state, action) {
     // TD: maybe move to local state?
+    const { componentId, parentId, insertionIndex, mouseX, mouseY } = action;
     return state.update('menu', (menu) => {
       return menu.merge({
-        isOpen: true,
-        componentId: action.componentId,
-        componentX: action.componentX,
-        componentY: action.componentY
+        isOpen: true ,
+        componentId,
+        parentId,
+        insertionIndex,
+        mouseX,
+        mouseY,
       });
     });
   },
@@ -511,7 +516,8 @@ const reducerObj = Object.assign({
   },
 
   [CHANGE_MAIN_VIEW](state, action) {
-    return state.set('currentMainView', action.newView);
+    return state.set('currentMainView', action.newView)
+                .set('activeComponentId', undefined);
   },
 
   [UPDATE_ASSET_NAME](state, action) {

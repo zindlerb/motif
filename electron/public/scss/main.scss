@@ -3,6 +3,7 @@ $highlight: #EBEBEB;
 $potential-highlight: #f5f5f5;
 
 $icon-color: #434343;
+$top-index: 100;
 
 $border-radius: 3px;
 
@@ -136,6 +137,10 @@ body {
   .img {
     height: 20px;
   }
+}
+
+.horizontal-select-body {
+
 }
 
 .highlighted {
@@ -276,6 +281,10 @@ body {
   box-shadow: 1px 1px 3px $border;
   background-color: white;
 
+  li.disabled > span {
+    opacity: .3;
+  }
+
   li {
     font-size: $f7;
     border-bottom: 1px solid $border;
@@ -283,8 +292,8 @@ body {
     padding: $spacing-extra-small;
   }
 
-  li:hover {
-    opacity: .6;
+  li:not(.disabled):hover {
+    opacity: .9;
     background-color: $highlight;
   }
 
@@ -369,10 +378,29 @@ body {
 
 .popup-select {
   cursor: pointer;
+
+  .page-blanket {
+    cursor: default;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    z-index: 49;
+  }
+
+  .up-arrow {
+    z-index: 51;
+    display: inline-block;
+    line-height: 0.7;
+    text-shadow: 0px -2px 0px $border, 0px -2px 2px $border;
+    transform: translateX(-50%) scale(2, 1);
+    color: white;
+  }
 }
 
 .popup {
-  z-index: 1;
+  z-index: 50;
   background-color: white;
   border-radius: $border-radius;
   border: 1px solid $border;
@@ -398,15 +426,6 @@ body {
   li:not(.highlighted):hover {
     background-color: $potential-highlight;
   }
-}
-
-.up-arrow {
-  z-index: 2;
-  display: inline-block;
-  line-height: 0.7;
-  text-shadow: 0px -2px 0px $border, 0px -2px 2px $border;
-  transform: translateX(-50%) scale(2, 1);
-  color: white;
 }
 
 .renderer-container {
@@ -444,4 +463,12 @@ transition: margin-top .5s, border-width .5s;
 
 .interactive:hover {
   opacity: 0.7;
+}
+
+.f-grow {
+  flex: 1 1;
+}
+
+.top-index {
+  z-index: $top-index;
 }

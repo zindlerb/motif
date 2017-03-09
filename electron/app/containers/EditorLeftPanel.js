@@ -76,7 +76,7 @@ const EditorLeftPanel = React.createClass({
     }
 
     return (
-      <div>
+      <div className="h-100 flex flex-column">
         <HorizontalSelect
             className="w-100"
             options={[
@@ -86,7 +86,7 @@ const EditorLeftPanel = React.createClass({
             activePanel={this.state.activePanel}
             onClick={(value) => { this.setState({ activePanel: value }); }}
         />
-        <div className="ph1">
+        <div className="ph1 f-grow">
           {body}
         </div>
       </div>
