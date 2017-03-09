@@ -33,7 +33,6 @@ export const componentTypes = {
   HEADER: 'HEADER',
   TEXT: 'TEXT',
   IMAGE: 'IMAGE',
-  ROOT: 'ROOT'
 }
 
 export const SIDEBAR_WIDTH = 220;

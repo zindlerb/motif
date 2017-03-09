@@ -82,8 +82,7 @@ const ComponentTree = React.createClass({
       hoveredComponentId
     } = context;
 
-    const isOpen = context.openComponents[node.id];
-    const isRoot = node.componentType === componentTypes.ROOT;
+    const isClosed = context.closedComponents[node.id];
     const isEmpty = node.children.length === 0;
 
     if (node.parentId) {
@@ -99,7 +98,7 @@ const ComponentTree = React.createClass({
       );
     }
 
-    if (isRoot || isEmpty || isOpen) {
+    if (isEmpty || !isClosed) {
       const childItems = _.map(node.children, (child) => {
         return (
           <ComponentTree
@@ -128,36 +127,38 @@ const ComponentTree = React.createClass({
     const treeItemIsActive = node.id === activeComponentId;
     const treeItemIsHovered = node.id === hoveredComponentId;
 
-    if (!isRoot) {
-      treeItemElement = (
-        <TreeItem
-            isContainer={node.componentType === componentTypes.CONTAINER}
-            isEmpty={isEmpty}
-            isOpen={isOpen}
-            nodeId={node.id}
-            toggleTreeItem={containerMethods.toggleTreeItem}
-            className={classnames('c-grab', {
-                isActive: treeItemIsActive,
-                isHovered: !treeItemIsActive && treeItemIsHovered
-              })}
-            onMouseEnter={() => actions.hoverComponent(node.id)}
-            onMouseLeave={() => actions.unHoverComponent()}
-            onMouseUp={(e) => {
-                if (wasRightButtonPressed(e)) {
-                  actions.openMenu(
-                    node.id,
-                    node.parentId,
-                    node.index + 1,
-                    e.clientX,
-                    e.clientY
-                  );
-                } else {
-                  actions.selectComponent(node.id);
-                }
+    treeItemElement = (
+      <TreeItem
+          isContainer={node.componentType === componentTypes.CONTAINER}
+          isEmpty={isEmpty}
+          isClosed={isClosed}
+          nodeId={node.id}
+          toggleTreeItem={containerMethods.toggleTreeItem}
+          className={classnames({
+              'c-grab': node.parentId,
+              isActive: treeItemIsActive,
+              isHovered: !treeItemIsActive && treeItemIsHovered
+            })}
+          onMouseEnter={() => actions.hoverComponent(node.id)}
+          onMouseLeave={() => actions.unHoverComponent()}
+          onMouseUp={(e) => {
+              if (wasRightButtonPressed(e)) {
+                actions.openMenu(
+                  node.id,
+                  node.parentId,
+                  node.index ? node.index + 1 : 0,
+                  e.clientX,
+                  e.clientY
+                );
+              } else {
+                actions.selectComponent(node.id);
+              }
 
-                e.stopPropagation();
-              }}
-            onMouseDown={(e) => {
+              e.stopPropagation();
+            }}
+          onMouseDown={(e) => {
+              // Can't drag root
+              if (node.parentId) {
                 const target = $(e.target);
                 const targetPos = target.position();
 
@@ -168,12 +169,13 @@ const ComponentTree = React.createClass({
                   targetPos.left,
                   targetPos.top
                 );
-              }}
-        >
-          {node.name}
-        </TreeItem>
-      );
-    }
+              }
+            }}
+      >
+        {node.name}
+      </TreeItem>
+    );
+
 
     return (
       <div>

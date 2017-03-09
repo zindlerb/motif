@@ -12,34 +12,6 @@ import {
   SIDEBAR_WIDTH
 } from '../constants';
 
-const RootClassReact = function (props) {
-  const {
-    mComponentData,
-    sx,
-    className,
-    context,
-    actions,
-  } = props;
-
-  const children = _.map(mComponentData.children, function (child) {
-    return (
-      <MComponentDataRenderer
-          key={child.id}
-          mComponentData={child}
-          context={context}
-          actions={actions}
-      />);
-  });
-
-  return (
-    <div
-        className={classnames('root-component', className)}
-        style={sx}>
-      { children }
-    </div>
-  );
-};
-
 const ContainerClassReact = React.createClass({
   getInitialState() {
     return {
@@ -230,14 +202,7 @@ const MComponentDataRenderer = React.createClass({
       actions.changePanel('ATTRIBUTES', 'right');
     }
 
-    if (componentType === componentTypes.ROOT) {
-      component = (
-        <RootClassReact
-            {...this.props}
-            sx={sx}
-        />
-      );
-    } else if (componentType === componentTypes.CONTAINER) {
+    if (componentType === componentTypes.CONTAINER) {
       component = (
         <ContainerClassReact
             className={className}

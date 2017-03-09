@@ -14,7 +14,6 @@ const {
   HEADER,
   TEXT,
   IMAGE,
-  ROOT
 } = componentTypes;
 
 const {
@@ -52,14 +51,6 @@ const defaultAttributes = {
   width: 'auto',
   backgroundColor: 'transparent'
 };
-
-export const root = createComponentData(ROOT, {
-  id: ROOT,
-  name: 'Root',
-  defaultAttributes: {
-    height: '100%'
-  }
-});
 
 export const containerAttributes = Object.assign({}, defaultAttributes, {
   display: 'flex',
@@ -99,7 +90,6 @@ export const image = createComponentData(IMAGE, {
 });
 
 export const defaultComponentsMap = Immutable.Map({
-  [root.get('id')]: root,
   [container.get('id')]: container,
   [header.get('id')]: header,
   [text.get('id')]: text,
@@ -535,7 +525,7 @@ export class ComponentsContainer {
     const componentType = component.get('componentType');
     const attributes = ComponentsContainer.getAttributes(componentsMap, id);
 
-    if (componentType === componentTypes.CONTAINER || componentType === componentTypes.ROOT) {
+    if (componentType === componentTypes.CONTAINER) {
       const childStr = component.get('childIds').reduce((childStr, childId) => {
         return childStr + ComponentsContainer.getHtml(componentsMap, childId);
       }, '');

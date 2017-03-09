@@ -21,7 +21,6 @@ import {
   header,
   text,
   image,
-  root,
   defaultComponentsMap
 } from './base_components';
 
@@ -399,7 +398,7 @@ const reducerObj = Object.assign({
     const { componentId, parentId, insertionIndex, mouseX, mouseY } = action;
     return state.update('menu', (menu) => {
       return menu.merge({
-        isOpen: true ,
+        isOpen: true,
         componentId,
         parentId,
         insertionIndex,
@@ -439,15 +438,13 @@ const reducerObj = Object.assign({
 
   [ADD_NEW_PAGE](state) {
     const componentsContainer = new ComponentsContainer(state.get('componentsMap'));
-    const rvId = componentsContainer.createVariant(root.get('id'));
     const cvId = componentsContainer.createVariant(container.get('id'));
-    componentsContainer.addChild(rvId, cvId);
 
     const newPageId = guid();
     const newPage = Immutable.Map({
       name: hri.random(),
       id: newPageId,
-      componentTreeId: rvId,
+      componentTreeId: cvId,
     });
 
     return state.setIn(['editorView', 'currentPageId'], newPageId)

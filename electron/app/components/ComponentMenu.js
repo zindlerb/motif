@@ -29,6 +29,33 @@ function RightTriangle(props) {
   );
 }
 
+const ComponentMenuItem = React.createClass({
+  render() {
+    return (
+      <li
+          ref={(el) => {
+              if (this.props.getElement) {
+                this.props.getElement(el);
+              }
+            }}
+          key={this.props.key}
+          className={classnames({ disabled: this.props.isDisabled }, this.props.className)}
+          onMouseEnter={this.props.onMouseEnter}
+          onMouseUp={(e) => {
+              if (!this.props.isDisabled) {
+                this.props.onMouseUp();
+              } else {
+                e.stopPropagation();
+              }
+            }}>
+        <span>
+          {this.props.children}
+        </span>
+      </li>
+    );
+  }
+});
+
 const ComponentMenu = React.createClass({
   getInitialState() {
     return {
@@ -67,7 +94,7 @@ const ComponentMenu = React.createClass({
       componentIdMapByName,
       menu,
       assets,
-      isRootComponentBox
+      isRoot,
     } = this.props;
 
     let {
@@ -109,17 +136,17 @@ const ComponentMenu = React.createClass({
         if (openListItem === INSERT_COMPONENT) {
           componentList = _.keys(componentIdMapByName).map((componentName) => {
             return (
-              <li
+              <ComponentMenuItem
                   key={componentName}
                   onMouseUp={() => {
                       this.props.actions.addVariant(
                         componentIdMapByName[componentName],
-                        parentId,
+                        isRoot ? componentId : parentId,
                         insertionIndex
                       );
                     }}>
                 {componentName}
-              </li>
+              </ComponentMenuItem>
             );
           });
         }
@@ -127,18 +154,18 @@ const ComponentMenu = React.createClass({
         if (openListItem === INSERT_ASSET) {
           componentList = assets.map((asset, ind) => {
             return (
-              <li
+              <ComponentMenuItem
                   key={ind}
                   onMouseUp={() => {
                       this.props.actions.addVariant(
                         image.get('id'),
-                        parentId,
+                        isRoot ? componentId : parentId,
                         insertionIndex,
                         createNewImageSpec(asset)
                       );
                     }}>
                 {asset.name}
-              </li>
+              </ComponentMenuItem>
             );
           });
         }
@@ -162,42 +189,32 @@ const ComponentMenu = React.createClass({
       return (
         <div>
           <ul style={sx} className="component-menu">
-            <li
-                key={'DELETE'}
-                className={classnames({ disabled: !componentId || isRootComponentBox })}
+            <ComponentMenuItem
+                key="DELETE"
+                isDisabled={!componentId || isRoot}
                 onMouseEnter={this.closeNestedMenus}
                 onMouseUp={(e) => {
-                    if (componentId && !isRootComponentBox) {
                       this.props.actions.deleteComponent(componentId);
-                      this.props.actions.closeMenu();
-                    }
-                    e.stopPropagation();
-                  }}>
-              <span>
-                Delete
-                <i className="fa fa-trash ph1 fr" aria-hidden="true" />
-              </span>
-            </li>
-            <li
+                  }}
+            >
+              Delete
+              <i className="fa fa-trash ph1 fr" aria-hidden="true" />
+            </ComponentMenuItem>
+            <ComponentMenuItem
                 key={'MAKE_COMPONENT'}
-                className={classnames({ disabled: !componentId })}
+                isDisabled={!componentId || isRoot}
                 onMouseEnter={this.closeNestedMenus}
                 onMouseUp={(e) => {
-                    if (componentId) {
                       this.props.actions.createComponentBlock(componentId);
-                      this.props.actions.closeMenu();
-                    }
-                    e.stopPropagation();
-                  }}>
-              <span>
-                Make Component
-                <i className="fa fa-id-card-o ph1 fr" aria-hidden="true" />
-              </span>
-            </li>
-            <li
+                  }}
+            >
+              Make Component
+              <i className="fa fa-id-card-o ph1 fr" aria-hidden="true" />
+            </ComponentMenuItem>
+            <ComponentMenuItem
                 className={INSERT_COMPONENT}
                 key={INSERT_COMPONENT}
-                ref={(ref) => { this._insertComponentEl = ref }}
+                getElement={(el) => { this._insertComponentEl = el; }}
                 onMouseEnter={(e) => {
                     let rect = new Rect(this._insertComponentEl);
                     this.setState({
@@ -205,17 +222,15 @@ const ComponentMenu = React.createClass({
                       secondaryPosX: rect.x,
                       secondaryPosY: rect.y,
                     });
-                    e.stopPropagation();
-                  }}>
-              <span>
-                Insert Component
-                <RightTriangle className="ph1 fr" />
-              </span>
-            </li>
-            <li
+                  }}
+            >
+              Insert Component
+              <RightTriangle className="ph1 fr" />
+            </ComponentMenuItem>
+            <ComponentMenuItem
                 key={INSERT_ASSET}
-                className={classnames({ disabled: !assets.length })}
-                ref={(ref) => { this._insertAssetEl = ref }}
+                isDisabled={!assets.length}
+                getElement={el => { this._insertAssetEl = el; }}
                 onMouseEnter={(e) => {
                     if (assets.length) {
                       let rect = new Rect(this._insertAssetEl);
@@ -225,13 +240,11 @@ const ComponentMenu = React.createClass({
                         secondaryPosY: rect.y,
                       });
                     }
-                    e.stopPropagation();
-                  }}>
-              <span>
-                Insert Asset
-                <RightTriangle className="ph1 fr" />
-              </span>
-            </li>
+                  }}
+            >
+              Insert Asset
+              <RightTriangle className="ph1 fr" />
+            </ComponentMenuItem>
           </ul>
           {secondaryList}
         </div>
@@ -268,11 +281,7 @@ const menuSelector = createImmutableJSSelector(
        return {
          menu: menuJs,
          componentIdMapByName,
-         isRootComponentBox: (
-           menuJs.componentId &&
-           (yourComponentBoxes.includes(menuJs.componentId) ||
-           ourComponentBoxes.includes(menuJs.componentId))
-         ),
+         isRoot: !menuJs.parentId,
          // TD: EXPENSIVE! Remove.
          assets: _.toArray(assets.toJS())
        }

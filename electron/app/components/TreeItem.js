@@ -5,7 +5,7 @@ function Arrow(props) {
   return (
     <span
         onClick={props.onClick}
-        className={classnames('collapsableArrow c-pointer', { open: props.isOpen })}>
+        className={classnames('collapsableArrow c-pointer', { open: !props.isClosed })}>
       &#x25ba;
     </span>
   );
@@ -16,7 +16,7 @@ const TreeItem = function (props) {
   if (props.isContainer) {
     arrow = (
       <Arrow
-          isOpen={props.isEmpty || props.isOpen}
+          isClosed={props.isClosed}
           onClick={(e) => {
               if (!props.isEmpty) {
                 props.toggleTreeItem(props.nodeId)

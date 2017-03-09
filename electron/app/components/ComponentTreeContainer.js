@@ -102,24 +102,22 @@ class DropSpots {
 }
 
 const renderTreeMethods = {
-  walkTree(renderTree, func, openComponents, ...internal) {
+  walkTree(renderTree, func, closedComponents, ...internal) {
     const isChild = internal[0];
-    let isCanceled = false, isOpen = openComponents[renderTree.id];
+    let isCanceled = false, isOpen = !closedComponents[renderTree.id];
 
     if (isChild) {
       func(renderTree, () => { isCanceled = true });
     }
 
-    if (isOpen || renderTree.componentType === componentTypes.ROOT) {
+    if (isOpen && !isCanceled) {
       renderTree.children.forEach((child) => {
-        if (!isCanceled) {
-          this.walkTree(child, func, openComponents, true);
-        }
+        this.walkTree(child, func, closedComponents, true);
       });
     }
   },
 
-  getSortedDropSpots(renderTree, openComponents, draggedComponentId) {
+  getSortedDropSpots(renderTree, closedComponents, draggedComponentId) {
     const dropSpots = new DropSpots();
 
     this.walkTree(renderTree, (node, cancel) => {
@@ -144,7 +142,7 @@ const renderTreeMethods = {
         // Inside
         dropSpots.addDropSpot(nodeId, 0, false);
       }
-    }, openComponents);
+    }, closedComponents);
 
     dropSpots.sort();
 
@@ -158,7 +156,7 @@ const ComponentTreeContainer = React.createClass({
       isDragging: false,
       dragData: {},
       hasOpenedMenu: false,
-      openComponents: {}
+      closedComponents: {}
     }
   },
 
@@ -177,7 +175,7 @@ const ComponentTreeContainer = React.createClass({
       onConsummate(e) {
         const dropSpots = renderTreeMethods.getSortedDropSpots(
           that.props.renderTree,
-          that.state.openComponents,
+          that.state.closedComponents,
           node.id,
         );
 
@@ -251,11 +249,6 @@ const ComponentTreeContainer = React.createClass({
         if (activeDropSpot && !activeDropSpot.isDraggedComponent) {
           const { parentId, insertionIndex } = activeDropSpot;
 
-          // Initialize Empty Component
-          if (insertionIndex === 0 && !that.state.openComponents[parentId]) {
-            that.toggleTreeItem(parentId);
-          }
-
           that.props.actions.moveComponent(
             node.id,
             parentId,
@@ -273,9 +266,9 @@ const ComponentTreeContainer = React.createClass({
 
   toggleTreeItem(nodeId) {
     this.setState({
-      openComponents: Object.assign(
-        this.state.openComponents,
-        { [nodeId]: !this.state.openComponents[nodeId] }
+      closedComponents: Object.assign(
+        this.state.closedComponents,
+        { [nodeId]: !this.state.closedComponents[nodeId] }
       )
     });
   },
@@ -288,9 +281,11 @@ const ComponentTreeContainer = React.createClass({
       renderTree
     } = this.props;
 
+    console.log('renderTree', renderTree);
+
     const {
       isDragging,
-      openComponents,
+      closedComponents,
       hasOpenedMenu,
       dragData
     } = this.state;
@@ -359,7 +354,7 @@ const ComponentTreeContainer = React.createClass({
               activeDropSpot,
               activeComponentId,
               hoveredComponentId,
-              openComponents
+              closedComponents
             }}
         />
         { shadow }

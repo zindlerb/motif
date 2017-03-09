@@ -24078,15 +24078,13 @@
 	  });
 	}), _defineProperty(_Object$assign, ADD_NEW_PAGE, function (state) {
 	  var componentsContainer = new _base_components.ComponentsContainer(state.get('componentsMap'));
-	  var rvId = componentsContainer.createVariant(_base_components.root.get('id'));
 	  var cvId = componentsContainer.createVariant(_base_components.container.get('id'));
-	  componentsContainer.addChild(rvId, cvId);
 	
 	  var newPageId = (0, _utils.guid)();
 	  var newPage = _immutable2.default.Map({
 	    name: _humanReadableIds.hri.random(),
 	    id: newPageId,
-	    componentTreeId: rvId
+	    componentTreeId: cvId
 	  });
 	
 	  return state.setIn(['editorView', 'currentPageId'], newPageId).update('pages', function (pages) {
@@ -46708,8 +46706,7 @@
 	  CONTAINER: 'CONTAINER',
 	  HEADER: 'HEADER',
 	  TEXT: 'TEXT',
-	  IMAGE: 'IMAGE',
-	  ROOT: 'ROOT'
+	  IMAGE: 'IMAGE'
 	};
 	
 	var SIDEBAR_WIDTH = exports.SIDEBAR_WIDTH = 220;
@@ -46726,7 +46723,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.ComponentsContainer = exports.defaultComponentsMap = exports.image = exports.header = exports.text = exports.container = exports.containerAttributes = exports.root = undefined;
+	exports.ComponentsContainer = exports.defaultComponentsMap = exports.image = exports.header = exports.text = exports.container = exports.containerAttributes = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -46756,8 +46753,7 @@
 	var CONTAINER = _constants.componentTypes.CONTAINER,
 	    HEADER = _constants.componentTypes.HEADER,
 	    TEXT = _constants.componentTypes.TEXT,
-	    IMAGE = _constants.componentTypes.IMAGE,
-	    ROOT = _constants.componentTypes.ROOT;
+	    IMAGE = _constants.componentTypes.IMAGE;
 	var fromJS = _immutable2.default.fromJS;
 	function createNewImageSpec(asset) {
 	  return {
@@ -46790,14 +46786,6 @@
 	  width: 'auto',
 	  backgroundColor: 'transparent'
 	};
-	
-	var root = exports.root = createComponentData(ROOT, {
-	  id: ROOT,
-	  name: 'Root',
-	  defaultAttributes: {
-	    height: '100%'
-	  }
-	});
 	
 	var containerAttributes = exports.containerAttributes = Object.assign({}, defaultAttributes, {
 	  display: 'flex',
@@ -46835,7 +46823,7 @@
 	  })
 	});
 	
-	var defaultComponentsMap = exports.defaultComponentsMap = _immutable2.default.Map((_Immutable$Map = {}, _defineProperty(_Immutable$Map, root.get('id'), root), _defineProperty(_Immutable$Map, container.get('id'), container), _defineProperty(_Immutable$Map, header.get('id'), header), _defineProperty(_Immutable$Map, text.get('id'), text), _defineProperty(_Immutable$Map, image.get('id'), image), _Immutable$Map));
+	var defaultComponentsMap = exports.defaultComponentsMap = _immutable2.default.Map((_Immutable$Map = {}, _defineProperty(_Immutable$Map, container.get('id'), container), _defineProperty(_Immutable$Map, header.get('id'), header), _defineProperty(_Immutable$Map, text.get('id'), text), _defineProperty(_Immutable$Map, image.get('id'), image), _Immutable$Map));
 	
 	var ComponentsContainer = exports.ComponentsContainer = function () {
 	  function ComponentsContainer(components) {
@@ -47244,7 +47232,7 @@
 	      var componentType = component.get('componentType');
 	      var attributes = ComponentsContainer.getAttributes(componentsMap, id);
 	
-	      if (componentType === _constants.componentTypes.CONTAINER || componentType === _constants.componentTypes.ROOT) {
+	      if (componentType === _constants.componentTypes.CONTAINER) {
 	        var childStr = component.get('childIds').reduce(function (childStr, childId) {
 	          return childStr + ComponentsContainer.getHtml(componentsMap, childId);
 	        }, '');
@@ -47333,10 +47321,6 @@
 	exports.getComponentDomNode = getComponentDomNode;
 	exports.escapeHtml = escapeHtml;
 	exports.camelToDash = camelToDash;
-	
-	var _lodash = __webpack_require__(/*! lodash */ 211);
-	
-	var _lodash2 = _interopRequireDefault(_lodash);
 	
 	var _jquery = __webpack_require__(/*! jquery */ 216);
 	
@@ -58699,32 +58683,6 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var RootClassReact = function RootClassReact(props) {
-	  var mComponentData = props.mComponentData,
-	      sx = props.sx,
-	      className = props.className,
-	      context = props.context,
-	      actions = props.actions;
-	
-	
-	  var children = _lodash2.default.map(mComponentData.children, function (child) {
-	    return _react2.default.createElement(MComponentDataRenderer, {
-	      key: child.id,
-	      mComponentData: child,
-	      context: context,
-	      actions: actions
-	    });
-	  });
-	
-	  return _react2.default.createElement(
-	    'div',
-	    {
-	      className: (0, _classnames2.default)('root-component', className),
-	      style: sx },
-	    children
-	  );
-	};
-	
 	var ContainerClassReact = _react2.default.createClass({
 	  displayName: 'ContainerClassReact',
 	  getInitialState: function getInitialState() {
@@ -58937,11 +58895,7 @@
 	      actions.changePanel('ATTRIBUTES', 'right');
 	    };
 	
-	    if (componentType === _constants.componentTypes.ROOT) {
-	      component = _react2.default.createElement(RootClassReact, _extends({}, this.props, {
-	        sx: sx
-	      }));
-	    } else if (componentType === _constants.componentTypes.CONTAINER) {
+	    if (componentType === _constants.componentTypes.CONTAINER) {
 	      component = _react2.default.createElement(ContainerClassReact, _extends({
 	        className: className,
 	        actions: this.props.actions,
@@ -73741,12 +73695,12 @@
 	}();
 	
 	var renderTreeMethods = {
-	  walkTree: function walkTree(renderTree, func, openComponents) {
+	  walkTree: function walkTree(renderTree, func, closedComponents) {
 	    var _this = this;
 	
 	    var isChild = arguments.length <= 3 ? undefined : arguments[3];
 	    var isCanceled = false,
-	        isOpen = openComponents[renderTree.id];
+	        isOpen = !closedComponents[renderTree.id];
 	
 	    if (isChild) {
 	      func(renderTree, function () {
@@ -73754,15 +73708,13 @@
 	      });
 	    }
 	
-	    if (isOpen || renderTree.componentType === _constants.componentTypes.ROOT) {
+	    if (isOpen && !isCanceled) {
 	      renderTree.children.forEach(function (child) {
-	        if (!isCanceled) {
-	          _this.walkTree(child, func, openComponents, true);
-	        }
+	        _this.walkTree(child, func, closedComponents, true);
 	      });
 	    }
 	  },
-	  getSortedDropSpots: function getSortedDropSpots(renderTree, openComponents, draggedComponentId) {
+	  getSortedDropSpots: function getSortedDropSpots(renderTree, closedComponents, draggedComponentId) {
 	    var dropSpots = new DropSpots();
 	
 	    this.walkTree(renderTree, function (node, cancel) {
@@ -73786,7 +73738,7 @@
 	        // Inside
 	        dropSpots.addDropSpot(nodeId, 0, false);
 	      }
-	    }, openComponents);
+	    }, closedComponents);
 	
 	    dropSpots.sort();
 	
@@ -73801,7 +73753,7 @@
 	      isDragging: false,
 	      dragData: {},
 	      hasOpenedMenu: false,
-	      openComponents: {}
+	      closedComponents: {}
 	    };
 	  },
 	  componentDidMount: function componentDidMount() {
@@ -73818,7 +73770,7 @@
 	    _dragManager2.default.start(e, {
 	      dragType: 'treeItem',
 	      onConsummate: function onConsummate(e) {
-	        var dropSpots = renderTreeMethods.getSortedDropSpots(that.props.renderTree, that.state.openComponents, node.id);
+	        var dropSpots = renderTreeMethods.getSortedDropSpots(that.props.renderTree, that.state.closedComponents, node.id);
 	
 	        that.setState({
 	          isDragging: true,
@@ -73889,11 +73841,6 @@
 	          var parentId = activeDropSpot.parentId,
 	              insertionIndex = activeDropSpot.insertionIndex;
 	
-	          // Initialize Empty Component
-	
-	          if (insertionIndex === 0 && !that.state.openComponents[parentId]) {
-	            that.toggleTreeItem(parentId);
-	          }
 	
 	          that.props.actions.moveComponent(node.id, parentId, insertionIndex);
 	        }
@@ -73907,7 +73854,7 @@
 	  },
 	  toggleTreeItem: function toggleTreeItem(nodeId) {
 	    this.setState({
-	      openComponents: Object.assign(this.state.openComponents, _defineProperty({}, nodeId, !this.state.openComponents[nodeId]))
+	      closedComponents: Object.assign(this.state.closedComponents, _defineProperty({}, nodeId, !this.state.closedComponents[nodeId]))
 	    });
 	  },
 	  render: function render() {
@@ -73916,9 +73863,13 @@
 	        activeComponentId = _props.activeComponentId,
 	        hoveredComponentId = _props.hoveredComponentId,
 	        renderTree = _props.renderTree;
+	
+	
+	    console.log('renderTree', renderTree);
+	
 	    var _state = this.state,
 	        isDragging = _state.isDragging,
-	        openComponents = _state.openComponents,
+	        closedComponents = _state.closedComponents,
 	        hasOpenedMenu = _state.hasOpenedMenu,
 	        dragData = _state.dragData;
 	    var shouldNotUpdate = dragData.shouldNotUpdate,
@@ -73986,7 +73937,7 @@
 	          activeDropSpot: activeDropSpot,
 	          activeComponentId: activeComponentId,
 	          hoveredComponentId: hoveredComponentId,
-	          openComponents: openComponents
+	          closedComponents: closedComponents
 	        }
 	      }),
 	      shadow
@@ -74024,7 +73975,7 @@
 	    'span',
 	    {
 	      onClick: props.onClick,
-	      className: (0, _classnames2.default)('collapsableArrow c-pointer', { open: props.isOpen }) },
+	      className: (0, _classnames2.default)('collapsableArrow c-pointer', { open: !props.isClosed }) },
 	    '\u25BA'
 	  );
 	}
@@ -74033,7 +73984,7 @@
 	  var arrow = void 0;
 	  if (props.isContainer) {
 	    arrow = _react2.default.createElement(Arrow, {
-	      isOpen: props.isEmpty || props.isOpen,
+	      isClosed: props.isClosed,
 	      onClick: function onClick(e) {
 	        if (!props.isEmpty) {
 	          props.toggleTreeItem(props.nodeId);
@@ -74183,8 +74134,7 @@
 	        hoveredComponentId = context.hoveredComponentId;
 	
 	
-	    var isOpen = context.openComponents[node.id];
-	    var isRoot = node.componentType === _constants.componentTypes.ROOT;
+	    var isClosed = context.closedComponents[node.id];
 	    var isEmpty = node.children.length === 0;
 	
 	    if (node.parentId) {
@@ -74198,7 +74148,7 @@
 	      });
 	    }
 	
-	    if (isRoot || isEmpty || isOpen) {
+	    if (isEmpty || !isClosed) {
 	      var childItems = _lodash2.default.map(node.children, function (child) {
 	        return _react2.default.createElement(ComponentTree, {
 	          containerMethods: containerMethods,
@@ -74225,44 +74175,46 @@
 	    var treeItemIsActive = node.id === activeComponentId;
 	    var treeItemIsHovered = node.id === hoveredComponentId;
 	
-	    if (!isRoot) {
-	      treeItemElement = _react2.default.createElement(
-	        _TreeItem2.default,
-	        {
-	          isContainer: node.componentType === _constants.componentTypes.CONTAINER,
-	          isEmpty: isEmpty,
-	          isOpen: isOpen,
-	          nodeId: node.id,
-	          toggleTreeItem: containerMethods.toggleTreeItem,
-	          className: (0, _classnames2.default)('c-grab', {
-	            isActive: treeItemIsActive,
-	            isHovered: !treeItemIsActive && treeItemIsHovered
-	          }),
-	          onMouseEnter: function onMouseEnter() {
-	            return actions.hoverComponent(node.id);
-	          },
-	          onMouseLeave: function onMouseLeave() {
-	            return actions.unHoverComponent();
-	          },
-	          onMouseUp: function onMouseUp(e) {
-	            if ((0, _utils.wasRightButtonPressed)(e)) {
-	              actions.openMenu(node.id, node.parentId, node.index + 1, e.clientX, e.clientY);
-	            } else {
-	              actions.selectComponent(node.id);
-	            }
+	    treeItemElement = _react2.default.createElement(
+	      _TreeItem2.default,
+	      {
+	        isContainer: node.componentType === _constants.componentTypes.CONTAINER,
+	        isEmpty: isEmpty,
+	        isClosed: isClosed,
+	        nodeId: node.id,
+	        toggleTreeItem: containerMethods.toggleTreeItem,
+	        className: (0, _classnames2.default)({
+	          'c-grab': node.parentId,
+	          isActive: treeItemIsActive,
+	          isHovered: !treeItemIsActive && treeItemIsHovered
+	        }),
+	        onMouseEnter: function onMouseEnter() {
+	          return actions.hoverComponent(node.id);
+	        },
+	        onMouseLeave: function onMouseLeave() {
+	          return actions.unHoverComponent();
+	        },
+	        onMouseUp: function onMouseUp(e) {
+	          if ((0, _utils.wasRightButtonPressed)(e)) {
+	            actions.openMenu(node.id, node.parentId, node.index ? node.index + 1 : 0, e.clientX, e.clientY);
+	          } else {
+	            actions.selectComponent(node.id);
+	          }
 	
-	            e.stopPropagation();
-	          },
-	          onMouseDown: function onMouseDown(e) {
+	          e.stopPropagation();
+	        },
+	        onMouseDown: function onMouseDown(e) {
+	          // Can't drag root
+	          if (node.parentId) {
 	            var target = (0, _jquery2.default)(e.target);
 	            var targetPos = target.position();
 	
 	            containerMethods.beginDrag(e, node, target.width(), targetPos.left, targetPos.top);
 	          }
-	        },
-	        node.name
-	      );
-	    }
+	        }
+	      },
+	      node.name
+	    );
 	
 	    return _react2.default.createElement(
 	      'div',
@@ -74318,7 +74270,7 @@
 	function HorizontalSelect(props) {
 	  var options = _lodash2.default.map(props.options, function (option, ind) {
 	    var content = void 0;
-	    var headerClick = function headerClick(e) {
+	    var headerClick = function headerClick() {
 	      props.onClick(option.value);
 	    };
 	
@@ -74406,6 +74358,38 @@
 	    src: 'public/img/assets/right-triangle.svg' });
 	}
 	
+	var ComponentMenuItem = _react2.default.createClass({
+	  displayName: 'ComponentMenuItem',
+	  render: function render() {
+	    var _this = this;
+	
+	    return _react2.default.createElement(
+	      'li',
+	      {
+	        ref: function ref(el) {
+	          if (_this.props.getElement) {
+	            _this.props.getElement(el);
+	          }
+	        },
+	        key: this.props.key,
+	        className: (0, _classnames2.default)({ disabled: this.props.isDisabled }, this.props.className),
+	        onMouseEnter: this.props.onMouseEnter,
+	        onMouseUp: function onMouseUp(e) {
+	          if (!_this.props.isDisabled) {
+	            _this.props.onMouseUp();
+	          } else {
+	            e.stopPropagation();
+	          }
+	        } },
+	      _react2.default.createElement(
+	        'span',
+	        null,
+	        this.props.children
+	      )
+	    );
+	  }
+	});
+	
 	var ComponentMenu = _react2.default.createClass({
 	  displayName: 'ComponentMenu',
 	  getInitialState: function getInitialState() {
@@ -74418,11 +74402,11 @@
 	
 	  //TD: cleanup event
 	  componentDidMount: function componentDidMount() {
-	    var _this = this;
+	    var _this2 = this;
 	
 	    window.addEventListener('mouseup', function () {
-	      if (_this.props.menu.isOpen) {
-	        _this.props.actions.closeMenu();
+	      if (_this2.props.menu.isOpen) {
+	        _this2.props.actions.closeMenu();
 	      }
 	    });
 	  },
@@ -74440,14 +74424,14 @@
 	    }
 	  },
 	  render: function render() {
-	    var _this2 = this;
+	    var _this3 = this;
 	
 	    //console.log('COMPONENT_MENU RENDER');
 	    var _props = this.props,
 	        componentIdMapByName = _props.componentIdMapByName,
 	        menu = _props.menu,
 	        assets = _props.assets,
-	        isRootComponentBox = _props.isRootComponentBox;
+	        isRoot = _props.isRoot;
 	    var componentId = menu.componentId,
 	        parentId = menu.parentId,
 	        insertionIndex = menu.insertionIndex,
@@ -74484,11 +74468,11 @@
 	        if (openListItem === INSERT_COMPONENT) {
 	          componentList = _lodash2.default.keys(componentIdMapByName).map(function (componentName) {
 	            return _react2.default.createElement(
-	              'li',
+	              ComponentMenuItem,
 	              {
 	                key: componentName,
 	                onMouseUp: function onMouseUp() {
-	                  _this2.props.actions.addVariant(componentIdMapByName[componentName], parentId, insertionIndex);
+	                  _this3.props.actions.addVariant(componentIdMapByName[componentName], isRoot ? componentId : parentId, insertionIndex);
 	                } },
 	              componentName
 	            );
@@ -74498,11 +74482,11 @@
 	        if (openListItem === INSERT_ASSET) {
 	          componentList = assets.map(function (asset, ind) {
 	            return _react2.default.createElement(
-	              'li',
+	              ComponentMenuItem,
 	              {
 	                key: ind,
 	                onMouseUp: function onMouseUp() {
-	                  _this2.props.actions.addVariant(_base_components.image.get('id'), parentId, insertionIndex, (0, _base_components.createNewImageSpec)(asset));
+	                  _this3.props.actions.addVariant(_base_components.image.get('id'), isRoot ? componentId : parentId, insertionIndex, (0, _base_components.createNewImageSpec)(asset));
 	                } },
 	              asset.name
 	            );
@@ -74532,94 +74516,72 @@
 	          'ul',
 	          { style: sx, className: 'component-menu' },
 	          _react2.default.createElement(
-	            'li',
+	            ComponentMenuItem,
 	            {
 	              key: 'DELETE',
-	              className: (0, _classnames2.default)({ disabled: !componentId || isRootComponentBox }),
+	              isDisabled: !componentId || isRoot,
 	              onMouseEnter: this.closeNestedMenus,
 	              onMouseUp: function onMouseUp(e) {
-	                if (componentId && !isRootComponentBox) {
-	                  _this2.props.actions.deleteComponent(componentId);
-	                  _this2.props.actions.closeMenu();
-	                }
-	                e.stopPropagation();
-	              } },
-	            _react2.default.createElement(
-	              'span',
-	              null,
-	              'Delete',
-	              _react2.default.createElement('i', { className: 'fa fa-trash ph1 fr', 'aria-hidden': 'true' })
-	            )
+	                _this3.props.actions.deleteComponent(componentId);
+	              }
+	            },
+	            'Delete',
+	            _react2.default.createElement('i', { className: 'fa fa-trash ph1 fr', 'aria-hidden': 'true' })
 	          ),
 	          _react2.default.createElement(
-	            'li',
+	            ComponentMenuItem,
 	            {
 	              key: 'MAKE_COMPONENT',
-	              className: (0, _classnames2.default)({ disabled: !componentId }),
+	              isDisabled: !componentId || isRoot,
 	              onMouseEnter: this.closeNestedMenus,
 	              onMouseUp: function onMouseUp(e) {
-	                if (componentId) {
-	                  _this2.props.actions.createComponentBlock(componentId);
-	                  _this2.props.actions.closeMenu();
-	                }
-	                e.stopPropagation();
-	              } },
-	            _react2.default.createElement(
-	              'span',
-	              null,
-	              'Make Component',
-	              _react2.default.createElement('i', { className: 'fa fa-id-card-o ph1 fr', 'aria-hidden': 'true' })
-	            )
+	                _this3.props.actions.createComponentBlock(componentId);
+	              }
+	            },
+	            'Make Component',
+	            _react2.default.createElement('i', { className: 'fa fa-id-card-o ph1 fr', 'aria-hidden': 'true' })
 	          ),
 	          _react2.default.createElement(
-	            'li',
+	            ComponentMenuItem,
 	            {
 	              className: INSERT_COMPONENT,
 	              key: INSERT_COMPONENT,
-	              ref: function ref(_ref) {
-	                _this2._insertComponentEl = _ref;
+	              getElement: function getElement(el) {
+	                _this3._insertComponentEl = el;
 	              },
 	              onMouseEnter: function onMouseEnter(e) {
-	                var rect = new _utils.Rect(_this2._insertComponentEl);
-	                _this2.setState({
+	                var rect = new _utils.Rect(_this3._insertComponentEl);
+	                _this3.setState({
 	                  openListItem: INSERT_COMPONENT,
 	                  secondaryPosX: rect.x,
 	                  secondaryPosY: rect.y
 	                });
-	                e.stopPropagation();
-	              } },
-	            _react2.default.createElement(
-	              'span',
-	              null,
-	              'Insert Component',
-	              _react2.default.createElement(RightTriangle, { className: 'ph1 fr' })
-	            )
+	              }
+	            },
+	            'Insert Component',
+	            _react2.default.createElement(RightTriangle, { className: 'ph1 fr' })
 	          ),
 	          _react2.default.createElement(
-	            'li',
+	            ComponentMenuItem,
 	            {
 	              key: INSERT_ASSET,
-	              className: (0, _classnames2.default)({ disabled: !assets.length }),
-	              ref: function ref(_ref2) {
-	                _this2._insertAssetEl = _ref2;
+	              isDisabled: !assets.length,
+	              getElement: function getElement(el) {
+	                _this3._insertAssetEl = el;
 	              },
 	              onMouseEnter: function onMouseEnter(e) {
 	                if (assets.length) {
-	                  var rect = new _utils.Rect(_this2._insertAssetEl);
-	                  _this2.setState({
+	                  var rect = new _utils.Rect(_this3._insertAssetEl);
+	                  _this3.setState({
 	                    openListItem: INSERT_ASSET,
 	                    secondaryPosX: rect.x,
 	                    secondaryPosY: rect.y
 	                  });
 	                }
-	                e.stopPropagation();
-	              } },
-	            _react2.default.createElement(
-	              'span',
-	              null,
-	              'Insert Asset',
-	              _react2.default.createElement(RightTriangle, { className: 'ph1 fr' })
-	            )
+	              }
+	            },
+	            'Insert Asset',
+	            _react2.default.createElement(RightTriangle, { className: 'ph1 fr' })
 	          )
 	        ),
 	        secondaryList
@@ -74657,7 +74619,7 @@
 	    return {
 	      menu: menuJs,
 	      componentIdMapByName: componentIdMapByName,
-	      isRootComponentBox: menuJs.componentId && (yourComponentBoxes.includes(menuJs.componentId) || ourComponentBoxes.includes(menuJs.componentId)),
+	      isRoot: !menuJs.parentId,
 	      // TD: EXPENSIVE! Remove.
 	      assets: _lodash2.default.toArray(assets.toJS())
 	    };

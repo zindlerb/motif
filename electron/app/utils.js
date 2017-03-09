@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import $ from 'jquery';
 import Immutable from 'immutable';
 import { remote } from 'electron';

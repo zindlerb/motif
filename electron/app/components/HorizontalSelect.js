@@ -16,7 +16,7 @@ change existing header instance
 export default function HorizontalSelect(props) {
   const options = _.map(props.options, function (option, ind) {
     let content;
-    const headerClick = function (e) {
+    const headerClick = function () {
       props.onClick(option.value);
     };
 
