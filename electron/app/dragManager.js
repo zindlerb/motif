@@ -1,6 +1,5 @@
 // Taken from https://github.com/zindlerb/apparatus/blob/master/src/View/Manager/DragManager.coffee
 import _ from 'lodash';
-import { globalEventManager } from './utils';
 
 class Drag {
   constructor(mouseDownEvent, spec) {

@@ -59143,8 +59143,6 @@
 	
 	var _lodash2 = _interopRequireDefault(_lodash);
 	
-	var _utils = __webpack_require__(/*! ./utils */ 215);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } // Taken from https://github.com/zindlerb/apparatus/blob/master/src/View/Manager/DragManager.coffee
