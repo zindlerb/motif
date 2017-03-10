@@ -135,10 +135,9 @@ const ComponentTree = React.createClass({
           nodeId={node.id}
           toggleTreeItem={containerMethods.toggleTreeItem}
           className={classnames({
-              'c-grab': node.parentId,
               isActive: treeItemIsActive,
               isHovered: !treeItemIsActive && treeItemIsHovered
-            })}
+            }, node.parentId ? 'c-grab' : 'c-pointer')}
           onMouseEnter={() => actions.hoverComponent(node.id)}
           onMouseLeave={() => actions.unHoverComponent()}
           onMouseUp={(e) => {
@@ -146,7 +145,7 @@ const ComponentTree = React.createClass({
                 actions.openMenu(
                   node.id,
                   node.parentId,
-                  node.index ? node.index + 1 : 0,
+                  node.parentId === undefined ? 0 : node.index + 1,
                   e.clientX,
                   e.clientY
                 );

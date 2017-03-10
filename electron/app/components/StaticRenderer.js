@@ -190,6 +190,7 @@ const MComponentDataRenderer = React.createClass({
     const isActiveComponent = activeComponentId === mComponentData.id;
 
     className = {
+      'c-pointer': true,
       'active-component': isActiveComponent,
       'hovered-component': (
         !isActiveComponent &&
@@ -199,7 +200,7 @@ const MComponentDataRenderer = React.createClass({
 
     const onClick = (e) => {
       actions.selectComponent(mComponentData.id);
-      actions.changePanel('ATTRIBUTES', 'right');
+      e.stopPropagation()
     }
 
     if (componentType === componentTypes.CONTAINER) {

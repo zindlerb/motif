@@ -112,7 +112,12 @@ const TextField = React.createClass({
       return (
         <div className="w-100">
           <input
-              ref={(el) => { this._el = el }}
+              ref={(el) => {
+                  if (el && this.props.autoFocus && document.activeElement !== el) {
+                    el.focus();
+                  }
+                  this._el = el
+                }}
               className="w-100"
               onMouseUp={e => e.stopPropagation()}
               onFocus={(e) => {

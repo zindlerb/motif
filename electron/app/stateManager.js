@@ -1,4 +1,5 @@
 import Immutable from 'immutable';
+import _ from 'lodash';
 import { hri } from 'human-readable-ids';
 import path from 'path';
 import { createStore, applyMiddleware } from 'redux';
@@ -65,7 +66,8 @@ let initialState = Immutable.fromJS({
   },
 
   fileMetadata: {},
-  componentMap: defaultComponentsMap
+  componentMap: defaultComponentsMap,
+  errorText: undefined
 });
 
 /* Constants */
@@ -84,6 +86,7 @@ const SITE_SAVE_FAILURE = 'SITE_SAVE_FAILURE';
 
 const SITE_LOAD_ATTEMPT = 'SITE_LOAD_ATTEMPT';
 const SITE_LOAD_SUCCESS = 'SITE_LOAD_SUCCESS';
+const SITE_LOAD_INVALID_FILE = 'SITE_LOAD_INVALID_FILE';
 const SITE_LOAD_FAILURE = 'SITE_LOAD_FAILURE';
 
 const ADD_NEW_PAGE = 'ADD_NEW_PAGE';
@@ -103,6 +106,8 @@ const EXPORT_SITE = 'EXPORT_SITE';
 const SET_COMPONENTS_VIEW_WIDTH = 'SET_COMPONTS_VIEW_WIDTH';
 const SET_EDITOR_VIEW_WIDTH = 'SET_RENDERER_WIDTH';
 const SET_CURRENT_COMPONENT_ID = 'SET_CURRENT_COMPONENT_ID';
+
+const SET_ERROR_TEXT = 'SET_ERROR_TEXT';
 
 function writeSiteFile(dirname, state, cb) {
   fs.writeFile(
@@ -135,6 +140,13 @@ export const actions = Object.assign({
     return {
       type: REDO,
       _noUndo: true
+    }
+  },
+
+  setErrorText(newText) {
+    return {
+      type: SET_ERROR_TEXT,
+      newText
     }
   },
 
@@ -232,18 +244,29 @@ export const actions = Object.assign({
   loadSite(dirname) {
     return (dispatch) => {
       dispatch({ type: SITE_LOAD_ATTEMPT });
-      return fs.readFile(path.join(dirname, 'site.json'), 'utf8', (err, fileStr) => {
-        if (err) {
+
+      const siteJsonPath = path.join(dirname, 'site.json');
+      fs.access(siteJsonPath, (err) => {
+        if (err && err.code === 'ENOENT') {
           dispatch({
-            type: SITE_LOAD_FAILURE,
-            _noUndo: true
-          })
+            type: SET_ERROR_TEXT,
+            newText: 'Invalid File Type'
+          });
         } else {
-          dispatch({
-            type: SITE_LOAD_SUCCESS,
-            fileStr,
-            dirname,
-            _noUndo: true
+          return fs.readFile(siteJsonPath, 'utf8', (err, fileStr) => {
+            if (err) {
+              dispatch({
+                type: SITE_LOAD_FAILURE,
+                _noUndo: true
+              })
+            } else {
+              dispatch({
+                type: SITE_LOAD_SUCCESS,
+                fileStr,
+                dirname,
+                _noUndo: true
+              });
+            }
           });
         }
       });
@@ -296,24 +319,41 @@ export const actions = Object.assign({
     };
   },
   addAsset(filename) {
-    return (dispatch, getState) => {
-      fs.readFile(filename, (err, file) => {
-        const assetPath = path.join(
-          getState().getIn(['fileMetadata', 'dirname']),
-          'assets',
-          path.basename(filename)
-        );
+    const allowedExtensions = [
+      '.jpeg',
+      '.gif',
+      '.png',
+      '.apng',
+      '.svg',
+      '.bmp',
+      '.ico',
+    ];
 
-        fs.writeFile(assetPath, file, (err) => {
-          if (!err) {
-            dispatch({
-              type: ADD_ASSET,
-              assetPath,
-              _noUndo: true
-            })
-          }
-        })
-      });
+    return (dispatch, getState) => {
+      if (_.indexOf(allowedExtensions, path.extname(filename)) > -1) {
+        fs.readFile(filename, (err, file) => {
+          const assetPath = path.join(
+            getState().getIn(['fileMetadata', 'dirname']),
+            'assets',
+            path.basename(filename)
+          );
+
+          fs.writeFile(assetPath, file, (err) => {
+            if (!err) {
+              dispatch({
+                type: ADD_ASSET,
+                assetPath,
+                _noUndo: true
+              })
+            }
+          })
+        });
+      } else {
+        dispatch({
+          type: SET_ERROR_TEXT,
+          newText: 'INVALID FILE TYPE'
+        });
+      }
     }
   },
   changePanel(panelConst, panelSide) {
@@ -522,6 +562,9 @@ const reducerObj = Object.assign({
       return assets.setIn([action.assetId, 'name'], action.newName);
     });
   },
+  [SITE_LOAD_INVALID_FILE](state) {
+    return state;
+  },
   [DELETE_ASSET](state, action) {
     // TD: figure out the idiomatic way to do this.
     // This is very hacky. But changes to assets must be atomic...
@@ -533,11 +576,13 @@ const reducerObj = Object.assign({
     return state.setIn(['componentsView', 'currentComponentId'], action.id);
   },
   [EXPORT_SITE]() {
+  },
+  [SET_ERROR_TEXT](state, action) {
+    return state.set('errorText', action.newText);
   }
 }, componentTreeReducer);
 
 function reducer(state, action) {
-  //  console.log(action.type, action, state.toJS());
   if (reducerObj[action.type]) {
     if (!action._noUndo) {
       undoStack.push(stateToUndoFormat(state));

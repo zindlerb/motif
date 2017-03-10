@@ -14,6 +14,10 @@ import {
   image
 } from '../base_components';
 
+import {
+  componentTypes
+} from '../constants';
+
 const ROOT = 'ROOT';
 const INSERT_ASSET = 'INSERT_ASSET';
 const INSERT_COMPONENT = 'INSERT_COMPONENT';
@@ -40,7 +44,11 @@ const ComponentMenuItem = React.createClass({
             }}
           key={this.props.key}
           className={classnames({ disabled: this.props.isDisabled }, this.props.className)}
-          onMouseEnter={this.props.onMouseEnter}
+          onMouseEnter={(e) => {
+              if (!this.props.isDisabled && this.props.onMouseEnter) {
+                this.props.onMouseEnter(e);
+              }
+            }}
           onMouseUp={(e) => {
               if (!this.props.isDisabled) {
                 this.props.onMouseUp();
@@ -89,12 +97,13 @@ const ComponentMenu = React.createClass({
   },
 
   render() {
-    //console.log('COMPONENT_MENU RENDER');
     let {
       componentIdMapByName,
       menu,
       assets,
       isRoot,
+      canHaveChildren,
+      actions
     } = this.props;
 
     let {
@@ -193,9 +202,7 @@ const ComponentMenu = React.createClass({
                 key="DELETE"
                 isDisabled={!componentId || isRoot}
                 onMouseEnter={this.closeNestedMenus}
-                onMouseUp={(e) => {
-                      this.props.actions.deleteComponent(componentId);
-                  }}
+                onMouseUp={() => { actions.deleteComponent(componentId) }}
             >
               Delete
               <i className="fa fa-trash ph1 fr" aria-hidden="true" />
@@ -204,18 +211,17 @@ const ComponentMenu = React.createClass({
                 key={'MAKE_COMPONENT'}
                 isDisabled={!componentId || isRoot}
                 onMouseEnter={this.closeNestedMenus}
-                onMouseUp={(e) => {
-                      this.props.actions.createComponentBlock(componentId);
-                  }}
+                onMouseUp={() => { actions.createComponentBlock(componentId) }}
             >
               Make Component
               <i className="fa fa-id-card-o ph1 fr" aria-hidden="true" />
             </ComponentMenuItem>
             <ComponentMenuItem
                 className={INSERT_COMPONENT}
+                isDisabled={!canHaveChildren && isRoot}
                 key={INSERT_COMPONENT}
                 getElement={(el) => { this._insertComponentEl = el; }}
-                onMouseEnter={(e) => {
+                onMouseEnter={() => {
                     let rect = new Rect(this._insertComponentEl);
                     this.setState({
                       openListItem: INSERT_COMPONENT,
@@ -229,9 +235,9 @@ const ComponentMenu = React.createClass({
             </ComponentMenuItem>
             <ComponentMenuItem
                 key={INSERT_ASSET}
-                isDisabled={!assets.length}
-                getElement={el => { this._insertAssetEl = el; }}
-                onMouseEnter={(e) => {
+                isDisabled={(!assets.length) || (!canHaveChildren && isRoot)}
+                getElement={(el) => { this._insertAssetEl = el; }}
+                onMouseEnter={() => {
                     if (assets.length) {
                       let rect = new Rect(this._insertAssetEl);
                       this.setState({
@@ -281,6 +287,7 @@ const menuSelector = createImmutableJSSelector(
        return {
          menu: menuJs,
          componentIdMapByName,
+         canHaveChildren: componentsMap.getIn([menuJs.componentId, 'componentType']) === componentTypes.CONTAINER,
          isRoot: !menuJs.parentId,
          // TD: EXPENSIVE! Remove.
          assets: _.toArray(assets.toJS())

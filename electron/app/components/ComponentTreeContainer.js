@@ -4,7 +4,7 @@ import _ from 'lodash';
 import mousetrap from 'mousetrap';
 
 import dragManager from '../dragManager';
-import { guid, wasRightButtonPressed } from '../utils';
+import { guid } from '../utils';
 import { componentTypes } from '../constants';
 
 import TreeItem from './TreeItem';
@@ -281,8 +281,6 @@ const ComponentTreeContainer = React.createClass({
       renderTree
     } = this.props;
 
-    console.log('renderTree', renderTree);
-
     const {
       isDragging,
       closedComponents,
@@ -324,21 +322,7 @@ const ComponentTreeContainer = React.createClass({
     }
 
     return (
-      <div
-          className="h-100"
-          onMouseUp={(e) => {
-              if (wasRightButtonPressed(e)) {
-                actions.openMenu(
-                  undefined,
-                  renderTree.id,
-                  renderTree.children.length,
-                  e.clientX,
-                  e.clientY
-                );
-                e.stopPropagation();
-              }
-            }}
-      >
+      <div className="h-100">
         { hintText }
         <ComponentTree
             node={renderTree}

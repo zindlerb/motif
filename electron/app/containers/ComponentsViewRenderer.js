@@ -48,7 +48,7 @@ const ComponentViewRenderer = React.createClass({
     } = this.props;
 
     return (
-      <div className="flex-auto flex flex-column h-100 mh4 relative mv4">
+      <div className="flex-auto flex flex-column h-100 mh4 relative">
         <ViewChoiceDropdown
             mainView={currentMainView}
             actions={actions}

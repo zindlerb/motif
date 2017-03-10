@@ -377,8 +377,6 @@ body {
 }
 
 .popup-select {
-  cursor: pointer;
-
   .page-blanket {
     cursor: default;
     position: fixed;
@@ -471,4 +469,24 @@ transition: margin-top .5s, border-width .5s;
 
 .top-index {
   z-index: $top-index;
+}
+
+.error-banner {
+  z-index: 100;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  text-align: center;
+  background-color: #da6d6d;
+  padding: $spacing-small 0px;
+
+  .fa-times {
+    color: black;
+  }
+}
+
+.clickable:hover {
+  opacity: .75;
+  cursor: pointer;
 }

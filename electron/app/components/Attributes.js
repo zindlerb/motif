@@ -140,8 +140,16 @@ const allFields = {
     key: 'fontFamily',
     fieldType: DROPDOWN,
     choices: [
+      'Arial',
+      'Helvetica',
+      'Sans-serif',
+      'Georgia',
+      'Serif',
+      'Courier',
+      'Monospace',
+      'Monaco'
       /*
-         Too big and depends on user fonts so dynamically added later.
+         TD: Allow import of fonts through goog fonts. And font search
        */
     ]
   },
@@ -184,7 +192,7 @@ const allFields = {
     key: 'color',
     fieldType: COLOR
   }
-}
+};
 
 const textFields = [
   allFields.fontFamily,
@@ -235,9 +243,9 @@ const fields = {
     ...defaultFields,
     allFields.text
   ]
-}
+};
 
-const EditableName = React.createClass({
+const Attributes = React.createClass({
   getInitialState() {
     return {
       tempText: '',
@@ -245,129 +253,118 @@ const EditableName = React.createClass({
     }
   },
   render() {
-    if (this.state.isEditing) {
-      return (
-        <TextField
-            value={this.props.name}
-            className={this.props.className}
-            onSubmit={(value) => {
-                this.setState({ isEditing: false });
-                this.props.actions.changeComponentName(this.props.componentId, value);
-              }}
-        />
-      );
-    } else {
-      return (
-        <span
-            className={this.props.className}
-            onClick={() => this.setState({ isEditing: true })}>
-          {this.props.name}
-        </span>
-      );
-    }
-  }
-});
+    const {
+      componentName,
+      componentType,
+      attributes,
+      componentId,
+      componentState,
+      componentBreakpoint,
+      actions,
+    } = this.props;
 
-const Attributes = function (props) {
-  const {
-    componentName,
-    componentType,
-    attributes,
-    componentId,
-    componentState,
-    componentBreakpoint,
-    actions,
-  } = props;
+    let body, attributeFields = [], buttons;
 
-  //console.log('ATTRIBUTES RENDER');
+    if (componentId) {
+      _.forEach(fields[componentType], (field) => {
+        attributeFields.push(
+          (<AttributeField
+               actions={actions}
+               fieldData={field}
+               componentId={componentId}
+               attrVal={attributes[field.key]}
+               key={field.key}
+           />)
+        );
+      });
 
-  let body, attributeFields = [], buttons;
-
-  if (componentId) {
-    _.forEach(fields[componentType], (field) => {
-      attributeFields.push(
-        (<AttributeField
-             actions={actions}
-             fieldData={field}
-             componentId={componentId}
-             attrVal={attributes[field.key]}
-             key={field.key}
-         />)
-      );
-    });
-
-    if (props.showButtons) {
-      buttons = (
-        <div className="mb3 tc">
-          <CartoonButton
-              className="mr1"
-              onClick={() => {
-                  props.actions.createComponentBlock(componentId);
-                }}
-              text="Make Component"
-          />
-          <CartoonButton
-              onClick={() => { props.actions.syncComponent(componentId); }}
-              disabled={props.isSynced}
-              text="Sync"
-          />
-        </div>
-      );
-    }
-
-
-    body = (
-      <div className="ph2">
-        <div className="mb3 mt2">
-          <div className="tc">
-            <EditableName
-                componentId={componentId}
-                className="mv2 dib f5 interactive"
-                actions={actions}
-                name={componentName}
+      if (this.props.showButtons) {
+        buttons = (
+          <div className="mb3 tc">
+            <CartoonButton
+                className="mr1"
+                onClick={() => {
+                    actions.createComponentBlock(componentId);
+                  }}
+                text="Make Component"
+            />
+            <CartoonButton
+                onClick={() => { actions.syncComponent(componentId); }}
+                disabled={this.props.isSynced}
+                text="Sync"
             />
           </div>
-          { buttons }
-          <span className="mb2 dib">State:</span>
-          <Dropdown
-              className="state-dropdown fr"
-              choices={[
-                { text: 'None', value: NONE },
-                { text: 'Hover', value: stateTypes.HOVER }
-              ]}
-              onChange={(val) => {
-                  props.actions.setActiveComponentState(val);
+        );
+      }
+      let masterName;
+      if (this.state.isEditing) {
+        masterName = (
+          <TextField
+              autoFocus={true}
+              value={componentName}
+              onSubmit={(value) => {
+                  this.setState({ isEditing: false });
+                  actions.changeComponentName(componentId, value);
                 }}
-              value={componentState} />
-          <span className="dib">Breakpoint:</span>
-          <Dropdown
-              className="state-dropdown fr"
-              choices={[
-                { text: 'None', value: NONE },
-                { text: 'Medium (30em - 60em)', value: breakpointTypes.MEDIUM },
-                { text: 'Large (> 60em)', value: breakpointTypes.LARGE }
-              ]}
-              onChange={(val) => {
-                  props.actions.setActiveComponentBreakpoint(val);
-                }}
-              value={componentBreakpoint} />
+          />
+        );
+      } else {
+        masterName = (
+          <span
+              onClick={() => this.setState({ isEditing: true })}>
+            {componentName}
+          </span>
+        );
+      }
+
+      body = (
+        <div className="ph2">
+          <div className="mb3 mt2">
+            <div className="tc">
+              { masterName }
+            </div>
+            { buttons }
+            <span className="mb2 dib">State:</span>
+            <Dropdown
+                className="state-dropdown fr"
+                choices={[
+                  { text: 'None', value: NONE },
+                  { text: 'Hover', value: stateTypes.HOVER }
+                ]}
+                onChange={(val) => {
+                    actions.setActiveComponentState(val);
+                  }}
+                value={componentState} />
+            <span className="dib">Breakpoint:</span>
+            <Dropdown
+                className="state-dropdown fr"
+                choices={[
+                  { text: 'None', value: NONE },
+                  { text: 'Medium (30em - 60em)', value: breakpointTypes.MEDIUM },
+                  { text: 'Large (> 60em)', value: breakpointTypes.LARGE }
+                ]}
+                onChange={(val) => {
+                    actions.setActiveComponentBreakpoint(val);
+                  }}
+                value={componentBreakpoint} />
+          </div>
+          {attributeFields}
         </div>
-        {attributeFields}
-      </div>
-    );
-  } else {
-    body = (
-      <div className="mt6 tc">
-        <span className="hint f7 dib">Select a Component</span>
-      </div>
+      );
+    } else {
+      body = (
+        <div className="mt6 tc">
+          <span className="hint f7 dib">Select a Component</span>
+        </div>
+      );
+    }
+
+    return (
+      <DivToBottom className="overflow-auto">
+        {body}
+      </DivToBottom>
     );
   }
-
-  return (
-    <DivToBottom className="overflow-auto">
-      {body}
-    </DivToBottom>
-  );
-}
+});
 
 export default Attributes;

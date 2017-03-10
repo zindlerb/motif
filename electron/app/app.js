@@ -14,6 +14,7 @@ import ComponentsViewTree from './containers/ComponentsViewTree';
 import ComponentsViewRenderer from './containers/ComponentsViewRenderer';
 import AttributesContainer from './containers/AttributesContainer';
 import ComponentMenu from './components/ComponentMenu';
+import ErrorBanner from './components/ErrorBanner';
 
 import {
   saveSiteAsDialog,
@@ -72,24 +73,29 @@ const App = React.createClass({
               saveSiteAsDialog(actions);
             }
           },
-          {
-            label: 'Export',
-            click() {
-              dialog.showSaveDialog({
-                title: 'Export site as',
-                filters: [
-                  {
-                    name: 'Site Name',
-                    extensions: ['*']
-                  }
-                ]
-              }, (filename) => {
-                if (filename) {
-                  actions.exportSite(filename);
-                }
-              });
-            }
-          }
+          /*
+             TD: add in once export is working
+
+             {
+             label: 'Export',
+             click() {
+             dialog.showSaveDialog({
+             title: 'Export site as',
+             filters: [
+             {
+             name: 'Site Name',
+             extensions: ['*']
+             }
+             ]
+             }, (filename) => {
+             if (filename) {
+             actions.exportSite(filename);
+             }
+             });
+             }
+             }
+           */
+
         ]
       },
       {
@@ -119,6 +125,7 @@ const App = React.createClass({
     let view;
     let {
       currentMainView,
+      errorText,
       actions
     } = this.props;
 
@@ -142,6 +149,7 @@ const App = React.createClass({
 
     return (
       <div className="h-100">
+        <ErrorBanner errorText={errorText} actions={actions} />
         { view }
         <ComponentMenu actions={actions} />
       </div>
@@ -150,16 +158,22 @@ const App = React.createClass({
 });
 
 const appSelector = createImmutableJSSelector(
-  state => state.get('currentMainView'),
-  (currentMainView) => {
-    return { currentMainView };
+  [
+    state => state.get('currentMainView'),
+    state => state.get('errorText')
+  ],
+  (currentMainView, errorText) => {
+    return {
+      currentMainView,
+      errorText
+    };
   }
 )
 
 const ConnectedApp = connect(
   appSelector,
   (dispatch) => {
-    return { actions: bindActionCreators(actions, dispatch) }
+    return { actions: bindActionCreators(actions, dispatch) };
   }
 )(App);
 

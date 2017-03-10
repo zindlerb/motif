@@ -42,7 +42,7 @@ const PopupSelect = React.createClass({
       <div className="popup-select">
         <div
             ref={(ref) => { this.el = ref }}
-            className={classnames(this.props.className, 'dib')}
+            className={classnames(this.props.className, 'dib clickable')}
             onClick={() => this.setState({ isOpen: true })}
         >
           <span

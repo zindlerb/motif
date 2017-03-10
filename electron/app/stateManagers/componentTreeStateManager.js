@@ -1,6 +1,6 @@
 import { hri } from 'human-readable-ids';
 
-import { NONE } from '../constants';
+import { NONE, mainViewTypes } from '../constants';
 import { ComponentsContainer } from '../base_components';
 
 const UNHOVER_COMPONENT = 'UNHOVER_COMPONENT';
@@ -155,10 +155,21 @@ export const componentTreeReducer = {
   },
 
   [CHANGE_COMPONENT_NAME](state, action) {
-    return state.setIn(
-      ['componentsMap', action.componentId, 'name'],
-      action.newName
-    );
+    const { componentId } = action;
+    const parentId = state.getIn(['componentsMap', componentId, 'parentId']);
+    const masterId = state.getIn(['componentsMap', componentId, 'masterId']);
+    if (!parentId && state.get('currentMainView') === mainViewTypes.COMPONENTS) {
+      // For components view the root *is* the component master
+      return state.setIn(
+        ['componentsMap', componentId, 'name'],
+        action.newName
+      );
+    } else {
+      return state.setIn(
+        ['componentsMap', masterId, 'name'],
+        action.newName
+      );
+    }
   },
 
   [CREATE_COMPONENT_BLOCK](state, action) {
