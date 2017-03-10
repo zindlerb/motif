@@ -160,10 +160,7 @@ export const componentTreeReducer = {
     const masterId = state.getIn(['componentsMap', componentId, 'masterId']);
     if (!parentId && state.get('currentMainView') === mainViewTypes.COMPONENTS) {
       // For components view the root *is* the component master
-      return state.setIn(
-        ['componentsMap', componentId, 'name'],
-        action.newName
-      );
+      return state.setIn(['componentsMap', componentId, 'name'], action.newName);
     } else {
       return state.setIn(
         ['componentsMap', masterId, 'name'],
@@ -181,7 +178,7 @@ export const componentTreeReducer = {
       const newBlockParentId = componentsMap.getIn([newBlockId, 'parentId']);
       componentsMap.mergeIn(
         [newBlockId],
-        { name: hri.random(), parentId: undefined }
+        { name: 'new component', parentId: undefined }
       );
 
       variantId = componentsContainer.createVariant(newBlockId, {

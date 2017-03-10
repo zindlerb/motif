@@ -1,5 +1,6 @@
 import React from 'react';
 import $ from 'jquery';
+import classnames from 'classnames';
 
 const AutoComplete = React.createClass({
   render() {
@@ -118,7 +119,7 @@ const TextField = React.createClass({
                   }
                   this._el = el
                 }}
-              className="w-100"
+              className={classnames('w-100', this.props.className)}
               onMouseUp={e => e.stopPropagation()}
               onFocus={(e) => {
                   this.startEdit(e);

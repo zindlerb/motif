@@ -285,6 +285,7 @@ const Attributes = React.createClass({
                 className="mr1"
                 onClick={() => {
                     actions.createComponentBlock(componentId);
+                    this.setState({ isEditing: true });
                   }}
                 text="Make Component"
             />
@@ -300,6 +301,7 @@ const Attributes = React.createClass({
       if (this.state.isEditing) {
         masterName = (
           <TextField
+              className="mv2 dib f5"
               autoFocus={true}
               value={componentName}
               onSubmit={(value) => {
@@ -311,8 +313,9 @@ const Attributes = React.createClass({
       } else {
         masterName = (
           <span
+              className="mv2 dib f5 clickable"
               onClick={() => this.setState({ isEditing: true })}>
-            {componentName}
+              {componentName}
           </span>
         );
       }
