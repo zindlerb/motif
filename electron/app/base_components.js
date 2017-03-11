@@ -14,6 +14,7 @@ const {
   HEADER,
   TEXT,
   IMAGE,
+  LINK
 } = componentTypes;
 
 const {
@@ -55,9 +56,9 @@ const defaultAttributes = {
 export const containerAttributes = Object.assign({}, defaultAttributes, {
   display: 'flex',
   flexDirection: 'column',
-  justifyContent: 'flex-start'
+  justifyContent: 'flex-start',
+  listStyleType: 'none'
 });
-
 
 export const container = createComponentData(CONTAINER, {
   name: 'Container',
@@ -89,11 +90,22 @@ export const image = createComponentData(IMAGE, {
   })
 });
 
+export const link = createComponentData(LINK, {
+  name: 'Link',
+  id: LINK,
+  defaultAttributes: Object.assign({}, defaultAttributes, {
+    display: 'inline',
+    href: '',
+    text: 'I am a link'
+  })
+});
+
 export const defaultComponentsMap = Immutable.Map({
   [container.get('id')]: container,
   [header.get('id')]: header,
   [text.get('id')]: text,
   [image.get('id')]: image,
+  [link.get('id')]: link
 });
 
 export class ComponentsContainer {
@@ -403,6 +415,7 @@ export class ComponentsContainer {
     let attrToCssLookup = {};
     let attrToHtmlPropertyLookup = {
       text: true,
+      href: true,
       src: true
     };
 
@@ -443,7 +456,7 @@ export class ComponentsContainer {
     return ComponentsContainer.getRenderTree(this.components, componentId, context);
   }
 
-  static getRenderTree(componentsMap, componentId, context, index) {
+  static getRenderTree(componentsMap, componentId, context, index, parentJs) {
     if (componentId) {
       let componentJs = componentsMap.get(componentId).toJS();
       let breakpoint = NONE;
@@ -477,7 +490,7 @@ export class ComponentsContainer {
       componentJs.name = ComponentsContainer.getName(componentsMap, componentId);
 
       if (componentJs.parentId) {
-        componentJs.parent = componentsMap.get(componentJs.parentId).toJS();
+        componentJs.parent = parentJs;
       }
 
       if (componentJs.masterId) {
@@ -486,7 +499,7 @@ export class ComponentsContainer {
 
       let children = [];
       componentJs.childIds.forEach((id, ind) => {
-        children.push(ComponentsContainer.getRenderTree(componentsMap, id, context, ind));
+        children.push(ComponentsContainer.getRenderTree(componentsMap, id, context, ind, componentJs));
       });
       componentJs.children = children;
 

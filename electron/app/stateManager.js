@@ -31,12 +31,7 @@ let redoStack = [];
 let initialState = Immutable.fromJS({
   siteName: 'Something',
   recentSites: [],
-  ourComponentBoxes: [
-    container.get('id'),
-    header.get('id'),
-    text.get('id'),
-    image.get('id'),
-  ],
+  ourComponentBoxes: [...defaultComponentsMap.keys()],
   yourComponentBoxes: [],
   pages: {},
   assets: {},

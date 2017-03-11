@@ -1,5 +1,3 @@
-import { hri } from 'human-readable-ids';
-
 import { NONE, mainViewTypes } from '../constants';
 import { ComponentsContainer } from '../base_components';
 

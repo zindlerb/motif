@@ -47,6 +47,7 @@ const ContainerClassReact = React.createClass({
       mComponentData,
       context,
       className,
+      isList,
       actions
     } = this.props;
 
@@ -61,28 +62,46 @@ const ContainerClassReact = React.createClass({
       );
     });
 
-    return (
-      <div
-          onMouseEnter={(e) => { this.props.onMouseEnter(e); }}
-          onMouseLeave={(e) => { this.props.onMouseLeave(e); }}
-          onClick={this.props.onClick}
-          onMouseDown={this.props.onMouseDown}
-          style={this.props.sx}
-          className={classnames('node_' + mComponentData.id, 'expandable-element', { expanded: this.state.isExpanded }, className)}
-      >
-        {children}
-      </div>
+    return React.createElement(
+      isList ? 'ul' : 'div',
+      {
+        onMouseEnter: (e) => { this.props.onMouseEnter(e); },
+        onMouseLeave: (e) => { this.props.onMouseLeave(e); },
+        onClick: this.props.onClick,
+        onMouseDown: this.props.onMouseDown,
+        style: this.props.sx,
+        className: classnames('node_' + mComponentData.id, 'expandable-element', { expanded: this.state.isExpanded }, className)
+      },
+      children
     );
   },
 });
 
-const HeaderClassReact = React.createClass({
-  getInitialState() {
-    return {
-      isHovered: false
-    };
-  },
+const LinkClassReact = React.createClass({
+  render() {
+    const {
+      mComponentData,
+      className,
+      sx,
+      htmlProperties,
+    } = this.props;
 
+    return (
+      <a
+          onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
+          onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
+          className={classnames('node_' + mComponentData.id, className)}
+          onMouseDown={this.props.onMouseDown}
+          style={sx}
+          href={htmlProperties.href}
+      >
+        {htmlProperties.text}
+      </a>
+    );
+  }
+});
+
+const HeaderClassReact = React.createClass({
   render() {
     const {
       mComponentData,
@@ -95,7 +114,8 @@ const HeaderClassReact = React.createClass({
           onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
           onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
           onMouseDown={this.props.onMouseDown}
-          style={sx} className={classnames('node_' + mComponentData.id, className)}
+          style={sx}
+          className={classnames('node_' + mComponentData.id, className)}
           onClick={this.props.onClick}
       >
         {htmlProperties.text}
@@ -105,12 +125,6 @@ const HeaderClassReact = React.createClass({
 });
 
 const ParagraphClassReact = React.createClass({
-  getInitialState() {
-    return {
-      isHovered: false
-    };
-  },
-
   render() {
     const { mComponentData, className } = this.props;
     return (
@@ -128,12 +142,6 @@ const ParagraphClassReact = React.createClass({
 });
 
 const ImageClassReact = React.createClass({
-  getInitialState() {
-    return {
-      isHovered: false
-    };
-  },
-
   render() {
     const {
       mComponentData,
@@ -200,12 +208,27 @@ const MComponentDataRenderer = React.createClass({
 
     const onClick = (e) => {
       actions.selectComponent(mComponentData.id);
-      e.stopPropagation()
+      e.stopPropagation();
+      e.preventDefault();
     }
 
-    if (componentType === componentTypes.CONTAINER) {
+    if (componentType === componentTypes.LINK) {
+      component = (
+        <LinkClassReact
+            className={className}
+            actions={this.props.actions}
+            onMouseEnter={this.setHovered}
+            onMouseLeave={this.resetHovered}
+            onClick={onClick}
+            {...this.props}
+            htmlProperties={htmlProperties}
+            sx={sx}
+        />
+      );
+    } else if (componentType === componentTypes.CONTAINER) {
       component = (
         <ContainerClassReact
+            isList={mComponentData.sx.listStyleType !== 'none'}
             className={className}
             actions={this.props.actions}
             onMouseEnter={this.setHovered}
@@ -254,7 +277,11 @@ const MComponentDataRenderer = React.createClass({
       );
     }
 
-    return component;
+    if (mComponentData.parent && mComponentData.parent.sx.listStyleType !== 'none') {
+      return <li>{component}</li>;
+    } else {
+      return component;
+    }
   }
 });
 

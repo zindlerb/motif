@@ -22659,13 +22659,15 @@
 	
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	
 	var undoStack = [];
 	var redoStack = [];
 	
 	var initialState = _immutable2.default.fromJS({
 	  siteName: 'Something',
 	  recentSites: [],
-	  ourComponentBoxes: [_base_components.container.get('id'), _base_components.header.get('id'), _base_components.text.get('id'), _base_components.image.get('id')],
+	  ourComponentBoxes: [].concat(_toConsumableArray(_base_components.defaultComponentsMap.keys())),
 	  yourComponentBoxes: [],
 	  pages: {},
 	  assets: {},
@@ -45473,8 +45475,6 @@
 	
 	var _componentTreeReducer;
 	
-	var _humanReadableIds = __webpack_require__(/*! human-readable-ids */ 203);
-	
 	var _constants = __webpack_require__(/*! ../constants */ 212);
 	
 	var _base_components = __webpack_require__(/*! ../base_components */ 213);
@@ -45668,6 +45668,8 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	var VERSION_NUMBER = exports.VERSION_NUMBER = '0.1';
+	
 	var dragTypes = exports.dragTypes = {
 	  ADD_COMPONENT: 'ADD_COMPONENT',
 	  MOVE_COMPONENT: 'MOVE_COMPONENT'
@@ -45701,7 +45703,8 @@
 	  CONTAINER: 'CONTAINER',
 	  HEADER: 'HEADER',
 	  TEXT: 'TEXT',
-	  IMAGE: 'IMAGE'
+	  IMAGE: 'IMAGE',
+	  LINK: 'LINK'
 	};
 	
 	var SIDEBAR_WIDTH = exports.SIDEBAR_WIDTH = 220;
@@ -45718,7 +45721,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.ComponentsContainer = exports.defaultComponentsMap = exports.image = exports.header = exports.text = exports.container = exports.containerAttributes = undefined;
+	exports.ComponentsContainer = exports.defaultComponentsMap = exports.link = exports.image = exports.header = exports.text = exports.container = exports.containerAttributes = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -45748,7 +45751,8 @@
 	var CONTAINER = _constants.componentTypes.CONTAINER,
 	    HEADER = _constants.componentTypes.HEADER,
 	    TEXT = _constants.componentTypes.TEXT,
-	    IMAGE = _constants.componentTypes.IMAGE;
+	    IMAGE = _constants.componentTypes.IMAGE,
+	    LINK = _constants.componentTypes.LINK;
 	var fromJS = _immutable2.default.fromJS;
 	function createNewImageSpec(asset) {
 	  return {
@@ -45785,7 +45789,8 @@
 	var containerAttributes = exports.containerAttributes = Object.assign({}, defaultAttributes, {
 	  display: 'flex',
 	  flexDirection: 'column',
-	  justifyContent: 'flex-start'
+	  justifyContent: 'flex-start',
+	  listStyleType: 'none'
 	});
 	
 	var container = exports.container = createComponentData(CONTAINER, {
@@ -45818,7 +45823,17 @@
 	  })
 	});
 	
-	var defaultComponentsMap = exports.defaultComponentsMap = _immutable2.default.Map((_Immutable$Map = {}, _defineProperty(_Immutable$Map, container.get('id'), container), _defineProperty(_Immutable$Map, header.get('id'), header), _defineProperty(_Immutable$Map, text.get('id'), text), _defineProperty(_Immutable$Map, image.get('id'), image), _Immutable$Map));
+	var link = exports.link = createComponentData(LINK, {
+	  name: 'Link',
+	  id: LINK,
+	  defaultAttributes: Object.assign({}, defaultAttributes, {
+	    display: 'inline',
+	    href: '',
+	    text: 'I am a link'
+	  })
+	});
+	
+	var defaultComponentsMap = exports.defaultComponentsMap = _immutable2.default.Map((_Immutable$Map = {}, _defineProperty(_Immutable$Map, container.get('id'), container), _defineProperty(_Immutable$Map, header.get('id'), header), _defineProperty(_Immutable$Map, text.get('id'), text), _defineProperty(_Immutable$Map, image.get('id'), image), _defineProperty(_Immutable$Map, link.get('id'), link), _Immutable$Map));
 	
 	var ComponentsContainer = exports.ComponentsContainer = function () {
 	  function ComponentsContainer(components) {
@@ -46127,6 +46142,7 @@
 	      var attrToCssLookup = {};
 	      var attrToHtmlPropertyLookup = {
 	        text: true,
+	        href: true,
 	        src: true
 	      };
 	
@@ -46154,7 +46170,7 @@
 	    }
 	  }, {
 	    key: 'getRenderTree',
-	    value: function getRenderTree(componentsMap, componentId, context, index) {
+	    value: function getRenderTree(componentsMap, componentId, context, index, parentJs) {
 	      if (componentId) {
 	        var componentJs = componentsMap.get(componentId).toJS();
 	        var breakpoint = _constants.NONE;
@@ -46186,7 +46202,7 @@
 	        componentJs.name = ComponentsContainer.getName(componentsMap, componentId);
 	
 	        if (componentJs.parentId) {
-	          componentJs.parent = componentsMap.get(componentJs.parentId).toJS();
+	          componentJs.parent = parentJs;
 	        }
 	
 	        if (componentJs.masterId) {
@@ -46195,7 +46211,7 @@
 	
 	        var children = [];
 	        componentJs.childIds.forEach(function (id, ind) {
-	          children.push(ComponentsContainer.getRenderTree(componentsMap, id, context, ind));
+	          children.push(ComponentsContainer.getRenderTree(componentsMap, id, context, ind, componentJs));
 	        });
 	        componentJs.children = children;
 	
@@ -57719,6 +57735,7 @@
 	        mComponentData = _props.mComponentData,
 	        context = _props.context,
 	        className = _props.className,
+	        isList = _props.isList,
 	        actions = _props.actions;
 	
 	
@@ -57731,32 +57748,23 @@
 	      });
 	    });
 	
-	    return _react2.default.createElement(
-	      'div',
-	      {
-	        onMouseEnter: function onMouseEnter(e) {
-	          _this.props.onMouseEnter(e);
-	        },
-	        onMouseLeave: function onMouseLeave(e) {
-	          _this.props.onMouseLeave(e);
-	        },
-	        onClick: this.props.onClick,
-	        onMouseDown: this.props.onMouseDown,
-	        style: this.props.sx,
-	        className: (0, _classnames2.default)('node_' + mComponentData.id, 'expandable-element', { expanded: this.state.isExpanded }, className)
+	    return _react2.default.createElement(isList ? 'ul' : 'div', {
+	      onMouseEnter: function onMouseEnter(e) {
+	        _this.props.onMouseEnter(e);
 	      },
-	      children
-	    );
+	      onMouseLeave: function onMouseLeave(e) {
+	        _this.props.onMouseLeave(e);
+	      },
+	      onClick: this.props.onClick,
+	      onMouseDown: this.props.onMouseDown,
+	      style: this.props.sx,
+	      className: (0, _classnames2.default)('node_' + mComponentData.id, 'expandable-element', { expanded: this.state.isExpanded }, className)
+	    }, children);
 	  }
 	});
 	
-	var HeaderClassReact = _react2.default.createClass({
-	  displayName: 'HeaderClassReact',
-	  getInitialState: function getInitialState() {
-	    return {
-	      isHovered: false
-	    };
-	  },
+	var LinkClassReact = _react2.default.createClass({
+	  displayName: 'LinkClassReact',
 	  render: function render() {
 	    var _this2 = this;
 	
@@ -57766,8 +57774,9 @@
 	        sx = _props2.sx,
 	        htmlProperties = _props2.htmlProperties;
 	
+	
 	    return _react2.default.createElement(
-	      'h1',
+	      'a',
 	      {
 	        onMouseEnter: function onMouseEnter(e) {
 	          _this2.props.onMouseEnter(e);
@@ -57775,8 +57784,39 @@
 	        onMouseLeave: function onMouseLeave(e) {
 	          _this2.props.onMouseLeave(e);
 	        },
+	        className: (0, _classnames2.default)('node_' + mComponentData.id, className),
 	        onMouseDown: this.props.onMouseDown,
-	        style: sx, className: (0, _classnames2.default)('node_' + mComponentData.id, className),
+	        style: sx,
+	        href: htmlProperties.href
+	      },
+	      htmlProperties.text
+	    );
+	  }
+	});
+	
+	var HeaderClassReact = _react2.default.createClass({
+	  displayName: 'HeaderClassReact',
+	  render: function render() {
+	    var _this3 = this;
+	
+	    var _props3 = this.props,
+	        mComponentData = _props3.mComponentData,
+	        className = _props3.className,
+	        sx = _props3.sx,
+	        htmlProperties = _props3.htmlProperties;
+	
+	    return _react2.default.createElement(
+	      'h1',
+	      {
+	        onMouseEnter: function onMouseEnter(e) {
+	          _this3.props.onMouseEnter(e);
+	        },
+	        onMouseLeave: function onMouseLeave(e) {
+	          _this3.props.onMouseLeave(e);
+	        },
+	        onMouseDown: this.props.onMouseDown,
+	        style: sx,
+	        className: (0, _classnames2.default)('node_' + mComponentData.id, className),
 	        onClick: this.props.onClick
 	      },
 	      htmlProperties.text
@@ -57786,26 +57826,21 @@
 	
 	var ParagraphClassReact = _react2.default.createClass({
 	  displayName: 'ParagraphClassReact',
-	  getInitialState: function getInitialState() {
-	    return {
-	      isHovered: false
-	    };
-	  },
 	  render: function render() {
-	    var _this3 = this;
+	    var _this4 = this;
 	
-	    var _props3 = this.props,
-	        mComponentData = _props3.mComponentData,
-	        className = _props3.className;
+	    var _props4 = this.props,
+	        mComponentData = _props4.mComponentData,
+	        className = _props4.className;
 	
 	    return _react2.default.createElement(
 	      'p',
 	      {
 	        onMouseEnter: function onMouseEnter(e) {
-	          _this3.props.onMouseEnter(e);
+	          _this4.props.onMouseEnter(e);
 	        },
 	        onMouseLeave: function onMouseLeave(e) {
-	          _this3.props.onMouseLeave(e);
+	          _this4.props.onMouseLeave(e);
 	        },
 	        onMouseDown: this.props.onMouseDown,
 	        style: this.props.sx, className: (0, _classnames2.default)('node_' + mComponentData.id, className),
@@ -57818,26 +57853,21 @@
 	
 	var ImageClassReact = _react2.default.createClass({
 	  displayName: 'ImageClassReact',
-	  getInitialState: function getInitialState() {
-	    return {
-	      isHovered: false
-	    };
-	  },
 	  render: function render() {
-	    var _this4 = this;
+	    var _this5 = this;
 	
-	    var _props4 = this.props,
-	        mComponentData = _props4.mComponentData,
-	        className = _props4.className,
-	        sx = _props4.sx,
-	        htmlProperties = _props4.htmlProperties;
+	    var _props5 = this.props,
+	        mComponentData = _props5.mComponentData,
+	        className = _props5.className,
+	        sx = _props5.sx,
+	        htmlProperties = _props5.htmlProperties;
 	
 	    return _react2.default.createElement('img', {
 	      onMouseEnter: function onMouseEnter(e) {
-	        _this4.props.onMouseEnter(e);
+	        _this5.props.onMouseEnter(e);
 	      },
 	      onMouseLeave: function onMouseLeave(e) {
-	        _this4.props.onMouseLeave(e);
+	        _this5.props.onMouseLeave(e);
 	      },
 	      onMouseDown: this.props.onMouseDown,
 	      style: sx,
@@ -57874,10 +57904,10 @@
 	    /* TD: expand for custom components */
 	    var className = void 0,
 	        component = void 0;
-	    var _props5 = this.props,
-	        context = _props5.context,
-	        mComponentData = _props5.mComponentData,
-	        actions = _props5.actions;
+	    var _props6 = this.props,
+	        context = _props6.context,
+	        mComponentData = _props6.mComponentData,
+	        actions = _props6.actions;
 	    var hoveredComponentId = context.hoveredComponentId,
 	        activeComponentId = context.activeComponentId;
 	    var htmlProperties = mComponentData.htmlProperties,
@@ -57896,10 +57926,23 @@
 	    var onClick = function onClick(e) {
 	      actions.selectComponent(mComponentData.id);
 	      e.stopPropagation();
+	      e.preventDefault();
 	    };
 	
-	    if (componentType === _constants.componentTypes.CONTAINER) {
+	    if (componentType === _constants.componentTypes.LINK) {
+	      component = _react2.default.createElement(LinkClassReact, _extends({
+	        className: className,
+	        actions: this.props.actions,
+	        onMouseEnter: this.setHovered,
+	        onMouseLeave: this.resetHovered,
+	        onClick: onClick
+	      }, this.props, {
+	        htmlProperties: htmlProperties,
+	        sx: sx
+	      }));
+	    } else if (componentType === _constants.componentTypes.CONTAINER) {
 	      component = _react2.default.createElement(ContainerClassReact, _extends({
+	        isList: mComponentData.sx.listStyleType !== 'none',
 	        className: className,
 	        actions: this.props.actions,
 	        onMouseEnter: this.setHovered,
@@ -57941,7 +57984,15 @@
 	      }));
 	    }
 	
-	    return component;
+	    if (mComponentData.parent && mComponentData.parent.sx.listStyleType !== 'none') {
+	      return _react2.default.createElement(
+	        'li',
+	        null,
+	        component
+	      );
+	    } else {
+	      return component;
+	    }
 	  }
 	});
 	
@@ -57951,12 +58002,12 @@
 	    return {};
 	  },
 	  dragStart: function dragStart(e) {
-	    var _this5 = this;
+	    var _this6 = this;
 	
 	    var diff = void 0;
-	    var _props6 = this.props,
-	        direction = _props6.direction,
-	        rendererWidth = _props6.rendererWidth;
+	    var _props7 = this.props,
+	        direction = _props7.direction,
+	        rendererWidth = _props7.rendererWidth;
 	    // add a drag manager for listening and unlistening to events
 	
 	    var that = this;
@@ -57979,7 +58030,7 @@
 	      },
 	
 	      onEnd: function onEnd() {
-	        _this5.setState({ isDragging: false });
+	        _this6.setState({ isDragging: false });
 	      }
 	    });
 	
@@ -58031,13 +58082,13 @@
 	    this.setState({ isMouseInRenderer: false });
 	  },
 	  render: function render() {
-	    var _props7 = this.props,
-	        renderTree = _props7.renderTree,
-	        activeComponentId = _props7.activeComponentId,
-	        hoveredComponentId = _props7.hoveredComponentId,
-	        width = _props7.width,
-	        setRendererWidth = _props7.setRendererWidth,
-	        actions = _props7.actions;
+	    var _props8 = this.props,
+	        renderTree = _props8.renderTree,
+	        activeComponentId = _props8.activeComponentId,
+	        hoveredComponentId = _props8.hoveredComponentId,
+	        width = _props8.width,
+	        setRendererWidth = _props8.setRendererWidth,
+	        actions = _props8.actions;
 	
 	    var renderer = void 0;
 	
@@ -58359,6 +58410,7 @@
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 	
 	var LARGE_TEXT = _constants.fieldTypes.LARGE_TEXT,
+	    TEXT = _constants.fieldTypes.TEXT,
 	    NUMBER = _constants.fieldTypes.NUMBER,
 	    COLOR = _constants.fieldTypes.COLOR,
 	    DROPDOWN = _constants.fieldTypes.DROPDOWN;
@@ -58384,6 +58436,11 @@
 	    key: 'margin',
 	    fieldType: NUMBER,
 	    autoCompleteItems: spacingScale
+	  },
+	  textDecoration: {
+	    key: 'textDecoration',
+	    fieldType: DROPDOWN,
+	    choices: ['none', 'underline', 'overline', 'line-through']
 	  },
 	  padding: {
 	    key: 'padding',
@@ -58433,6 +58490,7 @@
 	    choices: ['flex-start', 'flex-end', 'center', 'baseline', 'stretch']
 	  },
 	  text: { key: 'text', fieldType: LARGE_TEXT },
+	  listItems: { key: 'listItems', fieldType: LARGE_TEXT },
 	  borderWidth: {
 	    key: 'borderWidth',
 	    fieldType: NUMBER
@@ -58455,14 +58513,24 @@
 	    fieldType: DROPDOWN,
 	    choices: ['visible', 'hidden', 'scroll', 'auto']
 	  },
+	  display: {
+	    key: 'display',
+	    fieldType: DROPDOWN,
+	    choices: ['inline', 'inline-block', 'block']
+	  },
 	  fontFamily: {
 	    key: 'fontFamily',
 	    fieldType: DROPDOWN,
-	    choices: ['Arial', 'Helvetica', 'Sans-serif', 'Georgia', 'Serif', 'Courier', 'Monospace', 'Monaco'
+	    choices: ['Arial', 'Helvetica', 'Sans-serif', 'Georgia', 'Serif', 'Courier', 'Monospace', 'Monaco', 'Fira Sans', 'Playfair Display'
 	    /*
 	       TD: Allow import of fonts through goog fonts. And font search
 	     */
 	    ]
+	  },
+	  listStyleType: {
+	    key: 'listStyleType',
+	    fieldType: DROPDOWN,
+	    choices: ['none', 'disc', 'circle', 'square', 'decimal']
 	  },
 	  fontStyle: {
 	    key: 'fontStyle',
@@ -58482,6 +58550,10 @@
 	    fieldType: DROPDOWN,
 	    choices: ['left', 'right', 'center', 'justify', 'justify-all', 'start', 'end', 'match-parent']
 	  },
+	  href: {
+	    key: 'href',
+	    fieldType: TEXT
+	  },
 	  lineHeight: {
 	    key: 'lineHeight',
 	    fieldType: NUMBER
@@ -58492,11 +58564,11 @@
 	  }
 	};
 	
-	var textFields = [allFields.fontFamily, allFields.fontStyle, allFields.fontSize, allFields.fontWeight, allFields.textAlign, allFields.lineHeight, allFields.color];
+	var textFields = [allFields.fontFamily, allFields.fontStyle, allFields.fontSize, allFields.fontWeight, allFields.textAlign, allFields.lineHeight, allFields.textDecoration, allFields.color];
 	
-	var defaultFields = [allFields.position, allFields.margin, allFields.padding, allFields.height, allFields.minHeight, allFields.maxHeight, allFields.width, allFields.minWidth, allFields.maxWidth, allFields.backgroundColor, allFields.borderWidth, allFields.borderStyle, allFields.borderColor, allFields.borderRadius];
+	var defaultFields = [allFields.display, allFields.position, allFields.margin, allFields.padding, allFields.height, allFields.minHeight, allFields.maxHeight, allFields.width, allFields.minWidth, allFields.maxWidth, allFields.backgroundColor, allFields.borderWidth, allFields.borderStyle, allFields.borderColor, allFields.borderRadius];
 	
-	var fields = (_fields = {}, _defineProperty(_fields, _constants.componentTypes.CONTAINER, [].concat(defaultFields, [allFields.flexDirection, allFields.justifyContent, allFields.alignItems, allFields.overflow])), _defineProperty(_fields, _constants.componentTypes.HEADER, [].concat(defaultFields, [allFields.text], textFields)), _defineProperty(_fields, _constants.componentTypes.TEXT, [].concat(defaultFields, [allFields.text], textFields)), _defineProperty(_fields, _constants.componentTypes.IMAGE, [].concat(defaultFields, [allFields.text])), _fields);
+	var fields = (_fields = {}, _defineProperty(_fields, _constants.componentTypes.CONTAINER, [].concat(defaultFields, [allFields.flexDirection, allFields.justifyContent, allFields.alignItems, allFields.listStyleType, allFields.overflow])), _defineProperty(_fields, _constants.componentTypes.HEADER, [].concat(defaultFields, [allFields.text], textFields)), _defineProperty(_fields, _constants.componentTypes.TEXT, [].concat(defaultFields, [allFields.text], textFields)), _defineProperty(_fields, _constants.componentTypes.IMAGE, [].concat(defaultFields)), _defineProperty(_fields, _constants.componentTypes.LINK, [].concat(defaultFields, textFields, [allFields.href, allFields.text])), _fields);
 	
 	var Attributes = _react2.default.createClass({
 	  displayName: 'Attributes',
@@ -58764,7 +58836,7 @@
 	          actions.setComponentAttribute(componentId, attrKey, color);
 	        }
 	      });
-	    } else if (fieldData.fieldType === _constants.fieldTypes.NUMBER) {
+	    } else if (fieldData.fieldType === _constants.fieldTypes.NUMBER || fieldData.fieldType === _constants.fieldTypes.TEXT) {
 	      field = _react2.default.createElement(_TextField2.default, {
 	        value: attrVal,
 	        attrKey: attrKey,

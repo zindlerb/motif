@@ -16,6 +16,7 @@ import {
 
 const {
   LARGE_TEXT,
+  TEXT,
   NUMBER,
   COLOR,
   DROPDOWN
@@ -49,6 +50,16 @@ const allFields = {
     key: 'margin',
     fieldType: NUMBER,
     autoCompleteItems: spacingScale
+  },
+  textDecoration: {
+    key: 'textDecoration',
+    fieldType: DROPDOWN,
+    choices: [
+      'none',
+      'underline',
+      'overline',
+      'line-through'
+    ]
   },
   padding: {
     key: 'padding',
@@ -98,6 +109,7 @@ const allFields = {
     choices: ['flex-start', 'flex-end', 'center', 'baseline', 'stretch']
   },
   text: { key: 'text', fieldType: LARGE_TEXT },
+  listItems: { key: 'listItems', fieldType: LARGE_TEXT },
   borderWidth: {
     key: 'borderWidth',
     fieldType: NUMBER,
@@ -136,6 +148,15 @@ const allFields = {
       'auto'
     ]
   },
+  display: {
+    key: 'display',
+    fieldType: DROPDOWN,
+    choices: [
+      'inline',
+      'inline-block',
+      'block',
+    ]
+  },
   fontFamily: {
     key: 'fontFamily',
     fieldType: DROPDOWN,
@@ -147,10 +168,23 @@ const allFields = {
       'Serif',
       'Courier',
       'Monospace',
-      'Monaco'
+      'Monaco',
+      'Fira Sans',
+      'Playfair Display'
       /*
          TD: Allow import of fonts through goog fonts. And font search
        */
+    ]
+  },
+  listStyleType: {
+    key: 'listStyleType',
+    fieldType: DROPDOWN,
+    choices: [
+      'none',
+      'disc',
+      'circle',
+      'square',
+      'decimal',
     ]
   },
   fontStyle: {
@@ -184,6 +218,10 @@ const allFields = {
       'match-parent'
     ]
   },
+  href: {
+    key: 'href',
+    fieldType: TEXT
+  },
   lineHeight: {
     key: 'lineHeight',
     fieldType: NUMBER
@@ -201,10 +239,12 @@ const textFields = [
   allFields.fontWeight,
   allFields.textAlign,
   allFields.lineHeight,
-  allFields.color
+  allFields.textDecoration,
+  allFields.color,
 ];
 
 const defaultFields = [
+  allFields.display,
   allFields.position,
   allFields.margin,
   allFields.padding,
@@ -227,6 +267,7 @@ const fields = {
     allFields.flexDirection,
     allFields.justifyContent,
     allFields.alignItems,
+    allFields.listStyleType,
     allFields.overflow
   ],
   [componentTypes.HEADER]: [
@@ -241,6 +282,11 @@ const fields = {
   ],
   [componentTypes.IMAGE]: [
     ...defaultFields,
+  ],
+  [componentTypes.LINK]: [
+    ...defaultFields,
+    ...textFields,
+    allFields.href,
     allFields.text
   ]
 };

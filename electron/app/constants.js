@@ -1,3 +1,5 @@
+export const VERSION_NUMBER = '0.1';
+
 export const dragTypes = {
   ADD_COMPONENT: 'ADD_COMPONENT',
   MOVE_COMPONENT: 'MOVE_COMPONENT'
@@ -33,6 +35,7 @@ export const componentTypes = {
   HEADER: 'HEADER',
   TEXT: 'TEXT',
   IMAGE: 'IMAGE',
+  LINK: 'LINK'
 }
 
 export const SIDEBAR_WIDTH = 220;
