@@ -96,7 +96,8 @@ const AttributeField = React.createClass({
               }}
         />
       );
-    } else if (fieldData.fieldType === fieldTypes.NUMBER || fieldData.fieldType === fieldTypes.TEXT) {
+    } else if (fieldData.fieldType === fieldTypes.NUMBER ||
+               fieldData.fieldType === fieldTypes.TEXT) {
       field = (
         <TextField
             value={attrVal}

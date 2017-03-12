@@ -21,7 +21,9 @@ const EditorView = React.createClass({
         <Sidebar direction="left">
           <EditorLeftPanel actions={actions} />
         </Sidebar>
-        <div className="flex-auto flex flex-column h-100 mh4 relative">
+        <div
+            onClick={() => actions.selectComponent(undefined)}
+            className="flex-auto flex flex-column h-100 mh4 relative">
           <ViewChoiceDropdown
               mainView={currentMainView}
               actions={actions}

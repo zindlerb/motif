@@ -160,12 +160,19 @@ body {
   margin-right: auto;
 }
 
+/* View Modes */
+.static-view-border * {
+  outline: 1px solid gray;
+}
+
 .active-component {
-  border: 3px solid $bright !important;
+  outline: 2px solid $bright !important;
+  box-shadow: 1px 1px 3px #888888;
 }
 
 .hovered-component {
-  border: 3px solid $potential-highlight !important;
+  outline: 2px solid #ffc7af !important;
+  box-shadow: 1px 1px 3px #888888;
 }
 
 .treeItem.isHovered:not(.root) {
@@ -187,10 +194,7 @@ body {
   margin: 5px !important;
 }
 
-/* View Modes */
-.static-view-border * {
-  outline: 1px solid gray;
-}
+
 
 .list {
   position: relative;

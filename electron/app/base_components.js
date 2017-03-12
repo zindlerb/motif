@@ -499,7 +499,13 @@ export class ComponentsContainer {
 
       let children = [];
       componentJs.childIds.forEach((id, ind) => {
-        children.push(ComponentsContainer.getRenderTree(componentsMap, id, context, ind, componentJs));
+        children.push(ComponentsContainer.getRenderTree(
+          componentsMap,
+          id,
+          context,
+          ind,
+          componentJs
+        ));
       });
       componentJs.children = children;
 

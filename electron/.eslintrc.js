@@ -50,7 +50,8 @@ module.exports = {
     "arrow-body-style": 0,
     "spaced-comment": 0,
     "semi": 0,
-    "react/jsx-boolean-value": 0
+    "react/jsx-boolean-value": 0,
+    "consistent-return": 0
   },
   "env": {
     "browser": true,

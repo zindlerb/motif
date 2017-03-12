@@ -123,8 +123,7 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var Menu = _electron.remote.Menu,
-	    dialog = _electron.remote.dialog;
+	var Menu = _electron.remote.Menu;
 	
 	
 	var App = _react2.default.createClass({
@@ -133,7 +132,6 @@
 	    var _this = this;
 	
 	    var actions = this.props.actions;
-	
 	
 	    var reloadDirname = '/Users/brianzindler/Documents/reload';
 	
@@ -180,7 +178,7 @@
 	        click: function click() {
 	          actions.redo();
 	        }
-	      }]
+	      }, { label: 'Cut', accelerator: 'CmdOrCtrl+X', selector: 'cut:' }, { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' }, { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' }]
 	    }];
 	
 	    var menu = Menu.buildFromTemplate(template);
@@ -22688,12 +22686,12 @@
 	  // TD: dynamically set initial renderer width
 	  editorView: {
 	    currentPageId: undefined,
-	    rendererWidth: 200
+	    rendererWidth: 350
 	  },
 	
 	  componentsView: {
 	    currentComponentId: _base_components.header.get('id'),
-	    rendererWidth: 200
+	    rendererWidth: 350
 	  },
 	
 	  fileMetadata: {},
@@ -45645,10 +45643,12 @@
 	  }).set('componentsMap', newComponentsMap).set('activeComponentId', variantId);
 	}), _defineProperty(_componentTreeReducer, SET_COMPONENT_ATTRIBUTE, function (state, action) {
 	  return state.update('componentsMap', function (componentsMap) {
-	    return _base_components.ComponentsContainer.setAttribute(componentsMap, action.componentId, action.attrKey, action.newAttrValue, {
+	    var newComponentMap = _base_components.ComponentsContainer.setAttribute(componentsMap, action.componentId, action.attrKey, action.newAttrValue, {
 	      breakpoint: state.get('activeComponentBreakpoint'),
 	      state: state.get('activeComponentState')
 	    });
+	
+	    return newComponentMap;
 	  });
 	}), _defineProperty(_componentTreeReducer, UNHOVER_COMPONENT, function (state) {
 	  return state.set('hoveredComponentId', undefined);
@@ -57258,7 +57258,11 @@
 	      ),
 	      _react2.default.createElement(
 	        'div',
-	        { className: 'flex-auto flex flex-column h-100 mh4 relative' },
+	        {
+	          onClick: function onClick() {
+	            return actions.selectComponent(undefined);
+	          },
+	          className: 'flex-auto flex flex-column h-100 mh4 relative' },
 	        _react2.default.createElement(_ViewChoiceDropdown2.default, {
 	          mainView: currentMainView,
 	          actions: actions
@@ -57480,6 +57484,7 @@
 	        return _react2.default.createElement(
 	          'li',
 	          {
+	            key: page.id,
 	            className: (0, _classnames2.default)({ highlighted: isActive }),
 	            onClick: function onClick() {
 	              actions.changePage(page.id);
@@ -57493,7 +57498,7 @@
 	    if (pageComponents.length === 0) {
 	      pageComponents.push(_react2.default.createElement(
 	        'li',
-	        { className: 'suggestion' },
+	        { key: 'ADD_PAGE', className: 'suggestion' },
 	        'Please Add a page'
 	      ));
 	    }
@@ -57673,8 +57678,6 @@
 	  value: true
 	});
 	
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-	
 	var _react = __webpack_require__(/*! react */ 4);
 	
 	var _react2 = _interopRequireDefault(_react);
@@ -57695,219 +57698,21 @@
 	
 	var _dragManager2 = _interopRequireDefault(_dragManager);
 	
-	var _base_components = __webpack_require__(/*! ../base_components */ 213);
-	
 	var _constants = __webpack_require__(/*! ../constants */ 212);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var ContainerClassReact = _react2.default.createClass({
-	  displayName: 'ContainerClassReact',
-	  getInitialState: function getInitialState() {
-	    return {
-	      isExpanded: false,
-	      isHovered: false
-	    };
-	  },
-	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    if (this.shouldExpand() && nextProps.context.isMouseInRenderer && !this.state.isExpanded) {
-	      this.setState({ isExpanded: true });
-	    }
-	
-	    if (this.state.isExpanded && !nextProps.context.isMouseInRenderer) {
-	      this.setState({ isExpanded: false });
-	    }
-	  },
-	  shouldExpand: function shouldExpand() {
-	    /*
-	    const rect = this.props.mComponentData.getRect('pageView');
-	    if (!rect) {
-	      return false;
-	    }
-	     return rect.h < 10;
-	     */
-	    return false;
-	  },
+	var MComponentDataRenderer = _react2.default.createClass({
+	  displayName: 'MComponentDataRenderer',
 	  render: function render() {
 	    var _this = this;
 	
-	    var _props = this.props,
-	        mComponentData = _props.mComponentData,
-	        context = _props.context,
-	        className = _props.className,
-	        isList = _props.isList,
-	        actions = _props.actions;
-	
-	
-	    var children = _lodash2.default.map(mComponentData.children, function (child) {
-	      return _react2.default.createElement(MComponentDataRenderer, {
-	        key: child.id,
-	        actions: actions,
-	        mComponentData: child,
-	        context: context
-	      });
-	    });
-	
-	    return _react2.default.createElement(isList ? 'ul' : 'div', {
-	      onMouseEnter: function onMouseEnter(e) {
-	        _this.props.onMouseEnter(e);
-	      },
-	      onMouseLeave: function onMouseLeave(e) {
-	        _this.props.onMouseLeave(e);
-	      },
-	      onClick: this.props.onClick,
-	      onMouseDown: this.props.onMouseDown,
-	      style: this.props.sx,
-	      className: (0, _classnames2.default)('node_' + mComponentData.id, 'expandable-element', { expanded: this.state.isExpanded }, className)
-	    }, children);
-	  }
-	});
-	
-	var LinkClassReact = _react2.default.createClass({
-	  displayName: 'LinkClassReact',
-	  render: function render() {
-	    var _this2 = this;
-	
-	    var _props2 = this.props,
-	        mComponentData = _props2.mComponentData,
-	        className = _props2.className,
-	        sx = _props2.sx,
-	        htmlProperties = _props2.htmlProperties;
-	
-	
-	    return _react2.default.createElement(
-	      'a',
-	      {
-	        onMouseEnter: function onMouseEnter(e) {
-	          _this2.props.onMouseEnter(e);
-	        },
-	        onMouseLeave: function onMouseLeave(e) {
-	          _this2.props.onMouseLeave(e);
-	        },
-	        className: (0, _classnames2.default)('node_' + mComponentData.id, className),
-	        onMouseDown: this.props.onMouseDown,
-	        style: sx,
-	        href: htmlProperties.href
-	      },
-	      htmlProperties.text
-	    );
-	  }
-	});
-	
-	var HeaderClassReact = _react2.default.createClass({
-	  displayName: 'HeaderClassReact',
-	  render: function render() {
-	    var _this3 = this;
-	
-	    var _props3 = this.props,
-	        mComponentData = _props3.mComponentData,
-	        className = _props3.className,
-	        sx = _props3.sx,
-	        htmlProperties = _props3.htmlProperties;
-	
-	    return _react2.default.createElement(
-	      'h1',
-	      {
-	        onMouseEnter: function onMouseEnter(e) {
-	          _this3.props.onMouseEnter(e);
-	        },
-	        onMouseLeave: function onMouseLeave(e) {
-	          _this3.props.onMouseLeave(e);
-	        },
-	        onMouseDown: this.props.onMouseDown,
-	        style: sx,
-	        className: (0, _classnames2.default)('node_' + mComponentData.id, className),
-	        onClick: this.props.onClick
-	      },
-	      htmlProperties.text
-	    );
-	  }
-	});
-	
-	var ParagraphClassReact = _react2.default.createClass({
-	  displayName: 'ParagraphClassReact',
-	  render: function render() {
-	    var _this4 = this;
-	
-	    var _props4 = this.props,
-	        mComponentData = _props4.mComponentData,
-	        className = _props4.className;
-	
-	    return _react2.default.createElement(
-	      'p',
-	      {
-	        onMouseEnter: function onMouseEnter(e) {
-	          _this4.props.onMouseEnter(e);
-	        },
-	        onMouseLeave: function onMouseLeave(e) {
-	          _this4.props.onMouseLeave(e);
-	        },
-	        onMouseDown: this.props.onMouseDown,
-	        style: this.props.sx, className: (0, _classnames2.default)('node_' + mComponentData.id, className),
-	        onClick: this.props.onClick
-	      },
-	      this.props.htmlProperties.text
-	    );
-	  }
-	});
-	
-	var ImageClassReact = _react2.default.createClass({
-	  displayName: 'ImageClassReact',
-	  render: function render() {
-	    var _this5 = this;
-	
-	    var _props5 = this.props,
-	        mComponentData = _props5.mComponentData,
-	        className = _props5.className,
-	        sx = _props5.sx,
-	        htmlProperties = _props5.htmlProperties;
-	
-	    return _react2.default.createElement('img', {
-	      onMouseEnter: function onMouseEnter(e) {
-	        _this5.props.onMouseEnter(e);
-	      },
-	      onMouseLeave: function onMouseLeave(e) {
-	        _this5.props.onMouseLeave(e);
-	      },
-	      onMouseDown: this.props.onMouseDown,
-	      style: sx,
-	      className: (0, _classnames2.default)('node_' + mComponentData.id, className),
-	      src: htmlProperties.src,
-	      onClick: this.props.onClick
-	    });
-	  }
-	});
-	
-	var MComponentDataRenderer = _react2.default.createClass({
-	  displayName: 'MComponentDataRenderer',
-	  getInitialState: function getInitialState() {
-	    return {
-	      isHovered: false
-	    };
-	  },
-	  getComponentState: function getComponentState() {
-	    if (this.state.isHovered) {
-	      return _base_components.attributeStateTypes.HOVER;
-	    } else {
-	      return _base_components.attributeStateTypes.DEFAULT;
-	    }
-	  },
-	  setHovered: function setHovered() {
-	    this.props.actions.hoverComponent(this.props.mComponentData);
-	    this.setState({ isHovered: true });
-	  },
-	  resetHovered: function resetHovered() {
-	    this.props.actions.unHoverComponent();
-	    this.setState({ isHovered: false });
-	  },
-	  render: function render() {
 	    /* TD: expand for custom components */
-	    var className = void 0,
-	        component = void 0;
-	    var _props6 = this.props,
-	        context = _props6.context,
-	        mComponentData = _props6.mComponentData,
-	        actions = _props6.actions;
+	    var component = void 0;
+	    var _props = this.props,
+	        context = _props.context,
+	        mComponentData = _props.mComponentData,
+	        actions = _props.actions;
 	    var hoveredComponentId = context.hoveredComponentId,
 	        activeComponentId = context.activeComponentId;
 	    var htmlProperties = mComponentData.htmlProperties,
@@ -57916,72 +57721,43 @@
 	
 	
 	    var isActiveComponent = activeComponentId === mComponentData.id;
-	
-	    className = {
-	      'c-pointer': true,
-	      'active-component': isActiveComponent,
-	      'hovered-component': !isActiveComponent && hoveredComponentId === mComponentData.id
-	    };
-	
-	    var onClick = function onClick(e) {
-	      actions.selectComponent(mComponentData.id);
-	      e.stopPropagation();
-	      e.preventDefault();
-	    };
+	    var componentProps = Object.assign({
+	      className: (0, _classnames2.default)('node_' + mComponentData.id, 'c-pointer', {
+	        'active-component': isActiveComponent,
+	        'hovered-component': !isActiveComponent && hoveredComponentId === mComponentData.id
+	      }),
+	      onMouseEnter: function onMouseEnter() {
+	        //TD: test that this works
+	        actions.hoverComponent(_this.props.mComponentData.id);
+	      },
+	      onMouseLeave: function onMouseLeave() {
+	        actions.unHoverComponent();
+	      },
+	      onClick: function onClick(e) {
+	        actions.selectComponent(mComponentData.id);
+	        e.stopPropagation();
+	        e.preventDefault();
+	      },
+	      style: sx
+	    }, this.props);
 	
 	    if (componentType === _constants.componentTypes.LINK) {
-	      component = _react2.default.createElement(LinkClassReact, _extends({
-	        className: className,
-	        actions: this.props.actions,
-	        onMouseEnter: this.setHovered,
-	        onMouseLeave: this.resetHovered,
-	        onClick: onClick
-	      }, this.props, {
-	        htmlProperties: htmlProperties,
-	        sx: sx
-	      }));
+	      component = _react2.default.createElement('a', Object.assign({ href: htmlProperties.href }, componentProps), htmlProperties.text);
 	    } else if (componentType === _constants.componentTypes.CONTAINER) {
-	      component = _react2.default.createElement(ContainerClassReact, _extends({
-	        isList: mComponentData.sx.listStyleType !== 'none',
-	        className: className,
-	        actions: this.props.actions,
-	        onMouseEnter: this.setHovered,
-	        onMouseLeave: this.resetHovered,
-	        onClick: onClick
-	      }, this.props, {
-	        htmlProperties: htmlProperties,
-	        sx: sx
+	      component = _react2.default.createElement(sx.listStyleType !== 'none' ? 'ul' : 'div', componentProps, _lodash2.default.map(mComponentData.children, function (child) {
+	        return _react2.default.createElement(MComponentDataRenderer, {
+	          key: child.id,
+	          actions: actions,
+	          mComponentData: child,
+	          context: context
+	        });
 	      }));
 	    } else if (componentType === _constants.componentTypes.HEADER) {
-	      component = _react2.default.createElement(HeaderClassReact, _extends({
-	        className: className,
-	        onMouseEnter: this.setHovered,
-	        onMouseLeave: this.resetHovered,
-	        onClick: onClick
-	      }, this.props, {
-	        htmlProperties: htmlProperties,
-	        sx: sx
-	      }));
+	      component = _react2.default.createElement('h1', componentProps, htmlProperties.text);
 	    } else if (componentType === _constants.componentTypes.TEXT) {
-	      component = _react2.default.createElement(ParagraphClassReact, _extends({
-	        className: className,
-	        onMouseEnter: this.setHovered,
-	        onMouseLeave: this.resetHovered,
-	        onClick: onClick
-	      }, this.props, {
-	        htmlProperties: htmlProperties,
-	        sx: sx
-	      }));
+	      component = _react2.default.createElement('p', componentProps, htmlProperties.text);
 	    } else if (componentType === _constants.componentTypes.IMAGE) {
-	      component = _react2.default.createElement(ImageClassReact, _extends({
-	        className: className,
-	        onMouseEnter: this.setHovered,
-	        onMouseLeave: this.resetHovered,
-	        onClick: onClick
-	      }, this.props, {
-	        htmlProperties: htmlProperties,
-	        sx: sx
-	      }));
+	      component = _react2.default.createElement('img', Object.assign({ src: htmlProperties.src }, componentProps));
 	    }
 	
 	    if (mComponentData.parent && mComponentData.parent.sx.listStyleType !== 'none') {
@@ -58002,12 +57778,12 @@
 	    return {};
 	  },
 	  dragStart: function dragStart(e) {
-	    var _this6 = this;
+	    var _this2 = this;
 	
 	    var diff = void 0;
-	    var _props7 = this.props,
-	        direction = _props7.direction,
-	        rendererWidth = _props7.rendererWidth;
+	    var _props2 = this.props,
+	        direction = _props2.direction,
+	        rendererWidth = _props2.rendererWidth;
 	    // add a drag manager for listening and unlistening to events
 	
 	    var that = this;
@@ -58030,7 +57806,7 @@
 	      },
 	
 	      onEnd: function onEnd() {
-	        _this6.setState({ isDragging: false });
+	        _this2.setState({ isDragging: false });
 	      }
 	    });
 	
@@ -58082,13 +57858,13 @@
 	    this.setState({ isMouseInRenderer: false });
 	  },
 	  render: function render() {
-	    var _props8 = this.props,
-	        renderTree = _props8.renderTree,
-	        activeComponentId = _props8.activeComponentId,
-	        hoveredComponentId = _props8.hoveredComponentId,
-	        width = _props8.width,
-	        setRendererWidth = _props8.setRendererWidth,
-	        actions = _props8.actions;
+	    var _props3 = this.props,
+	        renderTree = _props3.renderTree,
+	        activeComponentId = _props3.activeComponentId,
+	        hoveredComponentId = _props3.hoveredComponentId,
+	        width = _props3.width,
+	        setRendererWidth = _props3.setRendererWidth,
+	        actions = _props3.actions;
 	
 	    var renderer = void 0;
 	
@@ -58343,7 +58119,7 @@
 	    return {
 	      componentName: _base_components.ComponentsContainer.getName(componentsMap, activeComponentId),
 	      componentType: componentsMap.getIn([activeComponentId, 'componentType']),
-	      attributes: _base_components.ComponentsContainer.getAttributes(componentsMap, activeComponentId, componentsMap, {
+	      attributes: _base_components.ComponentsContainer.getAttributes(componentsMap, activeComponentId, {
 	        state: activeComponentState,
 	        breakpoint: activeComponentBreakpoint
 	      }),
@@ -58478,7 +58254,15 @@
 	    autoCompleteItems: heightScale
 	  },
 	  backgroundColor: { key: 'backgroundColor', fieldType: COLOR },
-	  flexDirection: { key: 'flexDirection', fieldType: DROPDOWN, choices: ['row', 'column'] },
+	  flexDirection: {
+	    key: 'flexDirection',
+	    fieldType: DROPDOWN,
+	    choices: ['none', 'row', 'column']
+	  },
+	  opacity: {
+	    key: 'opacity',
+	    fieldType: NUMBER
+	  },
 	  justifyContent: {
 	    key: 'justifyContent',
 	    fieldType: DROPDOWN,
@@ -58566,7 +58350,7 @@
 	
 	var textFields = [allFields.fontFamily, allFields.fontStyle, allFields.fontSize, allFields.fontWeight, allFields.textAlign, allFields.lineHeight, allFields.textDecoration, allFields.color];
 	
-	var defaultFields = [allFields.display, allFields.position, allFields.margin, allFields.padding, allFields.height, allFields.minHeight, allFields.maxHeight, allFields.width, allFields.minWidth, allFields.maxWidth, allFields.backgroundColor, allFields.borderWidth, allFields.borderStyle, allFields.borderColor, allFields.borderRadius];
+	var defaultFields = [allFields.opacity, allFields.display, allFields.position, allFields.margin, allFields.padding, allFields.height, allFields.minHeight, allFields.maxHeight, allFields.width, allFields.minWidth, allFields.maxWidth, allFields.backgroundColor, allFields.borderWidth, allFields.borderStyle, allFields.borderColor, allFields.borderRadius];
 	
 	var fields = (_fields = {}, _defineProperty(_fields, _constants.componentTypes.CONTAINER, [].concat(defaultFields, [allFields.flexDirection, allFields.justifyContent, allFields.alignItems, allFields.listStyleType, allFields.overflow])), _defineProperty(_fields, _constants.componentTypes.HEADER, [].concat(defaultFields, [allFields.text], textFields)), _defineProperty(_fields, _constants.componentTypes.TEXT, [].concat(defaultFields, [allFields.text], textFields)), _defineProperty(_fields, _constants.componentTypes.IMAGE, [].concat(defaultFields)), _defineProperty(_fields, _constants.componentTypes.LINK, [].concat(defaultFields, textFields, [allFields.href, allFields.text])), _fields);
 	
@@ -75168,7 +74952,7 @@
 	
 	
 	// module
-	exports.push([module.id, "/* Colors */\n/* SPACING */\n/* TYPE SCALE */\n/* Utils */\n.bright-background {\n  background-color: #f99063; }\n\n.c-pointer {\n  cursor: pointer; }\n\n.c-default {\n  cursor: default; }\n\n.c-grab {\n  cursor: -webkit-grab; }\n\n.c-grabbing {\n  cursor: -webkit-grabbing !important; }\n\n.hidden {\n  visibility: hidden !important; }\n\n.click-through {\n  pointer-events: none; }\n\n.pointer-auto {\n  pointer-events: auto; }\n\nbody * {\n  font-family: 'Fira Sans', sans-serif;\n  /* Make things not selectable */\n  -webkit-touch-callout: none;\n  /* iOS Safari */\n  -webkit-user-select: none;\n  /* Chrome/Safari/Opera */\n  -khtml-user-select: none;\n  /* Konqueror */\n  -moz-user-select: none;\n  /* Firefox */\n  -ms-user-select: none;\n  /* Internet Explorer/Edge */\n  user-select: none;\n  /* Non-prefixed version, currently\n                                  not supported by any browser */ }\n\n.highlightBottom {\n  border-bottom-width: 1px;\n  border-style: solid; }\n\n.sibling {\n  border-color: #42f4a4 !important; }\n\n.child {\n  border-color: pink !important; }\n\n.highlightBottom.before {\n  border-bottom-width: 0px;\n  border-top-width: 1px;\n  border-color: #42f4a4 !important; }\n\n.bg-lightGray {\n  background-color: lightGray; }\n\n.sidebar {\n  background-color: white;\n  border-right: 1px solid #BDBDBD;\n  border-left: 1px solid #BDBDBD; }\n  .sidebar.left {\n    box-shadow: 1px 0px 5px #cacaca; }\n  .sidebar.right {\n    box-shadow: -1px 0px 5px #cacaca; }\n\ni {\n  color: #434343; }\n\nbody {\n  background-color: #f4f4f4; }\n\n/* COMPONENTS */\n.horizontal-select {\n  border-bottom: 1px solid #BDBDBD;\n  background-color: white; }\n  .horizontal-select.border {\n    border: 1px solid #BDBDBD;\n    border-radius: 3px; }\n  .horizontal-select .icon {\n    font-size: 25px;\n    /* looks right */ }\n  .horizontal-select .img {\n    height: 20px; }\n\n.highlighted {\n  background-color: #EBEBEB; }\n\n.componentBlock {\n  /* looks right */ }\n\n.draggableShadow {\n  box-shadow: 1px 1px 3px grey; }\n\n.m-auto {\n  margin-left: auto;\n  margin-right: auto; }\n\n.active-component {\n  border: 3px solid #f99063 !important; }\n\n.hovered-component {\n  border: 3px solid #f5f5f5 !important; }\n\n.treeItem.isHovered:not(.root) {\n  background-color: #f5f5f5; }\n\n.treeItem.isActive {\n  background-color: #EBEBEB; }\n\n.expandable-element {\n  /* height: 0px; */\n  /* -webkit-transition: 500ms; */\n  /* transition: height 500ms; */ }\n\n.expandable-element.expanded {\n  height: 30px !important;\n  margin: 5px !important; }\n\n/* View Modes */\n.static-view-border * {\n  outline: 1px solid gray; }\n\n.list {\n  position: relative; }\n\n.editSymbol {\n  position: absolute;\n  right: 8px; }\n\n.cartoon-button {\n  font-size: 0.875rem;\n  padding: 0.25rem 0.5rem;\n  position: relative;\n  display: inline-block;\n  border-radius: 8px;\n  background: #F2F2F2;\n  box-shadow: 0 3px #B3B3B3;\n  border: 1px solid #C3C3C3;\n  cursor: pointer; }\n  .cartoon-button.medium {\n    font-size: 1.5rem;\n    padding: 0.5rem 1rem; }\n  .cartoon-button.disabled {\n    opacity: .45; }\n\n.cartoon-button:not(.disabled):hover {\n  top: 1px;\n  box-shadow: 0 2px #B3B3B3; }\n\n.cartoon-button:not(.disabled):active {\n  top: 3px;\n  box-shadow: 0 0px #B3B3B3; }\n\n.cartoon-button:focus {\n  outline: 0; }\n\n.page-item.highlighted:hover {\n  background-color: #EBEBEB; }\n\n.page-item:hover {\n  background-color: #f5f5f5; }\n\n.f7 {\n  font-size: .75rem; }\n\n.justify-center {\n  justify-content: center; }\n\n.align-center {\n  align-items: center; }\n\n.drag-handle {\n  outline-width: 0px;\n  position: absolute;\n  top: 40%;\n  transform: translateY(-50%);\n  z-index: 0; }\n\n.root-component {\n  outline: 0px solid gray !important; }\n\n/* COMPONENTS */\n/* Menu */\n.component-menu, .autocomplete {\n  border: 1px solid #BDBDBD;\n  border-radius: 3px;\n  box-shadow: 1px 1px 3px #BDBDBD;\n  background-color: white; }\n  .component-menu li.disabled > span, .autocomplete li.disabled > span {\n    opacity: .3; }\n  .component-menu li, .autocomplete li {\n    font-size: 0.75rem;\n    border-bottom: 1px solid #BDBDBD;\n    cursor: pointer;\n    padding: 0.25rem; }\n  .component-menu li:not(.disabled):hover, .autocomplete li:not(.disabled):hover {\n    opacity: .9;\n    background-color: #EBEBEB; }\n  .component-menu li:last-child, .autocomplete li:last-child {\n    border-bottom: 0px; }\n\n.autocomplete {\n  max-height: 300px;\n  overflow: auto; }\n\n/* TD: combine with modal card */\n.card {\n  padding: 2rem;\n  height: 85%;\n  background-color: white;\n  border-radius: 24px;\n  border: 1px solid #888888;\n  box-shadow: 1px 1px 5px #888888; }\n\n.modal-card {\n  left: 50%;\n  top: 30%;\n  position: absolute;\n  background: white;\n  width: 32rem;\n  border: 1px solid black;\n  box-shadow: 1px 1px 1px black;\n  padding: 2rem 0.5rem;\n  border-radius: 24px;\n  /* bring your own prefixes */\n  transform: translate(-50%, -50%); }\n\n.dark-background {\n  position: absolute;\n  left: 0px;\n  top: 0px;\n  width: 100%;\n  height: 100%;\n  background-color: rgba(0, 0, 0, 0.85); }\n\n.asset-icon {\n  position: relative;\n  width: 100px;\n  margin: 1rem; }\n  .asset-icon img {\n    width: 100px;\n    height: 100px; }\n  .asset-icon i {\n    cursor: pointer; }\n  .asset-icon .asset-edit-bar {\n    position: absolute;\n    height: 20px;\n    top: 80px;\n    opacity: .85;\n    background-color: #E4E4E4;\n    width: 100%; }\n\n.editable-text:hover {\n  border: 1px solid #f2f2f2;\n  opacity: .75; }\n\n.icon-small {\n  width: 10px; }\n\n.popup-select .page-blanket {\n  cursor: default;\n  position: fixed;\n  top: 0px;\n  left: 0px;\n  height: 100%;\n  width: 100%;\n  z-index: 49; }\n\n.popup-select .up-arrow {\n  z-index: 51;\n  display: inline-block;\n  line-height: 0.7;\n  text-shadow: 0px -2px 0px #BDBDBD, 0px -2px 2px #BDBDBD;\n  transform: translateX(-50%) scale(2, 1);\n  color: white; }\n\n.popup {\n  z-index: 50;\n  background-color: white;\n  border-radius: 3px;\n  border: 1px solid #BDBDBD;\n  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);\n  transform: translateX(-50%); }\n  .popup ul {\n    font-size: 1rem;\n    padding: 0.5rem 0px; }\n  .popup i {\n    font-size: 18px;\n    margin-right: 0.5rem;\n    margin-top: 0.5rem; }\n  .popup li {\n    cursor: pointer;\n    padding: 0.25rem 1rem; }\n  .popup li:not(.highlighted):hover {\n    background-color: #f5f5f5; }\n\n.renderer-container {\n  background-color: white;\n  border: 1px solid #BDBDBD;\n  min-height: 200px; }\n\n.spacer {\n  /*\n-webkit-transition: margin-top .5s, border-width .5s;\ntransition: margin-top .5s, border-width .5s;\n */ }\n\n.hint {\n  color: #A2A2A2; }\n\n.unselected {\n  color: #adadad; }\n\n.state-dropdown {\n  width: 6rem; }\n\n.collapsableArrow {\n  display: inline-block;\n  -webkit-transition: -webkit-transform .5s; }\n  .collapsableArrow.open {\n    -webkit-transform: rotate(90deg); }\n\n.f-grow {\n  flex: 1 1; }\n\n.top-index {\n  z-index: 100; }\n\n.error-banner {\n  z-index: 100;\n  position: absolute;\n  left: 0px;\n  top: 0px;\n  width: 100%;\n  text-align: center;\n  background-color: #da6d6d;\n  padding: 0.5rem 0px; }\n  .error-banner .fa-times {\n    color: black; }\n\n.clickable:hover {\n  opacity: .75;\n  cursor: pointer; }\n", ""]);
+	exports.push([module.id, "/* Colors */\n/* SPACING */\n/* TYPE SCALE */\n/* Utils */\n.bright-background {\n  background-color: #f99063; }\n\n.c-pointer {\n  cursor: pointer; }\n\n.c-default {\n  cursor: default; }\n\n.c-grab {\n  cursor: -webkit-grab; }\n\n.c-grabbing {\n  cursor: -webkit-grabbing !important; }\n\n.hidden {\n  visibility: hidden !important; }\n\n.click-through {\n  pointer-events: none; }\n\n.pointer-auto {\n  pointer-events: auto; }\n\nbody * {\n  font-family: 'Fira Sans', sans-serif;\n  /* Make things not selectable */\n  -webkit-touch-callout: none;\n  /* iOS Safari */\n  -webkit-user-select: none;\n  /* Chrome/Safari/Opera */\n  -khtml-user-select: none;\n  /* Konqueror */\n  -moz-user-select: none;\n  /* Firefox */\n  -ms-user-select: none;\n  /* Internet Explorer/Edge */\n  user-select: none;\n  /* Non-prefixed version, currently\n                                  not supported by any browser */ }\n\n.highlightBottom {\n  border-bottom-width: 1px;\n  border-style: solid; }\n\n.sibling {\n  border-color: #42f4a4 !important; }\n\n.child {\n  border-color: pink !important; }\n\n.highlightBottom.before {\n  border-bottom-width: 0px;\n  border-top-width: 1px;\n  border-color: #42f4a4 !important; }\n\n.bg-lightGray {\n  background-color: lightGray; }\n\n.sidebar {\n  background-color: white;\n  border-right: 1px solid #BDBDBD;\n  border-left: 1px solid #BDBDBD; }\n  .sidebar.left {\n    box-shadow: 1px 0px 5px #cacaca; }\n  .sidebar.right {\n    box-shadow: -1px 0px 5px #cacaca; }\n\ni {\n  color: #434343; }\n\nbody {\n  background-color: #f4f4f4; }\n\n/* COMPONENTS */\n.horizontal-select {\n  border-bottom: 1px solid #BDBDBD;\n  background-color: white; }\n  .horizontal-select.border {\n    border: 1px solid #BDBDBD;\n    border-radius: 3px; }\n  .horizontal-select .icon {\n    font-size: 25px;\n    /* looks right */ }\n  .horizontal-select .img {\n    height: 20px; }\n\n.highlighted {\n  background-color: #EBEBEB; }\n\n.componentBlock {\n  /* looks right */ }\n\n.draggableShadow {\n  box-shadow: 1px 1px 3px grey; }\n\n.m-auto {\n  margin-left: auto;\n  margin-right: auto; }\n\n/* View Modes */\n.static-view-border * {\n  outline: 1px solid gray; }\n\n.active-component {\n  outline: 2px solid #f99063 !important;\n  box-shadow: 1px 1px 3px #888888; }\n\n.hovered-component {\n  outline: 2px solid #ffc7af !important;\n  box-shadow: 1px 1px 3px #888888; }\n\n.treeItem.isHovered:not(.root) {\n  background-color: #f5f5f5; }\n\n.treeItem.isActive {\n  background-color: #EBEBEB; }\n\n.expandable-element {\n  /* height: 0px; */\n  /* -webkit-transition: 500ms; */\n  /* transition: height 500ms; */ }\n\n.expandable-element.expanded {\n  height: 30px !important;\n  margin: 5px !important; }\n\n.list {\n  position: relative; }\n\n.editSymbol {\n  position: absolute;\n  right: 8px; }\n\n.cartoon-button {\n  font-size: 0.875rem;\n  padding: 0.25rem 0.5rem;\n  position: relative;\n  display: inline-block;\n  border-radius: 8px;\n  background: #F2F2F2;\n  box-shadow: 0 3px #B3B3B3;\n  border: 1px solid #C3C3C3;\n  cursor: pointer; }\n  .cartoon-button.medium {\n    font-size: 1.5rem;\n    padding: 0.5rem 1rem; }\n  .cartoon-button.disabled {\n    opacity: .45; }\n\n.cartoon-button:not(.disabled):hover {\n  top: 1px;\n  box-shadow: 0 2px #B3B3B3; }\n\n.cartoon-button:not(.disabled):active {\n  top: 3px;\n  box-shadow: 0 0px #B3B3B3; }\n\n.cartoon-button:focus {\n  outline: 0; }\n\n.page-item.highlighted:hover {\n  background-color: #EBEBEB; }\n\n.page-item:hover {\n  background-color: #f5f5f5; }\n\n.f7 {\n  font-size: .75rem; }\n\n.justify-center {\n  justify-content: center; }\n\n.align-center {\n  align-items: center; }\n\n.drag-handle {\n  outline-width: 0px;\n  position: absolute;\n  top: 40%;\n  transform: translateY(-50%);\n  z-index: 0; }\n\n.root-component {\n  outline: 0px solid gray !important; }\n\n/* COMPONENTS */\n/* Menu */\n.component-menu, .autocomplete {\n  border: 1px solid #BDBDBD;\n  border-radius: 3px;\n  box-shadow: 1px 1px 3px #BDBDBD;\n  background-color: white; }\n  .component-menu li.disabled > span, .autocomplete li.disabled > span {\n    opacity: .3; }\n  .component-menu li, .autocomplete li {\n    font-size: 0.75rem;\n    border-bottom: 1px solid #BDBDBD;\n    cursor: pointer;\n    padding: 0.25rem; }\n  .component-menu li:not(.disabled):hover, .autocomplete li:not(.disabled):hover {\n    opacity: .9;\n    background-color: #EBEBEB; }\n  .component-menu li:last-child, .autocomplete li:last-child {\n    border-bottom: 0px; }\n\n.autocomplete {\n  max-height: 300px;\n  overflow: auto; }\n\n/* TD: combine with modal card */\n.card {\n  padding: 2rem;\n  height: 85%;\n  background-color: white;\n  border-radius: 24px;\n  border: 1px solid #888888;\n  box-shadow: 1px 1px 5px #888888; }\n\n.modal-card {\n  left: 50%;\n  top: 30%;\n  position: absolute;\n  background: white;\n  width: 32rem;\n  border: 1px solid black;\n  box-shadow: 1px 1px 1px black;\n  padding: 2rem 0.5rem;\n  border-radius: 24px;\n  /* bring your own prefixes */\n  transform: translate(-50%, -50%); }\n\n.dark-background {\n  position: absolute;\n  left: 0px;\n  top: 0px;\n  width: 100%;\n  height: 100%;\n  background-color: rgba(0, 0, 0, 0.85); }\n\n.asset-icon {\n  position: relative;\n  width: 100px;\n  margin: 1rem; }\n  .asset-icon img {\n    width: 100px;\n    height: 100px; }\n  .asset-icon i {\n    cursor: pointer; }\n  .asset-icon .asset-edit-bar {\n    position: absolute;\n    height: 20px;\n    top: 80px;\n    opacity: .85;\n    background-color: #E4E4E4;\n    width: 100%; }\n\n.editable-text:hover {\n  border: 1px solid #f2f2f2;\n  opacity: .75; }\n\n.icon-small {\n  width: 10px; }\n\n.popup-select .page-blanket {\n  cursor: default;\n  position: fixed;\n  top: 0px;\n  left: 0px;\n  height: 100%;\n  width: 100%;\n  z-index: 49; }\n\n.popup-select .up-arrow {\n  z-index: 51;\n  display: inline-block;\n  line-height: 0.7;\n  text-shadow: 0px -2px 0px #BDBDBD, 0px -2px 2px #BDBDBD;\n  transform: translateX(-50%) scale(2, 1);\n  color: white; }\n\n.popup {\n  z-index: 50;\n  background-color: white;\n  border-radius: 3px;\n  border: 1px solid #BDBDBD;\n  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);\n  transform: translateX(-50%); }\n  .popup ul {\n    font-size: 1rem;\n    padding: 0.5rem 0px; }\n  .popup i {\n    font-size: 18px;\n    margin-right: 0.5rem;\n    margin-top: 0.5rem; }\n  .popup li {\n    cursor: pointer;\n    padding: 0.25rem 1rem; }\n  .popup li:not(.highlighted):hover {\n    background-color: #f5f5f5; }\n\n.renderer-container {\n  background-color: white;\n  border: 1px solid #BDBDBD;\n  min-height: 200px; }\n\n.spacer {\n  /*\n-webkit-transition: margin-top .5s, border-width .5s;\ntransition: margin-top .5s, border-width .5s;\n */ }\n\n.hint {\n  color: #A2A2A2; }\n\n.unselected {\n  color: #adadad; }\n\n.state-dropdown {\n  width: 6rem; }\n\n.collapsableArrow {\n  display: inline-block;\n  -webkit-transition: -webkit-transform .5s; }\n  .collapsableArrow.open {\n    -webkit-transform: rotate(90deg); }\n\n.f-grow {\n  flex: 1 1; }\n\n.top-index {\n  z-index: 100; }\n\n.error-banner {\n  z-index: 100;\n  position: absolute;\n  left: 0px;\n  top: 0px;\n  width: 100%;\n  text-align: center;\n  background-color: #da6d6d;\n  padding: 0.5rem 0px; }\n  .error-banner .fa-times {\n    color: black; }\n\n.clickable:hover {\n  opacity: .75;\n  cursor: pointer; }\n", ""]);
 	
 	// exports
 

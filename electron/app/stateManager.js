@@ -20,8 +20,6 @@ import {
   ComponentsContainer,
   container,
   header,
-  text,
-  image,
   defaultComponentsMap
 } from './base_components';
 
@@ -52,12 +50,12 @@ let initialState = Immutable.fromJS({
   // TD: dynamically set initial renderer width
   editorView: {
     currentPageId: undefined,
-    rendererWidth: 200,
+    rendererWidth: 350,
   },
 
   componentsView: {
     currentComponentId: header.get('id'),
-    rendererWidth: 200,
+    rendererWidth: 350,
   },
 
   fileMetadata: {},

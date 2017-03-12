@@ -148,6 +148,9 @@ describe('getAllAttrs', () => {
     defaultAttributes: {
       backgroundColor: 'red',
       text: 'hi'
+    },
+    states: {
+      [HOVER]: { backgroundColor: 'tomato' }
     }
   });
 

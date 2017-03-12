@@ -97,7 +97,15 @@ const allFields = {
     autoCompleteItems: heightScale
   },
   backgroundColor: { key: 'backgroundColor', fieldType: COLOR },
-  flexDirection: { key: 'flexDirection', fieldType: DROPDOWN, choices: ['row', 'column'] },
+  flexDirection: {
+    key: 'flexDirection',
+    fieldType: DROPDOWN,
+    choices: ['none', 'row', 'column']
+  },
+  opacity: {
+    key: 'opacity',
+    fieldType: NUMBER,
+  },
   justifyContent: {
     key: 'justifyContent',
     fieldType: DROPDOWN,
@@ -244,6 +252,7 @@ const textFields = [
 ];
 
 const defaultFields = [
+  allFields.opacity,
   allFields.display,
   allFields.position,
   allFields.margin,

@@ -36,6 +36,7 @@ const PagesPopup = React.createClass({
       } else {
         return (
           <li
+              key={page.id}
               className={classnames({ highlighted: isActive })}
               onClick={() => { actions.changePage(page.id) }}
           >
@@ -47,7 +48,7 @@ const PagesPopup = React.createClass({
 
     if (pageComponents.length === 0) {
       pageComponents.push(
-        <li className="suggestion">Please Add a page</li>
+        <li key="ADD_PAGE" className="suggestion">Please Add a page</li>
       );
     }
 

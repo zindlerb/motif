@@ -5,275 +5,75 @@ import $ from 'jquery';
 
 import dragManager from '../dragManager';
 import {
-  attributeStateTypes,
-} from '../base_components';
-import {
   componentTypes,
   SIDEBAR_WIDTH
 } from '../constants';
 
-const ContainerClassReact = React.createClass({
-  getInitialState() {
-    return {
-      isExpanded: false,
-      isHovered: false
-    };
-  },
-
-  componentWillReceiveProps(nextProps) {
-    if (this.shouldExpand() && nextProps.context.isMouseInRenderer && !this.state.isExpanded) {
-      this.setState({ isExpanded: true });
-    }
-
-    if (this.state.isExpanded && !nextProps.context.isMouseInRenderer) {
-      this.setState({ isExpanded: false });
-    }
-  },
-
-  shouldExpand() {
-    /*
-    const rect = this.props.mComponentData.getRect('pageView');
-    if (!rect) {
-      return false;
-    }
-
-    return rect.h < 10;
-     */
-    return false;
-  },
-
-  render() {
-    const {
-      mComponentData,
-      context,
-      className,
-      isList,
-      actions
-    } = this.props;
-
-    const children = _.map(mComponentData.children, function (child) {
-      return (
-        <MComponentDataRenderer
-            key={child.id}
-            actions={actions}
-            mComponentData={child}
-            context={context}
-        />
-      );
-    });
-
-    return React.createElement(
-      isList ? 'ul' : 'div',
-      {
-        onMouseEnter: (e) => { this.props.onMouseEnter(e); },
-        onMouseLeave: (e) => { this.props.onMouseLeave(e); },
-        onClick: this.props.onClick,
-        onMouseDown: this.props.onMouseDown,
-        style: this.props.sx,
-        className: classnames('node_' + mComponentData.id, 'expandable-element', { expanded: this.state.isExpanded }, className)
-      },
-      children
-    );
-  },
-});
-
-const LinkClassReact = React.createClass({
-  render() {
-    const {
-      mComponentData,
-      className,
-      sx,
-      htmlProperties,
-    } = this.props;
-
-    return (
-      <a
-          onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
-          onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
-          className={classnames('node_' + mComponentData.id, className)}
-          onMouseDown={this.props.onMouseDown}
-          style={sx}
-          href={htmlProperties.href}
-      >
-        {htmlProperties.text}
-      </a>
-    );
-  }
-});
-
-const HeaderClassReact = React.createClass({
-  render() {
-    const {
-      mComponentData,
-      className,
-      sx,
-      htmlProperties,
-    } = this.props;
-    return (
-      <h1
-          onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
-          onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
-          onMouseDown={this.props.onMouseDown}
-          style={sx}
-          className={classnames('node_' + mComponentData.id, className)}
-          onClick={this.props.onClick}
-      >
-        {htmlProperties.text}
-      </h1>
-    );
-  },
-});
-
-const ParagraphClassReact = React.createClass({
-  render() {
-    const { mComponentData, className } = this.props;
-    return (
-      <p
-          onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
-          onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
-          onMouseDown={this.props.onMouseDown}
-          style={this.props.sx} className={classnames('node_' + mComponentData.id, className)}
-          onClick={this.props.onClick}
-      >
-        {this.props.htmlProperties.text}
-      </p>
-    );
-  },
-});
-
-const ImageClassReact = React.createClass({
-  render() {
-    const {
-      mComponentData,
-      className,
-      sx,
-      htmlProperties
-    } = this.props;
-    return (
-      <img
-          onMouseEnter={(e) => { this.props.onMouseEnter(e) }}
-          onMouseLeave={(e) => { this.props.onMouseLeave(e) }}
-          onMouseDown={this.props.onMouseDown}
-          style={sx}
-          className={classnames('node_' + mComponentData.id, className)}
-          src={htmlProperties.src}
-          onClick={this.props.onClick}
-      />
-    );
-  },
-});
-
 const MComponentDataRenderer = React.createClass({
-  getInitialState() {
-    return {
-      isHovered: false
-    }
-  },
-
-  getComponentState() {
-    if (this.state.isHovered) {
-      return attributeStateTypes.HOVER;
-    } else {
-      return attributeStateTypes.DEFAULT;
-    }
-  },
-
-  setHovered() {
-    this.props.actions.hoverComponent(this.props.mComponentData);
-    this.setState({ isHovered: true });
-  },
-
-  resetHovered() {
-    this.props.actions.unHoverComponent();
-    this.setState({ isHovered: false });
-  },
-
   render() {
     /* TD: expand for custom components */
-    let className, component;
+    let component;
     let { context, mComponentData, actions } = this.props;
     let { hoveredComponentId, activeComponentId } = context;
     const { htmlProperties, sx, componentType } = mComponentData;
 
     const isActiveComponent = activeComponentId === mComponentData.id;
-
-    className = {
-      'c-pointer': true,
-      'active-component': isActiveComponent,
-      'hovered-component': (
-        !isActiveComponent &&
-        hoveredComponentId === mComponentData.id
-      )
-    };
-
-    const onClick = (e) => {
-      actions.selectComponent(mComponentData.id);
-      e.stopPropagation();
-      e.preventDefault();
-    }
+    const componentProps = Object.assign({
+      className: classnames(
+        'node_' + mComponentData.id,
+        'c-pointer',
+        {
+          'active-component': isActiveComponent,
+          'hovered-component': (
+            !isActiveComponent &&
+            hoveredComponentId === mComponentData.id
+          )
+        }
+      ),
+      onMouseEnter: () => {
+        //TD: test that this works
+        actions.hoverComponent(this.props.mComponentData.id);
+      },
+      onMouseLeave: () => {
+        actions.unHoverComponent();
+      },
+      onClick: (e) => {
+        actions.selectComponent(mComponentData.id);
+        e.stopPropagation();
+        e.preventDefault();
+      },
+      style: sx,
+    }, this.props);
 
     if (componentType === componentTypes.LINK) {
-      component = (
-        <LinkClassReact
-            className={className}
-            actions={this.props.actions}
-            onMouseEnter={this.setHovered}
-            onMouseLeave={this.resetHovered}
-            onClick={onClick}
-            {...this.props}
-            htmlProperties={htmlProperties}
-            sx={sx}
-        />
+      component = React.createElement(
+        'a',
+        Object.assign({ href: htmlProperties.href }, componentProps),
+        htmlProperties.text
       );
     } else if (componentType === componentTypes.CONTAINER) {
-      component = (
-        <ContainerClassReact
-            isList={mComponentData.sx.listStyleType !== 'none'}
-            className={className}
-            actions={this.props.actions}
-            onMouseEnter={this.setHovered}
-            onMouseLeave={this.resetHovered}
-            onClick={onClick}
-            {...this.props}
-            htmlProperties={htmlProperties}
-            sx={sx}
-        />
+      component = React.createElement(
+        sx.listStyleType !== 'none' ? 'ul' : 'div',
+        componentProps,
+        _.map(mComponentData.children, function (child) {
+          return (
+            <MComponentDataRenderer
+                key={child.id}
+                actions={actions}
+                mComponentData={child}
+                context={context}
+            />
+          );
+        })
       );
     } else if (componentType === componentTypes.HEADER) {
-      component = (
-        <HeaderClassReact
-            className={className}
-            onMouseEnter={this.setHovered}
-            onMouseLeave={this.resetHovered}
-            onClick={onClick}
-            {...this.props}
-            htmlProperties={htmlProperties}
-            sx={sx}
-        />
-      );
+      component = React.createElement('h1', componentProps, htmlProperties.text);
     } else if (componentType === componentTypes.TEXT) {
-      component = (
-        <ParagraphClassReact
-            className={className}
-            onMouseEnter={this.setHovered}
-            onMouseLeave={this.resetHovered}
-            onClick={onClick}
-            {...this.props}
-            htmlProperties={htmlProperties}
-            sx={sx}
-        />
-      );
+      component = React.createElement('p', componentProps, htmlProperties.text);
     } else if (componentType === componentTypes.IMAGE) {
-      component = (
-        <ImageClassReact
-            className={className}
-            onMouseEnter={this.setHovered}
-            onMouseLeave={this.resetHovered}
-            onClick={onClick}
-            {...this.props}
-            htmlProperties={htmlProperties}
-            sx={sx}
-        />
+      component = React.createElement(
+        'img',
+        Object.assign({ src: htmlProperties.src }, componentProps)
       );
     }
 

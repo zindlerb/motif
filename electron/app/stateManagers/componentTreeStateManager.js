@@ -201,7 +201,7 @@ export const componentTreeReducer = {
 
   [SET_COMPONENT_ATTRIBUTE](state, action) {
     return state.update('componentsMap', (componentsMap) => {
-      return ComponentsContainer.setAttribute(
+      const newComponentMap = ComponentsContainer.setAttribute(
         componentsMap,
         action.componentId,
         action.attrKey,
@@ -211,6 +211,8 @@ export const componentTreeReducer = {
           state: state.get('activeComponentState')
         }
       );
+
+      return newComponentMap;
     });
   },
 

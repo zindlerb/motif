@@ -25,13 +25,11 @@ import {
   mainViewTypes,
 } from './constants';
 
-const { Menu, dialog } = remote;
+const { Menu } = remote;
 
 const App = React.createClass({
   componentDidMount() {
     const { actions } = this.props;
-
-
     const reloadDirname = '/Users/brianzindler/Documents/reload';
 
     fs.access(reloadDirname, (err) => {
@@ -112,7 +110,10 @@ const App = React.createClass({
             click() {
               actions.redo()
             }
-          }
+          },
+          { label: 'Cut', accelerator: 'CmdOrCtrl+X', selector: 'cut:' },
+          { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
+          { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' },
         ]
       }
     ];
