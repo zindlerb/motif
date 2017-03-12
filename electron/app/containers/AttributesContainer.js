@@ -69,6 +69,7 @@ const attributesSelector = createImmutableJSSelector(
          showButtons: mainViewTypes.EDITOR === currentMainView,
          isSynced: component.get('isSynced'),
          componentId: activeComponentId,
+         isDefaultComponent: component.get('isDefaultComponent'),
          componentState: activeComponentState,
          componentBreakpoint: activeComponentBreakpoint,
        }

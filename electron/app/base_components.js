@@ -64,6 +64,7 @@ export const container = createComponentData(CONTAINER, {
   name: 'Container',
   id: CONTAINER,
   defaultAttributes: containerAttributes,
+  isDefaultComponent: true,
 });
 
 export const text = createComponentData(TEXT, {
@@ -71,7 +72,8 @@ export const text = createComponentData(TEXT, {
   id: TEXT,
   defaultAttributes: Object.assign({}, defaultAttributes, {
     text: 'Text. Text. Text. I am some text.'
-  })
+  }),
+  isDefaultComponent: true,
 });
 
 export const header = createComponentData(HEADER, {
@@ -79,7 +81,8 @@ export const header = createComponentData(HEADER, {
   id: HEADER,
   defaultAttributes: Object.assign({}, defaultAttributes, {
     text: 'I am a header'
-  })
+  }),
+  isDefaultComponent: true,
 });
 
 export const image = createComponentData(IMAGE, {
@@ -87,7 +90,8 @@ export const image = createComponentData(IMAGE, {
   id: IMAGE,
   defaultAttributes: Object.assign({}, defaultAttributes, {
     src: ''
-  })
+  }),
+  isDefaultComponent: true,
 });
 
 export const link = createComponentData(LINK, {
@@ -97,7 +101,8 @@ export const link = createComponentData(LINK, {
     display: 'inline',
     href: '',
     text: 'I am a link'
-  })
+  }),
+  isDefaultComponent: true,
 });
 
 export const defaultComponentsMap = Immutable.Map({

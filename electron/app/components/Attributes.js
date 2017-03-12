@@ -47,12 +47,18 @@ const widthScale = scale.slice(2).map((value, ind) => {
 const allFields = {
   position: { key: 'position', fieldType: DROPDOWN, choices: ['static', 'absolute'] },
   margin: {
-    key: 'margin',
     fieldType: NUMBER,
     autoCompleteItems: spacingScale
   },
+  flexWrap: {
+    fieldType: DROPDOWN,
+    choices: [
+      'nowrap',
+      'wrap',
+      'wrap-reverse'
+    ]
+  },
   textDecoration: {
-    key: 'textDecoration',
     fieldType: DROPDOWN,
     choices: [
       'none',
@@ -62,76 +68,59 @@ const allFields = {
     ]
   },
   padding: {
-    key: 'padding',
     fieldType: NUMBER,
     autoCompleteItems: spacingScale
   },
   height: {
-    key: 'height',
     fieldType: NUMBER,
     autoCompleteItems: heightScale
   },
   minHeight: {
-    key: 'minHeight',
     fieldType: NUMBER,
     autoCompleteItems: heightScale
   },
   maxHeight: {
-    key: 'maxHeight',
     fieldType: NUMBER,
     autoCompleteItems: heightScale
   },
   width: {
-    key: 'width',
     fieldType: NUMBER,
     autoCompleteItems: widthScale
   },
   minWidth: {
-    key: 'minWidth',
     fieldType: NUMBER,
     autoCompleteItems: heightScale
   },
   maxWidth: {
-    key: 'maxWidth',
     fieldType: NUMBER,
     autoCompleteItems: heightScale
   },
-  backgroundColor: { key: 'backgroundColor', fieldType: COLOR },
+  backgroundColor: { fieldType: COLOR },
   flexDirection: {
-    key: 'flexDirection',
     fieldType: DROPDOWN,
     choices: ['none', 'row', 'column']
   },
-  opacity: {
-    key: 'opacity',
-    fieldType: NUMBER,
-  },
+  opacity: { fieldType: NUMBER },
   justifyContent: {
-    key: 'justifyContent',
     fieldType: DROPDOWN,
     choices: ['flex-start', 'flex-end', 'center', 'space-between', 'space-around']
   },
   alignItems: {
-    key: 'alignItems',
     fieldType: DROPDOWN,
     choices: ['flex-start', 'flex-end', 'center', 'baseline', 'stretch']
   },
-  text: { key: 'text', fieldType: LARGE_TEXT },
-  listItems: { key: 'listItems', fieldType: LARGE_TEXT },
+  text: { fieldType: LARGE_TEXT },
+  listItems: { fieldType: LARGE_TEXT },
   borderWidth: {
-    key: 'borderWidth',
     fieldType: NUMBER,
   },
   borderColor: {
-    key: 'borderColor',
     fieldType: COLOR
   },
   borderRadius: {
-    key: 'borderRadius',
     fieldType: NUMBER
   },
   borderStyle: {
-    key: 'borderStyle',
     fieldType: DROPDOWN,
     choices: [
       'none',
@@ -147,7 +136,6 @@ const allFields = {
     ]
   },
   overflow: {
-    key: 'overflow',
     fieldType: DROPDOWN,
     choices: [
       'visible',
@@ -157,16 +145,15 @@ const allFields = {
     ]
   },
   display: {
-    key: 'display',
     fieldType: DROPDOWN,
     choices: [
+      'flex', // TD: should be conditional
       'inline',
       'inline-block',
       'block',
     ]
   },
   fontFamily: {
-    key: 'fontFamily',
     fieldType: DROPDOWN,
     choices: [
       'Arial',
@@ -185,7 +172,6 @@ const allFields = {
     ]
   },
   listStyleType: {
-    key: 'listStyleType',
     fieldType: DROPDOWN,
     choices: [
       'none',
@@ -205,15 +191,12 @@ const allFields = {
     ]
   },
   fontSize: {
-    key: 'fontSize',
     fieldType: NUMBER
   },
   fontWeight: {
-    key: 'fontWeight',
     fieldType: NUMBER
   },
   textAlign: {
-    key: 'textAlign',
     fieldType: DROPDOWN,
     choices: [
       'left',
@@ -227,18 +210,20 @@ const allFields = {
     ]
   },
   href: {
-    key: 'href',
     fieldType: TEXT
   },
   lineHeight: {
-    key: 'lineHeight',
     fieldType: NUMBER
   },
   color: {
-    key: 'color',
     fieldType: COLOR
   }
 };
+
+_.mapValues(allFields, (val, key) => {
+  val.key = key;
+  return val;
+});
 
 const textFields = [
   allFields.fontFamily,
@@ -274,6 +259,7 @@ const fields = {
   [componentTypes.CONTAINER]: [
     ...defaultFields,
     allFields.flexDirection,
+    allFields.flexWrap,
     allFields.justifyContent,
     allFields.alignItems,
     allFields.listStyleType,
@@ -315,7 +301,9 @@ const Attributes = React.createClass({
       componentId,
       componentState,
       componentBreakpoint,
-      actions,
+      isDefaultComponent,
+      isSynced,
+      actions
     } = this.props;
 
     let body, attributeFields = [], buttons;
@@ -346,7 +334,7 @@ const Attributes = React.createClass({
             />
             <CartoonButton
                 onClick={() => { actions.syncComponent(componentId); }}
-                disabled={this.props.isSynced}
+                disabled={isSynced && !isDefaultComponent}
                 text="Sync"
             />
           </div>

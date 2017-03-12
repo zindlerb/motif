@@ -1,6 +1,6 @@
 dist
 node_modules
 .DS_Store
-public/js/bundle.js
+electron/public/js/bundle.js
 npm-debug.log
 *.map
