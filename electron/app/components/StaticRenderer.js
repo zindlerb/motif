@@ -230,7 +230,7 @@ const StaticRenderer = React.createClass({
       return (
         <div
             className="fixed w-100 h-100 top-index"
-            style={{left: 0, top: 0, backgroundColor: 'white'}}
+            style={{ left: 0, top: 0, backgroundColor: 'white' }}
         >
           <FullscreenButton
               actions={actions}

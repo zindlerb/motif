@@ -22,7 +22,7 @@ const PagesDropdown = React.createClass({
 
     return (
       <FormLabel
-          className={classnames("mh2", className)}
+          className={classnames('mh2', className)}
           name="Page"
       >
         <PopupSelect

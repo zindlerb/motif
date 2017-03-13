@@ -12,8 +12,6 @@ const ComponentsDropdown = function (props) {
     actions
   } = props;
 
-  console.log(componentsList);
-
   return (
     <FormLabel className="mh2" name="Component">
       <PopupSelect

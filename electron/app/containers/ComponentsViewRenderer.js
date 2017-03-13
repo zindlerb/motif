@@ -5,13 +5,6 @@ import { ComponentsContainer } from '../base_components';
 import { createImmutableJSSelector } from '../utils';
 import { componentTreeMetadataSelector } from '../selectors';
 import StaticRenderer from '../components/StaticRenderer';
-import ViewChoiceDropdown from '../components/ViewChoiceDropdown';
-import FormLabel from '../components/forms/FormLabel';
-import SimplePopupSelectDropdown from '../components/SimplePopupSelectDropdown';
-import PopupSelect from '../components/PopupSelect';
-import FullscreenButton from '../components/FullscreenButton';
-
-
 
 const ComponentViewRenderer = React.createClass({
   render() {

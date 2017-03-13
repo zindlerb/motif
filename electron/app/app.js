@@ -120,7 +120,7 @@ const App = React.createClass({
     ];
 
     window.addEventListener('resize', _.debounce(() => {
-      if($(window).width() < 800) {
+      if ($(window).width() < 800) {
         actions.windowTooSmall();
       } else {
         actions.windowRightSize();

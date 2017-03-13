@@ -1,7 +1,6 @@
 import React from 'react';
-import $ from 'jquery';
 import classnames from 'classnames';
-
+/*
 const AutoComplete = React.createClass({
   render() {
     const { position, items, width } = this.props;
@@ -36,6 +35,7 @@ const AutoComplete = React.createClass({
     );
   }
 });
+*/
 
 const TextField = React.createClass({
   getInitialState() {
@@ -75,9 +75,8 @@ const TextField = React.createClass({
   },
   render() {
     const { isEditing, tempText } = this.state
-    const { autoCompleteItems } = this.props;
     const value = isEditing ? tempText : this.props.value;
-    let pos, autoComplete;
+    let autoComplete;
 
     /*
     if (autoCompleteItems && isEditing && this._el) {
