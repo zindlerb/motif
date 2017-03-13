@@ -100,7 +100,7 @@ const allFields = {
   backgroundColor: { fieldType: COLOR },
   flexDirection: {
     fieldType: DROPDOWN,
-    choices: ['none', 'row', 'column'],
+    choices: ['none', 'row', 'column', 'row-reverse', 'column-reverse'],
     defaultValue: 'row'
   },
   opacity: { fieldType: NUMBER },
@@ -188,7 +188,7 @@ const allFields = {
          TD: Allow import of fonts through goog fonts. And font search
        */
     ],
-    defaultValue: 'Sans-serif'
+    defaultValue: 'Fira Sans'
   },
   listStyleType: {
     fieldType: DROPDOWN,
@@ -326,6 +326,7 @@ const Attributes = React.createClass({
       componentBreakpoint,
       isDefaultComponent,
       isSynced,
+      isRoot,
       actions
     } = this.props;
 
@@ -338,7 +339,7 @@ const Attributes = React.createClass({
                actions={actions}
                fieldData={field}
                componentId={componentId}
-               attrVal={attributes[field.key]}
+               attrVal={attributes[field.key] || field.defaultValue || ''}
                key={field.key}
            />)
         );
@@ -349,6 +350,7 @@ const Attributes = React.createClass({
           <div className="mb3 tc">
             <CartoonButton
                 className="mr1"
+                disabled={isRoot}
                 onClick={() => {
                     actions.createComponentBlock(componentId);
                     this.setState({ isEditing: true });

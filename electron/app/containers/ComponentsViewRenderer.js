@@ -18,6 +18,7 @@ const ComponentViewRenderer = React.createClass({
       rendererWidth,
       isFullscreen,
       currentComponentName,
+      isFullscreenLocked,
       actions
     } = this.props;
 
@@ -33,6 +34,7 @@ const ComponentViewRenderer = React.createClass({
           componentsList={componentsList}
           currentComponentName={currentComponentName}
           currentComponentId={currentComponentId}
+          isFullscreenLocked={isFullscreenLocked}
           width={rendererWidth}
       />
     );
@@ -69,9 +71,10 @@ const componentViewRendererSelector = createImmutableJSSelector(
     state => state.get('componentsMap'),
     state => state.get('currentMainView'),
     state => state.get('isFullscreen'),
+    state => state.get('isFullscreenLocked'),
   ],
   (componentsList, componentTreeMetadata, componentsView,
-   componentsMap, currentMainView, isFullscreen) => {
+   componentsMap, currentMainView, isFullscreen, isFullscreenLocked) => {
      const currentComponentId = componentsView.get('currentComponentId');
      return Object.assign({
        componentsList,
@@ -86,7 +89,8 @@ const componentViewRendererSelector = createImmutableJSSelector(
          componentsView.get('currentComponentId')
        ),
        currentMainView,
-       isFullscreen
+       isFullscreen,
+       isFullscreenLocked
      }, componentTreeMetadata);
    }
 );

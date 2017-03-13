@@ -459,6 +459,10 @@ transition: margin-top .5s, border-width .5s;
 .collapsableArrow {
   display: inline-block;
   -webkit-transition: -webkit-transform .5s;
+  font-size: .85rem;
+  color: #c0c0c0;
+  margin-right: 3px;
+  margin-bottom: 1px;
   &.open {
     -webkit-transform: rotate(90deg);
   }

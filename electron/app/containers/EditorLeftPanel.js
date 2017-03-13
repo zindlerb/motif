@@ -86,7 +86,7 @@ const EditorLeftPanel = React.createClass({
             activePanel={this.state.activePanel}
             onClick={(value) => { this.setState({ activePanel: value }); }}
         />
-        <div className="ph1 f-grow">
+        <div className="f-grow">
           {body}
         </div>
       </div>

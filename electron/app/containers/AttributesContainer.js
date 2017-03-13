@@ -17,6 +17,8 @@ const AttributesContainer = React.createClass({
       componentBreakpoint,
       actions,
       showButtons,
+      isRoot,
+      isDefaultComponent,
       isSynced
     } = this.props;
 
@@ -30,6 +32,8 @@ const AttributesContainer = React.createClass({
           componentId={componentId}
           componentState={componentState}
           componentBreakpoint={componentBreakpoint}
+          isRoot={isRoot}
+          isDefaultComponent={isDefaultComponent}
           actions={actions}
       />
     );
@@ -66,6 +70,7 @@ const attributesSelector = createImmutableJSSelector(
              breakpoint: activeComponentBreakpoint,
            }
          ),
+         isRoot: !component.get('parentId'),
          showButtons: mainViewTypes.EDITOR === currentMainView,
          isSynced: component.get('isSynced'),
          componentId: activeComponentId,

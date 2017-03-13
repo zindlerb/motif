@@ -4,6 +4,7 @@ import Immutable from 'immutable';
 function serializerFactory() {
   const serializableKeys = [
     'siteName',
+    '_versionNumber',
     'pages',
     'componentMap',
     'ourComponentBoxes',

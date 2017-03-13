@@ -14,7 +14,8 @@ import {
 import { guid } from './utils';
 import {
   mainViewTypes,
-  NONE
+  NONE,
+  VERSION_NUMBER
 } from './constants';
 import {
   ComponentsContainer,
@@ -28,6 +29,7 @@ let redoStack = [];
 
 let initialState = Immutable.fromJS({
   siteName: 'Something',
+  _versionNumber: VERSION_NUMBER,
   recentSites: [],
   ourComponentBoxes: [...defaultComponentsMap.keys()],
   yourComponentBoxes: [],
@@ -59,6 +61,7 @@ let initialState = Immutable.fromJS({
   },
 
   isFullscreen: false,
+  isFullscreenLocked: false,
 
   fileMetadata: {},
   componentMap: defaultComponentsMap,
@@ -125,13 +128,15 @@ export const actions = Object.assign({
   setCurrentComponentId(id) {
     return {
       type: SET_CURRENT_COMPONENT_ID,
-      id
+      id,
+      _noUndo: true
     }
   },
 
   toggleFullscreen() {
     return {
-      type: TOGGLE_FULLSCREEN
+      type: TOGGLE_FULLSCREEN,
+      _noUndo: true
     }
   },
 
@@ -152,7 +157,8 @@ export const actions = Object.assign({
   setErrorText(newText) {
     return {
       type: SET_ERROR_TEXT,
-      newText
+      newText,
+      _noUndo: true
     }
   },
 
@@ -169,13 +175,15 @@ export const actions = Object.assign({
 
   windowTooSmall() {
     return {
-      type: WINDOW_TOO_SMALL
+      type: WINDOW_TOO_SMALL,
+      _noUndo: true
     }
   },
 
   windowRightSize() {
     return {
-      type: WINDOW_RIGHT_SIZE
+      type: WINDOW_RIGHT_SIZE,
+      _noUndo: true
     }
   },
 
@@ -605,25 +613,47 @@ const reducerObj = Object.assign({
   [WINDOW_TOO_SMALL](state) {
     return state.merge({
       errorText: 'Window is too small. Please resize to be bigger.',
-      isFullscreen: true
+      isFullscreen: true,
+      isFullscreenLocked: true
     })
   },
   [WINDOW_RIGHT_SIZE](state) {
     return state.merge({
       errorText: undefined,
-      isFullscreen: false
-    })
+      isFullscreen: false,
+      isFullscreenLocked: false
+    });
   }
 }, componentTreeReducer);
 
+function saveSite(state) {
+  const dirname = state.getIn(['fileMetadata', 'dirname']);
+  if (dirname) {
+    fs.access(dirname, (err) => {
+      if (err && err.code === 'ENOENT') {
+        fs.mkdir(dirname, () => {
+          writeSiteFile(dirname, state, () => {
+            fs.mkdir(path.join(dirname, 'assets'));
+          });
+        });
+      } else {
+        writeSiteFile(dirname, state);
+      }
+    });
+  }
+}
+
+let newState;
 function reducer(state, action) {
   if (reducerObj[action.type]) {
+    newState = reducerObj[action.type](state, action);
     if (!action._noUndo) {
       undoStack.push(stateToUndoFormat(state));
       redoStack = [];
+      saveSite(newState);
     }
 
-    return reducerObj[action.type](state, action);
+    return newState;
   }
 
   return state;

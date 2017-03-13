@@ -9,6 +9,7 @@ import { componentTypes } from '../constants';
 
 import TreeItem from './TreeItem';
 import ComponentTree from './ComponentTree';
+import DivToBottom from './DivToBottom';
 
 function DragShadow(props) {
   const padding = 100;
@@ -322,7 +323,7 @@ const ComponentTreeContainer = React.createClass({
     }
 
     return (
-      <div className="h-100">
+      <DivToBottom className="overflow-auto ph2">
         { hintText }
         <ComponentTree
             node={renderTree}
@@ -342,7 +343,7 @@ const ComponentTreeContainer = React.createClass({
             }}
         />
         { shadow }
-      </div>
+      </DivToBottom>
     )
   }
 });

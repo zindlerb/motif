@@ -194,7 +194,8 @@ const StaticRenderer = React.createClass({
       currentComponentId,
       currentComponentName,
       componentsList,
-      isFullscreen
+      isFullscreen,
+      isFullscreenLocked
     } = this.props;
     let renderer, middleDropdown;
 
@@ -234,6 +235,7 @@ const StaticRenderer = React.createClass({
         >
           <FullscreenButton
               actions={actions}
+              isFullscreenLocked={isFullscreenLocked}
               isFullscreen={isFullscreen}
           />
           {renderer}
@@ -260,7 +262,7 @@ const StaticRenderer = React.createClass({
               style={{ width }}
               className="flex-auto flex m-auto relative"
           >
-            <div className="renderer-container flex-auto static-view-border">
+            <div className="renderer-container flex-auto static-view-border pa1">
               {renderer}
             </div>
             <DragHandle

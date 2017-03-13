@@ -103,6 +103,7 @@ export const link = createComponentData(LINK, {
   id: LINK,
   defaultAttributes: Object.assign({}, defaultAttributes, {
     display: 'inline',
+    textDecoration: 'underline',
     href: '',
     text: 'I am a link'
   }),

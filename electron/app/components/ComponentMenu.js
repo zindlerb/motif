@@ -208,15 +208,6 @@ const ComponentMenu = React.createClass({
               <i className="fa fa-trash ph1 fr" aria-hidden="true" />
             </ComponentMenuItem>
             <ComponentMenuItem
-                key={'MAKE_COMPONENT'}
-                isDisabled={!componentId || isRoot}
-                onMouseEnter={this.closeNestedMenus}
-                onMouseUp={() => { actions.createComponentBlock(componentId) }}
-            >
-              Make Component
-              <i className="fa fa-id-card-o ph1 fr" aria-hidden="true" />
-            </ComponentMenuItem>
-            <ComponentMenuItem
                 className={INSERT_COMPONENT}
                 isDisabled={!canHaveChildren && isRoot}
                 key={INSERT_COMPONENT}
