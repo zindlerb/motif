@@ -434,6 +434,7 @@ body {
   background-color: white;
   border: 1px solid $border;
   min-height: 200px;
+  overflow-x: auto;
 }
 
 .spacer {
@@ -484,7 +485,7 @@ transition: margin-top .5s, border-width .5s;
 }
 
 .error-banner {
-  z-index: 100;
+  z-index: 300;
   position: absolute;
   left: 0px;
   top: 0px;

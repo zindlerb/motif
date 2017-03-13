@@ -102,6 +102,9 @@ const SET_COMPONENTS_VIEW_WIDTH = 'SET_COMPONTS_VIEW_WIDTH';
 const SET_EDITOR_VIEW_WIDTH = 'SET_RENDERER_WIDTH';
 const SET_CURRENT_COMPONENT_ID = 'SET_CURRENT_COMPONENT_ID';
 
+const WINDOW_TOO_SMALL = 'WINDOW_TOO_SMALL';
+const WINDOW_RIGHT_SIZE = 'WINDOW_RIGHT_SIZE';
+
 const TOGGLE_FULLSCREEN = 'TOGGLE_FULLSCREEN';
 
 const SET_ERROR_TEXT = 'SET_ERROR_TEXT';
@@ -161,6 +164,18 @@ export const actions = Object.assign({
           pageMap.get('componentTreeId')
         });
       });
+    }
+  },
+
+  windowTooSmall() {
+    return {
+      type: WINDOW_TOO_SMALL
+    }
+  },
+
+  windowRightSize() {
+    return {
+      type: WINDOW_RIGHT_SIZE
     }
   },
 
@@ -586,6 +601,18 @@ const reducerObj = Object.assign({
   },
   [SET_ERROR_TEXT](state, action) {
     return state.set('errorText', action.newText);
+  },
+  [WINDOW_TOO_SMALL](state) {
+    return state.merge({
+      errorText: 'Window is too small. Please resize to be bigger.',
+      isFullscreen: true
+    })
+  },
+  [WINDOW_RIGHT_SIZE](state) {
+    return state.merge({
+      errorText: undefined,
+      isFullscreen: false
+    })
   }
 }, componentTreeReducer);
 

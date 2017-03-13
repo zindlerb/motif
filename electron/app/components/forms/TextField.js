@@ -79,6 +79,7 @@ const TextField = React.createClass({
     const value = isEditing ? tempText : this.props.value;
     let pos, autoComplete;
 
+    /*
     if (autoCompleteItems && isEditing && this._el) {
       pos = {
         x: this._el.clientX,
@@ -96,6 +97,7 @@ const TextField = React.createClass({
         />
       );
     }
+    */
 
     if (this.props.isLarge) {
       return (

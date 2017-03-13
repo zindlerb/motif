@@ -1,3 +1,5 @@
+import $ from 'jquery';
+import _ from 'lodash';
 import fs from 'fs';
 import { remote } from 'electron';
 import React from 'react';
@@ -15,7 +17,6 @@ import ComponentsViewRenderer from './containers/ComponentsViewRenderer';
 import AttributesContainer from './containers/AttributesContainer';
 import ComponentMenu from './components/ComponentMenu';
 import ErrorBanner from './components/ErrorBanner';
-
 
 import {
   saveSiteAsDialog,
@@ -117,6 +118,14 @@ const App = React.createClass({
         ]
       }
     ];
+
+    window.addEventListener('resize', _.debounce(() => {
+      if($(window).width() < 800) {
+        actions.windowTooSmall();
+      } else {
+        actions.windowRightSize();
+      }
+    }, 300));
 
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);

@@ -74,7 +74,7 @@ const AssetsView = React.createClass({
   render() {
     const { actions, currentMainView, assets } = this.props;
     let icons = assets.map((asset) => {
-      return <AssetIcon asset={asset} actions={actions} />
+      return <AssetIcon key={asset.id} asset={asset} actions={actions} />
     });
 
     if (icons.length === 0) {

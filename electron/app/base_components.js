@@ -57,7 +57,7 @@ export const containerAttributes = Object.assign({}, defaultAttributes, {
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'flex-start',
-  listStyleType: 'none'
+  listStyleType: 'none',
 });
 
 export const container = createComponentData(CONTAINER, {
@@ -71,7 +71,8 @@ export const text = createComponentData(TEXT, {
   name: 'Text',
   id: TEXT,
   defaultAttributes: Object.assign({}, defaultAttributes, {
-    text: 'Text. Text. Text. I am some text.'
+    text: 'Text. Text. Text. I am some text.',
+    display: 'block'
   }),
   isDefaultComponent: true,
 });
@@ -80,6 +81,7 @@ export const header = createComponentData(HEADER, {
   name: 'Header',
   id: HEADER,
   defaultAttributes: Object.assign({}, defaultAttributes, {
+    display: 'block',
     text: 'I am a header'
   }),
   isDefaultComponent: true,
@@ -87,9 +89,11 @@ export const header = createComponentData(HEADER, {
 
 export const image = createComponentData(IMAGE, {
   name: 'Image',
+
   id: IMAGE,
   defaultAttributes: Object.assign({}, defaultAttributes, {
-    src: ''
+    src: '',
+    display: 'inline',
   }),
   isDefaultComponent: true,
 });

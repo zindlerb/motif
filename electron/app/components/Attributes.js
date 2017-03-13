@@ -56,7 +56,8 @@ const allFields = {
       'nowrap',
       'wrap',
       'wrap-reverse'
-    ]
+    ],
+    defaultValue: 'nowrap'
   },
   textDecoration: {
     fieldType: DROPDOWN,
@@ -65,7 +66,8 @@ const allFields = {
       'underline',
       'overline',
       'line-through'
-    ]
+    ],
+    defaultValue: 'none'
   },
   padding: {
     fieldType: NUMBER,
@@ -98,16 +100,19 @@ const allFields = {
   backgroundColor: { fieldType: COLOR },
   flexDirection: {
     fieldType: DROPDOWN,
-    choices: ['none', 'row', 'column']
+    choices: ['none', 'row', 'column'],
+    defaultValue: 'row'
   },
   opacity: { fieldType: NUMBER },
   justifyContent: {
     fieldType: DROPDOWN,
-    choices: ['flex-start', 'flex-end', 'center', 'space-between', 'space-around']
+    choices: ['flex-start', 'flex-end', 'center', 'space-between', 'space-around'],
+    defaultValue: 'flex-start'
   },
   alignItems: {
     fieldType: DROPDOWN,
-    choices: ['flex-start', 'flex-end', 'center', 'baseline', 'stretch']
+    choices: ['flex-start', 'flex-end', 'center', 'baseline', 'stretch'],
+    defaultValue: 'stretch'
   },
   text: { fieldType: LARGE_TEXT },
   listItems: { fieldType: LARGE_TEXT },
@@ -123,10 +128,12 @@ const allFields = {
   verticalAlign: {
     fieldType: DROPDOWN,
     choices: [
+      'baseline',
       'top',
       'middle',
       'bottom'
-    ]
+    ],
+    defaultValue: 'baseline'
   },
   borderStyle: {
     fieldType: DROPDOWN,
@@ -141,7 +148,8 @@ const allFields = {
       'ridge',
       'inset',
       'outset'
-    ]
+    ],
+    defaultValue: 'none'
   },
   overflow: {
     fieldType: DROPDOWN,
@@ -150,7 +158,8 @@ const allFields = {
       'hidden',
       'scroll',
       'auto'
-    ]
+    ],
+    defaultValue: 'visible'
   },
   display: {
     fieldType: DROPDOWN,
@@ -159,7 +168,8 @@ const allFields = {
       'inline',
       'inline-block',
       'block',
-    ]
+    ],
+    defaultValue: 'block'
   },
   fontFamily: {
     fieldType: DROPDOWN,
@@ -177,7 +187,8 @@ const allFields = {
       /*
          TD: Allow import of fonts through goog fonts. And font search
        */
-    ]
+    ],
+    defaultValue: 'Sans-serif'
   },
   listStyleType: {
     fieldType: DROPDOWN,
@@ -187,7 +198,8 @@ const allFields = {
       'circle',
       'square',
       'decimal',
-    ]
+    ],
+    defaultValue: 'none'
   },
   fontStyle: {
     key: 'fontStyle',
@@ -196,7 +208,8 @@ const allFields = {
       'normal',
       'italic',
       'oblique'
-    ]
+    ],
+    defaultValue: 'normal'
   },
   fontSize: {
     fieldType: NUMBER
@@ -215,7 +228,8 @@ const allFields = {
       'start',
       'end',
       'match-parent'
-    ]
+    ],
+    defaultValue: 'start'
   },
   href: {
     fieldType: TEXT

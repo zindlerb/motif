@@ -258,9 +258,11 @@ const StaticRenderer = React.createClass({
               onMouseEnter={this.mouseEnter}
               onMouseLeave={this.mouseLeave}
               style={{ width }}
-              className={classnames('renderer-container flex-auto m-auto relative static-view-border')}
+              className="flex-auto flex m-auto relative"
           >
-            {renderer}
+            <div className="renderer-container flex-auto static-view-border">
+              {renderer}
+            </div>
             <DragHandle
                 direction="left"
                 rendererWidth={width}
