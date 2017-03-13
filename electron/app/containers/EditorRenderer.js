@@ -12,6 +12,8 @@ const EditorRenderer = React.createClass({
       hoveredComponentId,
       activeComponentId,
       width,
+      currentMainView,
+      isFullscreen,
       actions
     } = this.props;
     return (
@@ -21,6 +23,8 @@ const EditorRenderer = React.createClass({
           renderTree={renderTree}
           hoveredComponentId={hoveredComponentId}
           activeComponentId={activeComponentId}
+          currentMainView={currentMainView}
+          isFullscreen={isFullscreen}
           width={width}
       />
     );
@@ -32,14 +36,19 @@ const editorRendererSelector = createImmutableJSSelector(
     renderTreeSelector,
     state => state.get('hoveredComponentId'),
     state => state.get('activeComponentId'),
-    state => state.getIn(['editorView', 'rendererWidth'])
+    state => state.getIn(['editorView', 'rendererWidth']),
+    state => state.get('currentMainView'),
+    state => state.get('isFullscreen'),
   ],
-  (renderTree, hoveredComponentId, activeComponentId, width) => {
+  (renderTree, hoveredComponentId, activeComponentId,
+   width, currentMainView, isFullscreen) => {
     return {
       renderTree,
       hoveredComponentId,
       activeComponentId,
-      width
+      width,
+      currentMainView,
+      isFullscreen
     }
   }
 )

@@ -27,8 +27,8 @@ const PagesPopup = React.createClass({
                 ref={focusRefCallback}
                 onChange={(e) => { this.setState({ tempText: e.target.value }) }}
                 onBlur={(e) => {
+                    actions.setPageValue('name', e.target.value);
                     this.setState({ isEditing: false, tempText: '' });
-                    actions.setPageValue(page.id, 'name', e.target.value);
                   }}
             />
           </li>

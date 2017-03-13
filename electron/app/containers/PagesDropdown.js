@@ -1,6 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
+import classnames from 'classnames';
 
 import {
   createImmutableJSSelector,
@@ -12,6 +13,7 @@ import PagesPopup from '../components/PagesPopup';
 const PagesDropdown = React.createClass({
   render() {
     const {
+      className,
       currentPageId,
       currentPageName,
       pages,
@@ -19,7 +21,10 @@ const PagesDropdown = React.createClass({
     } = this.props;
 
     return (
-      <FormLabel className="mh2" name="Page">
+      <FormLabel
+          className={classnames("mh2", className)}
+          name="Page"
+      >
         <PopupSelect
             emptyText="Select A Page"
             value={currentPageName}

@@ -7,7 +7,8 @@ import EditorRenderer from './EditorRenderer';
 import Sidebar from '../components/Sidebar';
 import AttributesContainer from './AttributesContainer';
 import EditorLeftPanel from './EditorLeftPanel';
-import OpenSiteModal from '../containers/OpenSiteModal';
+import OpenSiteModal from './OpenSiteModal';
+import FullscreenButton from '../components/FullscreenButton';
 
 const EditorView = React.createClass({
   render() {
@@ -21,16 +22,7 @@ const EditorView = React.createClass({
         <Sidebar direction="left">
           <EditorLeftPanel actions={actions} />
         </Sidebar>
-        <div
-            onClick={() => actions.selectComponent(undefined)}
-            className="flex-auto flex flex-column h-100 mh4 relative">
-          <ViewChoiceDropdown
-              mainView={currentMainView}
-              actions={actions}
-          />
-          <PagesDropdown actions={actions} />
-          <EditorRenderer actions={actions} />
-        </div>
+        <EditorRenderer actions={actions} />
         <Sidebar direction="right">
           <AttributesContainer actions={actions} />
         </Sidebar>

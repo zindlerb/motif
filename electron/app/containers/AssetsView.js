@@ -86,12 +86,13 @@ const AssetsView = React.createClass({
     }
 
     return (
-      <div className="h-100">
+      <div className="h-100 mh5">
         <ViewChoiceDropdown
+            className="ml4"
             mainView={currentMainView}
             actions={actions}
         />
-        <div className="mh5 card">
+        <div className="card">
           <h1 className="dib ma0">Images</h1>
           <CartoonButton
               className="v-mid mh2 mb2"

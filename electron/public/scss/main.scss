@@ -467,6 +467,18 @@ transition: margin-top .5s, border-width .5s;
   flex: 1 1;
 }
 
+.fullscreen-button {
+  font-size: $f4;
+
+  &.fa-compress {
+    font-size: $f3;
+    position: absolute;
+    top: $spacing-medium;
+    right: $spacing-medium;
+    z-index: $top-index + 1;
+  }
+}
+
 .top-index {
   z-index: $top-index;
 }

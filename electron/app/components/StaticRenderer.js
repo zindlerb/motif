@@ -6,18 +6,23 @@ import $ from 'jquery';
 import dragManager from '../dragManager';
 import {
   componentTypes,
-  SIDEBAR_WIDTH
+  SIDEBAR_WIDTH,
+  mainViewTypes
 } from '../constants';
+import PagesDropdown from '../containers/PagesDropdown';
+import ComponentsDropdown from './ComponentsDropdown';
+import ViewChoiceDropdown from './ViewChoiceDropdown';
+import FullscreenButton from './FullscreenButton';
 
 const MComponentDataRenderer = React.createClass({
   render() {
     /* TD: expand for custom components */
     let component;
     let { context, mComponentData, actions } = this.props;
-    let { hoveredComponentId, activeComponentId } = context;
+    let { hoveredComponentId, activeComponentId, isFullscreen } = context;
     const { htmlProperties, sx, componentType } = mComponentData;
 
-    const isActiveComponent = activeComponentId === mComponentData.id;
+    const isActiveComponent = !isFullscreen && activeComponentId === mComponentData.id;
     const componentProps = Object.assign({
       className: classnames(
         'node_' + mComponentData.id,
@@ -26,6 +31,7 @@ const MComponentDataRenderer = React.createClass({
           'active-component': isActiveComponent,
           'hovered-component': (
             !isActiveComponent &&
+            !isFullscreen &&
             hoveredComponentId === mComponentData.id
           )
         }
@@ -38,9 +44,11 @@ const MComponentDataRenderer = React.createClass({
         actions.unHoverComponent();
       },
       onClick: (e) => {
-        actions.selectComponent(mComponentData.id);
-        e.stopPropagation();
-        e.preventDefault();
+        if (!isFullscreen) {
+          actions.selectComponent(mComponentData.id);
+          e.stopPropagation();
+          e.preventDefault();
+        }
       },
       style: sx,
     }, this.props);
@@ -159,7 +167,6 @@ const DragHandle = React.createClass({
   }
 });
 
-
 const StaticRenderer = React.createClass({
   getInitialState() {
     return {
@@ -182,9 +189,14 @@ const StaticRenderer = React.createClass({
       hoveredComponentId,
       width,
       setRendererWidth,
-      actions
+      actions,
+      currentMainView,
+      currentComponentId,
+      currentComponentName,
+      componentsList,
+      isFullscreen
     } = this.props;
-    let renderer;
+    let renderer, middleDropdown;
 
     if (renderTree) {
       renderer = (
@@ -192,6 +204,7 @@ const StaticRenderer = React.createClass({
             mComponentData={renderTree}
             actions={actions}
             context={{
+              isFullscreen,
               activeComponentId,
               hoveredComponentId,
               isMouseInRenderer: this.state.isMouseInRenderer
@@ -200,29 +213,70 @@ const StaticRenderer = React.createClass({
       );
     }
 
-    return (
-      <div
-          onMouseEnter={this.mouseEnter}
-          onMouseLeave={this.mouseLeave}
-          onMouseMove={this.mouseove}
-          style={{ width }}
-          className={classnames('renderer-container flex-auto m-auto relative static-view-border')}
-      >
-        {renderer}
-        <DragHandle
-            direction="left"
-            rendererWidth={width}
-            setRendererWidth={setRendererWidth}
+    if (currentMainView === mainViewTypes.EDITOR) {
+      middleDropdown = <PagesDropdown className="mh2" actions={actions} />;
+    } else if (currentMainView === mainViewTypes.COMPONENTS) {
+      middleDropdown = (
+        <ComponentsDropdown
+            componentsList={componentsList}
+            currentComponentName={currentComponentName}
+            currentComponentId={currentComponentId}
             actions={actions}
         />
-        <DragHandle
-            direction="right"
-            rendererWidth={width}
-            setRendererWidth={setRendererWidth}
-            actions={actions}
-        />
-      </div>
-    );
+      );
+    }
+
+    if (isFullscreen) {
+      return (
+        <div
+            className="fixed w-100 h-100 top-index"
+            style={{left: 0, top: 0, backgroundColor: 'white'}}
+        >
+          <FullscreenButton
+              actions={actions}
+              isFullscreen={isFullscreen}
+          />
+          {renderer}
+        </div>
+      );
+    } else {
+      return (
+        <div
+            onClick={() => actions.selectComponent(undefined)}
+            className="flex-auto flex flex-column h-100 relative"
+        >
+          <div className="flex justify-between items-center mv2 ph4 flex-wrap">
+            <ViewChoiceDropdown
+                className="mr2"
+                mainView={currentMainView}
+                actions={actions}
+            />
+            { middleDropdown }
+            <FullscreenButton actions={actions} isFullscreen={isFullscreen} />
+          </div>
+          <div
+              onMouseEnter={this.mouseEnter}
+              onMouseLeave={this.mouseLeave}
+              style={{ width }}
+              className={classnames('renderer-container flex-auto m-auto relative static-view-border')}
+          >
+            {renderer}
+            <DragHandle
+                direction="left"
+                rendererWidth={width}
+                setRendererWidth={setRendererWidth}
+                actions={actions}
+            />
+            <DragHandle
+                direction="right"
+                rendererWidth={width}
+                setRendererWidth={setRendererWidth}
+                actions={actions}
+            />
+          </div>
+        </div>
+      );
+    }
   },
 });
 

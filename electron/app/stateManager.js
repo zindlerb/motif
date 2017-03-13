@@ -58,6 +58,8 @@ let initialState = Immutable.fromJS({
     rendererWidth: 350,
   },
 
+  isFullscreen: false,
+
   fileMetadata: {},
   componentMap: defaultComponentsMap,
   errorText: undefined
@@ -100,6 +102,8 @@ const SET_COMPONENTS_VIEW_WIDTH = 'SET_COMPONTS_VIEW_WIDTH';
 const SET_EDITOR_VIEW_WIDTH = 'SET_RENDERER_WIDTH';
 const SET_CURRENT_COMPONENT_ID = 'SET_CURRENT_COMPONENT_ID';
 
+const TOGGLE_FULLSCREEN = 'TOGGLE_FULLSCREEN';
+
 const SET_ERROR_TEXT = 'SET_ERROR_TEXT';
 
 function writeSiteFile(dirname, state, cb) {
@@ -119,6 +123,12 @@ export const actions = Object.assign({
     return {
       type: SET_CURRENT_COMPONENT_ID,
       id
+    }
+  },
+
+  toggleFullscreen() {
+    return {
+      type: TOGGLE_FULLSCREEN
     }
   },
 
@@ -424,6 +434,10 @@ const reducerObj = Object.assign({
         return currentPage.set(action.key, action.newValue);
       }
     );
+  },
+
+  [TOGGLE_FULLSCREEN](state) {
+    return state.update('isFullscreen', isFullscreen => !isFullscreen);
   },
 
   [OPEN_MENU](state, action) {

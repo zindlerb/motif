@@ -9,30 +9,9 @@ import ViewChoiceDropdown from '../components/ViewChoiceDropdown';
 import FormLabel from '../components/forms/FormLabel';
 import SimplePopupSelectDropdown from '../components/SimplePopupSelectDropdown';
 import PopupSelect from '../components/PopupSelect';
+import FullscreenButton from '../components/FullscreenButton';
 
-const ComponentsDropdown = React.createClass({
-  render() {
-    const {
-      currentComponentId,
-      componentsList,
-      actions
-    } = this.props;
 
-    return (
-      <FormLabel className="mh2" name="Component">
-        <PopupSelect
-            value={currentComponentId}
-            className="f6 pv1">
-          <SimplePopupSelectDropdown
-              items={componentsList}
-              activeValue={currentComponentId}
-              onClick={value => actions.setCurrentComponentId(value)}
-          />
-        </PopupSelect>
-      </FormLabel>
-    );
-  }
-});
 
 const ComponentViewRenderer = React.createClass({
   render() {
@@ -44,29 +23,25 @@ const ComponentViewRenderer = React.createClass({
       hoveredComponentId,
       activeComponentId,
       rendererWidth,
+      isFullscreen,
+      currentComponentName,
       actions
     } = this.props;
 
     return (
-      <div className="flex-auto flex flex-column h-100 mh4 relative">
-        <ViewChoiceDropdown
-            mainView={currentMainView}
-            actions={actions}
-        />
-        <ComponentsDropdown
-            componentsList={componentsList}
-            currentComponentId={currentComponentId}
-            actions={actions}
-        />
-        <StaticRenderer
-            actions={actions}
-            renderTree={renderTree}
-            hoveredComponentId={hoveredComponentId}
-            activeComponentId={activeComponentId}
-            setRendererWidth={actions.setComponentsViewWidth}
-            width={rendererWidth}
-        />
-      </div>
+      <StaticRenderer
+          actions={actions}
+          renderTree={renderTree}
+          hoveredComponentId={hoveredComponentId}
+          isFullscreen={isFullscreen}
+          activeComponentId={activeComponentId}
+          setRendererWidth={actions.setComponentsViewWidth}
+          currentMainView={currentMainView}
+          componentsList={componentsList}
+          currentComponentName={currentComponentName}
+          currentComponentId={currentComponentId}
+          width={rendererWidth}
+      />
     );
   }
 });
@@ -99,20 +74,28 @@ const componentViewRendererSelector = createImmutableJSSelector(
     componentTreeMetadataSelector,
     state => state.get('componentsView'),
     state => state.get('componentsMap'),
-    state => state.get('currentMainView')
+    state => state.get('currentMainView'),
+    state => state.get('isFullscreen'),
   ],
-  (componentsList, componentTreeMetadata, componentsView, componentsMap, currentMainView) => {
-    return Object.assign({
-      componentsList,
-      rendererWidth: componentsView.get('rendererWidth'),
-      currentComponentId: componentsView.get('currentComponentId'),
-      renderTree: ComponentsContainer.getRenderTree(
-        componentsMap,
-        componentsView.get('currentComponentId')
-      ),
-      currentMainView
-    }, componentTreeMetadata);
-  }
+  (componentsList, componentTreeMetadata, componentsView,
+   componentsMap, currentMainView, isFullscreen) => {
+     const currentComponentId = componentsView.get('currentComponentId');
+     return Object.assign({
+       componentsList,
+       rendererWidth: componentsView.get('rendererWidth'),
+       currentComponentId,
+       currentComponentName: ComponentsContainer.getName(
+         componentsMap,
+         currentComponentId
+       ),
+       renderTree: ComponentsContainer.getRenderTree(
+         componentsMap,
+         componentsView.get('currentComponentId')
+       ),
+       currentMainView,
+       isFullscreen
+     }, componentTreeMetadata);
+   }
 );
 
 export default connect(componentViewRendererSelector)(ComponentViewRenderer);

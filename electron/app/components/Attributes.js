@@ -120,6 +120,14 @@ const allFields = {
   borderRadius: {
     fieldType: NUMBER
   },
+  verticalAlign: {
+    fieldType: DROPDOWN,
+    choices: [
+      'top',
+      'middle',
+      'bottom'
+    ]
+  },
   borderStyle: {
     fieldType: DROPDOWN,
     choices: [
@@ -237,6 +245,7 @@ const textFields = [
 ];
 
 const defaultFields = [
+  allFields.verticalAlign,
   allFields.opacity,
   allFields.display,
   allFields.position,
