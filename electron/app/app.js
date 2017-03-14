@@ -51,9 +51,9 @@ const StartPopup = React.createClass({
               <h2 className="f3">
                 Welcome to Motif!
               </h2>
-              <p className="mv3">
-                Motif is a prototype of an editor for making static websites.
-                I am no longer working on this project but you are welcome to look around. If you think this work is interesting and are hiring I would love to talk. Shoot me an email at <span className="b">zindlerb@gmail.com</span>
+              <p className="mv3 lh-copy">
+                Motif is an editor prototype for making static websites.
+                I am no longer working on this project but you are welcome to look around. If you think this work is interesting and your company is hiring I would love to talk. Shoot me an email at <span className="b">zindlerb@gmail.com</span>.
               </p>
             </div>
           </div>
