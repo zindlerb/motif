@@ -1,7 +1,7 @@
 import React from 'react';
-import _ from 'lodash';
 import { connect } from 'react-redux';
 import { remote } from 'electron';
+import path from 'path';
 
 import { createImmutableJSSelector } from '../utils';
 import ViewChoiceDropdown from '../components/ViewChoiceDropdown';
@@ -122,15 +122,26 @@ const AssetsView = React.createClass({
   }
 });
 
+
 const assetsSelector = createImmutableJSSelector(
   [
+    state => state.getIn(['fileMetadata', 'dirname']),
     state => state.get('assets'),
     state => state.get('currentMainView')
   ],
-  (assets, currentMainView) => {
+  (dirname, assets, currentMainView) => {
+    const assetsJS = []
+    assets.forEach((asset) => {
+      assetsJS.push({
+        src: path.join(dirname, 'assets', asset.get('src')),
+        name: asset.get('name'),
+        id: asset.get('id')
+      });
+    });
+
     return {
       currentMainView,
-      assets: _.toArray(assets.toJS())
+      assets: assetsJS
     }
   }
 );

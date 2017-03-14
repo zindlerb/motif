@@ -40,7 +40,8 @@ export function createComponentData(componentType, spec) {
     id: spec.id || guid(),
     states: spec.states || {},
     breakpoints: spec.breakpoints || {},
-    isSynced: true
+    isSynced: true,
+    isDefaultComponent: spec.isDefaultComponent || false
   });
 }
 
@@ -64,7 +65,7 @@ export const container = createComponentData(CONTAINER, {
   name: 'Container',
   id: CONTAINER,
   defaultAttributes: containerAttributes,
-  isDefaultComponent: true,
+  isDefaultComponent: true
 });
 
 export const text = createComponentData(TEXT, {
@@ -74,7 +75,7 @@ export const text = createComponentData(TEXT, {
     text: 'Text. Text. Text. I am some text.',
     display: 'block'
   }),
-  isDefaultComponent: true,
+  isDefaultComponent: true
 });
 
 export const header = createComponentData(HEADER, {
@@ -84,18 +85,17 @@ export const header = createComponentData(HEADER, {
     display: 'block',
     text: 'I am a header'
   }),
-  isDefaultComponent: true,
+  isDefaultComponent: true
 });
 
 export const image = createComponentData(IMAGE, {
   name: 'Image',
-
   id: IMAGE,
   defaultAttributes: Object.assign({}, defaultAttributes, {
     src: '',
     display: 'inline',
   }),
-  isDefaultComponent: true,
+  isDefaultComponent: true
 });
 
 export const link = createComponentData(LINK, {
@@ -107,7 +107,7 @@ export const link = createComponentData(LINK, {
     href: '',
     text: 'I am a link'
   }),
-  isDefaultComponent: true,
+  isDefaultComponent: true
 });
 
 export const defaultComponentsMap = Immutable.Map({

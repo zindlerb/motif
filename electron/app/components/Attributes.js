@@ -4,14 +4,10 @@ import _ from 'lodash';
 import AttributeField from '../components/AttributeField';
 import DivToBottom from '../components/DivToBottom';
 import CartoonButton from '../components/CartoonButton';
-import Dropdown from '../components/forms/Dropdown';
 import TextField from '../components/forms/TextField';
 import {
   fieldTypes,
   componentTypes,
-  NONE,
-  stateTypes,
-  breakpointTypes
 } from '../constants';
 
 const {
@@ -45,7 +41,7 @@ const widthScale = scale.slice(2).map((value, ind) => {
 });
 
 const allFields = {
-  position: { key: 'position', fieldType: DROPDOWN, choices: ['static', 'absolute'] },
+  position: { key: 'position', fieldType: DROPDOWN, choices: ['static'] },
   margin: {
     fieldType: NUMBER,
     autoCompleteItems: spacingScale
@@ -322,8 +318,6 @@ const Attributes = React.createClass({
       componentType,
       attributes,
       componentId,
-      componentState,
-      componentBreakpoint,
       isDefaultComponent,
       isSynced,
       isRoot,
@@ -388,6 +382,34 @@ const Attributes = React.createClass({
         );
       }
 
+/*
+   State and breakpoint dropdowns
+
+   <span className="mb2 dib">State:</span>
+   <Dropdown
+   className="state-dropdown fr"
+   choices={[
+   { text: 'None', value: NONE },
+   { text: 'Hover', value: stateTypes.HOVER }
+   ]}
+   onChange={(val) => {
+   actions.setActiveComponentState(val);
+   }}
+   value={componentState} />
+   <span className="dib">Breakpoint:</span>
+   <Dropdown
+   className="state-dropdown fr"
+   choices={[
+   { text: 'None', value: NONE },
+   { text: 'Medium (30em - 60em)', value: breakpointTypes.MEDIUM },
+   { text: 'Large (> 60em)', value: breakpointTypes.LARGE }
+   ]}
+   onChange={(val) => {
+   actions.setActiveComponentBreakpoint(val);
+   }}
+   value={componentBreakpoint} />
+*/
+
       body = (
         <div className="ph2">
           <div className="mb3 mt2">
@@ -395,29 +417,6 @@ const Attributes = React.createClass({
               { masterName }
             </div>
             { buttons }
-            <span className="mb2 dib">State:</span>
-            <Dropdown
-                className="state-dropdown fr"
-                choices={[
-                  { text: 'None', value: NONE },
-                  { text: 'Hover', value: stateTypes.HOVER }
-                ]}
-                onChange={(val) => {
-                    actions.setActiveComponentState(val);
-                  }}
-                value={componentState} />
-            <span className="dib">Breakpoint:</span>
-            <Dropdown
-                className="state-dropdown fr"
-                choices={[
-                  { text: 'None', value: NONE },
-                  { text: 'Medium (30em - 60em)', value: breakpointTypes.MEDIUM },
-                  { text: 'Large (> 60em)', value: breakpointTypes.LARGE }
-                ]}
-                onChange={(val) => {
-                    actions.setActiveComponentBreakpoint(val);
-                  }}
-                value={componentBreakpoint} />
           </div>
           {attributeFields}
         </div>

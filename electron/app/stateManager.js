@@ -190,13 +190,12 @@ export const actions = Object.assign({
   deleteAsset(assetId) {
     return (dispatch, getState) => {
       const assetPath = getState().getIn(['assets', assetId, 'src']);
-      fs.unlink(assetPath, (err) => {
-        if (!err) {
-          dispatch({
-            type: DELETE_ASSET,
-            assetId
-          })
-        }
+      fs.unlink(assetPath, () => {
+        dispatch({
+          type: DELETE_ASSET,
+          assetId,
+          _noUndo: true
+        });
       })
     }
   },
@@ -243,7 +242,7 @@ export const actions = Object.assign({
     }
 
     return function (dispatch, getState) {
-      dispatch({ type: SITE_SAVE_ATTEMPT });
+      dispatch({ type: SITE_SAVE_ATTEMPT, _noUndo: true });
 
       if (!dirname) {
         dirname = getState().getIn(['fileMetadata', 'dirname']);
@@ -269,14 +268,15 @@ export const actions = Object.assign({
 
   loadSite(dirname) {
     return (dispatch) => {
-      dispatch({ type: SITE_LOAD_ATTEMPT });
+      dispatch({ type: SITE_LOAD_ATTEMPT, _noUndo: true });
 
       const siteJsonPath = path.join(dirname, 'site.json');
       fs.access(siteJsonPath, (err) => {
         if (err && err.code === 'ENOENT') {
           dispatch({
             type: SET_ERROR_TEXT,
-            newText: 'Invalid File Type'
+            newText: 'Invalid File Type',
+            _noUndo: true
           });
         } else {
           return fs.readFile(siteJsonPath, 'utf8', (err, fileStr) => {
@@ -368,7 +368,7 @@ export const actions = Object.assign({
             if (!err) {
               dispatch({
                 type: ADD_ASSET,
-                assetPath,
+                assetPath: path.basename(filename),
                 _noUndo: true
               })
             }
@@ -377,7 +377,8 @@ export const actions = Object.assign({
       } else {
         dispatch({
           type: SET_ERROR_TEXT,
-          newText: 'INVALID FILE TYPE'
+          newText: 'INVALID FILE TYPE',
+          _noUndo: true
         });
       }
     }
@@ -659,16 +660,31 @@ function reducer(state, action) {
   return state;
 }
 
-export function getNewStore() {
+export function getNewStore(shouldLoadFile) {
   const store = createStore(
     reducer,
     initialState,
     applyMiddleware(thunk)
   );
 
-  store.dispatch(actions.addPage());
+  if (shouldLoadFile) {
+    fs.readFile('public/start_file/site.json', 'utf8', (err, fileStr) => {
+      if (err) {
+        console.log(err);
+        store.dispatch(actions.addPage());
+      } else {
+        store.dispatch({
+          type: SITE_LOAD_SUCCESS,
+          fileStr,
+          // Will be set in opening popup
+          undefined,
+          _noUndo: true
+        });
+      }
+    });
+  }
 
   return store;
 }
 
-export const store = getNewStore();
+export const store = getNewStore(true);

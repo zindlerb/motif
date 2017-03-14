@@ -29,6 +29,40 @@ import {
 
 const { Menu } = remote;
 
+const StartPopup = React.createClass({
+  getInitialState() {
+    return {
+      isClosed: false
+    }
+  },
+  render() {
+    if (this.state.isClosed) {
+      return <div />;
+    } else {
+      return (
+        <div className="dark-background">
+          <div className="modal-card">
+            <i
+                className="fa fa-times absolute clickable"
+                onClick={() => this.setState({ isClosed: true })}
+                style={{ top: 10, right: 20, fontSize: '1.5rem' }}
+            />
+            <div className="ph4">
+              <h2 className="f3">
+                Welcome to Motif!
+              </h2>
+              <p className="mv3">
+                Motif is a prototype of an editor for making static websites.
+                I am no longer working on this project but you are welcome to look around.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  }
+});
+
 const App = React.createClass({
   componentDidMount() {
     const { actions } = this.props;
@@ -162,6 +196,7 @@ const App = React.createClass({
         <ErrorBanner errorText={errorText} actions={actions} />
         { view }
         <ComponentMenu actions={actions} />
+        <StartPopup />
       </div>
     );
   },

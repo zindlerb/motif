@@ -195,7 +195,8 @@ const StaticRenderer = React.createClass({
       currentComponentName,
       componentsList,
       isFullscreen,
-      isFullscreenLocked
+      isFullscreenLocked,
+      isCurrentComponentDefault
     } = this.props;
     let renderer, middleDropdown;
 
@@ -218,12 +219,15 @@ const StaticRenderer = React.createClass({
       middleDropdown = <PagesDropdown className="mh2" actions={actions} />;
     } else if (currentMainView === mainViewTypes.COMPONENTS) {
       middleDropdown = (
-        <ComponentsDropdown
-            componentsList={componentsList}
-            currentComponentName={currentComponentName}
-            currentComponentId={currentComponentId}
-            actions={actions}
-        />
+        <div className="flex items-center">
+          <ComponentsDropdown
+              componentsList={componentsList}
+              currentComponentName={currentComponentName}
+              isDefaultComponent={isCurrentComponentDefault}
+              currentComponentId={currentComponentId}
+              actions={actions}
+          />
+        </div>
       );
     }
 

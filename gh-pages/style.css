@@ -1,3 +1,7 @@
+html {
+  background-color: #f9f9f9;
+}
+
 body {
   font-family: 'Fira Sans', sans-serif;
 }
@@ -31,13 +35,13 @@ a:hover {
 }
 
 .image-container {
-  max-width: 400px;
-  max-height: 266px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 2px 2px 5px #888888;
+  border-radius: 3px;
 }
 
-.screenshot {
-  box-shadow: 2px 2px 5px #888888;
-}
+
 
 .bullets {
   padding-left: 32px;
@@ -46,4 +50,15 @@ a:hover {
 .fa-github {
   font-size: 24px;
   color: black;
+}
+
+.blurb-container {
+  text-align: center;
+  margin: 1.2rem;
+}
+
+.blurb-outer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }

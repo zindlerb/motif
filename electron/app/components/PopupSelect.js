@@ -42,16 +42,19 @@ const PopupSelect = React.createClass({
       <div className="popup-select">
         <div
             ref={(ref) => { this.el = ref }}
-            className={classnames(this.props.className, 'dib clickable')}
+            className={classnames(this.props.className, 'dib')}
             onClick={() => this.setState({ isOpen: true })}
         >
-          <span
-              className={classnames({ unselected: !this.props.value })}>
-            {toTitleCase(displayText)}
-          </span>
-          <img
-              className="icon-small dib ph1"
-              src="public/img/assets/down-triangle.svg" />
+          <div className="clickable dib">
+            <span
+                className={classnames({ unselected: !this.props.value })}>
+              {toTitleCase(displayText)}
+            </span>
+            <img
+                className="icon-small dib ph1"
+                src="public/img/assets/down-triangle.svg" />
+          </div>
+          { this.props.inlineAction }
         </div>
         {popup}
       </div>

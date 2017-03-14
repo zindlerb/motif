@@ -14,6 +14,7 @@ const CHANGE_COMPONENT_NAME = 'CHANGE_COMPONENT_NAME';
 const CREATE_COMPONENT_BLOCK = 'CREATE_COMPONENT_BLOCK';
 const SET_COMPONENT_ATTRIBUTE = 'SET_COMPONENT_ATTRIBUTE';
 const SYNC_COMPONENT = 'SYNC_COMPONENT';
+const DELETE_CURRENT_COMPONENT_BOX = 'DELETE_CURRENT_COMPONENT_BOX';
 
 export const componentTreeActions = {
   moveComponent(componentId, parentComponentId, insertionIndex) {
@@ -29,6 +30,12 @@ export const componentTreeActions = {
     return {
       type: SYNC_COMPONENT,
       componentId
+    }
+  },
+
+  deleteCurrentComponentBox() {
+    return {
+      type: DELETE_CURRENT_COMPONENT_BOX
     }
   },
 
@@ -165,6 +172,19 @@ export const componentTreeReducer = {
         action.newName
       );
     }
+  },
+
+  [DELETE_CURRENT_COMPONENT_BOX](state) {
+    return state.set('componentsMap', ComponentsContainer.deleteComponent(
+      state.get('componentsMap'),
+      state.getIn(['componentsView', 'currentComponentId'])
+    )).update((state) => {
+      return state.update('yourComponentBoxes', (yourComponentBoxes) => {
+        return yourComponentBoxes.filter((id) => {
+          return state.getIn(['componentsMap', id]);
+        });
+      });
+    }).set('currentComponentId', state.getIn(['ourComponentBoxes', 0]));
   },
 
   [CREATE_COMPONENT_BLOCK](state, action) {

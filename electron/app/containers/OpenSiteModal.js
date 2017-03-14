@@ -44,10 +44,10 @@ const OpenSiteModal = React.createClass({
       return (
         <div className="dark-background">
           <div className="modal-card">
-            <h1 className="tc f1 mt0">Sites</h1>
+            <h1 className="tc f1 mt0">Motif</h1>
             <div className="tc">
               <CartoonButton
-                  text="New"
+                  text="New Site"
                   onClick={() => saveSiteAsDialog(this.props.actions)}
                   size="medium"
               />
